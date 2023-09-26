@@ -1,0 +1,72 @@
+[
+    {
+        "recordID": 3,
+        "items": [
+            {
+                "item_id": 7,
+                "quantity": 4
+            },
+            {
+                "item_id": 8,
+                "quantity": 3
+            },
+            {
+                "item_id": 9,
+                "quantity": 8
+            },
+            {
+                "item_id": 1,
+                "quantity": 5
+            },
+            {
+                "item_id": 2,
+                "quantity": 2
+            },
+            {
+                "item_id": 3,
+                "quantity": 10
+            }
+        ],
+        "time": "04/10/2023"
+    },
+    {
+        "recordID": 2,
+        "items": [
+            {
+                "item_id": 4,
+                "quantity": 6
+            },
+            {
+                "item_id": 3,
+                "quantity": 10
+            },
+            {
+                "item_id": 1,
+                "quantity": 6
+            }
+        ],
+        "time": "03/17/2023"
+    },
+    {
+        "recordID": 1,
+        "items": [
+            {
+                "item_id": 2,
+                "quantity": 3
+            },
+            {
+                "item_id": 5,
+                "quantity": 14
+            },
+            {
+                "item_id": 6,
+                "quantity": 10
+            },
+            {
+                "item_id": 8,
+                "quantity": 4
+            }
+        ],
+        "time": "03/15/2023"
+    }
+]

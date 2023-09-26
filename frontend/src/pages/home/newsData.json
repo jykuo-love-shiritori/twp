@@ -1,0 +1,29 @@
+[
+    {
+        "id": 3,
+        "imgUrl": "/images/news1.png",
+        "title": "Enjoy More with Our Buy 3, Get 1 Free Deal!",
+        "newUrl": "/news/1",
+        "date": "04/14/2023",
+        "subTitle": "🎉🍰 Indulge and Save: Buy Three Treats, Get One Free! 🍩🎉",
+        "content": "Treat yourself to a dessert extravaganza with our exciting new promotion! For a limited time, when you purchase any three delectable treats from our menu, we'll add a fourth one for free. It's the perfect opportunity to explore your favorite desserts or try something new, all while enjoying amazing savings. Visit us today and elevate your dessert experience!"
+    },
+    {
+        "id": 2,
+        "imgUrl": "/images/news2.png",
+        "title": "Try Our Fresh New Drink!",
+        "newUrl": "/news/2",
+        "date": "03/25/2023",
+        "subTitle": "🌟🥤 New Drink Alert: Discover the Taste of Summer! 🍓🍹🌞",
+        "content": "We're thrilled to introduce our latest creation that promises to quench your thirst and delight your taste buds. Say hello to our brand-new, refreshing drink bursting with the flavors of summer. Blending the sweetness of ripe strawberries and a medley of fresh fruits, this drink is the perfect companion for warm days and delightful moments. Stop by and treat yourself to a sip of the season!"
+    },
+    {
+        "id": 1,
+        "imgUrl": "/images/news3.png",
+        "title": "Exciting Collab Coming Soon!",
+        "newUrl": "/news/3",
+        "date": "03/19/2023",
+        "subTitle": "🤝🍰 A Sweet Partnership: Coming Soon - [Your Dessert Shop Name] x [Other Brand Name]! 🍪🎉",
+        "content": "Get ready for a treat that's twice as sweet! We're thrilled to announce our upcoming collaboration with [Other Brand Name], a renowned name in [Their Industry]. Together, we're crafting a culinary experience that merges the best of both worlds. Stay tuned for the exciting details of this unique partnership, where delectable desserts and [Their Unique Products/Services] come together to create something truly extraordinary. Don't miss out - follow us for updates and be part of this delicious journey!"
+    }
+]
