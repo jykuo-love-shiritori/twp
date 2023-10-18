@@ -16,7 +16,8 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.Group("/", middleware.Static("frontend/dist"))
+	e.Use(middleware.Static("frontend/dist"))
+
 	pkg.RouterHandler(e.Group("/api"))
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
