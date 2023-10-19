@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/jykuo-love-shiritori/twp/pkg"
+	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,7 +16,7 @@ func main() {
 
 	RegisterFrontend(e)
 
-	pkg.RegisterApi(e)
+	router.RegisterApi(e)
 
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
