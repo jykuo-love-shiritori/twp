@@ -22,3 +22,6 @@ go.work
 
 # vs code things
 .vscode/
+
+*.env
+!.example.env
