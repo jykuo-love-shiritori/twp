@@ -17,6 +17,7 @@ func main() {
 	RegisterFrontend(e)
 
 	router.RegisterApi(e)
+	router.RegisterDocs(e)
 
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
