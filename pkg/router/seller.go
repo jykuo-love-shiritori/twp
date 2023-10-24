@@ -6,10 +6,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Summary: Seller Get Shop Info
+// Description: Get shop info, includes user picture, name,shop description, products data
+// Tags: Seller
+// Produce: json
+// Success: 200
+// Failure: 401
+// Router: /seller [get]
 func sellerGetShopInfo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Summary: Seller Edit Shop Info
+// Description: Edit shop info, includes shop description, products data
 func sellerEditInfo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }

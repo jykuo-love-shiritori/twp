@@ -2,12 +2,39 @@ package router
 
 import (
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
+
+	_ "github.com/jykuo-love-shiritori/twp/docs"
 )
 
+// @title           twp API
+// @version         0.o
+// @description     twp server api.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
+
+func RegisterDocs(e *echo.Echo) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+}
 func RegisterApi(e *echo.Echo) {
+
 	api := e.Group("/api")
-	api.POST("/login", login)
-	api.POST("/signup", signup)
+
 	api.POST("/logout", logout)
 
 	// admin
