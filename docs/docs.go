@@ -24,6 +24,488 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/coupon": {
+            "get": {
+                "description": "Get all coupons (include shops).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Coupon",
+                    "Shop"
+                ],
+                "summary": "Admin Get Coupon",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Add global coupon.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Coupon"
+                ],
+                "summary": "Admin Add Coupon",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/admin/coupon/{id}": {
+            "get": {
+                "description": "Get coupon details.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Coupon",
+                    "Shop"
+                ],
+                "summary": "Admin Get Coupon Detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon (include shops').",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Coupon"
+                ],
+                "summary": "Admin Delete Coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit global coupon.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Coupon"
+                ],
+                "summary": "Admin Edit Coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/admin/report": {
+            "get": {
+                "description": "Get site report.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "Report"
+                ],
+                "summary": "Admin Get Site Report",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/admin/user": {
+            "get": {
+                "description": "Get all user information. Include user's icon, name, email, created time and role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "User"
+                ],
+                "summary": "Admin Get User",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/admin/user/{id}": {
+            "delete": {
+                "description": "Delete user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin",
+                    "User"
+                ],
+                "summary": "Admin Delete User",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/cart": {
+            "get": {
+                "description": "Get all products and coupons in cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart"
+                ],
+                "summary": "Buyer Get Cart",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/cart/coupon/{id}": {
+            "post": {
+                "description": "Add coupon to cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart",
+                    "Coupon"
+                ],
+                "summary": "Buyer Add Coupon To Cart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon from cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart",
+                    "Coupon"
+                ],
+                "summary": "Buyer Delete Coupon From Cart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/cart/product/{id}": {
+            "post": {
+                "description": "Add product to cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart"
+                ],
+                "summary": "Buyer Add Product To Cart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete product from cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart"
+                ],
+                "summary": "Buyer Delete Product From Cart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit product quantity in cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart"
+                ],
+                "summary": "Buyer Edit Product In Cart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/checkout": {
+            "get": {
+                "description": "Get all checkout data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Get Checkout",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Checkout",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/order": {
+            "get": {
+                "description": "Get all order history of the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Order"
+                ],
+                "summary": "Buyer Get Order History",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/order/{id}": {
+            "get": {
+                "description": "Get specific order detail",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Order"
+                ],
+                "summary": "Buyer Get Order Detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/discover": {
             "get": {
                 "description": "Get discover content",
@@ -34,8 +516,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "discover",
-                    "product"
+                    "Discover",
+                    "Product"
                 ],
                 "summary": "Get Discover",
                 "responses": {
@@ -78,7 +560,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "news"
+                    "News"
                 ],
                 "summary": "Get News",
                 "responses": {
@@ -101,7 +583,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "news"
+                    "News"
                 ],
                 "summary": "Get News Detail",
                 "parameters": [
@@ -133,7 +615,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "product"
+                    "Product"
                 ],
                 "summary": "Get Product Info",
                 "parameters": [
@@ -165,7 +647,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "search"
+                    "Search"
                 ],
                 "summary": "Search for Products and Shops",
                 "parameters": [
@@ -197,19 +679,447 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "search",
-                    "shop"
+                    "Search",
+                    "Shop"
                 ],
                 "summary": "Search for Shops by Name",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search name",
+                        "description": "Search Name",
                         "name": "q",
                         "in": "query",
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller": {
+            "get": {
+                "description": "Get shop info, includes user picture, name, description.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop"
+                ],
+                "summary": "Seller get shop info",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit shop name, description, visibility.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop"
+                ],
+                "summary": "Seller edit shop info",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/coupon": {
+            "get": {
+                "description": "Get all coupons for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller get shop coupon",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Add coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller add coupon",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/coupon/{id}": {
+            "get": {
+                "description": "Get coupon detail by ID for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller get coupon detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller edit coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/order": {
+            "get": {
+                "description": "Get all orders for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller get order",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/order/{id}": {
+            "get": {
+                "description": "Get order detail by ID for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller get order detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/product": {
+            "post": {
+                "description": "Add product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller add product",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/product/{id}": {
+            "delete": {
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller delete product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller edit product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/product/{id}/upload": {
+            "post": {
+                "description": "Upload product image for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller upload product image",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/report": {
+            "get": {
+                "description": "Get all avaliable reports for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Report"
+                ],
+                "summary": "Seller get report",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/report/{year}/{month}": {
+            "get": {
+                "description": "Get report detail by year and month for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Report"
+                ],
+                "summary": "Seller get report detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Year",
+                        "name": "year",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Month",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/seller/tag": {
+            "get": {
+                "description": "Get all avaliable tags for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Tag"
+                ],
+                "summary": "Seller get avaliable tag",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Add tag for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Tag"
+                ],
+                "summary": "Seller add tag",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -230,7 +1140,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "shop"
+                    "Shop"
                 ],
                 "summary": "Get Shop Info",
                 "parameters": [
@@ -262,8 +1172,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "shop",
-                    "coupon"
+                    "Shop",
+                    "Coupon"
                 ],
                 "summary": "Get Shop Coupons",
                 "parameters": [
@@ -295,9 +1205,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "shop",
-                    "product",
-                    "search"
+                    "Shop",
+                    "Product",
+                    "Search"
                 ],
                 "summary": "Search Shop Products",
                 "parameters": [
@@ -336,7 +1246,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tag"
+                    "Tag"
                 ],
                 "summary": "Get Tag Info",
                 "parameters": [
@@ -576,7 +1486,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.o",
 	Host:             "localhost:8080",
-	BasePath:         "/",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "twp API",
 	Description:      "twp server api.",

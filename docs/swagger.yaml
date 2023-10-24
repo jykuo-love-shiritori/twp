@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -16,6 +16,332 @@ info:
   title: twp API
   version: 0.o
 paths:
+  /admin/coupon:
+    get:
+      description: Get all coupons (include shops).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Get Coupon
+      tags:
+      - Admin
+      - Coupon
+      - Shop
+    post:
+      consumes:
+      - application/json
+      description: Add global coupon.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Add Coupon
+      tags:
+      - Admin
+      - Coupon
+  /admin/coupon/{id}:
+    delete:
+      description: Delete coupon (include shops').
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Delete Coupon
+      tags:
+      - Admin
+      - Coupon
+    get:
+      description: Get coupon details.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Get Coupon Detail
+      tags:
+      - Admin
+      - Coupon
+      - Shop
+    patch:
+      consumes:
+      - application/json
+      description: Edit global coupon.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Edit Coupon
+      tags:
+      - Admin
+      - Coupon
+  /admin/report:
+    get:
+      description: Get site report.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Get Site Report
+      tags:
+      - Admin
+      - Report
+  /admin/user:
+    get:
+      description: Get all user information. Include user's icon, name, email, created
+        time and role.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Get User
+      tags:
+      - Admin
+      - User
+  /admin/user/{id}:
+    delete:
+      description: Delete user.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Admin Delete User
+      tags:
+      - Admin
+      - User
+  /buyer/cart:
+    get:
+      description: Get all products and coupons in cart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Get Cart
+      tags:
+      - Buyer
+      - Cart
+  /buyer/cart/coupon/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon from cart
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Delete Coupon From Cart
+      tags:
+      - Buyer
+      - Cart
+      - Coupon
+    post:
+      consumes:
+      - application/json
+      description: Add coupon to cart
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Add Coupon To Cart
+      tags:
+      - Buyer
+      - Cart
+      - Coupon
+  /buyer/cart/product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product from cart
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Delete Product From Cart
+      tags:
+      - Buyer
+      - Cart
+    patch:
+      consumes:
+      - application/json
+      description: Edit product quantity in cart
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Edit Product In Cart
+      tags:
+      - Buyer
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Add product to cart
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Add Product To Cart
+      tags:
+      - Buyer
+      - Cart
+  /buyer/checkout:
+    get:
+      description: Get all checkout data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Get Checkout
+      tags:
+      - Buyer
+      - Checkout
+    post:
+      consumes:
+      - application/json
+      description: Checkout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Checkout
+      tags:
+      - Buyer
+      - Checkout
+  /buyer/order:
+    get:
+      description: Get all order history of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Get Order History
+      tags:
+      - Buyer
+      - Order
+  /buyer/order/{id}:
+    get:
+      description: Get specific order detail
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Get Order Detail
+      tags:
+      - Buyer
+      - Order
   /discover:
     get:
       consumes:
@@ -30,8 +356,8 @@ paths:
           description: Unauthorized
       summary: Get Discover
       tags:
-      - discover
-      - product
+      - Discover
+      - Product
   /logout:
     post:
       description: Logout the current user
@@ -59,7 +385,7 @@ paths:
           description: Unauthorized
       summary: Get News
       tags:
-      - news
+      - News
   /news/{id}:
     get:
       consumes:
@@ -80,7 +406,7 @@ paths:
           description: Unauthorized
       summary: Get News Detail
       tags:
-      - news
+      - News
   /product/{id}:
     get:
       consumes:
@@ -101,7 +427,7 @@ paths:
           description: Unauthorized
       summary: Get Product Info
       tags:
-      - product
+      - Product
   /search:
     get:
       consumes:
@@ -122,14 +448,14 @@ paths:
           description: Unauthorized
       summary: Search for Products and Shops
       tags:
-      - search
+      - Search
   /search/shop:
     get:
       consumes:
       - application/json
       description: Search for shops by name
       parameters:
-      - description: search name
+      - description: Search Name
         in: query
         name: q
         required: true
@@ -143,8 +469,300 @@ paths:
           description: Unauthorized
       summary: Search for Shops by Name
       tags:
-      - search
-      - shop
+      - Search
+      - Shop
+  /seller:
+    get:
+      description: Get shop info, includes user picture, name, description.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get shop info
+      tags:
+      - Seller
+      - Shop
+    patch:
+      description: Edit shop name, description, visibility.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller edit shop info
+      tags:
+      - Seller
+      - Shop
+  /seller/coupon:
+    get:
+      description: Get all coupons for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get shop coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    post:
+      consumes:
+      - application/json
+      description: Add coupon for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller add coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+  /seller/coupon/{id}:
+    get:
+      description: Get coupon detail by ID for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get coupon detail
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    patch:
+      consumes:
+      - application/json
+      description: Edit coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller edit coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+  /seller/order:
+    get:
+      description: Get all orders for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get order
+      tags:
+      - Seller
+      - Shop
+      - Order
+  /seller/order/{id}:
+    get:
+      description: Get order detail by ID for shop.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get order detail
+      tags:
+      - Seller
+      - Shop
+      - Order
+  /seller/product:
+    post:
+      consumes:
+      - application/json
+      description: Add product for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller add product
+      tags:
+      - Seller
+      - Shop
+      - Product
+  /seller/product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller delete product
+      tags:
+      - Seller
+      - Shop
+      - Product
+    patch:
+      consumes:
+      - application/json
+      description: Edit product for shop.
+      parameters:
+      - description: Product ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller edit product
+      tags:
+      - Seller
+      - Shop
+      - Product
+  /seller/product/{id}/upload:
+    post:
+      description: Upload product image for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller upload product image
+      tags:
+      - Seller
+      - Shop
+      - Product
+  /seller/report:
+    get:
+      description: Get all avaliable reports for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get report
+      tags:
+      - Seller
+      - Shop
+      - Report
+  /seller/report/{year}/{month}:
+    get:
+      description: Get report detail by year and month for shop.
+      parameters:
+      - description: Year
+        in: path
+        name: year
+        required: true
+        type: integer
+      - description: Month
+        in: path
+        name: month
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get report detail
+      tags:
+      - Seller
+      - Shop
+      - Report
+  /seller/tag:
+    get:
+      description: Get all avaliable tags for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get avaliable tag
+      tags:
+      - Seller
+      - Shop
+      - Tag
+    post:
+      consumes:
+      - application/json
+      description: Add tag for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller add tag
+      tags:
+      - Seller
+      - Shop
+      - Tag
   /shop/{id}:
     get:
       consumes:
@@ -165,7 +783,7 @@ paths:
           description: Unauthorized
       summary: Get Shop Info
       tags:
-      - shop
+      - Shop
   /shop/{id}/coupon:
     get:
       consumes:
@@ -186,8 +804,8 @@ paths:
           description: Unauthorized
       summary: Get Shop Coupons
       tags:
-      - shop
-      - coupon
+      - Shop
+      - Coupon
   /shop/{id}/search:
     get:
       consumes:
@@ -213,9 +831,9 @@ paths:
           description: Unauthorized
       summary: Search Shop Products
       tags:
-      - shop
-      - product
-      - search
+      - Shop
+      - Product
+      - Search
   /tag/{id}:
     get:
       consumes:
@@ -236,7 +854,7 @@ paths:
           description: Unauthorized
       summary: Get Tag Info
       tags:
-      - tag
+      - Tag
   /user:
     get:
       consumes:

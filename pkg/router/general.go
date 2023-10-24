@@ -8,7 +8,7 @@ import (
 
 // @Summary Get Shop Info
 // @Description Get shop information with shop ID
-// @Tags shop
+// @Tags Shop
 // @Accept json
 // @Produce json
 // @Param id path int true "Shop ID"
@@ -21,7 +21,7 @@ func getShopInfo(c echo.Context) error {
 
 // @Summary Get Shop Coupons
 // @Description Get coupons for a shop with shop ID
-// @Tags shop,coupon
+// @Tags Shop,Coupon
 // @Accept json
 // @Produce json
 // @Param id path int true "Shop ID"
@@ -34,7 +34,7 @@ func getShopCoupon(c echo.Context) error {
 
 // @Summary Search Shop Products
 // @Description Search products within a shop by shop ID
-// @Tags shop,product,search
+// @Tags Shop,Product,Search
 // @Accept json
 // @Produce json
 // @Param id path int true "Shop ID"
@@ -48,7 +48,7 @@ func searchShopProduct(c echo.Context) error {
 
 // @Summary Get Tag Info
 // @Description Get information about a tag by tag ID
-// @Tags tag
+// @Tags Tag
 // @Accept json
 // @Produce json
 // @Param id path int true "Tag ID"
@@ -61,7 +61,7 @@ func getTagInfo(c echo.Context) error {
 
 // @Summary Search for Products and Shops
 // @Description Search for products and shops
-// @Tags search
+// @Tags Search
 // @Accept json
 // @Produce json
 // @Param q query string true "search word"
@@ -74,10 +74,10 @@ func search(c echo.Context) error {
 
 // @Summary Search for Shops by Name
 // @Description Search for shops by name
-// @Tags search,shop
+// @Tags Search,Shop
 // @Accept json
 // @Produce json
-// @Param q query string true "search name"
+// @Param q query string true "Search Name"
 // @Success 200 
 // @Failure 401 
 // @Router /search/shop [get]
@@ -87,7 +87,7 @@ func searchShopByName(c echo.Context) error {
 
 // @Summary Get News
 // @Description Get news
-// @Tags news
+// @Tags News
 // @Accept json
 // @Produce json
 // @Success 200 
@@ -99,7 +99,7 @@ func getNews(c echo.Context) error {
 
 // @Summary Get News Detail
 // @Description Get details of a specific news item by ID
-// @Tags news
+// @Tags News
 // @Accept json
 // @Produce json
 // @Param id path int true "News ID"
@@ -112,7 +112,7 @@ func getNewsDetail(c echo.Context) error {
 
 // @Summary Get Discover
 // @Description Get discover content
-// @Tags discover,product
+// @Tags Discover,Product
 // @Accept json
 // @Produce json
 // @Success 200 
@@ -124,7 +124,7 @@ func getDiscover(c echo.Context) error {
 
 // @Summary Get Product Info
 // @Description Get product information with product ID
-// @Tags product
+// @Tags Product
 // @Accept json
 // @Produce json
 // @Param id path int true "Product ID"
