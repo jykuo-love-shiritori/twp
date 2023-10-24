@@ -1,22 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "twp server api.",
-        "title": "twp API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "0.o"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/api",
     "paths": {
         "/admin/coupon": {
             "get": {
@@ -225,7 +211,7 @@
         },
         "/buyer/cart": {
             "get": {
-                "description": "Get all products and coupons in cart",
+                "description": "Get all Carts of the user",
                 "produces": [
                     "application/json"
                 ],
@@ -244,7 +230,68 @@
                 }
             }
         },
-        "/buyer/cart/coupon/{id}": {
+        "/buyer/cart/{cart_id}/checkout": {
+            "get": {
+                "description": "Get all checkout data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Get Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{cart_id}/coupon/{coupon_id}": {
             "post": {
                 "description": "Add coupon to cart",
                 "consumes": [
@@ -262,8 +309,15 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     }
@@ -294,8 +348,15 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     }
@@ -310,7 +371,7 @@
                 }
             }
         },
-        "/buyer/cart/product/{id}": {
+        "/buyer/cart/{cart_id}/product/{product_id}": {
             "post": {
                 "description": "Add product to cart",
                 "consumes": [
@@ -327,8 +388,15 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -358,8 +426,15 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -389,55 +464,19 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/buyer/checkout": {
-            "get": {
-                "description": "Get all checkout data",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Get Checkout",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            },
-            "post": {
-                "description": "Checkout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Checkout",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -990,6 +1029,11 @@
         "/seller/product/{id}/upload": {
             "post": {
                 "description": "Upload product image for shop.",
+                "consumes": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1005,6 +1049,13 @@
                         "description": "Product ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image to upload",
+                        "name": "img",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -1299,6 +1350,15 @@
                     "User"
                 ],
                 "summary": "User Upload Avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image to upload",
+                        "name": "img",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1463,14 +1523,5 @@
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
-        }
-    },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
     }
 }

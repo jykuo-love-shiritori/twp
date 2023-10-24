@@ -30,7 +30,7 @@ func buyerGetOrderDetail(c echo.Context) error {
 }
 
 // @Summary Buyer Get Cart
-// @Description Get all products and coupons in cart
+// @Description Get all Carts of the user
 // @Tags Buyer, Cart
 // @Produce json
 // @Success 200
@@ -45,10 +45,11 @@ func buyerGetCart(c echo.Context) error {
 // @Tags Buyer, Cart
 // @Accept json
 // @Produce json
-// @Param id path int true "Product ID"
+// @Param cart_id path int true "Cart ID"
+// @Param product_id path int true "Product ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/cart/product/{id} [patch]
+// @Router /buyer/cart/{cart_id}/product/{product_id} [patch]
 func buyerEditProductInCart(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -58,10 +59,11 @@ func buyerEditProductInCart(c echo.Context) error {
 // @Tags Buyer, Cart
 // @Accept json
 // @Produce json
-// @Param id path int true "Product ID"
+// @Param cart_id path int true "Cart ID"
+// @Param product_id path int true "Product ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/cart/product/{id} [post]
+// @Router /buyer/cart/{cart_id}/product/{product_id} [post]
 func buyerAddProductToCart(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -71,10 +73,11 @@ func buyerAddProductToCart(c echo.Context) error {
 // @Tags Buyer, Cart, Coupon
 // @Accept json
 // @Produce json
-// @Param id path int true "Coupon ID"
+// @Param cart_id path int true "Cart ID"
+// @Param coupon_id path int true "Coupon ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/cart/coupon/{id} [post]
+// @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [post]
 func buyerAddCouponToCart(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -84,10 +87,11 @@ func buyerAddCouponToCart(c echo.Context) error {
 // @Tags Buyer, Cart
 // @Accept json
 // @Produce json
-// @Param id path int true "Product ID"
+// @Param cart_id path int true "Cart ID"
+// @Param product_id path int true "Product ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/cart/product/{id} [delete]
+// @Router /buyer/cart/{cart_id}/product/{product_id} [delete]
 func buyerDeleteProductFromCart(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -97,10 +101,11 @@ func buyerDeleteProductFromCart(c echo.Context) error {
 // @Tags Buyer, Cart, Coupon
 // @Accept json
 // @Produce json
-// @Param id path int true "Coupon ID"
+// @Param cart_id path int true "Cart ID"
+// @Param coupon_id path int true "Coupon ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/cart/coupon/{id} [delete]
+// @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
 func buyerDeleteCouponFromCart(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -109,9 +114,10 @@ func buyerDeleteCouponFromCart(c echo.Context) error {
 // @Description Get all checkout data
 // @Tags Buyer, Checkout
 // @Produce json
+// @Param cart_id path int true "Cart ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/checkout [get]
+// @Router /buyer/cart/{cart_id}/checkout [get]
 func buyerGetCheckout(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
@@ -121,9 +127,10 @@ func buyerGetCheckout(c echo.Context) error {
 // @Tags Buyer, Checkout
 // @Accept json
 // @Produce json
+// @param cart_id path int true "Cart ID"
 // @Success 200
 // @Failure 401
-// @Router /buyer/checkout [post]
+// @Router /buyer/cart/{cart_id}/checkout [post]
 func buyerCheckout(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }

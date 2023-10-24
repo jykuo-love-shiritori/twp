@@ -172,8 +172,10 @@ func sellerAddProduct(c echo.Context) error {
 // @Summary Seller upload product image
 // @Description Upload product image for shop.
 // @Tags Seller, Shop, Product
+// @Accept png,jpeg,gif
 // @Produce json
 // @Param id path int true "Product ID"
+// @Param img formData file true "image to upload"
 // @Success 200
 // @Failure 401
 // @Router /seller/product/{id}/upload [post]

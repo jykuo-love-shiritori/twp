@@ -1,20 +1,5 @@
-basePath: /api
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
-host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: twp server api.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: twp API
-  version: 0.o
+  contact: {}
 paths:
   /admin/coupon:
     get:
@@ -157,7 +142,7 @@ paths:
       - User
   /buyer/cart:
     get:
-      description: Get all products and coupons in cart
+      description: Get all Carts of the user
       produces:
       - application/json
       responses:
@@ -169,15 +154,61 @@ paths:
       tags:
       - Buyer
       - Cart
-  /buyer/cart/coupon/{id}:
+  /buyer/cart/{cart_id}/checkout:
+    get:
+      description: Get all checkout data
+      parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Get Checkout
+      tags:
+      - Buyer
+      - Checkout
+    post:
+      consumes:
+      - application/json
+      description: Checkout
+      parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Buyer Checkout
+      tags:
+      - Buyer
+      - Checkout
+  /buyer/cart/{cart_id}/coupon/{coupon_id}:
     delete:
       consumes:
       - application/json
       description: Delete coupon from cart
       parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
       - description: Coupon ID
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: integer
       produces:
@@ -197,9 +228,14 @@ paths:
       - application/json
       description: Add coupon to cart
       parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
       - description: Coupon ID
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: integer
       produces:
@@ -214,15 +250,20 @@ paths:
       - Buyer
       - Cart
       - Coupon
-  /buyer/cart/product/{id}:
+  /buyer/cart/{cart_id}/product/{product_id}:
     delete:
       consumes:
       - application/json
       description: Delete product from cart
       parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       produces:
@@ -241,9 +282,14 @@ paths:
       - application/json
       description: Edit product quantity in cart
       parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       produces:
@@ -262,9 +308,14 @@ paths:
       - application/json
       description: Add product to cart
       parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       produces:
@@ -278,35 +329,6 @@ paths:
       tags:
       - Buyer
       - Cart
-  /buyer/checkout:
-    get:
-      description: Get all checkout data
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Get Checkout
-      tags:
-      - Buyer
-      - Checkout
-    post:
-      consumes:
-      - application/json
-      description: Checkout
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Checkout
-      tags:
-      - Buyer
-      - Checkout
   /buyer/order:
     get:
       description: Get all order history of the user
@@ -671,6 +693,10 @@ paths:
       - Product
   /seller/product/{id}/upload:
     post:
+      consumes:
+      - image/png
+      - image/jpeg
+      - image/gif
       description: Upload product image for shop.
       parameters:
       - description: Product ID
@@ -678,6 +704,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: image to upload
+        in: formData
+        name: img
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -876,6 +907,12 @@ paths:
       - image/jpeg
       - image/gif
       description: Upload user avatar
+      parameters:
+      - description: Image to upload
+        in: formData
+        name: img
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -987,7 +1024,4 @@ paths:
       summary: User Delete Credit Card
       tags:
       - CreditCard
-securityDefinitions:
-  BasicAuth:
-    type: basic
 swagger: "2.0"

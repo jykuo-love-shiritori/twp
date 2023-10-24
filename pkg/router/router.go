@@ -79,14 +79,14 @@ func RegisterApi(e *echo.Echo) {
 	api.GET("/buyer/order/:id", buyerGetOrderDetail)
 
 	api.GET("/buyer/cart", buyerGetCart) // include procuct and coupon
-	api.POST("/buyer/cart/product:id", buyerAddProductToCart)
-	api.POST("/buyer/cart/coupon:id", buyerAddCouponToCart)
-	api.PATCH("buyer/cart/product:id", buyerEditProductInCart)
-	api.DELETE("/buyer/cart/product:id", buyerDeleteProductFromCart)
-	api.DELETE("/buyer/cart/coupon:id", buyerDeleteCouponFromCart)
+	api.POST("/buyer/cart/:cart_id/product/:product_id", buyerAddProductToCart)
+	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart)
+	api.PATCH("buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart)
+	api.DELETE("/buyer/:cart_id/product/:product_id", buyerDeleteProductFromCart)
+	api.DELETE("/buyer/cart/:cart_id/coupon/:coupon_id", buyerDeleteCouponFromCart)
 
-	api.GET("/buyer/checkout", buyerGetCheckout)
-	api.POST("/buyer/checkout", buyerCheckout)
+	api.GET("/buyer/cart/:cart_id/checkout", buyerGetCheckout)
+	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout)
 
 	// seller
 	api.GET("/seller", sellerGetShopInfo)
@@ -112,40 +112,3 @@ func RegisterApi(e *echo.Echo) {
 	api.DELETE("/seller/product/:id", sellerDeleteProduct)
 
 }
-
-/*
-## User
-- User Login
-- User Sign up
-
-- User Get its personal data
-- User Get order history
-- User Search Product
-- User Get specific seller's shop
-- User Get specific seller's coupon
-- User Get specific Product data
-- User Add Product into cart
-- User Get shopping cart inventory
-- User Get Checkout data
-- User Get all avaliable coupon in cart
-- User Add Coupon into cart
-- User Get specific order data
-- User Get Main Page News /pending
-- User Get Popular Products
-## Seller
-- Seller Add Product
-- Seller Add tag for Product
-- Seller Edit tag for Product
-- Seller Edit exist Product
-- Seller Get all Shipments
-- Seller Get all its coupon
-- Seller Add coupon
-- Seller Edit coupon
-- Seller Get Sell Report
-- Sell Get Specific Sell Report
-## Admin
-- Admin Get all user Data
-- Admin ban/delete user
-- Admin peek site report
-
-*/

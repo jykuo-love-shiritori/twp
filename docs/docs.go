@@ -9,16 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -231,7 +222,7 @@ const docTemplate = `{
         },
         "/buyer/cart": {
             "get": {
-                "description": "Get all products and coupons in cart",
+                "description": "Get all Carts of the user",
                 "produces": [
                     "application/json"
                 ],
@@ -250,7 +241,68 @@ const docTemplate = `{
                 }
             }
         },
-        "/buyer/cart/coupon/{id}": {
+        "/buyer/cart/{cart_id}/checkout": {
+            "get": {
+                "description": "Get all checkout data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Get Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "description": "Checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{cart_id}/coupon/{coupon_id}": {
             "post": {
                 "description": "Add coupon to cart",
                 "consumes": [
@@ -268,8 +320,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     }
@@ -300,8 +359,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     }
@@ -316,7 +382,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/buyer/cart/product/{id}": {
+        "/buyer/cart/{cart_id}/product/{product_id}": {
             "post": {
                 "description": "Add product to cart",
                 "consumes": [
@@ -333,8 +399,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -364,8 +437,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -395,55 +475,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/buyer/checkout": {
-            "get": {
-                "description": "Get all checkout data",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Get Checkout",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            },
-            "post": {
-                "description": "Checkout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Checkout",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -996,6 +1040,11 @@ const docTemplate = `{
         "/seller/product/{id}/upload": {
             "post": {
                 "description": "Upload product image for shop.",
+                "consumes": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1011,6 +1060,13 @@ const docTemplate = `{
                         "description": "Product ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image to upload",
+                        "name": "img",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -1305,6 +1361,15 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "User Upload Avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image to upload",
+                        "name": "img",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1469,26 +1534,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
-        }
-    },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.o",
-	Host:             "localhost:8080",
-	BasePath:         "/api",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "twp API",
-	Description:      "twp server api.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
