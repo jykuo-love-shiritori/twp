@@ -30,7 +30,6 @@ paths:
       tags:
       - Admin
       - Coupon
-      - Shop
     post:
       consumes:
       - application/json

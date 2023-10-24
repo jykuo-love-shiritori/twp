@@ -32,8 +32,7 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Admin",
-                    "Coupon",
-                    "Shop"
+                    "Coupon"
                 ],
                 "summary": "Admin Get Coupon",
                 "responses": {

@@ -31,7 +31,7 @@ func adminDeleteUser(c echo.Context) error {
 
 // @Summary Admin Get Coupon
 // @Description Get all coupons (include shops).
-// @Tags Admin, Coupon, Shop
+// @Tags Admin, Coupon
 // @Produce json
 // @Success 200
 // @Failure 401
