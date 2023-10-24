@@ -20,13 +20,12 @@ import (
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host      localhost:8080
-// @BasePath  /
+// @BasePath  /api
 
 // @securityDefinitions.basic  BasicAuth
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-
 func RegisterDocs(e *echo.Echo) {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -42,6 +41,7 @@ func RegisterApi(e *echo.Echo) {
 	api.DELETE("/admin/user/:id", adminDeleteUser)
 
 	api.GET("/admin/coupon", adminGetCoupon)
+	api.GET("/admin/coupon/:id", adminGetCouponDetail)
 	api.POST("/admin/coupon", adminAddCoupon)
 	api.PATCH("/admin/coupon/:id", adminEditCoupon)
 	api.DELETE("/admin/coupon/:id", adminDeleteCoupon)
@@ -81,6 +81,7 @@ func RegisterApi(e *echo.Echo) {
 	api.GET("/buyer/cart", buyerGetCart) // include procuct and coupon
 	api.POST("/buyer/cart/product:id", buyerAddProductToCart)
 	api.POST("/buyer/cart/coupon:id", buyerAddCouponToCart)
+	api.PATCH("buyer/cart/product:id", buyerEditProductInCart)
 	api.DELETE("/buyer/cart/product:id", buyerDeleteProductFromCart)
 	api.DELETE("/buyer/cart/coupon:id", buyerDeleteCouponFromCart)
 
@@ -94,6 +95,7 @@ func RegisterApi(e *echo.Echo) {
 	api.POST("/seller/tag", sellerAddTag) // add tag for shop
 
 	api.GET("/seller/coupon", sellerGetShopCoupon)
+	api.GET("/seller/coupon/:id", sellerGetCouponDetail)
 	api.POST("/seller/coupon", sellerAddCoupon)
 	api.PATCH("/seller/coupon/:id", sellerEditCoupon)
 	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon)
