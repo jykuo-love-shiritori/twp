@@ -16,7 +16,7 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	RegisterFrontend(e)
+	e.Use(middleware.Static("frontend/dist"))
 
 	router.RegisterApi(e)
 	router.RegisterDocs(e)
