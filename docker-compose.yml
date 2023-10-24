@@ -58,3 +58,4 @@ volumes:
   postgres-data:
   minio-data:
 
+

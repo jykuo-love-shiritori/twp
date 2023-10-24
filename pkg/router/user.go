@@ -11,13 +11,22 @@ import (
 // @Tags Auth
 // @Produce json
 // @Success 200
-// @Failure 401
+// @Failure 401 
 // @Router /logout [post]
 func logout(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
+
+// @Summary User Get Info
+// @Description Get user information
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 401 
+// @Router /user [get]
 func userGetInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Edit Info
@@ -26,22 +35,24 @@ func userGetInfo(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 401
-// @Router /user/edit [post]
+// @Failure 400 Bad Request
+// @Failure 401 
+// @Router /user/edit [patch]
 func userEditInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Upload Avatar
 // @Description Upload user avatar
 // @Tags User
-// @Accept json
+// @Accept png,jpeg,gif
 // @Produce json
 // @Success 200
-// @Failure 401
+// @Failure 400 Bad Request
+// @Failure 401 
 // @Router /user/avatar [post]
 func userUploadAvatar(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Edit Password
@@ -50,10 +61,11 @@ func userUploadAvatar(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 401
+// @Failure 400 Bad Request
+// @Failure 401 
 // @Router /user/password [post]
 func userEditPassword(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Get Credit Card
@@ -62,10 +74,10 @@ func userEditPassword(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 401
+// @Failure 401 
 // @Router /user/security/credit_card [get]
 func userGetCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Delete Credit Card
@@ -75,10 +87,11 @@ func userGetCreditCard(c echo.Context) error {
 // @Produce json
 // @Param id query int true "Credit Card ID"
 // @Success 200
-// @Failure 401
+// @Failure 400 Bad Request
+// @Failure 401 
 // @Router /user/security/credit_card/delete [delete]
 func userDeleteCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }
 
 // @Summary User Add Credit Card
@@ -87,8 +100,9 @@ func userDeleteCreditCard(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 401
+// @Failure 400 Bad Request
+// @Failure 401 
 // @Router /user/security/credit_card/add [post]
 func userAddCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+    return c.NoContent(http.StatusOK)
 }

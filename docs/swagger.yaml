@@ -1,0 +1,376 @@
+basePath: /
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: twp server api.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: twp API
+  version: 0.o
+paths:
+  /discover:
+    get:
+      consumes:
+      - application/json
+      description: Get discover content
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get Discover
+      tags:
+      - discover
+      - product
+  /logout:
+    post:
+      description: Logout the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Logout
+      tags:
+      - Auth
+  /news:
+    get:
+      consumes:
+      - application/json
+      description: Get news
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get News
+      tags:
+      - news
+  /news/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific news item by ID
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get News Detail
+      tags:
+      - news
+  /product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get product information with product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get Product Info
+      tags:
+      - product
+  /search:
+    get:
+      consumes:
+      - application/json
+      description: Search for products and shops
+      parameters:
+      - description: search word
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Search for Products and Shops
+      tags:
+      - search
+  /search/shop:
+    get:
+      consumes:
+      - application/json
+      description: Search for shops by name
+      parameters:
+      - description: search name
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Search for Shops by Name
+      tags:
+      - search
+      - shop
+  /shop/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get shop information with shop ID
+      parameters:
+      - description: Shop ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get Shop Info
+      tags:
+      - shop
+  /shop/{id}/coupon:
+    get:
+      consumes:
+      - application/json
+      description: Get coupons for a shop with shop ID
+      parameters:
+      - description: Shop ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get Shop Coupons
+      tags:
+      - shop
+      - coupon
+  /shop/{id}/search:
+    get:
+      consumes:
+      - application/json
+      description: Search products within a shop by shop ID
+      parameters:
+      - description: Shop ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: search word
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Search Shop Products
+      tags:
+      - shop
+      - product
+      - search
+  /tag/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get information about a tag by tag ID
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Get Tag Info
+      tags:
+      - tag
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: User Get Info
+      tags:
+      - User
+  /user/avatar:
+    post:
+      consumes:
+      - image/png
+      - image/jpeg
+      - image/gif
+      description: Upload user avatar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: Bad
+        "401":
+          description: Unauthorized
+      summary: User Upload Avatar
+      tags:
+      - User
+  /user/edit:
+    patch:
+      consumes:
+      - application/json
+      description: Edit user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: Bad
+        "401":
+          description: Unauthorized
+      summary: User Edit Info
+      tags:
+      - User
+  /user/password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: Bad
+        "401":
+          description: Unauthorized
+      summary: User Edit Password
+      tags:
+      - User
+  /user/security/credit_card:
+    get:
+      consumes:
+      - application/json
+      description: Get all credit cards of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: User Get Credit Card
+      tags:
+      - CreditCard
+  /user/security/credit_card/add:
+    post:
+      consumes:
+      - application/json
+      description: Add a new credit card for the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: Bad
+        "401":
+          description: Unauthorized
+      summary: User Add Credit Card
+      tags:
+      - CreditCard
+  /user/security/credit_card/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a credit card by its ID
+      parameters:
+      - description: Credit Card ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: Bad
+        "401":
+          description: Unauthorized
+      summary: User Delete Credit Card
+      tags:
+      - CreditCard
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
