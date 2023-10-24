@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
+	"github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
 	e := echo.New()
-
-	RegisterFrontend(e)
-
+	e.Use(middleware.Logger())
+	e.Use(middleware.Static("frontend/dist"))
 	router.RegisterApi(e)
 	router.RegisterDocs(e)
 
