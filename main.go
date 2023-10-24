@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/jykuo-love-shiritori/twp/pkg"
+	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -16,8 +16,11 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.Group("/", middleware.Static("frontend/dist"))
-	pkg.RouterHandler(e.Group("/api"))
+	RegisterFrontend(e)
+
+	router.RegisterApi(e)
+	router.RegisterDocs(e)
+
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
