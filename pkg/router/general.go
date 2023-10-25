@@ -12,11 +12,11 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Shop ID"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /shop/{id} [get]
 func getShopInfo(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get Shop Coupons
@@ -25,11 +25,11 @@ func getShopInfo(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Shop ID"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /shop/{id}/coupon [get]
 func getShopCoupon(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Search Shop Products
@@ -39,11 +39,11 @@ func getShopCoupon(c echo.Context) error {
 // @Produce json
 // @Param id path int true "Shop ID"
 // @Param q query string true "search word"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /shop/{id}/search [get]
 func searchShopProduct(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get Tag Info
@@ -52,11 +52,11 @@ func searchShopProduct(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Tag ID"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /tag/{id} [get]
 func getTagInfo(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Search for Products and Shops
@@ -65,11 +65,11 @@ func getTagInfo(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param q query string true "search word"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /search [get]
 func search(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Search for Shops by Name
@@ -78,11 +78,11 @@ func search(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param q query string true "Search Name"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /search/shop [get]
 func searchShopByName(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get News
@@ -90,11 +90,11 @@ func searchShopByName(c echo.Context) error {
 // @Tags News
 // @Accept json
 // @Produce json
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /news [get]
 func getNews(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get News Detail
@@ -103,11 +103,11 @@ func getNews(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "News ID"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /news/{id} [get]
 func getNewsDetail(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get Discover
@@ -115,11 +115,11 @@ func getNewsDetail(c echo.Context) error {
 // @Tags Discover,Product
 // @Accept json
 // @Produce json
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /discover [get]
 func getDiscover(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get Product Info
@@ -128,9 +128,9 @@ func getDiscover(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Product ID"
-// @Success 200 
-// @Failure 401 
+// @Success 200
+// @Failure 401
 // @Router /product/{id} [get]
 func getProductInfo(c echo.Context) error {
-    return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK)
 }
