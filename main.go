@@ -19,7 +19,7 @@ func main() {
 	e.Use(middleware.Static("frontend/dist"))
 
 	router.RegisterApi(e)
-	if os.Getenv("ENV") == "dev" {
+	if os.Getenv("TWP_ENV") == "dev" {
 		router.RegisterDocs(e)
 	}
 	go func() {
