@@ -19,8 +19,9 @@ func main() {
 	e.Use(middleware.Static("frontend/dist"))
 
 	router.RegisterApi(e)
-	router.RegisterDocs(e)
-
+	if os.Getenv("ENV") == "dev" {
+		router.RegisterDocs(e)
+	}
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
