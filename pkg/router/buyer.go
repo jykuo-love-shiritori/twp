@@ -13,7 +13,7 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /buyer/order [get]
-func buyerGetOrderHistrory(c echo.Context) error {
+func buyerGetOrderHistory(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 

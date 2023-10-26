@@ -75,10 +75,10 @@ func RegisterApi(e *echo.Echo) {
 	api.GET("/product/:id", getProductInfo)
 
 	// buyer
-	api.GET("/buyer/order", buyerGetOrderHistrory)
+	api.GET("/buyer/order", buyerGetOrderHistory)
 	api.GET("/buyer/order/:id", buyerGetOrderDetail)
 
-	api.GET("/buyer/cart", buyerGetCart) // include procuct and coupon
+	api.GET("/buyer/cart", buyerGetCart) // include product and coupon
 	api.POST("/buyer/cart/:cart_id/product/:product_id", buyerAddProductToCart)
 	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart)
 	api.PATCH("buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart)
@@ -91,7 +91,7 @@ func RegisterApi(e *echo.Echo) {
 	// seller
 	api.GET("/seller", sellerGetShopInfo)
 	api.PATCH("/seller", sellerEditInfo)
-	api.GET("/seller/tag", sellerGetTag)  // search avaliable tag
+	api.GET("/seller/tag", sellerGetTag)  // search available tag
 	api.POST("/seller/tag", sellerAddTag) // add tag for shop
 
 	api.GET("/seller/coupon", sellerGetShopCoupon)
