@@ -17,7 +17,7 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.Use(middleware.Static("frontend/dist"))
+	RegisterFrontend(e)
 
 	router.RegisterApi(e)
 	if os.Getenv("TWP_ENV") == environment.DEV {
