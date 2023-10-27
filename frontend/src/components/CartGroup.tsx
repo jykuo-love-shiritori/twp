@@ -25,7 +25,7 @@ const CartGroup = () => {
 
   const removeItem = (id: number) => {
     setCartContainer((prevCartContainer) => {
-      const item = prevCartContainer.filter((item) => item.item_id === id);
+      // const item = prevCartContainer.filter((item) => item.item_id === id);
       const updateCartContainer = prevCartContainer.filter((item) => item.item_id !== id);
       return updateCartContainer;
     });
