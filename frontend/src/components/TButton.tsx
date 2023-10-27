@@ -1,6 +1,8 @@
 import '../components/style.css';
 import '../style/global.css';
 
+import { Link } from 'react-router-dom';
+
 interface Props {
   text: string;
   url: string;
@@ -12,9 +14,9 @@ const TButton = ({ text, url }: Props) => {
   let urlButton = (
     <div style={{ width: '100%' }}>
       <div className='button pointer'>
-        <a href={url} className='none' style={{ color: 'white' }}>
+        <Link to={url} className='none' style={{ color: 'white' }}>
           <div className='center'>{text}</div>
-        </a>
+        </Link>
       </div>
     </div>
   );

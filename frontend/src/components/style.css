@@ -16,6 +16,17 @@
   line-height: normal;
 }
 
+.nav_link {
+  color: white;
+  opacity: 0.7;
+  padding: 5px 20px 5px 20px;
+}
+
+.nav_link:hover,
+.nav_link:focus {
+  opacity: 1;
+}
+
 /* [component] footer */
 .footer {
   background-color: var(--layout);

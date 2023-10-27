@@ -7,6 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import { Row, Col, NavbarBrand } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 import SearchBar from './SearchBar';
 
@@ -25,16 +26,20 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls='basic-navbar-nav' />
         <Navbar.Collapse id='basic-navbar-nav' className='navbar-dark'>
           <Nav className='mt-auto'>
-            <Nav.Link href='/user/seller'>Sell</Nav.Link>
-            <Nav.Link href='/coupons'>Coupons</Nav.Link>
+            <Link to='/user/seller' className='nav_link none'>
+              Sell
+            </Link>
+            <Link to='/coupons' className='nav_link none'>
+              Coupons
+            </Link>
           </Nav>
           <Nav className='ms-auto'>
-            <Nav.Link href='/user'>
+            <Link to='/user' className='nav_link none'>
               <FontAwesomeIcon icon={faUser} />
-            </Nav.Link>
-            <Nav.Link href='/buyer/cart'>
+            </Link>
+            <Link to='/buyer/cart' className='nav_link none'>
               <FontAwesomeIcon icon={faCartShopping} />
-            </Nav.Link>
+            </Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
@@ -44,12 +49,12 @@ const NavBar = () => {
 
         <Row className='center' style={{ padding: '0px 8% 0px 8%' }}>
           <Col sm={3}>
-            <a href='/' className='none'>
+            <Link to='/' className='none'>
               <div className='center_vertical'>
                 <img src='/images/logo.png' alt='logo' style={{ width: '35px' }} />
                 &nbsp;&nbsp; <span className='nav_title'>Too White Powder</span>
               </div>
-            </a>
+            </Link>
           </Col>
           <Col sm={6}>
             <SearchBar />

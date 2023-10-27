@@ -2,6 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 import { faUser, faFile } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const User = () => {
   return (
@@ -20,19 +21,19 @@ const User = () => {
             </Col>
           </Row>
 
-          <a href={'/user/info'} className='none'>
+          <Link to={'/user/info'} className='none'>
             <div className='user_button'>
               <FontAwesomeIcon icon={faUser} className='white_word' /> &nbsp;{' '}
               <span className='white_word'>Personal info</span>
             </div>
-          </a>
+          </Link>
 
-          <a href={'/user/buyer/order'} className='none'>
+          <Link to={'/user/buyer/order'} className='none'>
             <div className='user_button'>
               <FontAwesomeIcon icon={faFile} className='white_word' /> &nbsp;{' '}
               <span className='white_word'>Order history</span>
             </div>
-          </a>
+          </Link>
         </Col>
         <Col xs={12} md={9} style={{ padding: '1% 7% 6% 7%' }}>
           <Outlet />

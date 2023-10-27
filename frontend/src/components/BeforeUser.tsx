@@ -1,4 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 import Footer from './Footer';
 
@@ -56,7 +57,7 @@ const BeforeUser = ({ data }: Data) => {
                 <span style={{ color: 'white' }}>{data?.way} &nbsp; </span>
                 <span>
                   <u>
-                    <a href={data?.url}>{data?.path}</a>
+                    <Link to={data?.url}>{data?.path}</Link>
                   </u>
                 </span>
               </div>
