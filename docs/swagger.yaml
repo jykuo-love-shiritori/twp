@@ -933,10 +933,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-          schema:
-            type: Bad
         "401":
           description: Unauthorized
       summary: User Upload Avatar
@@ -952,10 +948,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-          schema:
-            type: Bad
         "401":
           description: Unauthorized
       summary: User Edit Info
@@ -971,10 +963,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-          schema:
-            type: Bad
         "401":
           description: Unauthorized
       summary: User Edit Password
@@ -1005,10 +993,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-          schema:
-            type: Bad
         "401":
           description: Unauthorized
       summary: User Add Credit Card
@@ -1030,10 +1014,6 @@ paths:
       responses:
         "200":
           description: OK
-        "400":
-          description: Bad Request
-          schema:
-            type: Bad
         "401":
           description: Unauthorized
       summary: User Delete Credit Card

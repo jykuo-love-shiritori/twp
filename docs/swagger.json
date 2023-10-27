@@ -1377,12 +1377,6 @@
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1406,12 +1400,6 @@
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1434,12 +1422,6 @@
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -1487,12 +1469,6 @@
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1524,12 +1500,6 @@
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
                     },
                     "401": {
                         "description": "Unauthorized"
