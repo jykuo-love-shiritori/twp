@@ -35,7 +35,6 @@ func userGetInfo(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 400 Bad Request
 // @Failure 401
 // @Router /user/edit [patch]
 func userEditInfo(c echo.Context) error {
@@ -49,7 +48,6 @@ func userEditInfo(c echo.Context) error {
 // @Produce json
 // @Param img formData file true "Image to upload"
 // @Success 200
-// @Failure 400 Bad Request
 // @Failure 401
 // @Router /user/avatar [post]
 func userUploadAvatar(c echo.Context) error {
@@ -62,7 +60,6 @@ func userUploadAvatar(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 400 Bad Request
 // @Failure 401
 // @Router /user/password [post]
 func userEditPassword(c echo.Context) error {
@@ -88,7 +85,6 @@ func userGetCreditCard(c echo.Context) error {
 // @Produce json
 // @Param id query int true "Credit Card ID"
 // @Success 200
-// @Failure 400 Bad Request
 // @Failure 401
 // @Router /user/security/credit_card/delete [delete]
 func userDeleteCreditCard(c echo.Context) error {
@@ -101,7 +97,6 @@ func userDeleteCreditCard(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 400 Bad Request
 // @Failure 401
 // @Router /user/security/credit_card/add [post]
 func userAddCreditCard(c echo.Context) error {

@@ -1383,12 +1383,6 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1412,12 +1406,6 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1440,12 +1428,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -1493,12 +1475,6 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized"
                     }
@@ -1530,12 +1506,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "Bad"
-                        }
                     },
                     "401": {
                         "description": "Unauthorized"
