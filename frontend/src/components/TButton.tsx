@@ -9,9 +9,9 @@ interface Props {
 }
 
 const TButton = ({ text, url }: Props) => {
-  let button = <div className='button pointer center'>{text}</div>;
+  const button = <div className='button pointer center'>{text}</div>;
 
-  let urlButton = (
+  const urlButton = (
     <div style={{ width: '100%' }}>
       <div className='button pointer'>
         <Link to={url} className='none' style={{ color: 'white' }}>

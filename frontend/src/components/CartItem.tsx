@@ -20,7 +20,7 @@ interface Props extends Input {
 }
 
 const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input) => {
-  let data: Props = {
+  const data: Props = {
     item_id,
     quantity,
     updateTotal,

@@ -25,7 +25,7 @@ interface Props {
 const EachGoods = () => {
   // to get the goods' id from router
   const id = window.location.href.slice(-1);
-  let data: Props = {
+  const data: Props = {
     id: null,
     price: 0,
     name: '',

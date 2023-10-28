@@ -28,7 +28,7 @@ const HistoryEach = () => {
       return accumulator;
     }, 0);
 
-    let finalTotal: number = Total + record.shipment - record.coupon;
+    const finalTotal: number = Total + record.shipment - record.coupon;
 
     return (
       <div style={{ padding: '7% 10% 10% 10%' }}>

@@ -12,7 +12,7 @@ interface Props {
 }
 
 const CartGroup = () => {
-  let initialData: Props[] = [];
+  const initialData: Props[] = [];
   for (let i = 0; i < 3; i++) {
     const newData: Props = {
       item_id: 2 + i,
