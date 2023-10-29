@@ -1,5 +1,5 @@
-import CartItem from './CartItem';
-import TButton from './TButton';
+import CartItem from '@components/CartItem';
+import TButton from '@components/TButton';
 
 interface Props {
   item_id: number;

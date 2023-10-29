@@ -1,5 +1,5 @@
-import TButton from './TButton';
-import InfoItem from './InfoItem';
+import TButton from '@components/TButton';
+import InfoItem from '@components/InfoItem';
 
 const Info = () => {
   return (

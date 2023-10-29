@@ -1,10 +1,10 @@
-import '../../style/global.css';
+import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 
-import NotFound from '../../components/NotFound';
+import NotFound from '@components/NotFound';
 
-import newsData from '../../pages/home/newsData.json';
+import newsData from '@pages/home/newsData.json';
 
 interface Props {
   id: number | null;

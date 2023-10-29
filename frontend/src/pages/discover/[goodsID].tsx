@@ -1,13 +1,13 @@
-import '../../style/global.css';
+import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 
-import NotFound from '../../components/NotFound';
-import TButton from '../../components/TButton';
-import QuantityBar from '../../components/QuantityBar';
-import UserItem from '../../components/UserItem';
+import NotFound from '@components/NotFound';
+import TButton from '@components/TButton';
+import QuantityBar from '@components/QuantityBar';
+import UserItem from '@components/UserItem';
 
-import goodsData from './goodsData.json';
+import goodsData from '@pages/discover/goodsData.json';
 
 interface Props {
   id: number | null;

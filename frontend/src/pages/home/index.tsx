@@ -1,15 +1,15 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../../style/global.css';
-import '../../components/style.css';
+import '@style/global.css';
+import '@components/style.css';
 
 import { Col, Row } from 'react-bootstrap';
 
-import News from '../../components/News';
-import TButton from '../../components/TButton';
-import GoodsItem from '../../components/GoodsItem';
+import News from '@components/News';
+import TButton from '@components/TButton';
+import GoodsItem from '@components/GoodsItem';
 
-import newsData from '../home/newsData.json';
-import goodsData from '../discover/goodsData.json';
+import newsData from '@pages/home/newsData.json';
+import goodsData from '@pages/discover/goodsData.json';
 
 const Home = () => {
   return (
@@ -38,7 +38,7 @@ const Home = () => {
             if (data.id < 5) {
               return (
                 <Col xs={6} md={3}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
                 </Col>
               );
             }
@@ -52,7 +52,7 @@ const Home = () => {
             if (data.id < 9 && data.id > 4) {
               return (
                 <Col xs={6} md={3}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
                 </Col>
               );
             }

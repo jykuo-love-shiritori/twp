@@ -1,5 +1,5 @@
-import TButton from '../../components/TButton';
-import CartGroup from '../../components/CartGroup';
+import TButton from '@components/TButton';
+import CartGroup from '@components/CartGroup';
 
 const Cart = () => {
   return (

@@ -1,13 +1,13 @@
 import { faFile, faMoneyBill, faTruck, faBox } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row } from 'react-bootstrap';
 
-import CartItem from '../../../components/CartItem';
-import NotFound from '../../../components/NotFound';
-import RecordStatus from '../../../components/RecordStatus';
-import UserItem from '../../../components/UserItem';
+import CartItem from '@components/CartItem';
+import NotFound from '@components/NotFound';
+import RecordStatus from '@components/RecordStatus';
+import UserItem from '@components/UserItem';
 
-import goodsData from '../../discover/goodsData.json';
-import historyData from '../../../pages/cart/boughtData.json';
+import goodsData from '@pages/discover/goodsData.json';
+import historyData from '@pages/cart/boughtData.json';
 
 const HistoryEach = () => {
   // get the id from router

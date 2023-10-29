@@ -1,10 +1,10 @@
-import '../../style/global.css';
+import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 
-import GoodsItem from '../../components/GoodsItem';
+import GoodsItem from '@components/GoodsItem';
 
-import goodsData from './goodsData.json';
+import goodsData from '@pages/discover/goodsData.json';
 
 const Discover = () => {
   return (
@@ -16,7 +16,7 @@ const Discover = () => {
           {goodsData.map((data) => {
             return (
               <Col xs={6} md={3}>
-                <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
               </Col>
             );
           })}

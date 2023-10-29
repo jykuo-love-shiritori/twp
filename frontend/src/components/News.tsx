@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../components/style.css';
-import '../style/global.css';
+import '@components/style.css';
+import '@style/global.css';
 
-import TButton from './TButton';
+import TButton from '@components/TButton';
 
 interface Props {
   id: number;

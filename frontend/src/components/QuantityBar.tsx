@@ -1,5 +1,5 @@
-import '../components/style.css';
-import '../style/global.css';
+import '@components/style.css';
+import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 import { useState } from 'react';

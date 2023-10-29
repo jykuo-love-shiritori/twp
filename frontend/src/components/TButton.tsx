@@ -1,5 +1,5 @@
-import '../components/style.css';
-import '../style/global.css';
+import '@components/style.css';
+import '@style/global.css';
 
 import { Link } from 'react-router-dom';
 

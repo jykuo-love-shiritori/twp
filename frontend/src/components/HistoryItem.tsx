@@ -1,10 +1,10 @@
 import { Col, Row } from 'react-bootstrap';
 
-import TButton from './TButton';
-import UserItem from './UserItem';
+import TButton from '@components/TButton';
+import UserItem from '@components/UserItem';
 
-import historyData from '../pages/cart/boughtData.json';
-import goodsData from '../pages/discover/goodsData.json';
+import historyData from '@pages/cart/boughtData.json';
+import goodsData from '@pages/discover/goodsData.json';
 
 const HistoryItem = ({ id }: { id: number }) => {
   const record = historyData.find((item) => item.recordID === id);

@@ -1,5 +1,5 @@
-import '../components/style.css';
-import '../style/global.css';
+import '@components/style.css';
+import '@style/global.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';

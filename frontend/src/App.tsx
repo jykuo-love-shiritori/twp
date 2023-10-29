@@ -1,19 +1,19 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 
-import Layout from './pages/Layout';
-import Home from './pages/home';
-import EachNews from './pages/news/[newsID]';
-import NotFound from './components/NotFound';
-import Discover from './pages/discover';
-import EachGoods from './pages/discover/[goodsID]';
-import Cart from './pages/cart';
-import User from './pages/user';
-import Login from './pages/user/login';
-import Signup from './pages/user/signup';
-import Info from './components/Info';
-import History from './components/History';
-import HistoryEach from './pages/user/history/[historyID]';
-import SearchNotFound from './components/SearchNotFound';
+import Layout from '@pages/Layout';
+import Home from '@pages/home';
+import EachNews from '@pages/news/[newsID]';
+import Discover from '@pages/discover';
+import EachGoods from '@pages/discover/[goodsID]';
+import Cart from '@pages/cart';
+import User from '@pages/user';
+import Login from '@pages/user/login';
+import Signup from '@pages/user/signup';
+import HistoryEach from '@pages/user/history/[historyID]';
+import Info from '@components/Info';
+import History from '@components/History';
+import NotFound from '@components/NotFound';
+import SearchNotFound from '@components/SearchNotFound';
 
 function App() {
   return (

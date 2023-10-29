@@ -2,8 +2,8 @@ import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-import goodsData from '../pages/discover/goodsData.json';
-import QuantityBar from './QuantityBar';
+import goodsData from '@pages/discover/goodsData.json';
+import QuantityBar from '@components/QuantityBar';
 
 interface Input {
   item_id: number;

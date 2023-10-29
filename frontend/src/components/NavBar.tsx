@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../components/style.css';
-import '../style/global.css';
+import '@components/style.css';
+import '@style/global.css';
 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
-import SearchBar from './SearchBar';
+import SearchBar from '@components/SearchBar';
 
 const NavBar = () => {
   return (

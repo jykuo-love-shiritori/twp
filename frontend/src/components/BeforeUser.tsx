@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import Footer from './Footer';
+import Footer from '@components/Footer';
 
 interface Props {
   imgUrl: string;

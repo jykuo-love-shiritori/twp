@@ -1,8 +1,8 @@
 import { Col, Row } from 'react-bootstrap';
 
-import HistoryItem from './HistoryItem';
+import HistoryItem from '@components/HistoryItem';
 
-import historyData from '../pages/cart/boughtData.json';
+import historyData from '@pages/cart/boughtData.json';
 
 const History = () => {
   return (

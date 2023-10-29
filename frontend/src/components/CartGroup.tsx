@@ -2,8 +2,8 @@ import Form from 'react-bootstrap/Form';
 import { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 
-import CartItem from './CartItem';
-import UserItem from './UserItem';
+import CartItem from '@components/CartItem';
+import UserItem from '@components/UserItem';
 
 interface Props {
   item_id: number;
