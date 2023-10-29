@@ -14,7 +14,7 @@ interface Props {
 }
 
 interface Data {
-  data: Props | undefined;
+  data: Props;
 }
 
 const BeforeUser = ({ data }: Data) => {

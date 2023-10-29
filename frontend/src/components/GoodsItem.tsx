@@ -17,11 +17,8 @@ const GoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
       <div style={{ padding: '2% 7% 2% 7% ' }}>
         <p>{name}</p>
       </div>
-      {isIndex ? (
-        <TButton text='more' url={`discover/${id}`} />
-      ) : (
-        <TButton text='more' url={`${id}`} />
-      )}
+
+      <TButton text='more' url={isIndex ? `discover/${id}` : `${id}`} />
     </div>
   );
 };
