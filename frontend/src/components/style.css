@@ -1,0 +1,318 @@
+/* [component] navbar */
+.navbar_twp {
+  background-color: var(--layout);
+  position: fixed;
+  z-index: 3;
+  width: 100%;
+  padding: 5px 0% 5px 0%;
+}
+
+.nav_title {
+  color: var(--white, #fff);
+  font-family: Noto Sans TC;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.nav_link {
+  color: white;
+  opacity: 0.7;
+  padding: 5px 20px 5px 20px;
+}
+
+.nav_link:hover,
+.nav_link:focus {
+  opacity: 1;
+}
+
+/* [component] footer */
+.footer {
+  background-color: var(--layout);
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  padding: 1% 0% 1% 0%;
+  font-size: 12px;
+  font-family: var(--font);
+  position: relative;
+  z-index: 10;
+}
+
+/* [item in page] home */
+.home {
+  padding-top: 60px;
+  background: url('/images/home_bg.png') fixed;
+}
+
+/* [item in page] search button on navbar */
+.search_button {
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 3%;
+  margin: 10px;
+  border: rgba(255, 255, 255, 0.3) solid 1px;
+  user-select: none;
+}
+
+.search_button:hover {
+  cursor: pointer;
+  background-color: var(--button_dark);
+  border: var(--border) solid 1px;
+}
+
+/* news*/
+/* [item in page] */
+.news_bg {
+  border-radius: 50px 50px 0px 0px;
+  border: 1px solid var(--button_border);
+  background: var(--bg);
+  box-shadow: 0px 4px 30px 2px var(--title);
+  padding: 10% 7% 10% 7%;
+}
+
+.news_pic {
+  width: 100%;
+  height: 400px;
+  border: 1px solid var(--button_border, #34977f);
+}
+
+/* [component] */
+.news_pic_c {
+  border-radius: 52px;
+  box-shadow: 6px 6px 15px 5px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+  width: 100%;
+  border: var(--border) solid 1px;
+  height: 250px;
+}
+
+/* goods */
+/* [item in page] goods white bg */
+.goods_bgW {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 6px 4px 10px 2px rgba(0, 0, 0, 0.25);
+}
+/* [component] goods item*/
+.goods_item {
+  background: var(--white, #fff);
+  box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.25);
+  padding: 9% 8% 9% 8%;
+  margin: 15px 0 15px 0;
+  border-radius: 10px;
+  border: 1px solid var(--button_border, #34977f);
+  background: var(--button_dark, #135142);
+}
+
+.cart_item {
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 2% 10% 2% 10%;
+}
+
+.trash {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.trash:hover {
+  opacity: 1;
+}
+
+/* [component] button for TButton */
+.button {
+  background-color: var(--button_light);
+  border: var(--button_light) solid 1px;
+  border-radius: 30px;
+  color: white;
+  padding: 10px 15% 10px 15%;
+  margin: 10px 0% 5px 0%;
+  width: 100%;
+  user-select: none;
+}
+
+.button:hover {
+  background-color: var(--button_dark);
+  border: var(--border) solid 1px;
+  transition-duration: 0.5s;
+}
+
+/* [component] for search bar */
+::placeholder {
+  color: white;
+}
+
+.search {
+  border-radius: 30px;
+  border: 2px solid var(--white, #fff);
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 5px 10px 5px 20px;
+  width: 100%;
+  text-indent: 30px;
+  color: white;
+}
+
+.input_container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  width: 100%;
+}
+
+.search_icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: white;
+  cursor: pointer;
+  padding: 5px 10px 5px 10px;
+}
+
+/* [component] cart group */
+.cart_group {
+  border-radius: 30px;
+  border: 2px solid var(--button_light, #60998b);
+  padding: 2%;
+  margin: 2% 0% 5% 0%;
+}
+
+.cart_group:hover,
+.cart_group:focus {
+  border: 2px solid var(--title, #71eaa9);
+  box-shadow: 0px 0px 10px 4px #71eaa9;
+}
+
+.user_button:hover,
+.user_button:focus {
+  background-color: var(--button_dark);
+  transition-duration: 0.5s;
+  border: 1px solid var(--border);
+}
+
+/* [component] user img icon */
+.user {
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+}
+
+/* [component] input box, for info component*/
+.inputBox {
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--button_dark);
+  padding: 5px 10px 5px 20px;
+  width: 100%;
+  color: white;
+}
+
+/* [component] history item component */
+.history_container {
+  margin: 3% 0% 3% 0%;
+  padding: 2% 3% 2% 3%;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+}
+
+/* [component] for status in records */
+.status_icon {
+  border-radius: 50%;
+  background-color: var(--button_light);
+  width: 100px;
+  height: 100px;
+  margin: 4%;
+}
+
+/* [component] quantity bar */
+.quantity_box {
+  border-radius: 20px;
+  border: 1px solid var(--button_dark);
+  padding: 2% 7% 2% 7%;
+  text-align: right;
+  width: 100%;
+  background-color: transparent;
+}
+
+.quantity_f {
+  background-color: var(--button_dark);
+  border: var(--button_dark) solid 1px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  padding: 5% 0% 5% 0%;
+  user-select: none;
+}
+
+.quantity_f:hover {
+  border: var(--title) solid 1px;
+  color: var(--title);
+  transition-duration: 0.5s;
+}
+
+/* [item in page] login register page temp button */
+.forTest {
+  border-radius: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  background: rgb(82, 116, 228);
+  width: 312px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+/* [item in page] for 401, 402, 404 pages */
+.wrong {
+  color: var(--white, #fff);
+  text-align: center;
+  font-family: Noto Sans TC;
+  font-size: 64px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+
+/* [item in page] users info page */
+.user_bg {
+  padding-top: 20px;
+}
+
+.user_icon {
+  position: relative;
+  z-index: 1;
+  top: -50px;
+}
+
+.user_img {
+  width: 50%;
+  border-radius: 100%;
+  box-shadow: 2px 4px 10px 2px rgba(0, 0, 0, 0.25);
+  margin: 0% 0% 5% 0%;
+}
+
+/* [item in page] users page left buttons*/
+.user_button {
+  border-radius: 0px 30px 30px 0px;
+  border: 1px solid var(--button_light);
+  background-color: var(--button_light);
+  padding: 5% 5% 5% 15%;
+  cursor: pointer;
+  margin: 5% 0% 5% 0%;
+  user-select: none;
+}
+
+/* [item in page] search not found */
+.search_not_found {
+  color: white;
+  text-align: center;
+  font-family: Noto Sans TC;
+  font-size: 50px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}

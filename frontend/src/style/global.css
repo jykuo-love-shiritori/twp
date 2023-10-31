@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+TC');
+
+:root {
+  --layout: #3a654b;
+  --title: #71eaa9;
+  --button_light: #60998b;
+  --button_dark: #135142;
+  --border: #34977f;
+  --bg: #061e18;
+  --font: Noto Sans TC;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--bg);
+}
+
+.body_down {
+  padding-top: 60px;
+}
+
+p,
+h2,
+h3,
+h4 {
+  font-family: var(--font);
+  line-height: 1.6;
+  color: white;
+}
+
+p {
+  padding: 0% 0% 3% 0%;
+}
+
+.hr {
+  color: var(--title);
+  background-color: var(--title);
+  opacity: 1;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.none {
+  text-decoration: none;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center_vertical {
+  display: flex;
+  align-items: center;
+}
+
+.center_horizontal {
+  display: flex;
+  justify-content: center;
+}
+
+.right {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+.flex-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.disappear_desktop {
+  display: block;
+}
+
+.disappear_phone {
+  display: block;
+}
+
+.bg {
+  background-color: var(--bg);
+  color: white;
+}
+
+.title {
+  color: var(--title);
+  font-family: Noto Sans TC;
+  font-size: 42px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  padding: 3% 0% 3% 0%;
+}
+
+.inpage_title {
+  color: var(--title);
+  font-family: Noto Sans TC;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+
+.white_word {
+  color: white;
+}
+
+.white_bg {
+  background-color: white;
+  opacity: 1;
+}
+
+.title {
+  color: var(--title);
+}
+
+.light {
+  color: var(--button_light);
+  opacity: 1;
+}
+
+.dark {
+  color: var(--button_dark);
+}
+
+/* effect on desktop*/
+@media (min-width: 600px) {
+  .before_img {
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .disappear_desktop {
+    display: none;
+  }
+}
+
+/* effect on phone */
+@media (max-width: 920px) {
+  .user_bg {
+    padding-top: 10%;
+  }
+
+  .user_icon {
+    top: -50px;
+  }
+
+  .nav_title {
+    display: none;
+  }
+
+  .disappear_phone {
+    display: none;
+  }
+
+  .body_down {
+    padding-top: 30px;
+  }
+}
