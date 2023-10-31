@@ -2,12 +2,38 @@ package router
 
 import (
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
+
+	_ "github.com/jykuo-love-shiritori/twp/docs"
 )
 
+// @title           twp API
+// @version         0.o
+// @description     twp server api.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
+func RegisterDocs(e *echo.Echo) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+}
 func RegisterApi(e *echo.Echo) {
+
 	api := e.Group("/api")
-	api.POST("/login", login)
-	api.POST("/signup", signup)
+
 	api.POST("/logout", logout)
 
 	// admin
@@ -15,6 +41,7 @@ func RegisterApi(e *echo.Echo) {
 	api.DELETE("/admin/user/:id", adminDeleteUser)
 
 	api.GET("/admin/coupon", adminGetCoupon)
+	api.GET("/admin/coupon/:id", adminGetCouponDetail)
 	api.POST("/admin/coupon", adminAddCoupon)
 	api.PATCH("/admin/coupon/:id", adminEditCoupon)
 	api.DELETE("/admin/coupon/:id", adminDeleteCoupon)
@@ -48,25 +75,27 @@ func RegisterApi(e *echo.Echo) {
 	api.GET("/product/:id", getProductInfo)
 
 	// buyer
-	api.GET("/buyer/order", buyerGetOrderHistrory)
+	api.GET("/buyer/order", buyerGetOrderHistory)
 	api.GET("/buyer/order/:id", buyerGetOrderDetail)
 
-	api.GET("/buyer/cart", buyerGetCart) // include procuct and coupon
-	api.POST("/buyer/cart/product:id", buyerAddProductToCart)
-	api.POST("/buyer/cart/coupon:id", buyerAddCouponToCart)
-	api.DELETE("/buyer/cart/product:id", buyerDeleteProductFromCart)
-	api.DELETE("/buyer/cart/coupon:id", buyerDeleteCouponFromCart)
+	api.GET("/buyer/cart", buyerGetCart) // include product and coupon
+	api.POST("/buyer/cart/:cart_id/product/:product_id", buyerAddProductToCart)
+	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart)
+	api.PATCH("buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart)
+	api.DELETE("/buyer/:cart_id/product/:product_id", buyerDeleteProductFromCart)
+	api.DELETE("/buyer/cart/:cart_id/coupon/:coupon_id", buyerDeleteCouponFromCart)
 
-	api.GET("/buyer/checkout", buyerGetCheckout)
-	api.POST("/buyer/checkout", buyerCheckout)
+	api.GET("/buyer/cart/:cart_id/checkout", buyerGetCheckout)
+	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout)
 
 	// seller
 	api.GET("/seller", sellerGetShopInfo)
 	api.PATCH("/seller", sellerEditInfo)
-	api.GET("/seller/tag", sellerGetTag)  // search avaliable tag
+	api.GET("/seller/tag", sellerGetTag)  // search available tag
 	api.POST("/seller/tag", sellerAddTag) // add tag for shop
 
 	api.GET("/seller/coupon", sellerGetShopCoupon)
+	api.GET("/seller/coupon/:id", sellerGetCouponDetail)
 	api.POST("/seller/coupon", sellerAddCoupon)
 	api.PATCH("/seller/coupon/:id", sellerEditCoupon)
 	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon)
@@ -83,40 +112,3 @@ func RegisterApi(e *echo.Echo) {
 	api.DELETE("/seller/product/:id", sellerDeleteProduct)
 
 }
-
-/*
-## User
-- User Login
-- User Sign up
-
-- User Get its personal data
-- User Get order history
-- User Search Product
-- User Get specific seller's shop
-- User Get specific seller's coupon
-- User Get specific Product data
-- User Add Product into cart
-- User Get shopping cart inventory
-- User Get Checkout data
-- User Get all avaliable coupon in cart
-- User Add Coupon into cart
-- User Get specific order data
-- User Get Main Page News /pending
-- User Get Popular Products
-## Seller
-- Seller Add Product
-- Seller Add tag for Product
-- Seller Edit tag for Product
-- Seller Edit exist Product
-- Seller Get all Shipments
-- Seller Get all its coupon
-- Seller Add coupon
-- Seller Edit coupon
-- Seller Get Sell Report
-- Sell Get Specific Sell Report
-## Admin
-- Admin Get all user Data
-- Admin ban/delete user
-- Admin peek site report
-
-*/

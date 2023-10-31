@@ -1,0 +1,20 @@
+{
+  "login": {
+    "imgUrl": "/images/login.jpg",
+    "title": "Welcome Back!",
+    "content": "We're thrilled to have you back with us.  It's always a pleasure to see familiar faces, and we're grateful for your continued support.",
+    "subContent": "",
+    "way": "Don’t have an account ?",
+    "path": "Sign Up",
+    "url": "/signup"
+  },
+  "register": {
+    "imgUrl": "/images/register.jpg",
+    "title": "Create an account",
+    "content": "Unlock exclusive benefits by creating your account today.",
+    "subContent": "Sign up to agree to our Terms of Use and confirm that you've read our Privacy Policy.",
+    "way": "Already have an account? ",
+    "path": "Login",
+    "url": "/login"
+  }
+}
