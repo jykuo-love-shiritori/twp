@@ -37,6 +37,8 @@ func RegisterDocs(e *echo.Echo) {
 func RegisterApi(e *echo.Echo) {
 	api := e.Group("/api")
 
+	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, map[string]string{"message": "pong"}) })
+
 	api.POST("/logout", logout)
 
 	// admin
