@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans+TC');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --layout: #3a654b;
   --title: #71eaa9;
