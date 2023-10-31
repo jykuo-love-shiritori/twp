@@ -137,7 +137,9 @@ ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
-ALTER TABLE "user" ADD FOREIGN KEY ("id") REFERENCES "shop" ("id");
+ALTER TABLE "shop"
+ADD
+    FOREIGN KEY ("seller_id") REFERENCES "user" ("id");
 
 ALTER TABLE "coupon"
 ADD
