@@ -7,7 +7,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/jykuo-love-shiritori/twp/pkg"
+	"github.com/jykuo-love-shiritori/twp/pkg/environment"
+	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -18,7 +19,10 @@ func main() {
 
 	e.Use(middleware.Static("frontend/dist"))
 
-	pkg.RouterHandler(e.Group("/api"))
+	router.RegisterApi(e)
+	if os.Getenv("TWP_ENV") == environment.DEV {
+		router.RegisterDocs(e)
+	}
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
