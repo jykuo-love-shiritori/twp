@@ -1,21 +1,5 @@
-CREATE TABLE
-    "cart" (
-        "id" SERIAL PRIMARY KEY,
-        "user_id" INT,
-        "shop_id" INT
-    );
-
-CREATE TABLE
-    "cart_product" (
-        "cart_id" INT,
-        "product_id" INT,
-        "quantity" INT
-    );
-
--- Define OrderStatus enum
-
 CREATE TYPE
-    order_status AS ENUM (
+    "order_status" AS ENUM (
         'pending',
         'paid',
         'shipped',
@@ -23,95 +7,123 @@ CREATE TYPE
         'cancelled'
     );
 
-CREATE TABLE
-    "order_history" (
-        "id" SERIAL PRIMARY KEY,
-        "user_id" INT,
-        "shop_id" INT,
-        "shipment" INT,
-        "coupon_id" INT [],
-        "total_price" INT,
-        "status" order_status,
-        "created_at" TIMESTAMP
-    );
-
-CREATE TABLE
-    "order_detail" (
-        "order_id" INT,
-        "product_price" INT,
-        "quantity" INT
-    );
-
-CREATE TABLE "cart_coupon" ( "cart_id" INT, "coupon_id" INT );
-
-CREATE TABLE
-    "product" (
-        "id" SERIAL PRIMARY KEY,
-        "shop_id" INT,
-        "name" VARCHAR(255),
-        "description" TEXT,
-        "price" DECIMAL(10, 2),
-        "image_name" UUID,
-        "due_date" TIMESTAMP,
-        "stock" INT,
-        "sales" INT,
-        "enabled" BOOLEAN
-    );
-
--- Define CouponType enum
-
 CREATE TYPE
-    coupon_type AS ENUM (
+    "coupon_type" AS ENUM (
         'percentage',
         'fixed',
         'shipping'
     );
 
+CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
+
+CREATE TABLE
+    "cart" (
+        "id" SERIAL PRIMARY KEY,
+        "user_id" INT NOT NULL,
+        "shop_id" INT NOT NULL
+    );
+
+CREATE TABLE
+    "cart_product" (
+        "cart_id" INT NOT NULL,
+        "product_id" INT NOT NULL,
+        "quantity" INT NOT NULL
+    );
+
+CREATE TABLE
+    "order_history" (
+        "id" SERIAL PRIMARY KEY,
+        "user_id" INT NOT NULL,
+        "shop_id" INT NOT NULL,
+        "shipment" INT NOT NULL,
+        "total_price" INT NOT NULL,
+        "status" order_status NOT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+
+CREATE TABLE
+    "order_detail" (
+        "order_id" INT NOT NULL,
+        "product_id" INT NOT NULL,
+        "product_version" INT NOT NULL,
+        "quantity" INT NOT NULL
+    );
+
+CREATE TABLE
+    "cart_coupon" (
+        "cart_id" INT NOT NULL,
+        "coupon_id" INT NOT NULL
+    );
+
+CREATE TABLE
+    "product" (
+        "id" SERIAL PRIMARY KEY,
+        "version" SERIAL,
+        "shop_id" INT NOT NULL,
+        "name" VARCHAR(255) NOT NULL,
+        "description" TEXT NOT NULL,
+        "price" DECIMAL(10, 2) NOT NULL,
+        "image_id" UUID NOT NULL,
+        "due_date" TIMESTAMP NOT NULL,
+        "stock" INT NOT NULL,
+        "sales" INT NOT NULL,
+        "enabled" BOOLEAN NOT NULL DEFAULT TRUE,
+        UNIQUE ("id", "version")
+    );
+
 CREATE TABLE
     "coupon" (
         "id" SERIAL PRIMARY KEY,
-        "type" coupon_type,
-        "shop_id" INT,
-        "information" TEXT,
-        "discount" DECIMAL(5, 2),
-        "start_date" TIMESTAMP,
-        "expire_date" TIMESTAMP
+        "type" coupon_type NOT NULL,
+        "shop_id" INT NOT NULL,
+        "description" TEXT NOT NULL,
+        "discount" DECIMAL(5, 2) NOT NULL,
+        "start_date" TIMESTAMP NOT NULL,
+        "expire_date" TIMESTAMP NOT NULL
     );
-
--- Define RoleType enum
-
-CREATE TYPE role_type AS ENUM ( 'admin', 'customer');
 
 CREATE TABLE
     "user" (
         "id" SERIAL PRIMARY KEY,
-        "name" VARCHAR(255),
-        "email" VARCHAR(255),
-        "address" VARCHAR(255),
-        "role" role_type,
-        "session_token" VARCHAR(255),
-        "credit_card" JSON,
-        "password" VARCHAR(255)
+        "account" VARCHAR(255) NOT NULL,
+        "name" VARCHAR(255) NOT NULL,
+        "email" VARCHAR(255) NOT NULL,
+        "address" VARCHAR(255) NOT NULL,
+        "image_id" UUID NOT NULL,
+        "role" role_type NOT NULL,
+        "session_token" VARCHAR(255) NOT NULL,
+        "credit_card" JSON NOT NULL,
+        "password" VARCHAR(255) NOT NULL,
+        UNIQUE ("account", "email")
     );
 
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_id" INT,
-        "name" VARCHAR(255),
-        "enabled" BOOLEAN
+        "seller_id" INT NOT NULL,
+        "image_id" UUID NOT NULL,
+        "name" VARCHAR(255) NOT NULL,
+        "enabled" BOOLEAN NOT NULL
     );
 
 CREATE TABLE
     "tag" (
         "id" SERIAL PRIMARY KEY,
-        "shop_id" INT,
-        "name" VARCHAR(255)
+        "shop_id" INT NOT NULL,
+        "name" VARCHAR(255) NOT NULL
     );
 
-CREATE TABLE "product_tag" ( "tag_id" INT, "product_id" INT );
+CREATE TABLE
+    "product_tag" (
+        "tag_id" INT NOT NULL,
+        "product_id" INT NOT NULL
+    );
 
-CREATE TABLE "coupon_tag" ( "coupon_id" INT, "tag_id" INT );
+CREATE TABLE
+    "coupon_tag" (
+        "coupon_id" INT NOT NULL,
+        "tag_id" INT NOT NULL
+    );
 
 ALTER TABLE "cart_product"
 ADD
@@ -125,21 +137,11 @@ ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
-ALTER TABLE "cart_product"
-ADD
-    FOREIGN KEY ("product_id") REFERENCES "product" ("id");
-
-ALTER TABLE "cart_coupon"
-ADD
-    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id");
+ALTER TABLE "user" ADD FOREIGN KEY ("id") REFERENCES "shop" ("id");
 
 ALTER TABLE "coupon"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
-
-ALTER TABLE "user"
-ADD
-    FOREIGN KEY ("id") REFERENCES "shop" ("id");
 
 ALTER TABLE "tag"
 ADD
@@ -147,19 +149,11 @@ ADD
 
 ALTER TABLE "product_tag"
 ADD
-    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id");
-
-ALTER TABLE "product_tag"
-ADD
     FOREIGN KEY ("product_id") REFERENCES "product" ("id");
 
 ALTER TABLE "coupon_tag"
 ADD
     FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id");
-
-ALTER TABLE "coupon_tag"
-ADD
-    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id");
 
 ALTER TABLE "cart"
 ADD
