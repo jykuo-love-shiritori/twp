@@ -1,10 +1,13 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	_ "github.com/jykuo-love-shiritori/twp/docs"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
 // @title           twp API
@@ -27,12 +30,14 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func RegisterDocs(e *echo.Echo) {
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
-
+	docs := e.Group(constants.SWAGGER_PATH)
+	docs.GET("/*", echoSwagger.WrapHandler)
 }
-func RegisterApi(e *echo.Echo) {
 
+func RegisterApi(e *echo.Echo) {
 	api := e.Group("/api")
+
+	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, map[string]string{"message": "pong"}) })
 
 	api.POST("/logout", logout)
 
