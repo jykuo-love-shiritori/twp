@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/jykuo-love-shiritori/twp/pkg/environment"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,10 +17,10 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.Use(middleware.Static("frontend/dist"))
+	RegisterFrontend(e)
 
 	router.RegisterApi(e)
-	if os.Getenv("TWP_ENV") == environment.DEV {
+	if os.Getenv("TWP_ENV") == constants.DEV.String() {
 		router.RegisterDocs(e)
 	}
 	go func() {
