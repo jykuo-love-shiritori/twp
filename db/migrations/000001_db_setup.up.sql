@@ -79,7 +79,7 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
         "start_date" TIMESTAMP NOT NULL,
-        "expire_date" TIMESTAMP NOT NULL
+        "expire_date" TIMESTAMP NOT NULL CHECK ("expire_date" > "start_date")
     );
 
 CREATE TABLE
