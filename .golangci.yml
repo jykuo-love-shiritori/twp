@@ -9,8 +9,8 @@ linters:
     - errcheck
     - gofmt
     - goimports
-    - golint
     - govet
+    - revive
     - staticcheck
 
 issues:
