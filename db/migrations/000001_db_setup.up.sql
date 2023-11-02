@@ -85,7 +85,7 @@ CREATE TABLE
 CREATE TABLE
     "user" (
         "id" SERIAL PRIMARY KEY,
-        "account" VARCHAR(255) NOT NULL,
+        "username" VARCHAR(255) NOT NULL UNIQUE,
         "password" VARCHAR(255) NOT NULL,
         "name" VARCHAR(255) NOT NULL,
         "email" VARCHAR(255) NOT NULL,
@@ -94,13 +94,13 @@ CREATE TABLE
         "role" role_type NOT NULL,
         "session_token" VARCHAR(255) NOT NULL,
         "credit_card" JSONB NOT NULL,
-        UNIQUE ("account", "email")
+        UNIQUE ("username", "email")
     );
 
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_id" INT NOT NULL,
+        "seller_name" VARCHAR(255) NOT NULL,
         "image_id" UUID NOT NULL,
         "name" VARCHAR(255) NOT NULL,
         "enabled" BOOLEAN NOT NULL
@@ -139,7 +139,7 @@ ADD
 
 ALTER TABLE "shop"
 ADD
-    FOREIGN KEY ("seller_id") REFERENCES "user" ("id");
+    FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
 
 ALTER TABLE "coupon"
 ADD
