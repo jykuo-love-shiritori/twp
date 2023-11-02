@@ -5,6 +5,8 @@ import { Col, Row } from 'react-bootstrap';
 import CartItem from '@components/CartItem';
 import UserItem from '@components/UserItem';
 
+import sellerInfo from '@pages/user/seller/sellerInfo.json';
+
 interface Props {
   item_id: number;
   quantity: number;
@@ -25,7 +27,6 @@ const CartGroup = () => {
 
   const removeItem = (id: number) => {
     setCartContainer((prevCartContainer) => {
-      // const item = prevCartContainer.filter((item) => item.item_id === id);
       const updateCartContainer = prevCartContainer.filter((item) => item.item_id !== id);
       return updateCartContainer;
     });
@@ -39,7 +40,7 @@ const CartGroup = () => {
             <Form.Check type={'checkbox'} />
           </Col>
           <Col xs={11}>
-            <UserItem img_path='../images/person.png' name='Tom Johnathan' />
+            <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
           </Col>
         </Row>
 
