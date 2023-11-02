@@ -14,6 +14,7 @@ import Info from '@components/Info';
 import History from '@components/History';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
+import APItest from '@components/APItest';
 
 function App() {
   return (
@@ -45,6 +46,8 @@ function App() {
           <Route path='/search?' element={<SearchNotFound />} />
 
           <Route path='*' element={<NotFound />} />
+
+          <Route path='/APItest' element={<APItest />} />
         </Route>
       </Routes>
     </BrowserRouter>
