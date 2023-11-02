@@ -1,6 +1,6 @@
 import BeforeUser from '@components/BeforeUser';
 
-import beforeData from '@pages/user/before.json';
+import beforeData from '@pages/user/buyer/before.json';
 
 const Signup = () => {
   return <BeforeUser data={beforeData.register} />;

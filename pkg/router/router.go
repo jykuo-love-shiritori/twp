@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -37,7 +38,14 @@ func RegisterDocs(e *echo.Echo) {
 func RegisterApi(e *echo.Echo) {
 	api := e.Group("/api")
 
-	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, map[string]string{"message": "pong"}) })
+	api.GET("/ping", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"message": "pong"})
+	})
+
+	api.GET("/delay", func(c echo.Context) error {
+		time.Sleep(1 * time.Second)
+		return c.JSON(http.StatusOK, map[string]string{"message": "delay"})
+	})
 
 	api.POST("/logout", logout)
 

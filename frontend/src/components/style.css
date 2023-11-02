@@ -279,7 +279,9 @@
 
 /* [item in page] users info page */
 .user_bg {
-  padding-top: 20px;
+  background: url('/images/user_bg.png') fixed;
+  width: 100%;
+  height: 300px;
 }
 
 .user_icon {

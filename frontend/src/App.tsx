@@ -6,14 +6,16 @@ import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
 import Cart from '@pages/cart';
-import User from '@pages/user';
+import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
-import HistoryEach from '@pages/user/history/[historyID]';
+import HistoryEach from '@pages/user/buyer/history/[historyID]';
 import Info from '@components/Info';
 import History from '@components/History';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
+import APItest from '@components/APItest';
+import Seller from '@pages/user/seller';
 
 function App() {
   return (
@@ -40,11 +42,18 @@ function App() {
           <Route path='user/buyer/order'>
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
+
+          <Route path='user/seller' element={<Seller />}>
+            {/* routes for seller are not added yet*/}
+          </Route>
+
           <Route path='buyer/cart' element={<Cart />} />
 
           <Route path='/search?' element={<SearchNotFound />} />
 
           <Route path='*' element={<NotFound />} />
+
+          <Route path='/APItest' element={<APItest />} />
         </Route>
       </Routes>
     </BrowserRouter>
