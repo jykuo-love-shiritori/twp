@@ -58,7 +58,7 @@ CREATE TABLE
 CREATE TABLE
     "product" (
         "id" SERIAL PRIMARY KEY,
-        "version" SERIAL,
+        "version" INT NOT NULL DEFAULT 1,
         "shop_id" INT NOT NULL,
         "name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
