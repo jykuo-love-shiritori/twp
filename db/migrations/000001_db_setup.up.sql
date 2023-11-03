@@ -38,7 +38,7 @@ CREATE TABLE
         "shipment" INT NOT NULL,
         "total_price" INT NOT NULL,
         "status" order_status NOT NULL,
-        "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+        "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
 CREATE TABLE
@@ -64,7 +64,7 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
-        "due_date" TIMESTAMP NOT NULL,
+        "due_date" TIMESTAMPTZ NOT NULL,
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE,
@@ -78,8 +78,8 @@ CREATE TABLE
         "shop_id" INT NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
-        "start_date" TIMESTAMP NOT NULL,
-        "expire_date" TIMESTAMP NOT NULL CHECK ("expire_date" > "start_date")
+        "start_date" TIMESTAMPTZ NOT NULL,
+        "expire_date" TIMESTAMPTZ NOT NULL CHECK ("expire_date" > "start_date")
     );
 
 CREATE TABLE
