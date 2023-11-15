@@ -61,6 +61,14 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "version" INT NOT NULL,
         "shop_id" INT NOT NULL,
+        "name" VARCHAR(255) NOT NULL,
+        "description" TEXT NOT NULL,
+        "price" DECIMAL(10, 2) NOT NULL,
+        "image_id" UUID NOT NULL,
+        "exp_date" TIMESTAMPTZ NOT NULL,
+        "edit_date" TIMESTAMPTZ NOT NULL, # to limit the edit frequency
+        "stock" INT NOT NULL,
+        "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
 CREATE TABLE
@@ -71,10 +79,6 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
-        "due_date" TIMESTAMPTZ NOT NULL,
-        "edit_date" TIMESTAMPTZ NOT NULL,
-        "stock" INT NOT NULL,
-        "sales" INT NOT NULL,
         PRIMARY KEY ("id", "version")
     );
 CREATE TABLE
@@ -141,10 +145,6 @@ ADD
 ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
-
-ALTER TABLE "product"
-ADD
-    FOREIGN KEY ("id", "version") REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "shop"
 ADD
