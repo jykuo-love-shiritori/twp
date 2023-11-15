@@ -65,8 +65,8 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
-        "due_date" TIMESTAMPTZ NOT NULL,
-        "edit_date" TIMESTAMPTZ NOT NULL,
+        "exp_date" TIMESTAMPTZ NOT NULL,
+        "edit_date" TIMESTAMPTZ NOT NULL, # to limit the edit frequency
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
