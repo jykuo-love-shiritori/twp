@@ -63,7 +63,7 @@ CREATE TABLE
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
 CREATE TABLE
-    "product_version_history" (
+    "product_archive" (
         "id" INT NOT NULL,
         "version" INT NOT NULL DEFAULT 1,
         "name" VARCHAR(255) NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
         "session_token" VARCHAR(255) NOT NULL,
-        "credit_card" JSONB NOT NULL,
+        "credit_card" JSONB NOT NULL
     );
 
 CREATE TABLE
@@ -140,7 +140,7 @@ ADD
 ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
-ALTER TABLE "product_version_history"
+ALTER TABLE "product_archive"
 ADD
     FOREIGN KEY ("id") REFERENCES "product" ("id");
 
@@ -178,7 +178,7 @@ ADD
 
 ALTER TABLE "order_detail"
 ADD
-    FOREIGN KEY ("product_id", "product_version") REFERENCES "product_version_history" ("id", "version");
+    FOREIGN KEY ("product_id", "product_version") REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "order_history"
 ADD
