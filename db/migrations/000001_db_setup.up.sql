@@ -59,6 +59,7 @@ CREATE TABLE
 CREATE TABLE
     "product" (
         "id" SERIAL PRIMARY KEY,
+        "version" INT NOT NULL,
         "shop_id" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
@@ -140,9 +141,10 @@ ADD
 ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
-ALTER TABLE "product_archive"
+
+ALTER TABLE "product"
 ADD
-    FOREIGN KEY ("id") REFERENCES "product" ("id");
+    FOREIGN KEY ("id", "version") REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "shop"
 ADD

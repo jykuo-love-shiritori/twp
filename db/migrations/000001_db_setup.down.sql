@@ -1,7 +1,6 @@
 -- Drop foreign key constraints
 ALTER TABLE "cart_product" DROP CONSTRAINT "cart_product_cart_id_fkey";
 ALTER TABLE "cart_coupon" DROP CONSTRAINT "cart_coupon_cart_id_fkey";
-ALTER TABLE "product_archive" DROP CONSTRAINT "product_archive_id_fkey";
 ALTER TABLE "shop" DROP CONSTRAINT "shop_seller_name_fkey";
 ALTER TABLE "coupon" DROP CONSTRAINT "coupon_shop_id_fkey";
 ALTER TABLE "tag" DROP CONSTRAINT "tag_shop_id_fkey";
@@ -10,9 +9,8 @@ ALTER TABLE "coupon_tag" DROP CONSTRAINT "coupon_tag_coupon_id_fkey";
 ALTER TABLE "cart" DROP CONSTRAINT "cart_user_id_fkey";
 ALTER TABLE "cart" DROP CONSTRAINT "cart_shop_id_fkey";
 ALTER TABLE "order_detail" DROP CONSTRAINT "order_detail_order_id_fkey";
-
 ALTER TABLE "order_detail" DROP CONSTRAINT "order_detail_product_id_product_version_fkey";
-
+ALTER TABLE "product" DROP CONSTRAINT "product_id_version_fkey";
 
 -- Drop tables
 DROP TABLE "order_detail";
