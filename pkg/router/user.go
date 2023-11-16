@@ -15,7 +15,7 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /logout [post]
-func logout(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func logout(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -30,7 +30,7 @@ func logout(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user [get]
-func userGetInfo(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userGetInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -45,7 +45,7 @@ func userGetInfo(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user/edit [patch]
-func userEditInfo(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userEditInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -61,7 +61,7 @@ func userEditInfo(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user/avatar [post]
-func userUploadAvatar(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userUploadAvatar(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -76,7 +76,7 @@ func userUploadAvatar(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user/password [post]
-func userEditPassword(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userEditPassword(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -91,7 +91,7 @@ func userEditPassword(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card [get]
-func userGetCreditCard(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userGetCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -107,7 +107,7 @@ func userGetCreditCard(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card/delete [delete]
-func userDeleteCreditCard(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userDeleteCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -122,7 +122,7 @@ func userDeleteCreditCard(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card/add [post]
-func userAddCreditCard(c *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userAddCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
