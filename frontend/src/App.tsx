@@ -22,6 +22,9 @@ import Security from '@pages/user/buyer/security';
 import Password from '@pages/user/buyer/security/Password';
 import CreditCard from '@pages/user/buyer/security/CreditCard';
 import NewCard from '@pages/user/buyer/security/NewCard';
+import Shop from '@pages/user/buyer/Shop';
+import Products from '@pages/user/seller/Products';
+import NewGoods from '@pages/user/seller/NewGoods';
 
 function App() {
   return (
@@ -55,7 +58,12 @@ function App() {
 
           <Route path='user/seller' element={<Seller />}>
             {/* routes for seller are not added yet*/}
+            <Route path='/user/seller/manageProducts' element={<Products />} />
           </Route>
+
+          <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
+
+          <Route path='sellerID/shop' element={<Shop />} />
 
           <Route path='buyer/cart' element={<Cart />} />
 

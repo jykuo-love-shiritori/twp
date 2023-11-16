@@ -13,13 +13,15 @@ const TButton = ({ text, url }: Props) => {
 
   const urlButton = (
     <Link to={url} className='none button pointer center' style={{ color: 'white' }}>
-      <div style={{ width: '100%' }}>
-        <div className='center'>{text}</div>
-      </div>
+      <div className='center'>{text}</div>
     </Link>
   );
 
-  return <div className='center'>{url ? urlButton : button}</div>;
+  return (
+    <div className='center' style={{ width: '100%' }}>
+      {url ? urlButton : button}
+    </div>
+  );
 };
 
 export default TButton;

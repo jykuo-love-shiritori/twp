@@ -234,7 +234,7 @@
 .quantity_box {
   border-radius: 20px;
   border: 1px solid var(--button_dark);
-  padding: 2% 7% 2% 7%;
+  padding: 1% 7% 1% 7%;
   text-align: right;
   width: 100%;
   background-color: transparent;
