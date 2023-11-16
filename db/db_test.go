@@ -7,9 +7,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func TestInsert(t *testing.T) {
+func TestManipulate(t *testing.T) {
 	var err error
-	db, _ := NewDB()
+	db, err := NewDB()
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer db.Close()
 
 	err = db.q.InsertTestUser(context.Background(), pgtype.UUID{Valid: true})
