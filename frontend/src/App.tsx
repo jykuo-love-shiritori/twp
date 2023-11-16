@@ -18,6 +18,10 @@ import APItest from '@components/APItest';
 import Seller from '@pages/user/seller';
 import Forbidden from '@components/Forbidden';
 import Unauthorized from '@components/Unauthorized';
+import Security from '@pages/user/buyer/security';
+import Password from '@pages/user/buyer/security/Password';
+import CreditCard from '@pages/user/buyer/security/CreditCard';
+import NewCard from '@pages/user/buyer/security/NewCard';
 
 function App() {
   return (
@@ -39,6 +43,10 @@ function App() {
           <Route path='user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />
+            <Route path='/user/security' element={<Security />} />
+            <Route path='/user/security/password' element={<Password />} />
+            <Route path='/user/security/manageCreditCard' element={<CreditCard />} />
+            <Route path='/user/security/manageCreditCard/newCard' element={<NewCard />} />
             <Route path='/user/buyer/order' element={<History />} />
           </Route>
           <Route path='user/buyer/order'>

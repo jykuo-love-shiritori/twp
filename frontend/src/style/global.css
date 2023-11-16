@@ -119,7 +119,7 @@ p {
   opacity: 1;
 }
 
-.title {
+.title_color {
   color: var(--title);
 }
 
