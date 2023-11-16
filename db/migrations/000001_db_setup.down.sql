@@ -10,6 +10,7 @@ ALTER TABLE "cart" DROP CONSTRAINT "cart_user_id_fkey";
 ALTER TABLE "cart" DROP CONSTRAINT "cart_shop_id_fkey";
 ALTER TABLE "order_detail" DROP CONSTRAINT "order_detail_order_id_fkey";
 ALTER TABLE "order_detail" DROP CONSTRAINT "order_detail_product_id_product_version_fkey";
+ALTER TABLE "product" DROP CONSTRAINT "product_id_version_fkey";
 
 -- Drop tables
 DROP TABLE "order_detail";
