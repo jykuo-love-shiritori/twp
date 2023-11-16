@@ -9,8 +9,8 @@ import (
 )
 
 type DB struct {
-	q    *Queries
-	Conn *pgx.Conn
+	Queries *Queries
+	Conn    *pgx.Conn
 }
 
 func NewDB() (*DB, error) {
@@ -25,9 +25,12 @@ func NewDB() (*DB, error) {
 	}
 	q := New(conn)
 
-	return &DB{q: q, Conn: conn}, nil
+	return &DB{Queries: q, Conn: conn}, nil
 }
 
 func (db *DB) Close() {
-	db.Conn.Close(context.Background())
+	err := db.Conn.Close(context.Background())
+	if err != nil {
+		panic(err)
+	}
 }
