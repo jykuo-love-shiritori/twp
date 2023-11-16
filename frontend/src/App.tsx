@@ -16,6 +16,8 @@ import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
 import APItest from '@components/APItest';
 import Seller from '@pages/user/seller';
+import Forbidden from '@components/Forbidden';
+import Unauthorized from '@components/Unauthorized';
 
 function App() {
   return (
@@ -52,6 +54,8 @@ function App() {
           <Route path='/search?' element={<SearchNotFound />} />
 
           <Route path='*' element={<NotFound />} />
+          <Route path='/forbidden' element={<Forbidden />} />
+          <Route path='/unauthorized' element={<Unauthorized />} />
 
           <Route path='/APItest' element={<APItest />} />
         </Route>

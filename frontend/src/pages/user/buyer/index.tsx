@@ -11,7 +11,7 @@ const User = () => {
       <Col xs={12} md={12}>
         <div className='user_bg center' />
       </Col>
-      <Col xs={12} md={3}>
+      <Col xs={12} md={3} lg={2}>
         <Row className='user_icon'>
           <Col xs={12} className='center'>
             <img src={userData.imgUrl} className='user_img' />
@@ -23,7 +23,7 @@ const User = () => {
 
         <BuyerButtons />
       </Col>
-      <Col xs={12} md={9} style={{ padding: '1% 7% 6% 7%' }}>
+      <Col xs={12} md={9} ld={10} style={{ padding: '1% 7% 6% 7%' }}>
         {/* the personal info, security and order history */}
         <Outlet />
       </Col>

@@ -143,6 +143,7 @@
 /* [component] for search bar */
 ::placeholder {
   color: white;
+  opacity: 0.4;
 }
 
 .search {
@@ -257,13 +258,18 @@
 }
 
 /* [item in page] login register page temp button */
-.forTest {
-  border-radius: 30px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  background: rgb(82, 116, 228);
-  width: 312px;
-  height: 48px;
+.before_button {
+  width: 100%;
   flex-shrink: 0;
+  padding: 2%;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.before_button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transition-duration: 0.5s;
 }
 
 /* [item in page] for 401, 402, 404 pages */
@@ -302,7 +308,7 @@
   border-radius: 0px 30px 30px 0px;
   border: 1px solid var(--button_light);
   background-color: var(--button_light);
-  padding: 5% 5% 5% 15%;
+  padding: 12px 5% 12px 15%;
   cursor: pointer;
   margin: 5% 0% 5% 0%;
   user-select: none;

@@ -8,7 +8,7 @@ import sellerData from '@pages/user/seller/sellerInfo.json';
 const Seller = () => {
   return (
     <Row>
-      <Col xs={12} md={3}>
+      <Col xs={12} md={3} lg={2}>
         <div className='user_bg center' />
         <Row className='user_icon'>
           <Col xs={12} className='center'>
@@ -22,7 +22,7 @@ const Seller = () => {
         <SellerButtons />
       </Col>
 
-      <Col xs={12} md={9} style={{ padding: '1% 7% 6% 7%' }}>
+      <Col xs={12} md={9} lg={10} style={{ padding: '1% 7% 6% 7%' }}>
         {/* the personal info, security and order history */}
         <Outlet />
       </Col>
