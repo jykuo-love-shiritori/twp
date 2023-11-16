@@ -43,11 +43,11 @@ jobs:
       - name: Run Tests
         run: go test -v ./...
   migrate:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-latest"
 
     services:
       postgres:
-        image: postgres:latest
+        image: "postgres:16"
         env:
           POSTGRES_USER: root
           POSTGRES_PASSWORD: 1234
