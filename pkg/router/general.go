@@ -7,41 +7,41 @@ import (
 )
 
 // @Summary Get Shop Info
-// @Description Get shop information with shop ID
+// @Description Get shop information with seller username
 // @Tags Shop
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "seller username"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id} [get]
+// @Router /shop/{seller_name} [get]
 func getShopInfo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Get Shop Coupons
-// @Description Get coupons for a shop with shop ID
+// @Description Get coupons for a shop with seller username
 // @Tags Shop,Coupon
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "seller username"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id}/coupon [get]
+// @Router /shop/{seller_name}/coupon [get]
 func getShopCoupon(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
 // @Summary Search Shop Products
-// @Description Search products within a shop by shop ID
+// @Description Search products within a shop by seller username
 // @Tags Shop,Product,Search
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "Seller username"
 // @Param q query string true "search word"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id}/search [get]
+// @Router /shop/{seller_name}/search [get]
 func searchShopProduct(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }

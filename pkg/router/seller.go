@@ -28,8 +28,8 @@ func sellerEditInfo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// @Summary Seller get avaliable tag
-// @Description Get all avaliable tags for shop.
+// @Summary Seller get available tag
+// @Description Get all available tags for shop.
 // @Tags Seller, Shop, Tag
 // @Produce json
 // @Success 200
@@ -134,7 +134,7 @@ func sellerGetOrderDetail(c echo.Context) error {
 }
 
 // @Summary Seller get report
-// @Description Get all avaliable reports for shop.
+// @Description Get all available reports for shop.
 // @Tags Seller, Shop, Report
 // @Produce json
 // @Success 200
