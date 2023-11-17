@@ -5,6 +5,7 @@ import { Col, Row } from 'react-bootstrap';
 import NotFound from '@components/NotFound';
 
 import newsData from '@pages/home/newsData.json';
+import { useParams } from 'react-router-dom';
 
 interface Props {
   id: number | null;
@@ -16,8 +17,9 @@ interface Props {
 }
 
 const EachNews = () => {
-  const id = window.location.href.slice(-1);
-  console.log(id);
+  const params = useParams();
+  const id = params.news_id;
+
   const data: Props = { id: null, imgUrl: '', title: '', date: '', subTitle: '', content: '' };
   const foundNews = newsData.find((news) => news.id.toString() === id);
 

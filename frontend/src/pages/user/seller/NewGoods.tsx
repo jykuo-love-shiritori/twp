@@ -29,15 +29,18 @@ const EmptyGoods = () => {
   const tagStyle = {
     borderRadius: '30px',
     background: ' var(--button_light)',
-    padding: '2% 5% 2% 5%',
+    padding: '1% 1% 1% 3%',
     color: 'white',
     margin: '5px 0 5px 5px',
+    width: '100%',
   };
 
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>([]);
 
   const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.keyCode === 229) return;
+
     if (event.key === 'Enter') {
       const input = event.currentTarget.value.trim();
 
@@ -48,6 +51,10 @@ const EmptyGoods = () => {
     }
   };
 
+  const changeTag = (currentTag: string) => {
+    const index = tagContainer.indexOf(currentTag);
+  };
+
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
       <Row>
@@ -56,7 +63,7 @@ const EmptyGoods = () => {
             <div
               style={{
                 backgroundColor: 'black',
-                padding: '30% 7% 5% 7%',
+                padding: '30% 3% 5% 3%',
                 borderRadius: '0 0 30px 0',
               }}
             >
@@ -67,9 +74,15 @@ const EmptyGoods = () => {
               <Row>
                 <Col xs={9}></Col>
                 <Col xs={3}>
-                  <div className='button pointer center'>
-                    <FontAwesomeIcon icon={faPen} className='white_word' />
-                  </div>
+                  <form method='post' encType='multipart/form-data'>
+                    <label htmlFor='file' className='custom-file-upload'>
+                      <div className='button pointer center' style={{ padding: '10px' }}>
+                        <FontAwesomeIcon icon={faPen} className='white_word' />
+                      </div>
+                    </label>
+
+                    <input id='file' name='file' type='file' style={{ display: 'none' }} />
+                  </form>
                 </Col>
               </Row>
             </div>
@@ -86,39 +99,39 @@ const EmptyGoods = () => {
               style={{ marginBottom: '10px' }}
             />
 
-            <div>
-              <Row>
-                {tagContainer.map((currentTag, index) => (
+            <Row xs='auto'>
+              {tagContainer.map((currentTag, index) => (
+                <Col style={tagStyle} key={index} className='center'>
                   <Col sm={true} style={tagStyle} key={index}>
-                    <Row style={{ width: '100%' }}>
-                      <Col xs={1}>
-                        {/* <div className='button pointer center'>
-                          <FontAwesomeIcon icon={faTrash} className='white_word' />
-                        </div> */}
+                    <Row style={{ width: '100%' }} className='center'>
+                      <Col xs={1} style={{ backgroundColor: '' }} className='center'>
                         <FontAwesomeIcon icon={faTrash} className='white_word' />
                       </Col>
-                      <Col xs={1}>
-                        {/* <div className='button pointer center'>
-                          <FontAwesomeIcon icon={faPen} className='white_word' />
-                        </div> */}
+                      <Col xs={1} style={{ backgroundColor: '' }} className='center'>
                         <FontAwesomeIcon icon={faPen} className='white_word' />
                       </Col>
-                      <Col xs={1}>
-                        {currentTag + ' '}
-                        {/* <input
+                      <Col xs={10} style={{ backgroundColor: '' }}>
+                        {/* {currentTag} */}
+                        <input
                           type='text'
                           placeholder={currentTag}
-                          value={currentTag}
-                          onChange={(e) => setTag(e.target.value)}
-                        /> */}
+                          // value={currentTag}
+                          // onChange={(e) => setTag(e.target.value)}
+                          style={{
+                            border: 'var(--bg) 1px solid',
+                            borderRadius: '30px',
+                            padding: '0 10px 0 10px',
+                            backgroundColor: 'transparent',
+                            color: 'white',
+                            width: '100%',
+                          }}
+                        />
                       </Col>
                     </Row>
                   </Col>
-                ))}
-              </Row>
-            </div>
-
-            {/* {tagContainer.map()} */}
+                </Col>
+              ))}
+            </Row>
 
             <div style={{ height: '50px' }} />
             <TButton text='Delete Product' url='' />

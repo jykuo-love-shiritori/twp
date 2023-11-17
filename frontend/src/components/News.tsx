@@ -15,8 +15,8 @@ const News = ({ id, imgUrl, title }: Props) => {
     <div>
       <img src={imgUrl} className='news_pic_c' />
 
-      <div style={{ padding: '1% 15% 1% 15%' }} className='center'>
-        <span>{title}</span>
+      <div style={{ padding: '1% 10% 1% 10%' }} className='center'>
+        <span>{title.substring(0, 25)} ...</span>
       </div>
 
       <TButton text='more' url={`/news/${id}`} />

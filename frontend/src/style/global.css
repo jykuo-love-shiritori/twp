@@ -18,6 +18,10 @@ body {
   background-color: var(--bg);
 }
 
+textarea {
+  height: 150px;
+}
+
 .body_down {
   padding-top: 60px;
 }
