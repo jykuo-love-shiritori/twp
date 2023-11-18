@@ -51,9 +51,16 @@ const EmptyGoods = () => {
     }
   };
 
-  const changeTag = (currentTag: string) => {
-    const index = tagContainer.indexOf(currentTag);
-  };
+  // const changeTag = (currentTag: string) => {
+  //   console.log(tagContainer, currentTag);
+  //   let index: number;
+  //   for (let i = 0; i < tagContainer.length; i++) {
+  //     if (tagContainer[i] == currentTag) {
+  //       index = i;
+  //       console.log(index, tagContainer[index]);
+  //     }
+  //   }
+  // };
 
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
@@ -113,10 +120,11 @@ const EmptyGoods = () => {
                       <Col xs={10} style={{ backgroundColor: '' }}>
                         {/* {currentTag} */}
                         <input
+                          id='current'
                           type='text'
                           placeholder={currentTag}
-                          // value={currentTag}
-                          // onChange={(e) => setTag(e.target.value)}
+                          value={currentTag}
+                          // onChange={(e) => changeTag(e.target.value)}
                           style={{
                             border: 'var(--bg) 1px solid',
                             borderRadius: '30px',

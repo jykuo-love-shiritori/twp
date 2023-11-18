@@ -43,7 +43,7 @@ function App() {
           <Route path='/discover'>
             <Route path=':goods_id' element={<EachGoods />} />
           </Route>
-          <Route path='user' element={<User />}>
+          <Route path='/user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />
             <Route path='/user/security' element={<Security />} />
@@ -52,20 +52,19 @@ function App() {
             <Route path='/user/security/manageCreditCard/newCard' element={<NewCard />} />
             <Route path='/user/buyer/order' element={<History />} />
           </Route>
-          <Route path='user/buyer/order'>
+          <Route path='/user/buyer/order'>
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
 
-          <Route path='user/seller' element={<Seller />}>
-            {/* routes for seller are not added yet*/}
+          <Route path='/user/seller' element={<Seller />}>
             <Route path='/user/seller/manageProducts' element={<Products />} />
           </Route>
 
           <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
 
-          <Route path='sellerID/shop' element={<Shop />} />
+          <Route path='/sellerID/shop' element={<Shop />} />
 
-          <Route path='buyer/cart' element={<Cart />} />
+          <Route path='/buyer/cart' element={<Cart />} />
 
           <Route path='/search?' element={<SearchNotFound />} />
 
