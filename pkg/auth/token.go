@@ -18,16 +18,17 @@ func Token(c echo.Context) error {
 	b, _ := json.MarshalIndent(params, "", "  ")
 	fmt.Println(string(b))
 
-	_code := params["code"]
+	code := params["code"].(string)
 	verifier := params["code_verifier"].(string)
 
 	sha := sha256.Sum256([]byte(verifier))
-	hash := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
+	challenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
 
-	fmt.Println(_code, hash)
-	fmt.Println(code, challenge)
+	mu.Lock()
+	match := codeChallengePairs[code] == challenge
+	mu.Unlock()
 
-	if _code != code || hash != challenge {
+	if !match {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 

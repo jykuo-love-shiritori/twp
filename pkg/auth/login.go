@@ -21,18 +21,21 @@ func Login(c echo.Context) error {
 	b, _ := json.MarshalIndent(params, "", "  ")
 	fmt.Println(string(b))
 
-	challenge = params["code_challenge"].(string)
+	challenge := params["code_challenge"].(string)
 
-	_code := make([]byte, 32)
-	_, err := rand.Read(_code)
+	buf := make([]byte, 32)
+	_, err := rand.Read(buf)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "",
+			"message": "Unexpected Error",
 		})
 	}
+	sha := sha256.Sum256(buf)
+	code := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
 
-	sha := sha256.Sum256(_code)
-	code = base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
+	mu.Lock()
+	codeChallengePairs[code] = challenge
+	mu.Unlock()
 
 	return c.Redirect(http.StatusFound, redirect_uri+"?code="+code)
 }
