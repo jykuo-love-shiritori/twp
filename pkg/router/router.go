@@ -7,6 +7,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	_ "github.com/jykuo-love-shiritori/twp/docs"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
@@ -39,6 +40,9 @@ func RegisterApi(e *echo.Echo) {
 
 	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, map[string]string{"message": "pong"}) })
 
+	api.GET("/login", auth.Login)
+	api.Any("/authorize", auth.Authorize)
+	api.POST("/token", auth.Token)
 	api.POST("/logout", logout)
 
 	// admin
