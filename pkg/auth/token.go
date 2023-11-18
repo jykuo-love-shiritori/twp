@@ -6,7 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,7 +36,23 @@ func Token(c echo.Context) error {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 
+	claims := &jwtCustomClaims{
+		"someone", // TODO: remove hard-coded value
+		constants.ADMIN,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		},
+	}
+
+	unsignedToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := unsignedToken.SignedString([]byte(os.Getenv("TWP_JWT_SECRET")))
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	fmt.Println(token)
+
 	return c.JSON(http.StatusOK, echo.Map{
-		"access_token": "test",
+		"access_token": token,
 	})
 }

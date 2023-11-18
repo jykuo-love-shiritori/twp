@@ -3,6 +3,7 @@ module github.com/jykuo-love-shiritori/twp
 go 1.21.1
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.2
