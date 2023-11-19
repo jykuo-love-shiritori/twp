@@ -1,31 +1,11 @@
 import { Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import Carousel from 'react-bootstrap/Carousel';
+import { useState } from 'react';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
-import { useState } from 'react';
 import PasswordItem from '@components/PasswordItem';
-
-interface FillInformation {
-  information: string;
-}
-
-interface Props {
-  imgUrl: string;
-  title: string;
-  content: string;
-  subContent: string;
-  way: string;
-  path: string;
-  url: string;
-  buttonContent: string;
-  fillInformation: FillInformation[];
-}
-
-interface Data {
-  data: Props;
-}
 
 const Signup = () => {
   const [activeIndex, setActiveIndex] = useState(0);

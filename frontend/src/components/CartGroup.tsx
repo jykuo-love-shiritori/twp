@@ -44,7 +44,7 @@ const CartGroup = () => {
           </Col>
         </Row>
 
-        {cartContainer.map((data) => {
+        {cartContainer.map((data, index) => {
           return (
             <CartItem
               item_id={data.item_id}
@@ -52,6 +52,7 @@ const CartGroup = () => {
               removeItem={removeItem}
               // updateTotal={updateTotal}
               isCart={true}
+              key={index}
             />
           );
         })}

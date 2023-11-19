@@ -27,9 +27,9 @@ const CreditCard = () => {
       </Row>
       <br />
       <Row>
-        {creditData.map((data) => {
+        {creditData.map((data, index) => {
           return (
-            <Col xs={6} md={3}>
+            <Col xs={6} md={3} key={index}>
               <div style={ContainerStyle}>
                 <div className='title_color' style={{ padding: '0% 5% 5% 10%' }}>
                   <b>{data.company}</b>

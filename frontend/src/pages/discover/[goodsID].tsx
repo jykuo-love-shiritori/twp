@@ -64,9 +64,7 @@ const EachGoods = () => {
     console.log(data.tags);
   }
 
-  const isGoodsExist = !!foundGoods;
-
-  if (isGoodsExist) {
+  if (foundGoods) {
     return (
       <div style={{ padding: '55px 12% 0 12%' }}>
         <Row>
@@ -76,8 +74,8 @@ const EachGoods = () => {
 
               {/* tags, price and quantity */}
               <Row xs='auto'>
-                {data.tags.map((currentTag) => (
-                  <Col style={tagStyle} className='center'>
+                {data.tags.map((currentTag, index) => (
+                  <Col style={tagStyle} className='center' key={index}>
                     {currentTag.name}
                   </Col>
                 ))}

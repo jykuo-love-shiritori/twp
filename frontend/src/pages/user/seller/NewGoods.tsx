@@ -3,27 +3,10 @@ import '@style/global.css';
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileUpload, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-
-import TButton from '@components/TButton';
-import QuantityBar from '@components/QuantityBar';
-import InfoItem from '@components/InfoItem';
 import { useState } from 'react';
 
-interface Props {
-  id: number | null;
-  price: number;
-  name: string;
-  introduction: string;
-  sub_title: string;
-  sub_content: string;
-  calories: string;
-  due_date: string;
-  ingredients: string;
-  imgUrl: string;
-}
+import TButton from '@components/TButton';
+import InfoItem from '@components/InfoItem';
 
 const EmptyGoods = () => {
   const tagStyle = {
@@ -37,30 +20,38 @@ const EmptyGoods = () => {
 
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>([]);
+  const [modification, setModification] = useState<boolean[]>([]);
 
   const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 229) return;
 
     if (event.key === 'Enter') {
       const input = event.currentTarget.value.trim();
+      console.log(event.currentTarget.value);
 
       if (input !== '') {
-        setTag('');
         setTagContainer((prevTags) => [...prevTags, input]);
+        setModification((prevModification) => [...prevModification, false]);
+        setTag('');
       }
+      console.log(tagContainer, modification);
     }
   };
 
-  // const changeTag = (currentTag: string) => {
-  //   console.log(tagContainer, currentTag);
-  //   let index: number;
-  //   for (let i = 0; i < tagContainer.length; i++) {
-  //     if (tagContainer[i] == currentTag) {
-  //       index = i;
-  //       console.log(index, tagContainer[index]);
-  //     }
-  //   }
-  // };
+  const deleteTag = (index: number) => {
+    setTagContainer((prevTags) => prevTags.filter((_, i) => i !== index));
+    setModification((prevModifications) => prevModifications.filter((_, i) => i !== index));
+  };
+
+  const changeModification = (index: number) => {
+    setModification((prevModifications) =>
+      prevModifications.map((mod, i) => (i === index ? !mod : mod)),
+    );
+  };
+
+  const changeTag = (index: number, value: string) => {
+    setTagContainer((prevTags) => prevTags.map((tag, i) => (i === index ? value : tag)));
+  };
 
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
@@ -109,22 +100,28 @@ const EmptyGoods = () => {
             <Row xs='auto'>
               {tagContainer.map((currentTag, index) => (
                 <Col style={tagStyle} key={index} className='center'>
-                  <Col sm={true} style={tagStyle} key={index}>
-                    <Row style={{ width: '100%' }} className='center'>
-                      <Col xs={1} style={{ backgroundColor: '' }} className='center'>
-                        <FontAwesomeIcon icon={faTrash} className='white_word' />
-                      </Col>
-                      <Col xs={1} style={{ backgroundColor: '' }} className='center'>
-                        <FontAwesomeIcon icon={faPen} className='white_word' />
-                      </Col>
-                      <Col xs={10} style={{ backgroundColor: '' }}>
-                        {/* {currentTag} */}
+                  <Row style={{ width: '100%' }} className='center'>
+                    <Col xs={1} className='center'>
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        className='white_word pointer'
+                        onClick={() => deleteTag(index)}
+                      />
+                    </Col>
+                    <Col xs={1} className='center'>
+                      <FontAwesomeIcon
+                        icon={faPen}
+                        className='white_word pointer'
+                        onClick={() => changeModification(index)}
+                      />
+                    </Col>
+                    <Col xs={10}>
+                      {modification[index] ? (
                         <input
-                          id='current'
                           type='text'
                           placeholder={currentTag}
                           value={currentTag}
-                          // onChange={(e) => changeTag(e.target.value)}
+                          onChange={(e) => changeTag(index, e.target.value)}
                           style={{
                             border: 'var(--bg) 1px solid',
                             borderRadius: '30px',
@@ -134,9 +131,11 @@ const EmptyGoods = () => {
                             width: '100%',
                           }}
                         />
-                      </Col>
-                    </Row>
-                  </Col>
+                      ) : (
+                        <span>{currentTag}</span>
+                      )}
+                    </Col>
+                  </Row>
                 </Col>
               ))}
             </Row>

@@ -24,7 +24,6 @@ const User = () => {
         <BuyerButtons />
       </Col>
       <Col xs={12} md={9} ld={10} style={{ padding: '1% 7% 6% 7%' }}>
-        {/* the personal info, security and order history */}
         <Outlet />
       </Col>
     </Row>

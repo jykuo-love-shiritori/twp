@@ -1,7 +1,9 @@
 import { Col, Row } from 'react-bootstrap';
-import goodsData from '@pages/discover/goodsData.json';
+
 import SellerGoodsItem from '@components/SellerGoodsItem';
 import TButton from '@components/TButton';
+
+import goodsData from '@pages/discover/goodsData.json';
 
 const Products = () => {
   return (
@@ -18,9 +20,9 @@ const Products = () => {
       </Row>
       <hr className='hr' />
       <Row>
-        {goodsData.map((data) => {
+        {goodsData.map((data, index) => {
           return (
-            <Col xs={6} md={3}>
+            <Col xs={6} md={3} key={index}>
               <SellerGoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
             </Col>
           );

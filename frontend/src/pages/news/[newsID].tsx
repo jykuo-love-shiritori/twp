@@ -18,17 +18,13 @@ interface Props {
 
 const EachNews = () => {
   const params = useParams();
-  const id = params.news_id;
 
   const data: Props = { id: null, imgUrl: '', title: '', date: '', subTitle: '', content: '' };
-  const foundNews = newsData.find((news) => news.id.toString() === id);
+  const foundNews = newsData.find((news) => news.id.toString() === params.news_id);
 
   if (foundNews) {
     Object.assign(data, foundNews);
-  }
-  const isNewsExist = !!foundNews;
 
-  if (isNewsExist) {
     return (
       <div style={{ padding: '10% 10% 0% 10%' }}>
         <div className='news_bg flex-wrapper'>

@@ -13,9 +13,9 @@ const Discover = () => {
 
       <div style={{ padding: '2% 4% 2% 4%' }}>
         <Row>
-          {goodsData.map((data) => {
+          {goodsData.map((data, index) => {
             return (
-              <Col xs={6} md={3}>
+              <Col xs={6} md={3} key={index}>
                 <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
               </Col>
             );

@@ -18,7 +18,9 @@ const SellerGoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
     <div className='goods_item'>
       <img src={imgUrl} style={{ borderRadius: '0 0 30px 0', width: '100%' }} />
       <div style={{ padding: '2% 7% 2% 7% ' }}>
-        <p>{name}</p>
+        <p>
+          {name.substring(0, 11)} {name.length > 13 ? '...' : ''}
+        </p>
       </div>
 
       <Link to={isIndex ? `discover/${id}` : `${id}`}>

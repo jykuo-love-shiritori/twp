@@ -21,9 +21,9 @@ const Home = () => {
       <div style={{ padding: '1% 15% 1% 15%' }}>
         <h2 className='title'>News</h2>
         <Row>
-          {newsData.map((data) => {
+          {newsData.map((data, index) => {
             return (
-              <Col xs={12} md={4}>
+              <Col xs={12} md={4} key={index}>
                 <News id={data.id} imgUrl={data.imgUrl} title={data.title} />
               </Col>
             );
@@ -34,10 +34,10 @@ const Home = () => {
 
         <div style={{ padding: '0% 0% 3% 0%' }}>From most popular sellers</div>
         <Row>
-          {goodsData.map((data) => {
+          {goodsData.map((data, index) => {
             if (data.id < 5) {
               return (
-                <Col xs={6} md={3}>
+                <Col xs={6} md={3} key={index}>
                   <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
                 </Col>
               );
@@ -48,10 +48,10 @@ const Home = () => {
 
         <div style={{ padding: '3% 0% 3% 0%' }}>From local sellers</div>
         <Row>
-          {goodsData.map((data) => {
+          {goodsData.map((data, index) => {
             if (data.id < 9 && data.id > 4) {
               return (
-                <Col xs={6} md={3}>
+                <Col xs={6} md={3} key={index}>
                   <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
                 </Col>
               );

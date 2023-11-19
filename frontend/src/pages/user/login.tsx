@@ -7,26 +7,6 @@ import InfoItem from '@components/InfoItem';
 import { useState } from 'react';
 import PasswordItem from '@components/PasswordItem';
 
-interface FillInformation {
-  information: string;
-}
-
-interface Props {
-  imgUrl: string;
-  title: string;
-  content: string;
-  subContent: string;
-  way: string;
-  path: string;
-  url: string;
-  buttonContent: string;
-  fillInformation: FillInformation[];
-}
-
-interface Data {
-  data: Props;
-}
-
 const Login = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
