@@ -13,7 +13,7 @@ import (
 
 const deleteCoupon = `-- name: DeleteCoupon :exec
 
-DELETE FROM "coupon" WHERE "id" = $1 AND "shop_id"=$2
+DELETE FROM"coupon"WHERE"id"= $1 AND"shop_id"=$2
 `
 
 type DeleteCouponParams struct {
@@ -45,7 +45,10 @@ func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) er
 
 const getSellerInfo = `-- name: GetSellerInfo :one
 
-SELECT id, seller_name, image_id, name, description, enabled FROM "shop" WHERE "id" = $1
+SELECT s.id, s.seller_name, s.image_id, s.name, s.description, s.enabled
+FROM "user" u
+    JOIN "shop" s ON u.username = s.seller_name
+WHERE u.id = $1
 `
 
 func (q *Queries) GetSellerInfo(ctx context.Context, id int32) (Shop, error) {
@@ -64,19 +67,31 @@ func (q *Queries) GetSellerInfo(ctx context.Context, id int32) (Shop, error) {
 
 const insertTag = `-- name: InsertTag :one
 
-INSERT INTO "tag" ( "shop_id", "name") VALUES ($1,$2) RETURNING "id"
+WITH user_shop_info AS (
+        SELECT
+            u."id" AS "user_id",
+            s."id" AS "shop_id"
+        FROM "user" u
+            JOIN "shop" s ON u."username" = s."seller_name"
+        WHERE u."id" = $1
+    )
+INSERT INTO
+    "tag" ("shop_id", "name")
+SELECT u.shop_id, $2
+FROM user_shop_info
+RETURNING ("id", "name")
 `
 
 type InsertTagParams struct {
-	ShopID int32  `json:"shop_id"`
-	Name   string `json:"name"`
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
-func (q *Queries) InsertTag(ctx context.Context, arg InsertTagParams) (int32, error) {
-	row := q.db.QueryRow(ctx, insertTag, arg.ShopID, arg.Name)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) InsertTag(ctx context.Context, arg InsertTagParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, insertTag, arg.ID, arg.Name)
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const orderDetail = `-- name: OrderDetail :one
@@ -120,18 +135,18 @@ func (q *Queries) OrderDetail(ctx context.Context, orderID int32) (OrderDetailRo
 
 const searchTag = `-- name: SearchTag :many
 
-SELECT "id", "name"
-FROM "tag"
-WHERE
-    "shop_id" = $1
-    AND "name" LIKE $2 || '%'
-ORDER BY LEN("name")
+SELECT t."id", t."name"
+FROM "tag" t
+    JOIN "shop" s ON "shop_id" = s.id
+    JOIN "user" u ON s.seller_name = u.username
+WHERE u.id = $1 AND t."name" ~* $2
+ORDER BY LENGTH(t."name")
 LIMIT 10
 `
 
 type SearchTagParams struct {
-	ShopID  int32       `json:"shop_id"`
-	Column2 pgtype.Text `json:"column_2"`
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 type SearchTagRow struct {
@@ -140,7 +155,7 @@ type SearchTagRow struct {
 }
 
 func (q *Queries) SearchTag(ctx context.Context, arg SearchTagParams) ([]SearchTagRow, error) {
-	rows, err := q.db.Query(ctx, searchTag, arg.ShopID, arg.Column2)
+	rows, err := q.db.Query(ctx, searchTag, arg.ID, arg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +234,7 @@ func (q *Queries) SellerGetCoupon(ctx context.Context, arg SellerGetCouponParams
 
 const sellerGetCouponDetail = `-- name: SellerGetCouponDetail :one
 
-SELECT id, type, shop_id, name, description, discount, start_date, expire_date FROM "coupon" WHERE "id" = $1 and "shop_id" = $2
+SELECT id, type, shop_id, name, description, discount, start_date, expire_date FROM "coupon" WHERE "id"= $1 and"shop_id"= $2
 `
 
 type SellerGetCouponDetailParams struct {
@@ -306,7 +321,7 @@ const sellerGetReport = `-- name: SellerGetReport :many
 
 
 INSERT INTO
-    "product" (
+    "product"(
         "version",
         "shop_id",
         "name",
@@ -358,7 +373,7 @@ func (q *Queries) SellerGetReport(ctx context.Context, arg SellerGetReportParams
 const sellerInsertCoupon = `-- name: SellerInsertCoupon :one
 
 INSERT INTO
-    "coupon" (
+    "coupon"(
         "type",
         "shop_id",
         "description",
@@ -395,37 +410,19 @@ const updateCouponInfo = `-- name: UpdateCouponInfo :exec
 
 UPDATE "coupon"
 SET
-    "type" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "type"
-    END,
-    "description" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "description"
-    END,
-    "discount" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "discount"
-    END,
-    "start_date" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "start_date"
-    END,
-    "expire_date" = CASE
-        WHEN $7 IS NOT NULL THEN $7
-        ELSE "expire_date"
-    END
+    "type" = COALESCE($3, "type"),
+    "description" = COALESCE($4, "description"),
+    "discount" = COALESCE($4, "discount"),
+    "start_date" = COALESCE($4, "start_date"),
+    "expire_date" = COALESCE($4, "expire_date")
 WHERE "id" = $1 AND "shop_id" = $2
 `
 
 type UpdateCouponInfoParams struct {
-	ID          int32              `json:"id"`
-	ShopID      int32              `json:"shop_id"`
-	Type        CouponType         `json:"type"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount"`
-	StartDate   pgtype.Timestamptz `json:"start_date"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	ID          int32      `json:"id"`
+	ShopID      int32      `json:"shop_id"`
+	Type        CouponType `json:"type"`
+	Description string     `json:"description"`
 }
 
 func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoParams) error {
@@ -434,9 +431,6 @@ func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoPara
 		arg.ShopID,
 		arg.Type,
 		arg.Description,
-		arg.Discount,
-		arg.StartDate,
-		arg.ExpireDate,
 	)
 	return err
 }
@@ -445,39 +439,26 @@ const updateProductInfo = `-- name: UpdateProductInfo :exec
 
 UPDATE "product"
 SET
-    "name" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "description"
-    END,
-    "description" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "discount"
-    END,
-    "price" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "start_date"
-    END,
-    "image_id" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "image_id"
-    END,
-    "exp_date" = CASE
-        WHEN $7 IS NOT NULL THEN $7
-        ELSE "exp_date"
-    END,
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "price" = COALESCE($5, "price"),
+    "image_id" = COALESCE($6, "image_id"),
+    "exp_date" = COALESCE($7, "exp_date"),
+    "description" = COALESCE($8, "description"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "id" = $1 AND "shop_id" = $2
 `
 
 type UpdateProductInfoParams struct {
-	ID          int32              `json:"id"`
-	ShopID      int32              `json:"shop_id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
-	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpDate     pgtype.Timestamptz `json:"exp_date"`
+	ID            int32              `json:"id"`
+	ShopID        int32              `json:"shop_id"`
+	Name          string             `json:"name"`
+	Description   string             `json:"description"`
+	Price         pgtype.Numeric     `json:"price"`
+	ImageID       pgtype.UUID        `json:"image_id"`
+	ExpDate       pgtype.Timestamptz `json:"exp_date"`
+	Description_2 string             `json:"description_2"`
 }
 
 func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoParams) error {
@@ -489,6 +470,7 @@ func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoPa
 		arg.Price,
 		arg.ImageID,
 		arg.ExpDate,
+		arg.Description_2,
 	)
 	return err
 }
@@ -497,32 +479,19 @@ const updateSellerInfo = `-- name: UpdateSellerInfo :exec
 
 UPDATE "shop"
 SET
-    "seller_name" = CASE
-        WHEN $2 IS NOT NULL THEN $2
-        ELSE "seller_name"
-    END,
-    "image_id" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "image_id"
-    END,
-    "name" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "name"
-    END,
-    "description" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "description"
-    END,
-    "enabled" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "enabled"
-    END
-WHERE "id" = $1
+    "image_id" = COALESCE($2, "image_id"),
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "enabled" = COALESCE($5, "enabled")
+WHERE "seller_name" IN (
+        SELECT "username"
+        FROM "user" u
+        WHERE u.id = $1
+    )
 `
 
 type UpdateSellerInfoParams struct {
 	ID          int32       `json:"id"`
-	SellerName  string      `json:"seller_name"`
 	ImageID     pgtype.UUID `json:"image_id"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
@@ -532,7 +501,6 @@ type UpdateSellerInfoParams struct {
 func (q *Queries) UpdateSellerInfo(ctx context.Context, arg UpdateSellerInfoParams) error {
 	_, err := q.db.Exec(ctx, updateSellerInfo,
 		arg.ID,
-		arg.SellerName,
 		arg.ImageID,
 		arg.Name,
 		arg.Description,

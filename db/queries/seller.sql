@@ -1,46 +1,49 @@
 -- name: GetSellerInfo :one
 
-SELECT * FROM "shop" WHERE "id" = $1;
+SELECT s.*
+FROM "user" u
+    JOIN "shop" s ON u.username = s.seller_name
+WHERE u.id = $1;
 
 -- name: UpdateSellerInfo :exec
 
 UPDATE "shop"
 SET
-    "seller_name" = CASE
-        WHEN $2 IS NOT NULL THEN $2
-        ELSE "seller_name"
-    END,
-    "image_id" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "image_id"
-    END,
-    "name" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "name"
-    END,
-    "description" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "description"
-    END,
-    "enabled" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "enabled"
-    END
-WHERE "id" = $1;
+    "image_id" = COALESCE($2, "image_id"),
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "enabled" = COALESCE($5, "enabled")
+WHERE "seller_name" IN (
+        SELECT "username"
+        FROM "user" u
+        WHERE u.id = $1
+    );
 
 -- name: SearchTag :many
 
-SELECT "id", "name"
-FROM "tag"
-WHERE
-    "shop_id" = $1
-    AND "name" LIKE $2 || '%'
-ORDER BY LEN("name")
+SELECT t."id", t."name"
+FROM "tag" t
+    JOIN "shop" s ON "shop_id" = s.id
+    JOIN "user" u ON s.seller_name = u.username
+WHERE u.id = $1 AND t."name" ~* $2
+ORDER BY LENGTH(t."name")
 LIMIT 10;
 
 -- name: InsertTag :one
 
-INSERT INTO "tag" ( "shop_id", "name") VALUES ($1,$2) RETURNING "id";
+WITH user_shop_info AS (
+        SELECT
+            u."id" AS "user_id",
+            s."id" AS "shop_id"
+        FROM "user" u
+            JOIN "shop" s ON u."username" = s."seller_name"
+        WHERE u."id" = $1
+    )
+INSERT INTO
+    "tag" ("shop_id", "name")
+SELECT u.shop_id, $2
+FROM user_shop_info
+RETURNING ("id", "name");
 
 -- name: SellerGetCoupon :many
 
@@ -59,12 +62,12 @@ OFFSET $3;
 
 -- name: SellerGetCouponDetail :one
 
-SELECT * FROM "coupon" WHERE "id" = $1 and "shop_id" = $2;
+SELECT * FROM "coupon" WHERE "id"= $1 and"shop_id"= $2;
 
 -- name: SellerInsertCoupon :one
 
 INSERT INTO
-    "coupon" (
+    "coupon"(
         "type",
         "shop_id",
         "description",
@@ -79,31 +82,16 @@ RETURNING "id";
 
 UPDATE "coupon"
 SET
-    "type" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "type"
-    END,
-    "description" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "description"
-    END,
-    "discount" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "discount"
-    END,
-    "start_date" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "start_date"
-    END,
-    "expire_date" = CASE
-        WHEN $7 IS NOT NULL THEN $7
-        ELSE "expire_date"
-    END
+    "type" = COALESCE($3, "type"),
+    "description" = COALESCE($4, "description"),
+    "discount" = COALESCE($4, "discount"),
+    "start_date" = COALESCE($4, "start_date"),
+    "expire_date" = COALESCE($4, "expire_date")
 WHERE "id" = $1 AND "shop_id" = $2;
 
 -- name: DeleteCoupon :exec
 
-DELETE FROM "coupon" WHERE "id" = $1 AND "shop_id"=$2;
+DELETE FROM"coupon"WHERE"id"= $1 AND"shop_id"=$2;
 
 -- name: SellerGetOrder :many
 
@@ -134,7 +122,7 @@ WHERE "order_id" = $1;
 -- name: SellerInsertProduct :one
 
 INSERT INTO
-    "product" (
+    "product"(
         "version",
         "shop_id",
         "name",
@@ -150,26 +138,12 @@ RETURNING "id";
 
 UPDATE "product"
 SET
-    "name" = CASE
-        WHEN $3 IS NOT NULL THEN $3
-        ELSE "description"
-    END,
-    "description" = CASE
-        WHEN $4 IS NOT NULL THEN $4
-        ELSE "discount"
-    END,
-    "price" = CASE
-        WHEN $5 IS NOT NULL THEN $5
-        ELSE "start_date"
-    END,
-    "image_id" = CASE
-        WHEN $6 IS NOT NULL THEN $6
-        ELSE "image_id"
-    END,
-    "exp_date" = CASE
-        WHEN $7 IS NOT NULL THEN $7
-        ELSE "exp_date"
-    END,
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "price" = COALESCE($5, "price"),
+    "image_id" = COALESCE($6, "image_id"),
+    "exp_date" = COALESCE($7, "exp_date"),
+    "description" = COALESCE($8, "description"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "id" = $1 AND "shop_id" = $2;
