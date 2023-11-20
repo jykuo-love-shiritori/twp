@@ -1,4 +1,9 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Route,
+} from 'react-router-dom';
 
 import Layout from '@pages/Layout';
 import Home from '@pages/home';
@@ -16,12 +21,11 @@ import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
-
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />
           <Route path='/' element={<Home />} />
@@ -37,18 +41,23 @@ function App() {
             <Route path='/user/info' element={<Info />} />
             <Route path='/user/buyer/order' element={<History />} />
           </Route>
-          <Route path='user/buyer/order'>
-            <Route path=':history_id' element={<HistoryEach />} />
-          </Route>
+          {
+            // the HistoryEach is broken
+            // <Route path='user/buyer/order'>
+            //  <Route path=':history_id' element={<HistoryEach />} />
+            //</Route>
+          }
           <Route path='buyer/cart' element={<Cart />} />
 
           <Route path='/search?' element={<SearchNotFound />} />
 
           <Route path='*' element={<NotFound />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+      </Route>,
+    ),
   );
+
+  return <RouterProvider router={router} />;
 }
 
 export default App;

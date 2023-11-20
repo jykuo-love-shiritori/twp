@@ -1,7 +1,7 @@
 import '@style/global.css';
 import '@components/style.css';
 
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 import Footer from '@components/Footer';
 import NavBar from '@components/NavBar';
@@ -14,6 +14,7 @@ const Layout = () => {
         <Outlet />
       </div>
       <Footer />
+      <ScrollRestoration />
     </div>
   );
 };
