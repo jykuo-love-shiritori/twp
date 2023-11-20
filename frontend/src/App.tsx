@@ -14,12 +14,10 @@ import Info from '@components/Info';
 import History from '@components/History';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
-import ResetScroll from '@components/ResetScroll';
 
 function App() {
   return (
     <BrowserRouter>
-      <ResetScroll />
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
