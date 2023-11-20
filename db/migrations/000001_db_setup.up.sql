@@ -47,7 +47,11 @@ CREATE TABLE
         "product_id" INT NOT NULL,
         "product_version" INT NOT NULL,
         "quantity" INT NOT NULL,
-        PRIMARY KEY ("order_id", "product_id", "product_version")
+        PRIMARY KEY (
+            "order_id",
+            "product_id",
+            "product_version"
+        )
     );
 
 CREATE TABLE
@@ -66,11 +70,13 @@ CREATE TABLE
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
         "exp_date" TIMESTAMPTZ NOT NULL,
-        "edit_date" TIMESTAMPTZ NOT NULL, -- to limit the edit frequency
+        "edit_date" TIMESTAMPTZ NOT NULL,
+        -- to limit the edit frequency
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
+
 CREATE TABLE
     "product_archive" (
         "id" INT NOT NULL,
@@ -81,11 +87,13 @@ CREATE TABLE
         "image_id" UUID NOT NULL,
         PRIMARY KEY ("id", "version")
     );
+
 CREATE TABLE
     "coupon" (
         "id" SERIAL PRIMARY KEY,
         "type" coupon_type NOT NULL,
         "shop_id" INT NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
         "start_date" TIMESTAMPTZ NOT NULL,
@@ -112,6 +120,7 @@ CREATE TABLE
         "seller_name" VARCHAR(255) NOT NULL,
         "image_id" UUID NOT NULL,
         "name" VARCHAR(255) NOT NULL,
+        "description" TEXT NOT NULL,
         "enabled" BOOLEAN NOT NULL
     );
 
@@ -180,7 +189,10 @@ ADD
 
 ALTER TABLE "order_detail"
 ADD
-    FOREIGN KEY ("product_id", "product_version") REFERENCES "product_archive" ("id", "version");
+    FOREIGN KEY (
+        "product_id",
+        "product_version"
+    ) REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "order_history"
 ADD

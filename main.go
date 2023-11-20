@@ -31,6 +31,7 @@ func main() {
 
 	RegisterFrontend(e)
 
+	router.RegisterFile(e)
 	router.RegisterApi(e, db, logger.Sugar())
 
 	if os.Getenv("TWP_ENV") == constants.DEV.String() {

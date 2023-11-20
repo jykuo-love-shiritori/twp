@@ -16,8 +16,27 @@ import (
 // @Failure 401
 // @Router /seller [get]
 func sellerGetShopInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+
+	// Perform the query and handle errors
+	// shopInfo, err := db.Queries.GetSellerInfo(context.Background(), 0)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	return func(c echo.Context) error {
 
+		// type shopInfomation struct {
+		// 	name        string      `json:"name"`
+		// 	image_id    pgtype.UUID `json:"image_id"`
+		// 	description string      `json:"description"`
+		// 	enabled     bool        `json:"enabled"`
+		// }
+		// result := shopInfomation{
+		// 	shopInfo.Name,
+		// 	shopInfo.ImageID,
+		// 	shopInfo.Description,
+		// 	shopInfo.Enabled,
+		// }
+		// return c.JSON(http.StatusOK, result)
 		return c.NoContent(http.StatusOK)
 	}
 }
@@ -44,6 +63,7 @@ func sellerEditInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure 401
 // @Router /seller/tag [get]
 func sellerGetTag(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	//a void the let the wildcard
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
