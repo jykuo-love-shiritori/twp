@@ -91,7 +91,7 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "type" coupon_type NOT NULL,
         "shop_id" INT NOT NULL,
-        "name" TEXT NOT NULL,
+        "name" VARCHAR(255) NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
         "start_date" TIMESTAMPTZ NOT NULL,
