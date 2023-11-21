@@ -3,47 +3,58 @@ package router
 import (
 	"net/http"
 
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // @Summary Get Shop Info
-// @Description Get shop information with shop ID
+// @Description Get shop information with seller username
 // @Tags Shop
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "seller username"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id} [get]
-func getShopInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+// @Router /shop/{seller_name} [get]
+func getShopInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Shop Coupons
-// @Description Get coupons for a shop with shop ID
+// @Description Get coupons for a shop with seller username
 // @Tags Shop,Coupon
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "seller username"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id}/coupon [get]
-func getShopCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+// @Router /shop/{seller_name}/coupon [get]
+func getShopCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search Shop Products
-// @Description Search products within a shop by shop ID
+// @Description Search products within a shop by seller username
 // @Tags Shop,Product,Search
 // @Accept json
 // @Produce json
-// @Param id path int true "Shop ID"
+// @Param seller_name path int true "Seller username"
 // @Param q query string true "search word"
 // @Success 200
 // @Failure 401
-// @Router /shop/{id}/search [get]
-func searchShopProduct(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+// @Router /shop/{seller_name}/search [get]
+func searchShopProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Tag Info
@@ -55,8 +66,11 @@ func searchShopProduct(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /tag/{id} [get]
-func getTagInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getTagInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search for Products and Shops
@@ -68,8 +82,11 @@ func getTagInfo(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /search [get]
-func search(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func search(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search for Shops by Name
@@ -81,8 +98,11 @@ func search(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /search/shop [get]
-func searchShopByName(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func searchShopByName(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get News
@@ -93,8 +113,11 @@ func searchShopByName(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /news [get]
-func getNews(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getNews(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get News Detail
@@ -106,8 +129,11 @@ func getNews(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /news/{id} [get]
-func getNewsDetail(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getNewsDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Discover
@@ -118,8 +144,11 @@ func getNewsDetail(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /discover [get]
-func getDiscover(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getDiscover(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Product Info
@@ -131,6 +160,9 @@ func getDiscover(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /product/{id} [get]
-func getProductInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getProductInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }

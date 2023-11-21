@@ -7,19 +7,32 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
+	"go.uber.org/zap"
+
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 	e := echo.New()
-	e.Use(middleware.Logger())
+
+	logger, err := zap.NewProduction()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	RegisterLogger(e, logger)
+
+	db, err := db.NewDB()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
 
 	RegisterFrontend(e)
 
-	router.RegisterApi(e)
+	router.RegisterApi(e, db, logger.Sugar())
+
 	if os.Getenv("TWP_ENV") == constants.DEV.String() {
 		router.RegisterDocs(e)
 	}

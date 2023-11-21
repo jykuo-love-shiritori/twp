@@ -3,19 +3,10 @@ package router
 import (
 	"net/http"
 
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
-
-// @Summary Logout
-// @Description Logout the current user
-// @Tags Auth
-// @Produce json
-// @Success 200
-// @Failure 401
-// @Router /logout [post]
-func logout(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
-}
 
 // @Summary User Get Info
 // @Description Get user information
@@ -25,8 +16,11 @@ func logout(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user [get]
-func userGetInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userGetInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Edit Info
@@ -37,8 +31,11 @@ func userGetInfo(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/edit [patch]
-func userEditInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userEditInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Upload Avatar
@@ -50,8 +47,11 @@ func userEditInfo(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/avatar [post]
-func userUploadAvatar(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userUploadAvatar(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Edit Password
@@ -62,8 +62,11 @@ func userUploadAvatar(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/password [post]
-func userEditPassword(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userEditPassword(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Get Credit Card
@@ -74,8 +77,11 @@ func userEditPassword(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card [get]
-func userGetCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userGetCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Delete Credit Card
@@ -87,8 +93,11 @@ func userGetCreditCard(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card/delete [delete]
-func userDeleteCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userDeleteCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary User Add Credit Card
@@ -99,6 +108,9 @@ func userDeleteCreditCard(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /user/security/credit_card/add [post]
-func userAddCreditCard(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func userAddCreditCard(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }

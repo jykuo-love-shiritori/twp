@@ -6,16 +6,18 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 const tokenPrefix string = "Bearer "
 
-func IsRole(role constants.Role) echo.MiddlewareFunc {
+func IsRole(db *db.DB, logger *zap.SugaredLogger, role constants.Role) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			authorization := c.Request().Header["Authorization"][0]
+			authorization := c.Request().Header.Get("Authorization")
 			if authorization == "" {
 				return c.JSON(http.StatusUnauthorized, echo.Map{
 					"message": "No token found",
