@@ -1,18 +1,16 @@
-CREATE TYPE
-    "order_status" AS ENUM (
-        'pending',
-        'paid',
-        'shipped',
-        'delivered',
-        'cancelled'
-    );
+CREATE TYPE "order_status" AS ENUM (
+    'pending',
+    'paid',
+    'shipped',
+    'delivered',
+    'cancelled'
+);
 
-CREATE TYPE
-    "coupon_type" AS ENUM (
-        'percentage',
-        'fixed',
-        'shipping'
-    );
+CREATE TYPE "coupon_type" AS ENUM (
+    'percentage',
+    'fixed',
+    'shipping'
+);
 
 CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
 
@@ -70,12 +68,8 @@ CREATE TABLE
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
         "exp_date" TIMESTAMPTZ NOT NULL,
-<<<<<<< HEAD
         "edit_date" TIMESTAMPTZ NOT NULL,
         -- to limit the edit frequency
-=======
-        "edit_date" TIMESTAMPTZ NOT NULL, -- to limit the edit frequency
->>>>>>> twp/main
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE

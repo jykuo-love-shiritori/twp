@@ -15,7 +15,7 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /admin/user [get]
-func adminGetUser(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -29,7 +29,7 @@ func adminGetUser(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/user/{id} [delete]
-func adminDeleteUser(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminDeleteUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -42,7 +42,7 @@ func adminDeleteUser(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon [get]
-func adminGetCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -56,7 +56,7 @@ func adminGetCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [get]
-func adminGetCouponDetail(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -70,7 +70,7 @@ func adminGetCouponDetail(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon [post]
-func adminAddCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -85,7 +85,7 @@ func adminAddCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [patch]
-func adminEditCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -99,7 +99,7 @@ func adminEditCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [delete]
-func adminDeleteCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -112,7 +112,7 @@ func adminDeleteCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/report [get]
-func adminGetReport(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}

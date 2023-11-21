@@ -35,10 +35,6 @@ func RegisterDocs(e *echo.Echo) {
 	docs := e.Group(constants.SWAGGER_PATH)
 	docs.GET("/*", echoSwagger.WrapHandler)
 }
-func RegisterFile(e *echo.Echo) {
-	e.POST("/file", Addfile)
-	e.GET("/file/:filename", GetFile)
-}
 
 func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api := e.Group("/api")
