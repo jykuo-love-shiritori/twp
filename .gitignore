@@ -25,4 +25,3 @@ go.work
 
 *.env
 !.example.env
-twp
