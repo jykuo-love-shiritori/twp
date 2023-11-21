@@ -17,6 +17,7 @@ import (
 // @Failure 401
 // @Router /seller [get]
 type failure struct {
+	code int
 	fail string
 }
 
@@ -105,14 +106,14 @@ func sellerGetTag(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /seller/tag [post]
 func sellerAddTag(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
+		var userName string = "user0"
 
 		var param db.InsertTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Errorw("Error binding request parameters", "error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
-		param.ID = userID
+		param.SellerName = userName
 
 		tag, err := d.Queries.InsertTag(context.Background(), param)
 		if err != nil {
@@ -132,8 +133,21 @@ func sellerAddTag(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /seller/coupon [get]
 func sellerGetShopCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var userName string = "user0"
 
-		return c.NoContent(http.StatusOK)
+		var param db.SellerGetCouponParams
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("Error binding request parameters", "error", err)
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
+		}
+		param.SellerName = userName
+
+		tag, err := d.Queries.SellerGetCoupon(context.Background(), param)
+		if err != nil {
+			logger.Fatal(err)
+			return c.JSON(http.StatusInternalServerError, failure{"error"})
+		}
+		return c.JSON(http.StatusOK, tag)
 	}
 }
 

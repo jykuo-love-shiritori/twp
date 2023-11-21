@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteTestUser = `-- name: DeleteTestUser :exec
@@ -39,15 +41,15 @@ VALUES (
         'name0',
         'email0',
         'address0',
-        '550e8400-e29b-41d4-a716-446655440000',
+        $1,
         'customer',
         'session_token0',
         '{"card_number": "card_number0", "expiration_date": "expiration_date0", "cvv": "cvv0"}'
     )
 `
 
-func (q *Queries) InsertTestUser(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, insertTestUser)
+func (q *Queries) InsertTestUser(ctx context.Context, imageID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, insertTestUser, imageID)
 	return err
 }
 

@@ -31,43 +31,47 @@ LIMIT 10;
 
 -- name: InsertTag :one
 
-WITH user_shop_info AS (
-        SELECT
-            u."id" AS "user_id",
-            s."id" AS "shop_id"
-        FROM "user" u
-            JOIN "shop" s ON u."username" = s."seller_name"
-        WHERE u."id" = $1
-    )
 INSERT INTO
     "tag" ("shop_id", "name")
-SELECT u.shop_id, $2
-FROM user_shop_info
-RETURNING ("id", "name");
+VALUES ( (
+            SELECT s."id"
+            FROM "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = true
+        ),
+        $2
+    ) RETURNING ("id", "name");
 
 -- name: SellerGetCoupon :many
 
 SELECT
-    "id",
-    "type",
-    "shop_id",
-    "name",
-    "discount",
-    "expire_date"
-FROM "coupon"
-WHERE "shop_id" = $1
+    c."id",
+    c."type",
+    c."shop_id",
+    c."name",
+    c."discount",
+    c."expire_date"
+FROM "coupon" c
+    JOIN "shop" s ON c."shop_id" = s.id
+WHERE s.seller_name = $1
 ORDER BY "start_date" DESC
 LIMIT $2
 OFFSET $3;
 
 -- name: SellerGetCouponDetail :one
 
-SELECT * FROM "coupon" WHERE "id"= $1 and"shop_id"= $2;
+SELECT c.*
+FROM "coupon" c
+    JOIN "shop" s ON c."shop_id" = s.id
+WHERE
+    c."id" = $1
+    and s."seller_name" = $2;
 
 -- name: SellerInsertCoupon :one
 
 INSERT INTO
-    "coupon"(
+    "coupon" (
         "type",
         "shop_id",
         "description",
@@ -75,23 +79,47 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, NOW(), $5)
-RETURNING "id";
+VALUES (
+        $2, (
+            SELECT s."id"
+            FROM "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = true
+        ),
+        $3,
+        $4,
+        NOW(),
+        $5
+    ) RETURNING "id";
 
 -- name: UpdateCouponInfo :exec
 
-UPDATE "coupon"
+UPDATE "coupon" c
 SET
     "type" = COALESCE($3, "type"),
     "description" = COALESCE($4, "description"),
     "discount" = COALESCE($4, "discount"),
     "start_date" = COALESCE($4, "start_date"),
     "expire_date" = COALESCE($4, "expire_date")
-WHERE "id" = $1 AND "shop_id" = $2;
+WHERE c."id" = $2 AND "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    );
 
 -- name: DeleteCoupon :exec
 
-DELETE FROM"coupon"WHERE"id"= $1 AND"shop_id"=$2;
+DELETE FROM "coupon" c
+WHERE c."id" = $2 AND "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    );
 
 -- name: SellerGetOrder :many
 
@@ -103,7 +131,13 @@ SELECT
     "status",
     "created_at"
 FROM "order_history"
-WHERE "shop_id" = $1
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
 ORDER BY "created_at" DESC
 LIMIT $2
 OFFSET $3;
@@ -112,7 +146,7 @@ OFFSET $3;
 
 SELECT *
 FROM "order_detail"
-    LEFT JOIN "product_archive" ON "order_detail"."product_id" = "product"."id" AND "order_detail"."version" = "product"."id"
+    LEFT JOIN "product_archive" ON "order_detail"."product_id" = "product"."id" AND "order_detail"."version" = "product"."version"
 WHERE "order_id" = $1;
 
 -- name: SellerGetReport :many
@@ -131,12 +165,24 @@ INSERT INTO
         "image_id",
         "exp_date"
     )
-VALUES (0, $1, $2, $3, $4, $5, $6)
-RETURNING "id";
+VALUES (
+        0, (
+            SELECT s."id"
+            FROM "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = true
+        ),
+        $2,
+        $3,
+        $4,
+        $5,
+        $6
+    ) RETURNING "id";
 
 -- name: UpdateProductInfo :exec
 
-UPDATE "product"
+UPDATE "product" p
 SET
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
@@ -146,10 +192,26 @@ SET
     "description" = COALESCE($8, "description"),
     "edit_date" = NOW(),
     "version" = "version" + 1
-WHERE "id" = $1 AND "shop_id" = $2;
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+    AND p."id" = $2;
 
 -- name: DeleteProduct :exec
 
-UPDATE "product"
-SET "enabled" = false
-WHERE "id" = $1 AND "shop_id" = $2;
+UPDATE "product" p
+SET
+    "enabled" = false,
+    "edit_date" = NOW()
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+    AND p."id" = $2;
