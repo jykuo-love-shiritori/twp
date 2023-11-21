@@ -63,7 +63,7 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "version" INT NOT NULL,
         "shop_id" INT NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE
     "product_archive" (
         "id" INT NOT NULL,
         "version" INT NOT NULL DEFAULT 1,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "type" coupon_type NOT NULL,
         "shop_id" INT NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
         "start_date" TIMESTAMPTZ NOT NULL,
@@ -101,23 +101,22 @@ CREATE TABLE
 CREATE TABLE
     "user" (
         "id" SERIAL PRIMARY KEY,
-        "username" VARCHAR(255) NOT NULL UNIQUE,
-        "password" VARCHAR(255) NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
-        "email" VARCHAR(255) NOT NULL UNIQUE,
-        "address" VARCHAR(255) NOT NULL,
+        "username" TEXT NOT NULL UNIQUE,
+        "password" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "email" TEXT NOT NULL UNIQUE,
+        "address" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
-        "session_token" VARCHAR(255) NOT NULL,
         "credit_card" JSONB NOT NULL
     );
 
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_name" VARCHAR(255) NOT NULL,
+        "seller_name" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "enabled" BOOLEAN NOT NULL
     );
@@ -126,7 +125,7 @@ CREATE TABLE
     "tag" (
         "id" SERIAL PRIMARY KEY,
         "shop_id" INT NOT NULL,
-        "name" VARCHAR(255) NOT NULL
+        "name" TEXT NOT NULL
     );
 
 CREATE TABLE
