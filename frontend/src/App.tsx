@@ -1,5 +1,9 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Route,
+} from 'react-router-dom';
 import Layout from '@pages/Layout';
 import Home from '@pages/home';
 import EachNews from '@pages/news/[newsID]';
@@ -27,12 +31,11 @@ import Products from '@pages/user/seller/Products';
 import NewGoods from '@pages/user/seller/NewGoods';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />
-
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />
           <Route path='/' element={<Home />} />
@@ -55,28 +58,22 @@ function App() {
           <Route path='/user/buyer/order'>
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
-
           <Route path='/user/seller' element={<Seller />}>
             <Route path='/user/seller/manageProducts' element={<Products />} />
           </Route>
-
           <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
-
           <Route path='/sellerID/shop' element={<Shop />} />
-
           <Route path='/buyer/cart' element={<Cart />} />
-
           <Route path='/search?' element={<SearchNotFound />} />
-
           <Route path='*' element={<NotFound />} />
           <Route path='/forbidden' element={<Forbidden />} />
           <Route path='/unauthorized' element={<Unauthorized />} />
-
           <Route path='/APItest' element={<APItest />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+      </Route>,
+    ),
   );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
