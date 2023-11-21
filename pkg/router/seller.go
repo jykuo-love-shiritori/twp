@@ -8,10 +8,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type failure struct {
-	fail string
-}
-
 // @Summary Seller get shop info
 // @Description Get shop info, includes user picture, name, description.
 // @Tags Seller, Shop
