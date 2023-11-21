@@ -70,8 +70,12 @@ CREATE TABLE
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
         "exp_date" TIMESTAMPTZ NOT NULL,
+<<<<<<< HEAD
         "edit_date" TIMESTAMPTZ NOT NULL,
         -- to limit the edit frequency
+=======
+        "edit_date" TIMESTAMPTZ NOT NULL, -- to limit the edit frequency
+>>>>>>> twp/main
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
