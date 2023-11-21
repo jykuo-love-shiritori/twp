@@ -17,7 +17,6 @@ import (
 // @Router /logout [post]
 func Logout(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		return c.NoContent(http.StatusOK)
 	}
 }

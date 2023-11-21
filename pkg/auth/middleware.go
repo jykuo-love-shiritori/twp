@@ -19,37 +19,30 @@ func IsRole(db *db.DB, logger *zap.SugaredLogger, role constants.Role) echo.Midd
 		return func(c echo.Context) error {
 			authorization := c.Request().Header.Get("Authorization")
 			if authorization == "" {
-				return c.JSON(http.StatusUnauthorized, echo.Map{
-					"message": "No token found",
-				})
+				return echo.NewHTTPError(http.StatusUnauthorized, "No token found")
 			}
 
 			if !strings.HasPrefix(authorization, tokenPrefix) {
-				return c.JSON(http.StatusBadRequest, echo.Map{
-					"message": "Bad token",
-				})
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
 			}
 
 			tokenString := strings.TrimPrefix(authorization, tokenPrefix)
 
-			claims := &jwtCustomClaims{}
-			token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
-				return []byte(os.Getenv("TWP_SECRET_KEY")), nil
+			claims := jwtCustomClaims{}
+			token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+				return []byte(os.Getenv("TWP_JWT_SECRET")), nil
 			})
 			if err != nil {
-				return c.JSON(http.StatusBadRequest, echo.Map{
-					"message": "Bad token",
-				})
+				logger.Error(err)
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
 			}
 
 			if !token.Valid {
-				return c.JSON(http.StatusForbidden, echo.Map{
-					"message": "Token validation failed",
-				})
+				return echo.NewHTTPError(http.StatusForbidden, "Token validation failed")
 			}
 
 			if role != claims.Role {
-				return c.NoContent(http.StatusForbidden)
+				return echo.NewHTTPError(http.StatusForbidden, "Forbidden")
 			}
 
 			return next(c)
