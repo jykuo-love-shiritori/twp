@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+type failure struct {
+	fail string
+}
+
 // @Summary Seller get shop info
 // @Description Get shop info, includes user picture, name, description.
 // @Tags Seller, Shop
@@ -16,11 +20,6 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /seller [get]
-type failure struct {
-	code int
-	fail string
-}
-
 func sellerGetShopInfo(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
@@ -204,6 +203,7 @@ func sellerEditCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200
 // @Failure 401
+// @Router /seller/coupon/{id} [delete]
 func sellerDeleteCoupon(d *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 

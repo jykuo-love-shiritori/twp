@@ -24,8 +24,8 @@ WHERE c."id" = $2 AND "shop_id" = (
 `
 
 type DeleteCouponParams struct {
-	SellerName string `json:"seller_name"`
-	ID         int32  `json:"id"`
+	SellerName string `json:"seller_name" params:"seller_name"`
+	ID         int32  `json:"id" params:"id"`
 }
 
 func (q *Queries) DeleteCoupon(ctx context.Context, arg DeleteCouponParams) error {
@@ -50,8 +50,8 @@ WHERE "shop_id" = (
 `
 
 type DeleteProductParams struct {
-	SellerName string `json:"seller_name"`
-	ID         int32  `json:"id"`
+	SellerName string `json:"seller_name" params:"seller_name"`
+	ID         int32  `json:"id" params:"id"`
 }
 
 func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) error {
@@ -97,7 +97,7 @@ VALUES ( (
 `
 
 type InsertTagParams struct {
-	SellerName string `json:"seller_name"`
+	SellerName string `json:"seller_name" params:"seller_name"`
 	Name       string `json:"name"`
 }
 
@@ -159,7 +159,7 @@ LIMIT 10
 `
 
 type SearchTagParams struct {
-	ID   int32  `json:"id"`
+	ID   int32  `json:"id" params:"id"`
 	Name string `json:"name"`
 }
 
@@ -206,13 +206,13 @@ OFFSET $3
 `
 
 type SellerGetCouponParams struct {
-	SellerName string `json:"seller_name"`
+	SellerName string `json:"seller_name" params:"seller_name"`
 	Limit      int32  `json:"limit"`
 	Offset     int32  `json:"offset"`
 }
 
 type SellerGetCouponRow struct {
-	ID         int32              `json:"id"`
+	ID         int32              `json:"id" params:"id"`
 	Type       CouponType         `json:"type"`
 	ShopID     int32              `json:"shop_id"`
 	Name       string             `json:"name"`
@@ -258,8 +258,8 @@ WHERE
 `
 
 type SellerGetCouponDetailParams struct {
-	ID         int32  `json:"id"`
-	SellerName string `json:"seller_name"`
+	ID         int32  `json:"id" params:"id"`
+	SellerName string `json:"seller_name" params:"seller_name"`
 }
 
 func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCouponDetailParams) (Coupon, error) {
@@ -301,7 +301,7 @@ OFFSET $3
 `
 
 type SellerGetOrderParams struct {
-	SellerName string `json:"seller_name"`
+	SellerName string `json:"seller_name" params:"seller_name"`
 	Limit      int32  `json:"limit"`
 	Offset     int32  `json:"offset"`
 }
@@ -373,7 +373,7 @@ VALUES (
 `
 
 type SellerGetReportParams struct {
-	SellerName  string             `json:"seller_name"`
+	SellerName  string             `json:"seller_name" params:"seller_name"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price"`
@@ -435,7 +435,7 @@ VALUES (
 `
 
 type SellerInsertCouponParams struct {
-	SellerName  string             `json:"seller_name"`
+	SellerName  string             `json:"seller_name" params:"seller_name"`
 	Type        CouponType         `json:"type"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount"`
@@ -474,8 +474,8 @@ WHERE c."id" = $2 AND "shop_id" = (
 `
 
 type UpdateCouponInfoParams struct {
-	SellerName  string     `json:"seller_name"`
-	ID          int32      `json:"id"`
+	SellerName  string     `json:"seller_name" params:"seller_name"`
+	ID          int32      `json:"id" params:"id"`
 	Type        CouponType `json:"type"`
 	Description string     `json:"description"`
 }
@@ -513,8 +513,8 @@ WHERE "shop_id" = (
 `
 
 type UpdateProductInfoParams struct {
-	SellerName    string             `json:"seller_name"`
-	ID            int32              `json:"id"`
+	SellerName    string             `json:"seller_name" params:"seller_name"`
+	ID            int32              `json:"id" params:"id"`
 	Name          string             `json:"name"`
 	Description   string             `json:"description"`
 	Price         pgtype.Numeric     `json:"price"`
@@ -553,7 +553,7 @@ WHERE "seller_name" IN (
 `
 
 type UpdateSellerInfoParams struct {
-	ID          int32       `json:"id"`
+	ID          int32       `json:"id" params:"id"`
 	ImageID     pgtype.UUID `json:"image_id"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
