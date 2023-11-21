@@ -125,7 +125,8 @@ CREATE TABLE
     "tag" (
         "id" SERIAL PRIMARY KEY,
         "shop_id" INT NOT NULL,
-        "name" TEXT NOT NULL
+        "name" TEXT NOT NULL,
+        CONSTRAINT unique_shop_name UNIQUE ("shop_id", "name")
     );
 
 CREATE TABLE

@@ -523,6 +523,32 @@ paths:
       - Shop
     patch:
       description: Edit shop name, description, visibility.
+      parameters:
+      - description: update image UUID
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: update shop name
+        in: body
+        minLength: 6
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: update description
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: update enabled status
+        in: body
+        name: enabled
+        required: true
+        schema:
+          type: boolean
       produces:
       - application/json
       responses:
@@ -537,6 +563,14 @@ paths:
   /seller/coupon:
     get:
       description: Get all coupons for shop.
+      parameters:
+      - description: offset page
+        in: body
+        minimum: 0
+        name: offset
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
@@ -553,6 +587,34 @@ paths:
       consumes:
       - application/json
       description: Add coupon for shop.
+      parameters:
+      - description: Coupon type
+        in: body
+        name: type
+        required: true
+        schema:
+          enum:
+          - '''percentage'''
+          - '''fixed'''
+          - '''shipping'''
+          type: string
+      - description: description of coupon
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: discount perscent
+        in: body
+        name: discount
+        schema:
+          type: number
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -566,6 +628,28 @@ paths:
       - Shop
       - Coupon
   /seller/coupon/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller delete coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
     get:
       description: Get coupon detail by ID for shop.
       parameters:
@@ -596,6 +680,39 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Coupon type
+        in: body
+        name: type
+        required: true
+        schema:
+          enum:
+          - '''percentage'''
+          - '''fixed'''
+          - '''shipping'''
+          type: string
+      - description: description of coupon
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: discount perscent
+        in: body
+        name: discount
+        schema:
+          type: number
+      - description: start date
+        in: body
+        name: start_date
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -611,6 +728,14 @@ paths:
   /seller/order:
     get:
       description: Get all orders for shop.
+      parameters:
+      - description: offset page
+        in: body
+        minimum: 0
+        name: offset
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
@@ -649,6 +774,41 @@ paths:
       consumes:
       - application/json
       description: Add product for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: name of product
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of product
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: price
+        in: body
+        name: price
+        schema:
+          type: number
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: exp_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -668,7 +828,7 @@ paths:
       description: Delete product for shop.
       parameters:
       - description: Product ID
-        in: query
+        in: path
         name: id
         required: true
         type: integer
@@ -690,10 +850,39 @@ paths:
       description: Edit product for shop.
       parameters:
       - description: Product ID
-        in: query
+        in: path
         name: id
         required: true
         type: integer
+      - description: name of product
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of product
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: price
+        in: body
+        name: price
+        schema:
+          type: number
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: exp_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -738,7 +927,7 @@ paths:
       - Product
   /seller/report:
     get:
-      description: Get all avaliable reports for shop.
+      description: Get all available reports for shop.
       produces:
       - application/json
       responses:
@@ -779,7 +968,15 @@ paths:
       - Report
   /seller/tag:
     get:
-      description: Get all avaliable tags for shop.
+      description: Get all available tags for shop.
+      parameters:
+      - description: search tagname start with
+        in: body
+        minLength: 1
+        name: name
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -787,7 +984,7 @@ paths:
           description: OK
         "401":
           description: Unauthorized
-      summary: Seller get avaliable tag
+      summary: Seller get available tag
       tags:
       - Seller
       - Shop
@@ -796,6 +993,14 @@ paths:
       consumes:
       - application/json
       description: Add tag for shop.
+      parameters:
+      - description: insert tag
+        in: body
+        minLength: 1
+        name: name
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -808,15 +1013,15 @@ paths:
       - Seller
       - Shop
       - Tag
-  /shop/{id}:
+  /shop/{seller_name}:
     get:
       consumes:
       - application/json
-      description: Get shop information with shop ID
+      description: Get shop information with seller username
       parameters:
-      - description: Shop ID
+      - description: seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       produces:
@@ -829,15 +1034,15 @@ paths:
       summary: Get Shop Info
       tags:
       - Shop
-  /shop/{id}/coupon:
+  /shop/{seller_name}/coupon:
     get:
       consumes:
       - application/json
-      description: Get coupons for a shop with shop ID
+      description: Get coupons for a shop with seller username
       parameters:
-      - description: Shop ID
+      - description: seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       produces:
@@ -851,15 +1056,15 @@ paths:
       tags:
       - Shop
       - Coupon
-  /shop/{id}/search:
+  /shop/{seller_name}/search:
     get:
       consumes:
       - application/json
-      description: Search products within a shop by shop ID
+      description: Search products within a shop by seller username
       parameters:
-      - description: Shop ID
+      - description: Seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       - description: search word
