@@ -3,7 +3,9 @@ package router
 import (
 	"net/http"
 
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // @Summary Admin Get User
@@ -13,8 +15,10 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /admin/user [get]
-func adminGetUser(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Delete User
@@ -25,8 +29,10 @@ func adminGetUser(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/user/{id} [delete]
-func adminDeleteUser(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminDeleteUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Get Coupon
@@ -36,8 +42,10 @@ func adminDeleteUser(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon [get]
-func adminGetCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Get Coupon Detail
@@ -48,8 +56,10 @@ func adminGetCoupon(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [get]
-func adminGetCouponDetail(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Add Coupon
@@ -60,8 +70,10 @@ func adminGetCouponDetail(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon [post]
-func adminAddCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Edit Coupon
@@ -73,8 +85,10 @@ func adminAddCoupon(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [patch]
-func adminEditCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Delete Coupon
@@ -85,8 +99,10 @@ func adminEditCoupon(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/coupon/{id} [delete]
-func adminDeleteCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Admin Get Site Report
@@ -96,6 +112,8 @@ func adminDeleteCoupon(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /admin/report [get]
-func adminGetReport(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	}
 }

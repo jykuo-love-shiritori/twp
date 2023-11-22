@@ -3,7 +3,9 @@ package router
 import (
 	"net/http"
 
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // @Summary Get Shop Info
@@ -15,8 +17,11 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /shop/{seller_name} [get]
-func getShopInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Shop Coupons
@@ -28,8 +33,11 @@ func getShopInfo(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /shop/{seller_name}/coupon [get]
-func getShopCoupon(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search Shop Products
@@ -42,8 +50,11 @@ func getShopCoupon(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /shop/{seller_name}/search [get]
-func searchShopProduct(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func searchShopProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Tag Info
@@ -55,8 +66,11 @@ func searchShopProduct(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /tag/{id} [get]
-func getTagInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search for Products and Shops
@@ -68,8 +82,11 @@ func getTagInfo(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /search [get]
-func search(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func search(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Search for Shops by Name
@@ -81,8 +98,11 @@ func search(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /search/shop [get]
-func searchShopByName(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func searchShopByName(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get News
@@ -93,8 +113,11 @@ func searchShopByName(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /news [get]
-func getNews(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getNews(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get News Detail
@@ -106,8 +129,11 @@ func getNews(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /news/{id} [get]
-func getNewsDetail(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Discover
@@ -118,8 +144,11 @@ func getNewsDetail(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /discover [get]
-func getDiscover(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
 
 // @Summary Get Product Info
@@ -131,6 +160,9 @@ func getDiscover(c echo.Context) error {
 // @Success 200
 // @Failure 401
 // @Router /product/{id} [get]
-func getProductInfo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		return c.NoContent(http.StatusOK)
+	}
 }
