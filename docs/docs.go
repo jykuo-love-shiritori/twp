@@ -191,7 +191,13 @@ const docTemplate = `{
                 "summary": "Admin Get User",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetUsersRow"
+                            }
+                        }
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -199,9 +205,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/user/{id}": {
+        "/admin/user/{username}": {
             "delete": {
-                "description": "Delete user.",
+                "description": "Delete(disable) user.",
                 "produces": [
                     "application/json"
                 ],
@@ -209,7 +215,7 @@ const docTemplate = `{
                     "Admin",
                     "User"
                 ],
-                "summary": "Admin Delete User",
+                "summary": "Admin Delete(disable) User",
                 "parameters": [
                     {
                         "type": "integer",
@@ -784,6 +790,36 @@ const docTemplate = `{
                     "Shop"
                 ],
                 "summary": "Seller edit shop info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "image_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "Description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "enable",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -860,6 +896,29 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller delete coupon",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1091,7 +1150,7 @@ const docTemplate = `{
         },
         "/seller/report": {
             "get": {
-                "description": "Get all avaliable reports for shop.",
+                "description": "Get all available reports for shop.",
                 "produces": [
                     "application/json"
                 ],
@@ -1151,7 +1210,7 @@ const docTemplate = `{
         },
         "/seller/tag": {
             "get": {
-                "description": "Get all avaliable tags for shop.",
+                "description": "Get all available tags for shop.",
                 "produces": [
                     "application/json"
                 ],
@@ -1160,7 +1219,7 @@ const docTemplate = `{
                     "Shop",
                     "Tag"
                 ],
-                "summary": "Seller get avaliable tag",
+                "summary": "Seller get available tag",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1194,9 +1253,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}": {
+        "/shop/{seller_name}": {
             "get": {
-                "description": "Get shop information with shop ID",
+                "description": "Get shop information with seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1210,8 +1269,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     }
@@ -1226,9 +1285,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}/coupon": {
+        "/shop/{seller_name}/coupon": {
             "get": {
-                "description": "Get coupons for a shop with shop ID",
+                "description": "Get coupons for a shop with seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1243,8 +1302,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     }
@@ -1259,9 +1318,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}/search": {
+        "/shop/{seller_name}/search": {
             "get": {
-                "description": "Search products within a shop by shop ID",
+                "description": "Search products within a shop by seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1277,8 +1336,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "Seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     },
@@ -1512,6 +1571,48 @@ const docTemplate = `{
                     }
                 }
             }
+        }
+    },
+    "definitions": {
+        "db.GetUsersRow": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "credit_card": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/db.RoleType"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.RoleType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "customer"
+            ],
+            "x-enum-varnames": [
+                "RoleTypeAdmin",
+                "RoleTypeCustomer"
+            ]
         }
     },
     "securityDefinitions": {

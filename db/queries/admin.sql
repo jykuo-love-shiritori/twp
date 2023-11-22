@@ -1,6 +1,14 @@
 -- name: GetUsers :many
 
-SELECT * FROM "user";
+SELECT
+    "username",
+    "name",
+    "email",
+    "address",
+    "role",
+    "credit_card",
+    "enabled"
+FROM "user";
 
 -- name: AddUser :exec
 
@@ -77,3 +85,7 @@ FROM "order_history"
 WHERE
     "created_at" >= $1
     AND "created_at" <= $2;
+
+-- name: GetUserIDByUsername :one
+
+SELECT "id" FROM "user" WHERE "username" = $1;

@@ -12,7 +12,7 @@ import (
 // @Description Get all user information. Include user's icon, name, email, created time and role.
 // @Tags Admin, User
 // @Produce json
-// @Success 200
+// @Success 200 {array} db.GetUsersRow
 // @Failure 401
 // @Router /admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -26,17 +26,26 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Delete User
-// @Description Delete user.
+// @Summary Admin Delete(disable) User
+// @Description Delete(disable) user.
 // @Tags Admin, User
 // @Produce json
 // @param id path int true "User ID"
-// @Success 200
+// @Success 200 {string} string "success"
 // @Failure 401
-// @Router /admin/user/{id} [delete]
+// @Router /admin/user/{username} [delete]
 func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
+		username := c.Param("username")
+		id, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
+		if err != nil {
+			logger.Errorw("failed to get user id", "error", err)
+			return c.JSON(http.StatusInternalServerError, nil)
+		}
+		if err := pg.Queries.DisableUser(c.Request().Context(), id); err != nil {
+			logger.Errorw("failed to disable user", "error", err)
+			return c.JSON(http.StatusInternalServerError, nil)
+		}
 		return c.NoContent(http.StatusOK)
 	}
 }
@@ -50,7 +59,12 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
+		result, err := pg.Queries.GetAnyCoupons(c.Request().Context())
+		if err != nil {
+			logger.Errorw("failed to disable user", "error", err)
+			return c.JSON(http.StatusInternalServerError, nil)
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 

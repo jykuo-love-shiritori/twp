@@ -28,9 +28,18 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("DeleteTestUser success")
+
+	testAddUser(pg)
+
+}
+
+func testAddUser(pg *db.DB) {
 	for i := 0; i < 100; i++ {
 		emptyJSON := map[string]interface{}{
-			"test": "test",
+			"card_number": fmt.Sprint(i),
+			"exp_month":   fmt.Sprint(i),
+			"exp_year":    fmt.Sprint(i),
+			"cvc":         fmt.Sprint(i),
 		}
 
 		// Marshal the empty JSON object into a JSON-formatted byte slice
@@ -38,13 +47,12 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println((string(jsonData)))
 		mockData := db.AddUserParams{
-			Username:   "test" + string(i),
-			Password:   "test" + string(i),
-			Name:       "test" + string(i),
-			Email:      "test" + string(i) + "@test.com",
-			Address:    "test" + string(i),
+			Username:   fmt.Sprintf("test%d", i),
+			Password:   fmt.Sprintf("test%d", i),
+			Name:       fmt.Sprintf("test%d", i),
+			Email:      fmt.Sprintf("test%d", i) + "@test.com",
+			Address:    fmt.Sprintf("test%d", i),
 			ImageID:    pgtype.UUID{Valid: true},
 			Role:       "customer",
 			CreditCard: jsonData,

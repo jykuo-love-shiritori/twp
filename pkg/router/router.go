@@ -45,7 +45,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 
 	// admin
 	api.GET("/admin/user", adminGetUser(db, logger))
-	api.DELETE("/admin/user/:id", adminDisableUser(db, logger))
+	api.DELETE("/admin/user/:username", adminDisableUser(db, logger))
 
 	api.GET("/admin/coupon", adminGetCoupon(db, logger))
 	api.GET("/admin/coupon/:id", adminGetCouponDetail(db, logger))

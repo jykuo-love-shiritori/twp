@@ -268,28 +268,55 @@ func (q *Queries) GetReport(ctx context.Context, arg GetReportParams) ([]OrderHi
 	return items, nil
 }
 
-const getUsers = `-- name: GetUsers :many
+const getUserIDByUsername = `-- name: GetUserIDByUsername :one
 
-SELECT id, username, password, name, email, address, image_id, role, credit_card, enabled FROM "user"
+SELECT "id" FROM "user" WHERE "username" = $1
 `
 
-func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
+func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (int32, error) {
+	row := q.db.QueryRow(ctx, getUserIDByUsername, username)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getUsers = `-- name: GetUsers :many
+
+SELECT
+    "username",
+    "name",
+    "email",
+    "address",
+    "role",
+    "credit_card",
+    "enabled"
+FROM "user"
+`
+
+type GetUsersRow struct {
+	Username   string   `json:"username"`
+	Name       string   `json:"name"`
+	Email      string   `json:"email"`
+	Address    string   `json:"address"`
+	Role       RoleType `json:"role"`
+	CreditCard []byte   `json:"credit_card"`
+	Enabled    bool     `json:"enabled"`
+}
+
+func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 	rows, err := q.db.Query(ctx, getUsers)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []User{}
+	items := []GetUsersRow{}
 	for rows.Next() {
-		var i User
+		var i GetUsersRow
 		if err := rows.Scan(
-			&i.ID,
 			&i.Username,
-			&i.Password,
 			&i.Name,
 			&i.Email,
 			&i.Address,
-			&i.ImageID,
 			&i.Role,
 			&i.CreditCard,
 			&i.Enabled,
