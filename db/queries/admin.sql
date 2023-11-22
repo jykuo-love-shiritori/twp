@@ -2,6 +2,21 @@
 
 SELECT * FROM "user";
 
+-- name: AddUser :exec
+
+INSERT INTO
+    "user" (
+        "username",
+        "password",
+        "name",
+        "email",
+        "address",
+        "image_id",
+        "role",
+        "credit_card"
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+
 -- name: DisableUser :exec
 
 UPDATE "user" SET "enabled" = FALSE WHERE "id" = $1;

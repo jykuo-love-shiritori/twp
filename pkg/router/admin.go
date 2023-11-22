@@ -1,7 +1,6 @@
 package router
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -23,12 +22,7 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get users", "error", err)
 			return c.JSON(http.StatusInternalServerError, nil)
 		}
-		encodedJson, err := json.Marshal(users)
-		if err != nil {
-			logger.Errorw("failed to marshal users", "error", err)
-			return c.JSON(http.StatusInternalServerError, nil)
-		}
-		return c.JSONBlob(http.StatusOK, encodedJson)
+		return c.JSON(http.StatusOK, users)
 	}
 }
 
@@ -40,8 +34,9 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /admin/user/{id} [delete]
-func adminDeleteUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+
 		return c.NoContent(http.StatusOK)
 	}
 }

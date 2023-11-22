@@ -52,6 +52,47 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) error {
 	return err
 }
 
+const addUser = `-- name: AddUser :exec
+
+INSERT INTO
+    "user" (
+        "username",
+        "password",
+        "name",
+        "email",
+        "address",
+        "image_id",
+        "role",
+        "credit_card"
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+`
+
+type AddUserParams struct {
+	Username   string      `json:"username"`
+	Password   string      `json:"password"`
+	Name       string      `json:"name"`
+	Email      string      `json:"email"`
+	Address    string      `json:"address"`
+	ImageID    pgtype.UUID `json:"image_id"`
+	Role       RoleType    `json:"role"`
+	CreditCard []byte      `json:"credit_card"`
+}
+
+func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
+	_, err := q.db.Exec(ctx, addUser,
+		arg.Username,
+		arg.Password,
+		arg.Name,
+		arg.Email,
+		arg.Address,
+		arg.ImageID,
+		arg.Role,
+		arg.CreditCard,
+	)
+	return err
+}
+
 const deleteCoupon = `-- name: DeleteCoupon :exec
 
 DELETE FROM "coupon" WHERE "id" = $1
@@ -141,7 +182,7 @@ func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Coupon
+	items := []Coupon{}
 	for rows.Next() {
 		var i Coupon
 		if err := rows.Scan(
@@ -205,7 +246,7 @@ func (q *Queries) GetReport(ctx context.Context, arg GetReportParams) ([]OrderHi
 		return nil, err
 	}
 	defer rows.Close()
-	var items []OrderHistory
+	items := []OrderHistory{}
 	for rows.Next() {
 		var i OrderHistory
 		if err := rows.Scan(
@@ -238,7 +279,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
