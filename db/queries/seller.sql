@@ -23,11 +23,26 @@ WHERE "seller_name" IN (
 
 SELECT t."id", t."name"
 FROM "tag" t
-    JOIN "shop" s ON "shop_id" = s.id
-    JOIN "user" u ON s.seller_name = u.username
+    LEFT JOIN "shop" s ON "shop_id" = s.id
+    LEFT JOIN "user" u ON s.seller_name = u.username
 WHERE u.id = $1 AND t."name" ~* $2
 ORDER BY LENGTH(t."name")
 LIMIT 10;
+
+-- name: HaveTagName :one
+
+SELECT
+    CASE
+        WHEN EXISTS (
+            SELECT *
+            FROM "tag" t
+                LEFT JOIN "shop" s ON "shop_id" = s.id
+            WHERE
+                s."seller_name" = $1
+                AND t."name" = $2
+        ) THEN true
+        ELSE false
+    END;
 
 -- name: InsertTag :one
 
@@ -41,7 +56,9 @@ VALUES ( (
                 AND s."enabled" = true
         ),
         $2
-    ) RETURNING ("id", "name");
+    ) ON CONFLICT ("shop_id", "name")
+DO NOTHING
+RETURNING "id", "name";
 
 -- name: SellerGetCoupon :many
 
@@ -59,7 +76,7 @@ ORDER BY "start_date" DESC
 LIMIT $2
 OFFSET $3;
 
--- name: SellerGetCouponDetail :one
+-- name: SellerGetCouponDetail :many
 
 SELECT c.*
 FROM "coupon" c
@@ -74,6 +91,7 @@ INSERT INTO
     "coupon" (
         "type",
         "shop_id",
+        "name",
         "description",
         "discount",
         "start_date",
@@ -90,18 +108,21 @@ VALUES (
         $3,
         $4,
         $5,
-        $6
-    ) RETURNING *;
+        $6,
+        $7
+    )
+RETURNING *;
 
 -- name: UpdateCouponInfo :exec
 
 UPDATE "coupon" c
 SET
     "type" = COALESCE($3, "type"),
-    "description" = COALESCE($4, "description"),
-    "discount" = COALESCE($5, "discount"),
-    "start_date" = COALESCE($6, "start_date"),
-    "expire_date" = COALESCE($7, "expire_date")
+    "name" = COALESCE($4, "name"),
+    "description" = COALESCE($5, "description"),
+    "discount" = COALESCE($6, "discount"),
+    "start_date" = COALESCE($7, "start_date"),
+    "expire_date" = COALESCE($8, "expire_date")
 WHERE c."id" = $2 AND "shop_id" = (
         SELECT s."id"
         FROM "shop" s
@@ -182,7 +203,8 @@ VALUES (
         $4,
         $5,
         $6
-    ) RETURNING "id";
+    )
+RETURNING "id";
 
 -- name: UpdateProductInfo :exec
 

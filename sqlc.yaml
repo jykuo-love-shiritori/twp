@@ -4,21 +4,22 @@ sql:
     queries: "db/queries"
     schema: "db/migrations"
     gen:
-      go: 
+      go:
         emit_json_tags: true
+        emit_empty_slices: true
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
         overrides:
         - column: user.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: coupon.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: order_histroy.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: product.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: shop.seller_name
-          go_struct_tag: params:"seller_name"
+          go_struct_tag: param:"seller_name"
         - column: cart.cart_id
-          go_struct_tag: params:"seller_name"
+          go_struct_tag: param:"seller_name"

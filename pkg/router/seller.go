@@ -4,27 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
-
-type failure struct {
-	Fail string `json:"fail"`
-}
-
-func mapDBErrorToHTTPError(err error, c echo.Context) error {
-	// Customize this function based on the specific errors you want to handle
-	switch err {
-	case pgx.ErrNoRows:
-		return c.JSON(http.StatusOK, failure{"not found"})
-	case pgx.ErrTooManyRows:
-		return c.JSON(http.StatusInternalServerError, failure{"Database error"})
-	default:
-		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
-	}
-}
 
 // @Summary Seller get shop info
 // @Description Get shop info, includes user picture, name, description.
@@ -72,7 +55,7 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		err := pg.Queries.UpdateSellerInfo(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
-			return c.JSON(http.StatusInternalServerError, failure{"error"})
+			return mapDBErrorToHTTPError(err, c)
 		}
 		return c.JSON(http.StatusOK, param)
 	}
@@ -96,7 +79,11 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("Error binding request parameters", "error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
+		if param.Name == "" || hasSpecialChars(param.Name) {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name can be ''"})
+		}
 		param.ID = userID
+		param.Name = "^" + param.Name
 		tags, err := pg.Queries.SearchTag(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
@@ -119,13 +106,21 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user0"
 
-		var param db.InsertTagParams
+		var param db.HaveTagNameParams
 		if err := c.Bind(&param); err != nil {
 			logger.Errorw("Error binding request parameters", "error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		tag, err := pg.Queries.InsertTag(context.Background(), param)
+		have, err := pg.Queries.HaveTagName(context.Background(), param)
+		if err != nil {
+			logger.Fatal(err)
+			return mapDBErrorToHTTPError(err, c)
+		}
+		if have {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request (tagname have to be unique)"})
+		}
+		tag, err := pg.Queries.InsertTag(context.Background(), db.InsertTagParams(param))
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
@@ -188,7 +183,12 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
 		}
-		return c.JSON(http.StatusOK, coupons)
+		if len(coupons) != 1 {
+			logger.Errorw("Error ", "error", err)
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found"})
+		}
+
+		return c.JSON(http.StatusOK, coupons[0])
 	}
 }
 
@@ -196,8 +196,10 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Description Add coupon for shop.
 // @Tags Seller, Shop, Coupon
 // @Param  type          body     string  true  "Coupon type" Enums('percentage', 'fixed', 'shipping')
+// @Param  name          body     string  true  "name of coupon"
 // @Param  description   body     string  true  "description of coupon"
 // @Param  discount      body     number  false "discount perscent"
+// @Param  start_date    body     time    true  "start date"
 // @Param  expire_date   body     time    true  "expire date"
 // @Accept json
 // @Produce json
@@ -230,6 +232,7 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Param  id            path     int     true  "Coupon ID"
 // @Param  type          body     string  true  "Coupon type" Enums('percentage', 'fixed', 'shipping')
+// @Param  name          body     string  true  "name of coupon"
 // @Param  description   body     string  true  "description of coupon"
 // @Param  discount      body     number  false "discount perscent"
 // @Param  start_date    body     time    true  "start date"
