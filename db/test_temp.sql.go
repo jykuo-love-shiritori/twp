@@ -55,7 +55,7 @@ func (q *Queries) InsertTestUser(ctx context.Context, imageID pgtype.UUID) error
 
 const searchTestUser = `-- name: SearchTestUser :one
 
-SELECT id, username, password, name, email, address, image_id, role, session_token, credit_card FROM "user" WHERE "username" = 'user0'
+SELECT id, username, password, name, email, address, image_id, role, credit_card, enabled FROM "user" WHERE "username" = 'user0'
 `
 
 func (q *Queries) SearchTestUser(ctx context.Context) (User, error) {
@@ -70,8 +70,8 @@ func (q *Queries) SearchTestUser(ctx context.Context) (User, error) {
 		&i.Address,
 		&i.ImageID,
 		&i.Role,
-		&i.SessionToken,
 		&i.CreditCard,
+		&i.Enabled,
 	)
 	return i, err
 }

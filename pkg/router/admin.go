@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -17,7 +18,17 @@ import (
 // @Router /admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
+		users, err := pg.Queries.GetUsers(c.Request().Context())
+		if err != nil {
+			logger.Errorw("failed to get users", "error", err)
+			return c.JSON(http.StatusInternalServerError, nil)
+		}
+		encodedJson, err := json.Marshal(users)
+		if err != nil {
+			logger.Errorw("failed to marshal users", "error", err)
+			return c.JSON(http.StatusInternalServerError, nil)
+		}
+		return c.JSONBlob(http.StatusOK, encodedJson)
 	}
 }
 

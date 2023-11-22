@@ -236,14 +236,14 @@ type Tag struct {
 }
 
 type User struct {
-	ID           int32       `json:"id" params:"id"`
-	Username     string      `json:"username"`
-	Password     string      `json:"password"`
-	Name         string      `json:"name"`
-	Email        string      `json:"email"`
-	Address      string      `json:"address"`
-	ImageID      pgtype.UUID `json:"image_id"`
-	Role         RoleType    `json:"role"`
-	SessionToken string      `json:"session_token"`
-	CreditCard   []byte      `json:"credit_card"`
+	ID         int32       `json:"id" params:"id"`
+	Username   string      `json:"username"`
+	Password   string      `json:"password"`
+	Name       string      `json:"name"`
+	Email      string      `json:"email"`
+	Address    string      `json:"address"`
+	ImageID    pgtype.UUID `json:"image_id"`
+	Role       RoleType    `json:"role"`
+	CreditCard []byte      `json:"credit_card"`
+	Enabled    bool        `json:"enabled"`
 }
