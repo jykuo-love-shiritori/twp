@@ -9,7 +9,7 @@ import (
 )
 
 type failure struct {
-	Fail string `json:"fail"`
+	msg string `json:"msg"`
 }
 
 func hasSpecialChars(input string) bool {
@@ -21,10 +21,12 @@ func hasSpecialChars(input string) bool {
 func mapDBErrorToHTTPError(err error, c echo.Context) error {
 	// Customize this function based on the specific errors you want to handle
 	switch err {
+	case nil:
+		return c.JSON(http.StatusOK, failure{"success"})
 	case pgx.ErrNoRows:
-		return c.JSON(http.StatusOK, failure{"Not Found"})
+		return c.JSON(http.StatusInternalServerError, failure{"Not Found"})
 	case pgx.ErrTooManyRows:
-		return c.JSON(http.StatusInternalServerError, failure{"Too Many result"})
+		return c.JSON(http.StatusInternalServerError, failure{"Too Many Result"})
 	default:
 		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
 	}

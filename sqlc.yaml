@@ -17,6 +17,8 @@ sql:
           go_struct_tag: param:"id"
         - column: order_histroy.id
           go_struct_tag: param:"id"
+        - column: order_detail.id
+          go_struct_tag: param:"id"
         - column: product.id
           go_struct_tag: param:"id"
         - column: shop.seller_name

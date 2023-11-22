@@ -109,6 +109,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 
 	api.GET("/seller/order", sellerGetOrder(db, logger))
 	api.GET("/seller/order/:id", sellerGetOrderDetail(db, logger))
+	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(db, logger))
 
 	api.GET("/seller/report", sellerGetReport(db, logger))
 	api.GET("/seller/report/:year/:month", sellerGetReportDetail(db, logger))

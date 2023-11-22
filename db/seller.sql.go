@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteCoupon = `-- name: DeleteCoupon :exec
+const deleteCoupon = `-- name: DeleteCoupon :execrows
 
 DELETE FROM "coupon" c
 WHERE c."id" = $2 AND "shop_id" = (
@@ -28,12 +28,15 @@ type DeleteCouponParams struct {
 	ID         int32  `json:"id" param:"id"`
 }
 
-func (q *Queries) DeleteCoupon(ctx context.Context, arg DeleteCouponParams) error {
-	_, err := q.db.Exec(ctx, deleteCoupon, arg.SellerName, arg.ID)
-	return err
+func (q *Queries) DeleteCoupon(ctx context.Context, arg DeleteCouponParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteCoupon, arg.SellerName, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
-const deleteProduct = `-- name: DeleteProduct :exec
+const deleteProduct = `-- name: DeleteProduct :execrows
 
 UPDATE "product" p
 SET
@@ -54,9 +57,12 @@ type DeleteProductParams struct {
 	ID         int32  `json:"id" param:"id"`
 }
 
-func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) error {
-	_, err := q.db.Exec(ctx, deleteProduct, arg.SellerName, arg.ID)
-	return err
+func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProduct, arg.SellerName, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const getSellerInfo = `-- name: GetSellerInfo :one
@@ -351,16 +357,19 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 	return items, nil
 }
 
-const sellerGetOrderDetail = `-- name: SellerGetOrderDetail :one
+const sellerGetOrderDetail = `-- name: SellerGetOrderDetail :many
 
-SELECT order_id, product_id, product_version, quantity, product_archive.id, product_archive.version, product_archive.name, product_archive.description, product_archive.price, product_archive.image_id, product.id, product.version, shop_id, product.name, product.description, product.price, product.image_id, exp_date, edit_date, stock, sales, product.enabled, shop.id, seller_name, shop.image_id, shop.name, shop.description, shop.enabled
+SELECT
+    product_archive.id, product_archive.version, product_archive.name, product_archive.description, product_archive.price, product_archive.image_id,
+    order_history.id, order_history.user_id, order_history.shop_id, order_history.shipment, order_history.total_price, order_history.status, order_history.created_at,
+    order_detail.order_id, order_detail.product_id, order_detail.product_version, order_detail.quantity
 FROM "order_detail"
-    JOIN "product_archive" ON "order_detail"."product_id" = "product"."id" AND "order_detail"."version" = "product"."version"
-    JOIN "product" ON "order_detail"."product_id" = "product"."id"
-    JOIN "shop" ON "product"."shop_id" = "shop"."id"
+    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id AND order_detail.product_version = product_archive.version
+    LEFT JOIN order_history ON order_history.id = order_detail.order_id
+    LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE
-    "shop"."seller_name" = $1
-    AND "order_id" = $2
+    shop.seller_name = $1
+    OR order_detail.order_id = $2
 `
 
 type SellerGetOrderDetailParams struct {
@@ -369,70 +378,61 @@ type SellerGetOrderDetailParams struct {
 }
 
 type SellerGetOrderDetailRow struct {
+	ID             pgtype.Int4        `json:"id"`
+	Version        pgtype.Int4        `json:"version"`
+	Name           pgtype.Text        `json:"name"`
+	Description    pgtype.Text        `json:"description"`
+	Price          pgtype.Numeric     `json:"price"`
+	ImageID        pgtype.UUID        `json:"image_id"`
+	ID_2           pgtype.Int4        `json:"id_2"`
+	UserID         pgtype.Int4        `json:"user_id"`
+	ShopID         pgtype.Int4        `json:"shop_id"`
+	Shipment       pgtype.Int4        `json:"shipment"`
+	TotalPrice     pgtype.Int4        `json:"total_price"`
+	Status         NullOrderStatus    `json:"status"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	OrderID        int32              `json:"order_id"`
 	ProductID      int32              `json:"product_id"`
 	ProductVersion int32              `json:"product_version"`
 	Quantity       int32              `json:"quantity"`
-	ID             int32              `json:"id"`
-	Version        int32              `json:"version"`
-	Name           string             `json:"name"`
-	Description    string             `json:"description"`
-	Price          pgtype.Numeric     `json:"price"`
-	ImageID        pgtype.UUID        `json:"image_id"`
-	ID_2           int32              `json:"id_2" param:"id"`
-	Version_2      int32              `json:"version_2"`
-	ShopID         int32              `json:"shop_id"`
-	Name_2         string             `json:"name_2"`
-	Description_2  string             `json:"description_2"`
-	Price_2        pgtype.Numeric     `json:"price_2"`
-	ImageID_2      pgtype.UUID        `json:"image_id_2"`
-	ExpDate        pgtype.Timestamptz `json:"exp_date"`
-	EditDate       pgtype.Timestamptz `json:"edit_date"`
-	Stock          int32              `json:"stock"`
-	Sales          int32              `json:"sales"`
-	Enabled        bool               `json:"enabled"`
-	ID_3           int32              `json:"id_3"`
-	SellerName     string             `json:"seller_name" param:"seller_name"`
-	ImageID_3      pgtype.UUID        `json:"image_id_3"`
-	Name_3         string             `json:"name_3"`
-	Description_3  string             `json:"description_3"`
-	Enabled_2      bool               `json:"enabled_2"`
 }
 
-func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDetailParams) (SellerGetOrderDetailRow, error) {
-	row := q.db.QueryRow(ctx, sellerGetOrderDetail, arg.SellerName, arg.OrderID)
-	var i SellerGetOrderDetailRow
-	err := row.Scan(
-		&i.OrderID,
-		&i.ProductID,
-		&i.ProductVersion,
-		&i.Quantity,
-		&i.ID,
-		&i.Version,
-		&i.Name,
-		&i.Description,
-		&i.Price,
-		&i.ImageID,
-		&i.ID_2,
-		&i.Version_2,
-		&i.ShopID,
-		&i.Name_2,
-		&i.Description_2,
-		&i.Price_2,
-		&i.ImageID_2,
-		&i.ExpDate,
-		&i.EditDate,
-		&i.Stock,
-		&i.Sales,
-		&i.Enabled,
-		&i.ID_3,
-		&i.SellerName,
-		&i.ImageID_3,
-		&i.Name_3,
-		&i.Description_3,
-		&i.Enabled_2,
-	)
-	return i, err
+func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDetailParams) ([]SellerGetOrderDetailRow, error) {
+	rows, err := q.db.Query(ctx, sellerGetOrderDetail, arg.SellerName, arg.OrderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SellerGetOrderDetailRow{}
+	for rows.Next() {
+		var i SellerGetOrderDetailRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Version,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.ID_2,
+			&i.UserID,
+			&i.ShopID,
+			&i.Shipment,
+			&i.TotalPrice,
+			&i.Status,
+			&i.CreatedAt,
+			&i.OrderID,
+			&i.ProductID,
+			&i.ProductVersion,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const sellerInsertCoupon = `-- name: SellerInsertCoupon :one
@@ -554,7 +554,7 @@ func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProdu
 	return id, err
 }
 
-const updateCouponInfo = `-- name: UpdateCouponInfo :exec
+const updateCouponInfo = `-- name: UpdateCouponInfo :execrows
 
 UPDATE "coupon" c
 SET
@@ -584,8 +584,8 @@ type UpdateCouponInfoParams struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
 }
 
-func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoParams) error {
-	_, err := q.db.Exec(ctx, updateCouponInfo,
+func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateCouponInfo,
 		arg.SellerName,
 		arg.ID,
 		arg.Type,
@@ -595,10 +595,13 @@ func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoPara
 		arg.StartDate,
 		arg.ExpireDate,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
-const updateProductInfo = `-- name: UpdateProductInfo :exec
+const updateProductInfo = `-- name: UpdateProductInfo :execrows
 
 UPDATE "product" p
 SET
@@ -629,8 +632,8 @@ type UpdateProductInfoParams struct {
 	ExpDate     pgtype.Timestamptz `json:"exp_date"`
 }
 
-func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoParams) error {
-	_, err := q.db.Exec(ctx, updateProductInfo,
+func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductInfo,
 		arg.SellerName,
 		arg.ID,
 		arg.Name,
@@ -639,7 +642,10 @@ func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoPa
 		arg.ImageID,
 		arg.ExpDate,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateSellerInfo = `-- name: UpdateSellerInfo :exec

@@ -185,7 +185,7 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 		}
 		if len(coupons) != 1 {
 			logger.Errorw("Error ", "error", err)
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Coupon"})
 		}
 
 		return c.JSON(http.StatusOK, coupons[0])
@@ -250,10 +250,13 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		err := pg.Queries.UpdateCouponInfo(context.Background(), param)
+		effectRow, err := pg.Queries.UpdateCouponInfo(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
+		}
+		if effectRow != 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Coupon"})
 		}
 		return c.JSON(http.StatusOK, param)
 	}
@@ -278,12 +281,15 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		err := pg.Queries.DeleteCoupon(context.Background(), param)
+		effectRow, err := pg.Queries.DeleteCoupon(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
 		}
-		return c.JSON(http.StatusOK, param)
+		if effectRow != 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Coupon"})
+		}
+		return c.JSON(http.StatusOK, map[string]string{"msg": "success"})
 	}
 }
 
@@ -306,6 +312,7 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("Error binding request parameters", "error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
+		logger.Info(param)
 		param.SellerName = username
 		param.Limit = orderPerPage
 		param.Offset = param.Offset * orderPerPage
@@ -330,18 +337,32 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	return func(c echo.Context) error {
 		var username string = "user0"
 
-		var param db.SellerGetCouponDetailParams
+		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
 			logger.Errorw("Error binding request parameters", "error", err)
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		order, err := pg.Queries.SellerGetCouponDetail(context.Background(), param)
+		order, err := pg.Queries.SellerGetOrderDetail(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
 		}
 		return c.JSON(http.StatusOK, order)
+	}
+}
+
+// @Summary Seller get order
+// @Description Get all orders for shop.
+// @Tags Seller, Shop, Order
+// @Param  offset   body   int   true  "offset page"   minimum(0)
+// @Produce json
+// @Success 200
+// @Failure 401
+// @Router /seller/order [patch]
+func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
 	}
 }
 
@@ -449,10 +470,13 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		err := pg.Queries.UpdateProductInfo(context.Background(), param)
+		effectRow, err := pg.Queries.UpdateProductInfo(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
+		}
+		if effectRow != 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Product"})
 		}
 		return c.JSON(http.StatusOK, param)
 	}
@@ -477,10 +501,13 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request"})
 		}
 		param.SellerName = username
-		err := pg.Queries.DeleteProduct(context.Background(), param)
+		effectRow, err := pg.Queries.DeleteProduct(context.Background(), param)
 		if err != nil {
 			logger.Fatal(err)
 			return mapDBErrorToHTTPError(err, c)
+		}
+		if effectRow != 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Product"})
 		}
 		return c.JSON(http.StatusOK, param)
 	}

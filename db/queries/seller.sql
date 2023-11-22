@@ -113,7 +113,7 @@ VALUES (
     )
 RETURNING *;
 
--- name: UpdateCouponInfo :exec
+-- name: UpdateCouponInfo :execrows
 
 UPDATE "coupon" c
 SET
@@ -131,7 +131,7 @@ WHERE c."id" = $2 AND "shop_id" = (
             AND s."enabled" = true
     );
 
--- name: DeleteCoupon :exec
+-- name: DeleteCoupon :execrows
 
 DELETE FROM "coupon" c
 WHERE c."id" = $2 AND "shop_id" = (
@@ -163,16 +163,19 @@ ORDER BY "created_at" DESC
 LIMIT $2
 OFFSET $3;
 
--- name: SellerGetOrderDetail :one
+-- name: SellerGetOrderDetail :many
 
-SELECT *
+SELECT
+    product_archive.*,
+    order_history.*,
+    order_detail.*
 FROM "order_detail"
-    JOIN "product_archive" ON "order_detail"."product_id" = "product"."id" AND "order_detail"."version" = "product"."version"
-    JOIN "product" ON "order_detail"."product_id" = "product"."id"
-    JOIN "shop" ON "product"."shop_id" = "shop"."id"
+    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id AND order_detail.product_version = product_archive.version
+    LEFT JOIN order_history ON order_history.id = order_detail.order_id
+    LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE
-    "shop"."seller_name" = $1
-    AND "order_id" = $2;
+    shop.seller_name = $1
+    OR order_detail.order_id = $2;
 
 -- SellerGetReport :many
 
@@ -206,7 +209,7 @@ VALUES (
     )
 RETURNING "id";
 
--- name: UpdateProductInfo :exec
+-- name: UpdateProductInfo :execrows
 
 UPDATE "product" p
 SET
@@ -226,7 +229,7 @@ WHERE "shop_id" = (
     )
     AND p."id" = $2;
 
--- name: DeleteProduct :exec
+-- name: DeleteProduct :execrows
 
 UPDATE "product" p
 SET
