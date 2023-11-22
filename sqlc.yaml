@@ -9,3 +9,16 @@ sql:
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
+        overrides:
+        - column: user.id
+          go_struct_tag: params:"id"
+        - column: coupon.id
+          go_struct_tag: params:"id"
+        - column: order_histroy.id
+          go_struct_tag: params:"id"
+        - column: product.id
+          go_struct_tag: params:"id"
+        - column: shop.seller_name
+          go_struct_tag: params:"seller_name"
+        - column: cart.cart_id
+          go_struct_tag: params:"seller_name"

@@ -15,7 +15,7 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /buyer/order [get]
-func buyerGetOrderHistory(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -30,7 +30,7 @@ func buyerGetOrderHistory(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Success 200
 // @Failure 401
 // @Router /buyer/order/{id} [get]
-func buyerGetOrderDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -44,7 +44,7 @@ func buyerGetOrderDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart [get]
-func buyerGetCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -61,7 +61,7 @@ func buyerGetCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/product/{product_id} [patch]
-func buyerEditProductInCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -78,7 +78,7 @@ func buyerEditProductInCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/product/{product_id} [post]
-func buyerAddProductToCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -95,7 +95,7 @@ func buyerAddProductToCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [post]
-func buyerAddCouponToCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -112,7 +112,7 @@ func buyerAddCouponToCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/product/{product_id} [delete]
-func buyerDeleteProductFromCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -129,7 +129,7 @@ func buyerDeleteProductFromCart(db *db.DB, logger *zap.SugaredLogger) echo.Handl
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
-func buyerDeleteCouponFromCart(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerDeleteCouponFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -144,7 +144,7 @@ func buyerDeleteCouponFromCart(db *db.DB, logger *zap.SugaredLogger) echo.Handle
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/checkout [get]
-func buyerGetCheckout(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -160,7 +160,7 @@ func buyerGetCheckout(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /buyer/cart/{cart_id}/checkout [post]
-func buyerCheckout(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)

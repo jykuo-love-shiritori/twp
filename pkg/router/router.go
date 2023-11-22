@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -43,6 +44,11 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.GET("/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
 	}, auth.IsRole(db, logger, constants.ADMIN))
+
+	api.GET("/delay", func(c echo.Context) error {
+		time.Sleep(1 * time.Second)
+		return c.JSON(http.StatusOK, map[string]string{"message": "delay"})
+	})
 
 	api.Any("/oauth/authorize", auth.Authorize(db, logger))
 	api.POST("/oauth/token", auth.Token(db, logger))

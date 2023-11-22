@@ -15,7 +15,7 @@ import (
 // @Success 200
 // @Failure 401
 // @Router /seller [get]
-func sellerGetShopInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -25,11 +25,15 @@ func sellerGetShopInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary Seller edit shop info
 // @Description Edit shop name, description, visibility.
 // @Tags Seller, Shop
+// @Param  image_id       query     string  false  "name search by q"  Format(email)
+// @Param  name           query     string  false  "name search by q"  Format(email)
+// @Param  Description    query     string  false  "name search by q"  Format(email)
+// @Param  enable         query     string  false  "name search by q"  Format(email)
 // @Produce json
 // @Success 200
 // @Failure 401
 // @Router /seller [patch]
-func sellerEditInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -43,7 +47,8 @@ func sellerEditInfo(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/tag [get]
-func sellerGetTag(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -58,7 +63,7 @@ func sellerGetTag(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/tag [post]
-func sellerAddTag(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -72,7 +77,7 @@ func sellerAddTag(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/coupon [get]
-func sellerGetShopCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -87,7 +92,7 @@ func sellerGetShopCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Success 200
 // @Failure 401
 // @Router /seller/coupon/{id} [get]
-func sellerGetCouponDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -102,7 +107,7 @@ func sellerGetCouponDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Success 200
 // @Failure 401
 // @Router /seller/coupon [post]
-func sellerAddCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -118,7 +123,7 @@ func sellerAddCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/coupon/{id} [patch]
-func sellerEditCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -132,7 +137,8 @@ func sellerEditCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200
 // @Failure 401
-func sellerDeleteCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+// @Router /seller/coupon/{id} [delete]
+func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -146,7 +152,7 @@ func sellerDeleteCoupon(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/order [get]
-func sellerGetOrder(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -161,7 +167,7 @@ func sellerGetOrder(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/order/{id} [get]
-func sellerGetOrderDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -175,7 +181,7 @@ func sellerGetOrderDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Success 200
 // @Failure 401
 // @Router /seller/report [get]
-func sellerGetReport(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -191,7 +197,7 @@ func sellerGetReport(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/report/{year}/{month} [get]
-func sellerGetReportDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -206,7 +212,7 @@ func sellerGetReportDetail(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Success 200
 // @Failure 401
 // @Router /seller/product [post]
-func sellerAddProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -223,7 +229,7 @@ func sellerAddProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/product/{id}/upload [post]
-func sellerUploadProductImage(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -239,7 +245,7 @@ func sellerUploadProductImage(db *db.DB, logger *zap.SugaredLogger) echo.Handler
 // @Success 200
 // @Failure 401
 // @Router /seller/product/{id} [patch]
-func sellerEditProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
@@ -255,7 +261,7 @@ func sellerEditProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success 200
 // @Failure 401
 // @Router /seller/product/{id} [delete]
-func sellerDeleteProduct(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		return c.NoContent(http.StatusOK)
