@@ -44,10 +44,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
 	}, auth.IsRole(db, logger, constants.ADMIN))
 
-	api.GET("/login", auth.Login(db, logger))
-	api.Any("/authorize", auth.Authorize(db, logger))
-	api.POST("/token", auth.Token(db, logger))
-	api.POST("/logout", auth.Logout(db, logger))
+	api.Any("/oauth/authorize", auth.Authorize(db, logger))
+	api.POST("/oauth/token", auth.Token(db, logger))
 
 	// admin
 	api.GET("/admin/user", adminGetUser(db, logger))

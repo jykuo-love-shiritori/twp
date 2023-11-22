@@ -31,9 +31,9 @@ func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse data")
 		}
 
-		mu.Lock()
+		mu.RLock()
 		challenge := codeChallengePairs[params.Code]
-		mu.Unlock()
+		mu.RUnlock()
 
 		if !verifyCodeChallenge(params.CodeVerifier, challenge) {
 			return echo.NewHTTPError(http.StatusUnauthorized)
