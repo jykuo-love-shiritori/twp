@@ -1,4 +1,4 @@
-name: checks
+name: backend
 
 on:
   workflow_dispatch:
