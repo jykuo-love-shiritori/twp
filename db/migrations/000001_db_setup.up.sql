@@ -1,18 +1,16 @@
-CREATE TYPE
-    "order_status" AS ENUM (
-        'pending',
-        'paid',
-        'shipped',
-        'delivered',
-        'cancelled'
-    );
+CREATE TYPE "order_status" AS ENUM (
+    'pending',
+    'paid',
+    'shipped',
+    'delivered',
+    'cancelled'
+);
 
-CREATE TYPE
-    "coupon_type" AS ENUM (
-        'percentage',
-        'fixed',
-        'shipping'
-    );
+CREATE TYPE "coupon_type" AS ENUM (
+    'percentage',
+    'fixed',
+    'shipping'
+);
 
 CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
 
@@ -47,7 +45,11 @@ CREATE TABLE
         "product_id" INT NOT NULL,
         "product_version" INT NOT NULL,
         "quantity" INT NOT NULL,
-        PRIMARY KEY ("order_id", "product_id", "product_version")
+        PRIMARY KEY (
+            "order_id",
+            "product_id",
+            "product_version"
+        )
     );
 
 CREATE TABLE
@@ -61,31 +63,35 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "version" INT NOT NULL,
         "shop_id" INT NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
         "exp_date" TIMESTAMPTZ NOT NULL,
-        "edit_date" TIMESTAMPTZ NOT NULL, -- to limit the edit frequency
+        "edit_date" TIMESTAMPTZ NOT NULL,
+        -- to limit the edit frequency
         "stock" INT NOT NULL,
         "sales" INT NOT NULL,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
+
 CREATE TABLE
     "product_archive" (
         "id" INT NOT NULL,
         "version" INT NOT NULL DEFAULT 1,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
         PRIMARY KEY ("id", "version")
     );
+
 CREATE TABLE
     "coupon" (
         "id" SERIAL PRIMARY KEY,
         "type" coupon_type NOT NULL,
         "shop_id" INT NOT NULL,
+        "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
         "start_date" TIMESTAMPTZ NOT NULL,
@@ -95,23 +101,23 @@ CREATE TABLE
 CREATE TABLE
     "user" (
         "id" SERIAL PRIMARY KEY,
-        "username" VARCHAR(255) NOT NULL UNIQUE,
-        "password" VARCHAR(255) NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
-        "email" VARCHAR(255) NOT NULL UNIQUE,
-        "address" VARCHAR(255) NOT NULL,
+        "username" TEXT NOT NULL UNIQUE,
+        "password" TEXT NOT NULL,
+        "name" TEXT NOT NULL,
+        "email" TEXT NOT NULL UNIQUE,
+        "address" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
-        "session_token" VARCHAR(255) NOT NULL,
         "credit_card" JSONB NOT NULL
     );
 
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_name" VARCHAR(255) NOT NULL,
+        "seller_name" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
-        "name" VARCHAR(255) NOT NULL,
+        "name" TEXT NOT NULL,
+        "description" TEXT NOT NULL,
         "enabled" BOOLEAN NOT NULL
     );
 
@@ -119,7 +125,7 @@ CREATE TABLE
     "tag" (
         "id" SERIAL PRIMARY KEY,
         "shop_id" INT NOT NULL,
-        "name" VARCHAR(255) NOT NULL
+        "name" TEXT NOT NULL
     );
 
 CREATE TABLE
@@ -180,7 +186,10 @@ ADD
 
 ALTER TABLE "order_detail"
 ADD
-    FOREIGN KEY ("product_id", "product_version") REFERENCES "product_archive" ("id", "version");
+    FOREIGN KEY (
+        "product_id",
+        "product_version"
+    ) REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "order_history"
 ADD
