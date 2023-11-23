@@ -25,12 +25,14 @@ import NewCard from '@pages/user/buyer/security/NewCard';
 import Shop from '@pages/user/buyer/Shop';
 import Products from '@pages/user/seller/Products';
 import NewGoods from '@pages/user/seller/NewGoods';
+import Authorize from '@pages/user/authorize';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/login' element={<Login />} />
+        <Route path='/authorize' element={<Authorize />} />
         <Route path='/signup' element={<Signup />} />
 
         <Route path='/' element={<Layout />}>

@@ -170,4 +170,8 @@ p {
   .body_down {
     padding-top: 30px;
   }
+
+  .flex-wrapper {
+    min-height: 50vh;
+  }
 }
