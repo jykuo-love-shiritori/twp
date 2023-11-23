@@ -5,7 +5,7 @@ import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
 
-const Login = () => {
+const Authorize = () => {
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
@@ -22,21 +22,17 @@ const Login = () => {
           <Col xs={12} md={6} style={{ padding: '10% 10% 10% 10%' }}>
             <Row>
               <Col xs={12}>
-                <div className='title center'>Welcome Back!</div>
+                <div className='title center'> Log in</div>
                 <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                  <p>
-                    We're thrilled to have you back with us. It's always a pleasure to see familiar
-                    faces, and we're grateful for your continued support.
-                  </p>
+                  <InfoItem text='Email Address' isMore={false} />
+                  <PasswordItem text='Password' />
                 </div>
               </Col>
 
               <Col xs={12}>
-                <Link to={'/authorize'}>
-                  <Button className='before_button white'>
-                    <div className='center white_word pointer'>Log in</div>
-                  </Button>
-                </Link>
+                <Button className='before_button white'>
+                  <div className='center white_word pointer'>Log in</div>
+                </Button>
 
                 <div className='center' style={{ fontSize: '12px' }}></div>
                 <br />
@@ -71,4 +67,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Authorize;
