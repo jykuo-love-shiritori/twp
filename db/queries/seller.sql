@@ -5,7 +5,7 @@ FROM "user" u
     JOIN "shop" s ON u.username = s.seller_name
 WHERE u.id = $1;
 
--- name: UpdateSellerInfo :exec
+-- name: UpdateSellerInfo :one
 
 UPDATE "shop"
 SET
@@ -16,8 +16,9 @@ SET
 WHERE "seller_name" IN (
         SELECT "username"
         FROM "user" u
-        WHERE u.id = $1
-    );
+        WHERE
+            u.id = $1
+    ) RETURNING *;
 
 -- name: SearchTag :many
 
@@ -57,8 +58,9 @@ VALUES ( (
         ),
         $2
     ) ON CONFLICT ("shop_id", "name")
-DO NOTHING
-RETURNING "id", "name";
+DO
+    NOTHING RETURNING "id",
+    "name";
 
 -- name: SellerGetCoupon :many
 
@@ -76,7 +78,7 @@ ORDER BY "start_date" DESC
 LIMIT $2
 OFFSET $3;
 
--- name: SellerGetCouponDetail :many
+-- name: SellerGetCouponDetail :one
 
 SELECT c.*
 FROM "coupon" c
@@ -110,10 +112,9 @@ VALUES (
         $5,
         $6,
         $7
-    )
-RETURNING *;
+    ) RETURNING *;
 
--- name: UpdateCouponInfo :execrows
+-- name: UpdateCouponInfo :one
 
 UPDATE "coupon" c
 SET
@@ -129,7 +130,7 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    );
+    ) RETURNING *;
 
 -- name: DeleteCoupon :execrows
 
@@ -163,23 +164,74 @@ ORDER BY "created_at" DESC
 LIMIT $2
 OFFSET $3;
 
+-- name: SellerOrderCheck :one
+
+SELECT order_history.*
+FROM "order_history"
+    JOIN shop ON order_history.shop_id = shop.id
+WHERE
+    shop.seller_name = $1
+    AND order_history.id = $2;
+
 -- name: SellerGetOrderDetail :many
 
 SELECT
     product_archive.*,
-    order_history.*,
-    order_detail.*
+    order_detail.quantity
 FROM "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id AND order_detail.product_version = product_archive.version
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE
     shop.seller_name = $1
-    OR order_detail.order_id = $2;
+    AND order_detail.order_id = $2
+ORDER BY quantity * price DESC
+LIMIT $3
+OFFSET $4;
+
+-- name: UpdateOrderStatus :one
+
+UPDATE "order_history" oh
+SET "status" = $4
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+    AND oh."id" = $2
+    AND oh."status" = $3 RETURNING *;
 
 -- SellerGetReport :many
 
 -- SellerGetReportDetail :many
+
+-- name: SellerGetProduct :one
+
+SELECT P.*
+FROM "product" p
+    JOIN "shop" s ON p."shop_id" = s.id
+WHERE
+    s.seller_name = $1
+    AND p."id" = $2;
+
+-- name: SellerProductList :many
+
+SELECT
+    p."id",
+    p."name",
+    p."image_id",
+    p."price",
+    p."sales",
+    p."stock",
+    p."enabled"
+FROM "product" p
+    JOIN "shop" s ON p."shop_id" = s.id
+WHERE s.seller_name = $1
+ORDER BY "sales" DESC
+LIMIT $2
+OFFSET $3;
 
 -- name: SellerInsertProduct :one
 
@@ -191,10 +243,13 @@ INSERT INTO
         "description",
         "price",
         "image_id",
-        "exp_date"
+        "expire_date",
+        "edit_date",
+        "stock",
+        "enabled"
     )
 VALUES (
-        0, (
+        1, (
             SELECT s."id"
             FROM "shop" s
             WHERE
@@ -205,11 +260,13 @@ VALUES (
         $3,
         $4,
         $5,
-        $6
-    )
-RETURNING "id";
+        $6,
+        NOW(),
+        $7,
+        $8
+    ) RETURNING *;
 
--- name: UpdateProductInfo :execrows
+-- name: UpdateProductInfo :one
 
 UPDATE "product" p
 SET
@@ -217,7 +274,7 @@ SET
     "description" = COALESCE($4, "description"),
     "price" = COALESCE($5, "price"),
     "image_id" = COALESCE($6, "image_id"),
-    "exp_date" = COALESCE($7, "exp_date"),
+    "expire_date" = COALESCE($7, "expire_date"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "shop_id" = (
@@ -227,14 +284,11 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2;
+    AND p."id" = $2 RETURNING *;
 
--- name: DeleteProduct :execrows
+-- name: DeleteProduct :exec
 
-UPDATE "product" p
-SET
-    "enabled" = false,
-    "edit_date" = NOW()
+DELETE FROM "product" p
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s

@@ -1201,7 +1201,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "expire date",
-                        "name": "exp_date",
+                        "name": "expire_date",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1311,7 +1311,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "expire date",
-                        "name": "exp_date",
+                        "name": "expire_date",
                         "in": "body",
                         "required": true,
                         "schema": {

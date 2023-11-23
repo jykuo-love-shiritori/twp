@@ -175,14 +175,14 @@ type CouponTag struct {
 }
 
 type OrderDetail struct {
-	OrderID        int32 `json:"order_id"`
+	OrderID        int32 `json:"order_id" param:"id"`
 	ProductID      int32 `json:"product_id"`
 	ProductVersion int32 `json:"product_version"`
 	Quantity       int32 `json:"quantity"`
 }
 
 type OrderHistory struct {
-	ID         int32              `json:"id"`
+	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
 	ShopID     int32              `json:"shop_id"`
 	Shipment   int32              `json:"shipment"`
@@ -199,7 +199,7 @@ type Product struct {
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price"`
 	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpDate     pgtype.Timestamptz `json:"exp_date"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
 	EditDate    pgtype.Timestamptz `json:"edit_date"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`

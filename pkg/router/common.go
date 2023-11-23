@@ -5,11 +5,17 @@ import (
 	"regexp"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 )
 
 type failure struct {
-	msg string `json:"msg"`
+	Msg string `json:"msg"`
+}
+
+type OrderDetail struct {
+	OrderInfo db.OrderHistory              `json:"order_info"`
+	Products  []db.SellerGetOrderDetailRow `json:"products"`
 }
 
 func hasSpecialChars(input string) bool {
