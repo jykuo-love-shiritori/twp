@@ -2,8 +2,6 @@ import { Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import Footer from '@components/Footer';
-import InfoItem from '@components/InfoItem';
-import PasswordItem from '@components/PasswordItem';
 
 const Login = () => {
   return (
