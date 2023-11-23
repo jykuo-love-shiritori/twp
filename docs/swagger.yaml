@@ -598,6 +598,12 @@ paths:
           - '''fixed'''
           - '''shipping'''
           type: string
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
       - description: description of coupon
         in: body
         name: description
@@ -609,6 +615,12 @@ paths:
         name: discount
         schema:
           type: number
+      - description: start date
+        in: body
+        name: start_date
+        required: true
+        schema:
+          type: string
       - description: expire date
         in: body
         name: expire_date
@@ -690,6 +702,12 @@ paths:
           - '''fixed'''
           - '''shipping'''
           type: string
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
       - description: description of coupon
         in: body
         name: description
@@ -748,6 +766,14 @@ paths:
       - Seller
       - Shop
       - Order
+    patch:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
   /seller/order/{id}:
     get:
       description: Get order detail by ID for shop.
@@ -757,6 +783,13 @@ paths:
         name: id
         required: true
         type: integer
+      - description: offset page
+        in: body
+        minimum: 0
+        name: offset
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
@@ -770,16 +803,35 @@ paths:
       - Shop
       - Order
   /seller/product:
+    get:
+      consumes:
+      - application/json
+      description: Add product for shop.
+      parameters:
+      - description: offset page
+        in: body
+        minimum: 0
+        name: offset
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get product
+      tags:
+      - Seller
+      - Shop
+      - Product
     post:
       consumes:
       - application/json
       description: Add product for shop.
       parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: name of product
         in: body
         name: name
@@ -805,7 +857,19 @@ paths:
           type: string
       - description: expire date
         in: body
-        name: exp_date
+        name: expire_date
+        required: true
+        schema:
+          type: string
+      - description: stock
+        in: body
+        name: stock
+        required: true
+        schema:
+          type: integer
+      - description: enabled
+        in: body
+        name: enabled
         required: true
         schema:
           type: string
@@ -840,6 +904,28 @@ paths:
         "401":
           description: Unauthorized
       summary: Seller delete product
+      tags:
+      - Seller
+      - Shop
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller get product
       tags:
       - Seller
       - Shop
@@ -879,7 +965,19 @@ paths:
           type: string
       - description: expire date
         in: body
-        name: exp_date
+        name: expire_date
+        required: true
+        schema:
+          type: string
+      - description: stock
+        in: body
+        name: stock
+        required: true
+        schema:
+          type: integer
+      - description: enabled
+        in: body
+        name: enabled
         required: true
         schema:
           type: string

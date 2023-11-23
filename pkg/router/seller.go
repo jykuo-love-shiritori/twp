@@ -69,6 +69,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 		var userID int32 = 0
+		var tagPerPage int32 = 20
 
 		var param db.SearchTagParams
 		if err := c.Bind(&param); err != nil {
@@ -79,6 +80,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		param.ID = userID
 		param.Name = "^" + param.Name
+		param.Limit = tagPerPage
 		tags, err := pg.Queries.SearchTag(context.Background(), param)
 		if err != nil {
 			return DBResponse(c, err, logger)
@@ -105,7 +107,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			DBResponse(c, err, logger)
 		}
 		if param.Name == "" || hasSpecialChars(param.Name) {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name can be ''"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name length must larger then 0"})
 		}
 		param.SellerName = username
 		have, err := pg.Queries.HaveTagName(context.Background(), param)
@@ -321,7 +323,7 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		param.SellerName = username
 		param.Limit = orderPerPage
 		param.Offset = orderPerPage * param.Offset
-		var result OrderDetail
+		var result orderDetail
 		var err error
 		result.OrderInfo, err = pg.Queries.SellerOrderCheck(context.Background(), db.SellerOrderCheckParams{SellerName: param.SellerName, ID: param.OrderID})
 		if err != nil {
@@ -335,17 +337,37 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-// @Summary Seller get order
-// @Description Get all orders for shop.
+// @Summary Seller update order status
+// @Description update orders of shop.
 // @Tags Seller, Shop, Order
-// @Param  offset   body   int   true  "offset page"   minimum(0)
+// @Param  id             path     int     true  "Order ID"
+// @Param  current_status body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
+// @Param  set_status     body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
+
 // @Produce json
 // @Success 200
 // @Failure 401
 // @Router /seller/order [patch]
 func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
+		var username string = "user0"
+
+		var param db.SellerUpdateOrderStatusParams
+		if err := c.Bind(&param); err != nil {
+			DBResponse(c, err, logger)
+		}
+		param.SellerName = username
+
+		// shop can only a prove the status traction {pending > paid ,paid > shipped ,paid > cancelled ,shipped > cancelled}
+		// pending > paid > shipped > delivered > (canelled || finished)
+		if !((param.CurrentStatus == "pending" && param.SetStatus == "paid") || (param.CurrentStatus == "paid" && param.SetStatus == "shipped")) {
+			return c.JSON(http.StatusBadRequest, failure{"Bad Request (parameters)"})
+		}
+		order, err := pg.Queries.SellerUpdateOrderStatus(context.Background(), param)
+		if err != nil {
+			return DBResponse(c, err, logger)
+		}
+		return c.JSON(http.StatusOK, order)
 	}
 }
 
@@ -379,7 +401,7 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
-// @Summary Seller delete product
+// @Summary Seller get product
 // @Description Delete product for shop.
 // @Tags Seller, Shop, Product
 // @Accept json
@@ -387,17 +409,17 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param   id path int true "Product ID"
 // @Success 200
 // @Failure 401
-// @Router /seller/product/{id} [delete]
+// @Router /seller/product/{id} [get]
 func sellerGetProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user0"
 
-		var param db.SellerGetProductParams
+		var param db.SellerGetProductDetailParams
 		if err := c.Bind(&param); err != nil {
 			DBResponse(c, err, logger)
 		}
 		param.SellerName = username
-		product, err := pg.Queries.SellerGetProduct(context.Background(), param)
+		product, err := pg.Queries.SellerGetProductDetail(context.Background(), param)
 		if err != nil {
 			return DBResponse(c, err, logger)
 		}

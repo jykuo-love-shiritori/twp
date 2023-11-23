@@ -16,9 +16,9 @@ SET
 WHERE "seller_name" IN (
         SELECT "username"
         FROM "user" u
-        WHERE
-            u.id = $1
-    ) RETURNING *;
+        WHERE u.id = $1
+    )
+RETURNING *;
 
 -- name: SearchTag :many
 
@@ -28,7 +28,7 @@ FROM "tag" t
     LEFT JOIN "user" u ON s.seller_name = u.username
 WHERE u.id = $1 AND t."name" ~* $2
 ORDER BY LENGTH(t."name")
-LIMIT 10;
+LIMIT $3;
 
 -- name: HaveTagName :one
 
@@ -58,9 +58,8 @@ VALUES ( (
         ),
         $2
     ) ON CONFLICT ("shop_id", "name")
-DO
-    NOTHING RETURNING "id",
-    "name";
+DO NOTHING
+RETURNING "id", "name";
 
 -- name: SellerGetCoupon :many
 
@@ -112,7 +111,8 @@ VALUES (
         $5,
         $6,
         $7
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: UpdateCouponInfo :one
 
@@ -130,7 +130,8 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: DeleteCoupon :execrows
 
@@ -189,10 +190,19 @@ ORDER BY quantity * price DESC
 LIMIT $3
 OFFSET $4;
 
--- name: UpdateOrderStatus :one
+-- name: SellerUpdateOrderStatus :one
+
+-- param: sellerName
+
+-- param: orderID
+
+-- param: currentStatus
+
+-- param: setStatus
 
 UPDATE "order_history" oh
-SET "status" = $4
+SET
+    "status" = sqlc.arg(set_status)
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
@@ -201,13 +211,14 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = $3 RETURNING *;
+    AND oh."status" = sqlc.arg(current_status)
+RETURNING *;
 
 -- SellerGetReport :many
 
 -- SellerGetReportDetail :many
 
--- name: SellerGetProduct :one
+-- name: SellerGetProductDetail :one
 
 SELECT P.*
 FROM "product" p
@@ -264,7 +275,8 @@ VALUES (
         NOW(),
         $7,
         $8
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: UpdateProductInfo :one
 
@@ -286,7 +298,8 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2 RETURNING *;
+    AND p."id" = $2
+RETURNING *;
 
 -- name: DeleteProduct :execrows
 

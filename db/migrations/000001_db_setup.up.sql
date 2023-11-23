@@ -1,16 +1,19 @@
-CREATE TYPE "order_status" AS ENUM (
-    'pending',
-    'paid',
-    'shipped',
-    'delivered',
-    'cancelled'
-);
+CREATE TYPE
+    "order_status" AS ENUM (
+        'pending',
+        'paid',
+        'shipped',
+        'delivered',
+        'cancelled',
+        'finished',
+    );
 
-CREATE TYPE "coupon_type" AS ENUM (
-    'percentage',
-    'fixed',
-    'shipping'
-);
+CREATE TYPE
+    "coupon_type" AS ENUM (
+        'percentage',
+        'fixed',
+        'shipping'
+    );
 
 CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
 

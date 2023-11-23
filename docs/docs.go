@@ -896,6 +896,15 @@ const docTemplate = `{
                         }
                     },
                     {
+                        "description": "name of coupon",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "description": "description of coupon",
                         "name": "description",
                         "in": "body",
@@ -910,6 +919,15 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "number"
+                        }
+                    },
+                    {
+                        "description": "start date",
+                        "name": "start_date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -1031,6 +1049,15 @@ const docTemplate = `{
                         }
                     },
                     {
+                        "description": "name of coupon",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "description": "description of coupon",
                         "name": "description",
                         "in": "body",
@@ -1108,6 +1135,19 @@ const docTemplate = `{
                         "description": "Unauthorized"
                     }
                 }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
             }
         },
         "/seller/order/{id}": {
@@ -1129,6 +1169,16 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "description": "offset page",
+                        "name": "offset",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -1142,6 +1192,41 @@ const docTemplate = `{
             }
         },
         "/seller/product": {
+            "get": {
+                "description": "Add product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "minimum": 0,
+                        "description": "offset page",
+                        "name": "offset",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
             "post": {
                 "description": "Add product for shop.",
                 "consumes": [
@@ -1157,13 +1242,6 @@ const docTemplate = `{
                 ],
                 "summary": "Seller add product",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "name of product",
                         "name": "name",
@@ -1207,6 +1285,24 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "description": "stock",
+                        "name": "stock",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "enabled",
+                        "name": "enabled",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -1220,6 +1316,38 @@ const docTemplate = `{
             }
         },
         "/seller/product/{id}": {
+            "get": {
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -1312,6 +1440,24 @@ const docTemplate = `{
                     {
                         "description": "expire date",
                         "name": "expire_date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "stock",
+                        "name": "stock",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "body",
                         "required": true,
                         "schema": {

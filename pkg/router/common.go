@@ -14,7 +14,7 @@ type failure struct {
 	Error string `json:"error"`
 }
 
-type OrderDetail struct {
+type orderDetail struct {
 	OrderInfo db.OrderHistory              `json:"order_info"`
 	Products  []db.SellerGetOrderDetailRow `json:"products"`
 }
@@ -28,8 +28,13 @@ func hasSpecialChars(input string) bool {
 func DBResponse(c echo.Context, err error, logger *zap.SugaredLogger) error {
 	// Customize this function based on the specific errors you want to handle
 	if httpErr, ok := err.(*echo.HTTPError); ok {
-		logger.Errorw("Error binding request parameters", "error", err)
-		return c.JSON(httpErr.Code, failure{httpErr.Message.(string)})
+		switch httpErr.Code {
+		case http.StatusBadRequest:
+			logger.Errorw("Error binding request parameters", "error", err)
+			return c.JSON(http.StatusBadRequest, failure{"Bad Request (parameters)"})
+		default:
+			return err
+		}
 	}
 
 	switch err {
