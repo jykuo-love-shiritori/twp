@@ -11,12 +11,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const addCoupon = `-- name: AddCoupon :exec
+const addCoupon = `-- name: AddCoupon :one
 
 INSERT INTO
     "coupon" (
-        "id",
         "type",
+        "scope",
         "shop_id",
         "name",
         "description",
@@ -25,12 +25,22 @@ INSERT INTO
         "expire_date"
     )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING (
+        "id",
+        "type",
+        "scope",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    )
 `
 
 type AddCouponParams struct {
-	ID          int32              `json:"id" params:"id"`
 	Type        CouponType         `json:"type"`
-	ShopID      int32              `json:"shop_id"`
+	Scope       CouponScope        `json:"scope"`
+	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount"`
@@ -38,10 +48,10 @@ type AddCouponParams struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
 }
 
-func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) error {
-	_, err := q.db.Exec(ctx, addCoupon,
-		arg.ID,
+func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, addCoupon,
 		arg.Type,
+		arg.Scope,
 		arg.ShopID,
 		arg.Name,
 		arg.Description,
@@ -49,27 +59,40 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) error {
 		arg.StartDate,
 		arg.ExpireDate,
 	)
-	return err
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const addUser = `-- name: AddUser :exec
 
-INSERT INTO
-    "user" (
-        "username",
-        "password",
-        "name",
-        "email",
-        "address",
-        "image_id",
-        "role",
-        "credit_card"
+WITH _ AS (
+        INSERT INTO
+            "user" (
+                "username",
+                "password",
+                "name",
+                "email",
+                "address",
+                "image_id",
+                "role",
+                "credit_card"
+            )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO
+    "shop" (
+        "seller_name",
+        "image_id",
+        "name",
+        "description",
+        "enabled"
+    )
+VALUES ($1, $6, '', '', FALSE)
 `
 
 type AddUserParams struct {
-	Username   string      `json:"username"`
+	SellerName string      `json:"seller_name" params:"seller_name"`
 	Password   string      `json:"password"`
 	Name       string      `json:"name"`
 	Email      string      `json:"email"`
@@ -81,7 +104,7 @@ type AddUserParams struct {
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 	_, err := q.db.Exec(ctx, addUser,
-		arg.Username,
+		arg.SellerName,
 		arg.Password,
 		arg.Name,
 		arg.Email,
@@ -95,7 +118,13 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 
 const deleteCoupon = `-- name: DeleteCoupon :exec
 
-DELETE FROM "coupon" WHERE "id" = $1
+WITH _ AS (
+        DELETE FROM
+            "cart_coupon"
+        WHERE "coupon_id" = $1
+    )
+DELETE FROM "coupon"
+WHERE "id" = $1
 `
 
 func (q *Queries) DeleteCoupon(ctx context.Context, id int32) error {
@@ -115,9 +144,19 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) err
 
 const disableShop = `-- name: DisableShop :exec
 
-UPDATE "shop" AS s
-SET s."enabled" = FALSE
-WHERE s."seller_name" = $1
+WITH disable_shop AS (
+        UPDATE "shop" AS s
+        SET s."enabled" = FALSE
+        WHERE
+            s."seller_name" = $1
+        RETURNING s."id"
+    )
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = (
+        SELECT "id"
+        FROM disable_shop
+    )
 `
 
 func (q *Queries) DisableShop(ctx context.Context, sellerName string) error {
@@ -127,7 +166,32 @@ func (q *Queries) DisableShop(ctx context.Context, sellerName string) error {
 
 const disableUser = `-- name: DisableUser :exec
 
-UPDATE "user" SET "enabled" = FALSE WHERE "id" = $1
+WITH disabled_user AS (
+        UPDATE "user" AS u
+        SET "enabled" = FALSE
+        WHERE u."id" = $1
+        RETURNING
+            u."id"
+    ),
+    disabled_shop AS (
+        UPDATE "shop" AS s
+        SET s."enabled" = FALSE
+        WHERE
+            s."seller_name" = (
+                SELECT
+                    u."seller_name"
+                FROM
+                    disabled_user u
+            )
+        RETURNING
+            "seller_name"
+    )
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = (
+        SELECT s."id"
+        FROM disabled_shop s
+    )
 `
 
 func (q *Queries) DisableUser(ctx context.Context, id int32) error {
@@ -135,7 +199,8 @@ func (q *Queries) DisableUser(ctx context.Context, id int32) error {
 	return err
 }
 
-const editCoupon = `-- name: EditCoupon :exec
+const editCoupon = `-- name: EditCoupon :one
+
 
 UPDATE "coupon"
 SET
@@ -146,6 +211,16 @@ SET
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
 WHERE "id" = $1
+RETURNING (
+        "id",
+        "type",
+        "scope",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    )
 `
 
 type EditCouponParams struct {
@@ -158,8 +233,9 @@ type EditCouponParams struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
 }
 
-func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) error {
-	_, err := q.db.Exec(ctx, editCoupon,
+// i don't feel right about this
+func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (interface{}, error) {
+	row := q.db.QueryRow(ctx, editCoupon,
 		arg.ID,
 		arg.Type,
 		arg.Name,
@@ -168,12 +244,24 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) error {
 		arg.StartDate,
 		arg.ExpireDate,
 	)
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const enabledShop = `-- name: EnabledShop :exec
+
+UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1
+`
+
+func (q *Queries) EnabledShop(ctx context.Context, sellerName string) error {
+	_, err := q.db.Exec(ctx, enabledShop, sellerName)
 	return err
 }
 
 const getAnyCoupons = `-- name: GetAnyCoupons :many
 
-SELECT id, type, shop_id, name, description, discount, start_date, expire_date FROM "coupon"
+SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon"
 `
 
 func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
@@ -188,6 +276,7 @@ func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Type,
+			&i.Scope,
 			&i.ShopID,
 			&i.Name,
 			&i.Description,
@@ -207,7 +296,7 @@ func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
 
 const getCouponDetail = `-- name: GetCouponDetail :one
 
-SELECT id, type, shop_id, name, description, discount, start_date, expire_date FROM "coupon" WHERE "id" = $1
+SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon" WHERE "id" = $1
 `
 
 func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (Coupon, error) {
@@ -216,6 +305,7 @@ func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (Coupon, error)
 	err := row.Scan(
 		&i.ID,
 		&i.Type,
+		&i.Scope,
 		&i.ShopID,
 		&i.Name,
 		&i.Description,
@@ -266,6 +356,18 @@ func (q *Queries) GetReport(ctx context.Context, arg GetReportParams) ([]OrderHi
 		return nil, err
 	}
 	return items, nil
+}
+
+const getShopIDBySellerName = `-- name: GetShopIDBySellerName :one
+
+SELECT "id" FROM "shop" WHERE "seller_name" = $1
+`
+
+func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) (int32, error) {
+	row := q.db.QueryRow(ctx, getShopIDBySellerName, sellerName)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getUserIDByUsername = `-- name: GetUserIDByUsername :one

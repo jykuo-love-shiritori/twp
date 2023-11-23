@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -29,12 +30,12 @@ func main() {
 	}
 	fmt.Println("DeleteTestUser success")
 
-	testAddUser(pg)
+	AddMockUsers(pg)
 
 }
 
-func testAddUser(pg *db.DB) {
-	for i := 0; i < 100; i++ {
+func AddMockUsers(pg *db.DB) {
+	for i := 0; i < 10; i++ {
 		emptyJSON := map[string]interface{}{
 			"card_number": fmt.Sprint(i),
 			"exp_month":   fmt.Sprint(i),
@@ -47,10 +48,12 @@ func testAddUser(pg *db.DB) {
 		if err != nil {
 			panic(err)
 		}
+		startRune, _ := utf8.DecodeRuneInString("🐱")
+		avatar := string(startRune + rune(i))
 		mockData := db.AddUserParams{
-			Username:   fmt.Sprintf("test%d", i),
+			SellerName: fmt.Sprintf("test%d", i),
 			Password:   fmt.Sprintf("test%d", i),
-			Name:       fmt.Sprintf("test%d", i),
+			Name:       avatar,
 			Email:      fmt.Sprintf("test%d", i) + "@test.com",
 			Address:    fmt.Sprintf("test%d", i),
 			ImageID:    pgtype.UUID{Valid: true},
@@ -62,5 +65,5 @@ func testAddUser(pg *db.DB) {
 			panic(err)
 		}
 	}
-	fmt.Println("InsertUser success")
+	fmt.Println("InsertMockUser success")
 }

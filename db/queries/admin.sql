@@ -12,28 +12,78 @@ FROM "user";
 
 -- name: AddUser :exec
 
-INSERT INTO
-    "user" (
-        "username",
-        "password",
-        "name",
-        "email",
-        "address",
-        "image_id",
-        "role",
-        "credit_card"
+WITH _ AS (
+        INSERT INTO
+            "user" (
+                "username",
+                "password",
+                "name",
+                "email",
+                "address",
+                "image_id",
+                "role",
+                "credit_card"
+            )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+INSERT INTO
+    "shop" (
+        "seller_name",
+        "image_id",
+        "name",
+        "description",
+        "enabled"
+    )
+VALUES ($1, $6, '', '', FALSE);
+
+-- name: EnabledShop :exec
+
+UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
 
 -- name: DisableUser :exec
 
-UPDATE "user" SET "enabled" = FALSE WHERE "id" = $1;
+WITH disabled_user AS (
+        UPDATE "user" AS u
+        SET "enabled" = FALSE
+        WHERE u."id" = $1
+        RETURNING
+            u."id"
+    ),
+    disabled_shop AS (
+        UPDATE "shop" AS s
+        SET s."enabled" = FALSE
+        WHERE
+            s."seller_name" = (
+                SELECT
+                    u."seller_name"
+                FROM
+                    disabled_user u
+            )
+        RETURNING
+            "seller_name"
+    )
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = (
+        SELECT s."id"
+        FROM disabled_shop s
+    );
 
 -- name: DisableShop :exec
 
-UPDATE "shop" AS s
-SET s."enabled" = FALSE
-WHERE s."seller_name" = $1;
+WITH disable_shop AS (
+        UPDATE "shop" AS s
+        SET s."enabled" = FALSE
+        WHERE
+            s."seller_name" = $1
+        RETURNING s."id"
+    )
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = (
+        SELECT "id"
+        FROM disable_shop
+    );
 
 -- name: DisableProductsFromShop :exec
 
@@ -47,12 +97,12 @@ SELECT * FROM "coupon";
 
 SELECT * FROM "coupon" WHERE "id" = $1;
 
--- name: AddCoupon :exec
+-- name: AddCoupon :one
 
 INSERT INTO
     "coupon" (
-        "id",
         "type",
+        "scope",
         "shop_id",
         "name",
         "description",
@@ -60,9 +110,21 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING (
+        "id",
+        "type",
+        "scope",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    );
 
--- name: EditCoupon :exec
+-- i don't feel right about this
+
+-- name: EditCoupon :one
 
 UPDATE "coupon"
 SET
@@ -72,11 +134,27 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE "id" = $1;
+WHERE "id" = $1
+RETURNING (
+        "id",
+        "type",
+        "scope",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    );
 
 -- name: DeleteCoupon :exec
 
-DELETE FROM "coupon" WHERE "id" = $1;
+WITH _ AS (
+        DELETE FROM
+            "cart_coupon"
+        WHERE "coupon_id" = $1
+    )
+DELETE FROM "coupon"
+WHERE "id" = $1;
 
 -- name: GetReport :many
 
@@ -89,3 +167,7 @@ WHERE
 -- name: GetUserIDByUsername :one
 
 SELECT "id" FROM "user" WHERE "username" = $1;
+
+-- name: GetShopIDBySellerName :one
+
+SELECT "id" FROM "shop" WHERE "seller_name" = $1;

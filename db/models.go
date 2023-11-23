@@ -11,6 +11,48 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type CouponScope string
+
+const (
+	CouponScopeGlobal CouponScope = "global"
+	CouponScopeShop   CouponScope = "shop"
+)
+
+func (e *CouponScope) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CouponScope(s)
+	case string:
+		*e = CouponScope(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CouponScope: %T", src)
+	}
+	return nil
+}
+
+type NullCouponScope struct {
+	CouponScope CouponScope `json:"coupon_scope"`
+	Valid       bool        `json:"valid"` // Valid is true if CouponScope is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCouponScope) Scan(value interface{}) error {
+	if value == nil {
+		ns.CouponScope, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CouponScope.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCouponScope) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CouponScope), nil
+}
+
 type CouponType string
 
 const (
@@ -161,7 +203,8 @@ type CartProduct struct {
 type Coupon struct {
 	ID          int32              `json:"id" params:"id"`
 	Type        CouponType         `json:"type"`
-	ShopID      int32              `json:"shop_id"`
+	Scope       CouponScope        `json:"scope"`
+	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount"`
