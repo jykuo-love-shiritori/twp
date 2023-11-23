@@ -143,7 +143,7 @@ WHERE c."id" = $2 AND "shop_id" = (
             AND s."enabled" = true
     );
 
--- name: SellerGetOrder :many
+-- name: SellerGetOrder :one
 
 SELECT
     "id",
@@ -275,6 +275,8 @@ SET
     "price" = COALESCE($5, "price"),
     "image_id" = COALESCE($6, "image_id"),
     "expire_date" = COALESCE($7, "expire_date"),
+    "enabled" = COALESCE($8, "enabled"),
+    "stock" = COALESCE($9, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "shop_id" = (
@@ -286,7 +288,7 @@ WHERE "shop_id" = (
     )
     AND p."id" = $2 RETURNING *;
 
--- name: DeleteProduct :exec
+-- name: DeleteProduct :execrows
 
 DELETE FROM "product" p
 WHERE "shop_id" = (

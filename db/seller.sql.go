@@ -36,7 +36,7 @@ func (q *Queries) DeleteCoupon(ctx context.Context, arg DeleteCouponParams) (int
 	return result.RowsAffected(), nil
 }
 
-const deleteProduct = `-- name: DeleteProduct :exec
+const deleteProduct = `-- name: DeleteProduct :execrows
 
 DELETE FROM "product" p
 WHERE "shop_id" = (
@@ -54,9 +54,12 @@ type DeleteProductParams struct {
 	ID         int32  `json:"id" param:"id"`
 }
 
-func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) error {
-	_, err := q.db.Exec(ctx, deleteProduct, arg.SellerName, arg.ID)
-	return err
+func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProduct, arg.SellerName, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const getSellerInfo = `-- name: GetSellerInfo :one
@@ -275,7 +278,7 @@ func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCoupon
 	return i, err
 }
 
-const sellerGetOrder = `-- name: SellerGetOrder :many
+const sellerGetOrder = `-- name: SellerGetOrder :one
 
 SELECT
     "id",
@@ -312,31 +315,18 @@ type SellerGetOrderRow struct {
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
-func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) ([]SellerGetOrderRow, error) {
-	rows, err := q.db.Query(ctx, sellerGetOrder, arg.SellerName, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []SellerGetOrderRow{}
-	for rows.Next() {
-		var i SellerGetOrderRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ShopID,
-			&i.Shipment,
-			&i.TotalPrice,
-			&i.Status,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) (SellerGetOrderRow, error) {
+	row := q.db.QueryRow(ctx, sellerGetOrder, arg.SellerName, arg.Limit, arg.Offset)
+	var i SellerGetOrderRow
+	err := row.Scan(
+		&i.ID,
+		&i.ShopID,
+		&i.Shipment,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const sellerGetOrderDetail = `-- name: SellerGetOrderDetail :many
@@ -779,6 +769,8 @@ SET
     "price" = COALESCE($5, "price"),
     "image_id" = COALESCE($6, "image_id"),
     "expire_date" = COALESCE($7, "expire_date"),
+    "enabled" = COALESCE($8, "enabled"),
+    "stock" = COALESCE($9, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "shop_id" = (
@@ -799,6 +791,8 @@ type UpdateProductInfoParams struct {
 	Price       pgtype.Numeric     `json:"price"`
 	ImageID     pgtype.UUID        `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Enabled     bool               `json:"enabled"`
+	Stock       int32              `json:"stock"`
 }
 
 func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoParams) (Product, error) {
@@ -810,6 +804,8 @@ func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoPa
 		arg.Price,
 		arg.ImageID,
 		arg.ExpireDate,
+		arg.Enabled,
+		arg.Stock,
 	)
 	var i Product
 	err := row.Scan(
