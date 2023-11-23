@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "price": 5,
+    "price": 758,
     "name": "Strawberry Delight Cupcake",
     "introduction": "Experience the pure essence of strawberries in every bite with our Strawberry Delight Cupcake. This delectable treat combines the richness of a cupcake with the lusciousness of strawberry cream and a fresh strawberry on top, creating a dessert that's both delightful and satisfying.",
     "sub_title": "Savor the Sweetness:",
@@ -9,11 +9,24 @@
     "calories": "Approximately 180 calories per cupcake",
     "due_date": "For the ultimate experience, we recommend savoring the Strawberry Delight Cupcake within 2 days of purchase. This ensures that the cupcake remains at its freshest, guaranteeing a delightful treat.",
     "ingredients": "Moist vanilla cupcake, Creamy strawberry-infused frosting, Fresh, ripe strawberry garnish",
-    "imgUrl": "/images/goods1.png"
+    "imgUrl": "/images/goods1.png",
+    "tags": [
+      { "name": "tag1 test" },
+      { "name": "tag2" },
+      { "name": "a" },
+      { "name": "this is such a very long tag" },
+      { "name": "中文可以嗎" },
+      { "name": "中文可以不要跑版嗎" },
+      { "name": "一個字試試看" },
+      { "name": "粉" },
+      { "name": "how can i test if a tag can contain so much words" },
+      { "name": "this is tough man" }
+    ],
+    "quantity": 555
   },
   {
     "id": 2,
-    "price": 30,
+    "price": 340,
     "name": "Coffee Bliss Berry Cake",
     "introduction": "Elevate your dessert experience with our Coffee Bliss Berry Cake, a masterpiece that harmoniously blends the rich essence of coffee with the creamy allure of vanilla. Topped with vibrant blueberries and encircled by delicate chocolate accents, this creation is a symphony of flavors and visual delight.",
     "sub_title": "Savor the Fusion:",
@@ -21,11 +34,21 @@
     "calories": "Approximately 260 calories per serving",
     "due_date": "To experience the Coffee Bliss Berry Cake at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moisture, the cream remains silky, and the berries burst with freshness.",
     "ingredients": "Moist coffee-infused cake layers, Velvety vanilla cream filling, Plump blueberries, Chocolate adornments",
-    "imgUrl": "/images/goods2.png"
+    "imgUrl": "/images/goods2.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "OrganicChemistry" },
+      { "name": "InorganicChemistry" },
+      { "name": "AnalyticalChemistry" },
+      { "name": "MedicinalChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 0
   },
   {
     "id": 3,
-    "price": 10,
+    "price": 1045,
     "name": "Choco-Heaven Pancake Delight",
     "introduction": "Elevate your dessert experience with our Choco-Heaven Pancake Delight, a symphony of rich chocolate pancakes crowned with velvety vanilla ice cream and a sprinkle of delightful marshmallows. This creation is the perfect harmony of flavors and textures that promises to sweeten your moments.",
     "sub_title": "A Taste of Decadence:",
@@ -33,11 +56,34 @@
     "calories": "Approximately 350 calories per serving",
     "due_date": "To savor the Choco-Heaven Pancake Delight at its peak, we recommend enjoying it immediately after purchase. This ensures that the pancakes maintain their fluffiness, the ice cream remains creamy, and the marshmallows stay delightfully soft.",
     "ingredients": "Fluffy chocolate pancake stack, Creamy vanilla ice cream scoop, Miniature marshmallows",
-    "imgUrl": "/images/goods3.png"
+    "imgUrl": "/images/goods3.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "OrganicChemistry" },
+      { "name": "InorganicChemistry" },
+      { "name": "Biochemistry" },
+      { "name": "PhysicalChemistry" },
+      { "name": "ChemicalEngineering" },
+      { "name": "AnalyticalChemistry" },
+      { "name": "MaterialsScience" },
+      { "name": "Nanotechnology" },
+      { "name": "PolymerChemistry" },
+      { "name": "EnvironmentalChemistry" },
+      { "name": "ChemicalKinetics" },
+      { "name": "QuantumChemistry" },
+      { "name": "MedicinalChemistry" },
+      { "name": "ChemicalBonding" },
+      { "name": "LaboratoryTechniques" },
+      { "name": "ChemicalSynthesis" },
+      { "name": "PeriodicTable" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 12
   },
   {
     "id": 4,
-    "price": 8,
+    "price": 800,
     "name": "Berrylicious Tart",
     "introduction": "Elevate your dessert experience with our Berrylicious Tart, a delightful pastry that celebrates the natural sweetness of strawberries and raspberries. This creation is a harmonious blend of flavors, where the lusciousness of berries meets the buttery goodness of our tart shell.",
     "sub_title": "A Burst of Berry Bliss:",
@@ -45,11 +91,17 @@
     "calories": "Approximately 220 calories per serving",
     "due_date": "For the ultimate experience, we recommend savoring the Berrylicious Tart within 2 days of purchase. This ensures that the tart remains perfectly crisp, and the berries maintain their freshness.",
     "ingredients": "Flaky tart crust, Fresh strawberries, Plump raspberries",
-    "imgUrl": "/images/goods4.png"
+    "imgUrl": "/images/goods4.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "OrganicChemistry" },
+      { "name": "MedicinalChemistry" }
+    ],
+    "quantity": 98
   },
   {
     "id": 5,
-    "price": 4,
+    "price": 400,
     "name": "Mocha Cookie Cupcake",
     "introduction": "Elevate your dessert experience with our Mocha Cookie Cupcake, a heavenly creation that marries the bold flavor of coffee with the creaminess of our signature frosting, crowned with half a delightful cookie. This treat promises a symphony of flavors and textures that will satisfy your sweetest cravings.",
     "sub_title": "A Fusion of Flavor:",
@@ -57,11 +109,13 @@
     "calories": "Approximately 200 calories per serving",
     "due_date": "For the ultimate experience, we recommend savoring the Mocha Cookie Cupcake within 2 days of purchase. This ensures that the cupcake remains moist, the frosting remains velvety, and the cookie stays perfectly crisp.",
     "ingredients": "Rich coffee-infused cupcake, Luxurious cream frosting, Half of a delicious cookie",
-    "imgUrl": "/images/goods5.png"
+    "imgUrl": "/images/goods5.png",
+    "tags": [{ "name": "ChemicalReactions" }, { "name": "PeriodicTable" }],
+    "quantity": 0
   },
   {
     "id": 6,
-    "price": 3,
+    "price": 300,
     "name": "Blossom Bliss Macarons",
     "introduction": "Delight in a journey of flavors with our Blossom Bliss Macarons, where the elegance of sakura and the sweetness of strawberries unite in every bite. These dainty confections promise a delightful blend of floral notes and fruity goodness.",
     "sub_title": "A Floral Fête:",
@@ -69,11 +123,17 @@
     "calories": "Approximately 60 calories per macaron",
     "due_date": "To experience the Blossom Bliss Macarons at their finest, we recommend savoring them within 3 days of purchase. This ensures that the macarons maintain their delicate texture and the flavors remain vibrant.",
     "ingredients": "Almond flour macaron shells, Sakura-infused cream, Strawberry filling",
-    "imgUrl": "/images/goods6.png"
+    "imgUrl": "/images/goods6.png",
+    "tags": [
+      { "name": "InorganicChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 982
   },
   {
     "id": 7,
-    "price": 5,
+    "price": 500,
     "name": "Triple Berry Yogurt Delight",
     "introduction": "Satisfy your craving for sweetness with our Triple Berry Yogurt Delight, a delectable treat that layers the fruity goodness of strawberries, blueberries, and raspberries with creamy yogurt. It's a delightful symphony of flavors and textures that promises to brighten your dessert moments.",
     "sub_title": "A Berrylicious Symphony:",
@@ -81,11 +141,21 @@
     "calories": "Approximately 180 calories per serving",
     "due_date": "To savor the Triple Berry Yogurt Delight at its peak, we recommend enjoying it within 3 days of purchase. This ensures that the berries remain fresh, the yogurt stays creamy, and the overall experience is delightful.",
     "ingredients": "Fresh strawberries at the bottom, Creamy yogurt in the middle, A medley of blueberries and raspberries on top",
-    "imgUrl": "/images/goods7.png"
+    "imgUrl": "/images/goods7.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "OrganicChemistry" },
+      { "name": "InorganicChemistry" },
+      { "name": "AnalyticalChemistry" },
+      { "name": "MedicinalChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 8989
   },
   {
     "id": 8,
-    "price": 33,
+    "price": 330,
     "name": "Berrylicious Vanilla Dream",
     "introduction": "Elevate your dessert experience with our Berrylicious Vanilla Dream, a delightful cake that marries the timeless elegance of vanilla with a colorful array of berries on top. This creation promises a burst of fruity goodness in every bite.",
     "sub_title": "A Symphony of Berries:",
@@ -93,11 +163,18 @@
     "calories": "Approximately 220 calories per serving",
     "due_date": "To experience the Berrylicious Vanilla Dream at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moistness, and the berries remain fresh and juicy.",
     "ingredients": "Vanilla cake base, Fresh strawberries, blueberries, raspberries, and blackberries",
-    "imgUrl": "/images/goods8.png"
+    "imgUrl": "/images/goods8.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "MedicinalChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 125
   },
   {
     "id": 9,
-    "price": 8,
+    "price": 800,
     "name": "Strawberry Panna Bliss",
     "introduction": "Indulge in a dessert experience like no other with our Strawberry Panna Bliss, a delicate panna cotta adorned with plump strawberries on top. This creation promises a symphony of creamy elegance and fruity delight in every spoonful.",
     "sub_title": "A Delicate Harmony:",
@@ -105,11 +182,21 @@
     "calories": "Approximately 180 calories per serving",
     "due_date": "To experience the Strawberry Panna Bliss at its peak, we recommend savoring it within 2 days of purchase. This ensures that the panna cotta remains perfectly silky, and the strawberries maintain their freshness.",
     "ingredients": "Silky panna cotta, Fresh, ripe strawberries",
-    "imgUrl": "/images/goods9.png"
+    "imgUrl": "/images/goods9.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "OrganicChemistry" },
+      { "name": "Biochemistry" },
+      { "name": "ChemicalEngineering" },
+      { "name": "AnalyticalChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 987
   },
   {
     "id": 10,
-    "price": 34,
+    "price": 340,
     "name": "Berry-Choco Delight",
     "introduction": "Elevate your dessert experience with our Berry-Choco Delight, a decadent chocolate cake infused with the lusciousness of blackberry and blueberry cream. This creation promises a harmonious blend of rich cocoa and fruity goodness in every bite.",
     "sub_title": "A Chocolate Berry Fusion:",
@@ -117,6 +204,13 @@
     "calories": "Approximately 280 calories per serving",
     "due_date": "To experience the Berry-Choco Delight at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moisture and the frosting remains perfectly creamy.",
     "ingredients": "Moist chocolate cake layers, Creamy blackberry and blueberry-infused frosting",
-    "imgUrl": "/images/goods10.png"
+    "imgUrl": "/images/goods10.png",
+    "tags": [
+      { "name": "ChemicalReactions" },
+      { "name": "MedicinalChemistry" },
+      { "name": "ChemicalAnalysis" },
+      { "name": "ChemicalEducation" }
+    ],
+    "quantity": 0
   }
 ]
