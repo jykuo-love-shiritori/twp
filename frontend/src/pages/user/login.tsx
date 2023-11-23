@@ -1,71 +1,38 @@
-import { Col, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import Carousel from 'react-bootstrap/Carousel';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
-import { useState } from 'react';
 import PasswordItem from '@components/PasswordItem';
 
 const Login = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const handleSelect = (selectedIndex: number) => {
-    setActiveIndex(selectedIndex);
-  };
-
-  const handleButtonClick = () => {
-    if (activeIndex === 0) {
-      handleSelect(1);
-    }
-  };
-
   return (
     <div>
-      <div className='center' style={{ backgroundColor: 'var(--bg)' }}>
-        <Row>
+      <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
+        <Row style={{ width: '100%' }}>
           <Col xs={12} md={6}>
-            <img
-              src={'/images/login.jpg'}
-              style={{ height: '100%', width: '100%' }}
+            <div
               className='flex-wrapper'
-            />
+              style={{
+                background: 'url("/images/login.jpg") no-repeat center center/cover',
+                width: '100%',
+              }}
+            ></div>
           </Col>
           <Col xs={12} md={6} style={{ padding: '10% 10% 10% 10%' }}>
             <Row>
               <Col xs={12}>
-                <Carousel
-                  controls={false}
-                  indicators={false}
-                  interval={null}
-                  activeIndex={activeIndex}
-                  onSelect={handleSelect}
-                >
-                  <Carousel.Item className='center'>
-                    <div className='title center'>Welcome Back!</div>
-                    <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                      <p>
-                        We're thrilled to have you back with us. It's always a pleasure to see
-                        familiar faces, and we're grateful for your continued support.
-                      </p>
-                    </div>
-                  </Carousel.Item>
-                  <Carousel.Item className='center'>
-                    <div className='title center'> Log in</div>
-                    <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                      <InfoItem text='Email Address' isMore={false} />
-                      <PasswordItem text='Password' />
-                    </div>
-                  </Carousel.Item>
-                </Carousel>
+                <div className='title center'> Log in</div>
+                <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
+                  <InfoItem text='Email Address' isMore={false} />
+                  <PasswordItem text='Password' />
+                </div>
               </Col>
 
               <Col xs={12}>
-                <div className='before_button white'>
-                  <div className='center white_word pointer' onClick={handleButtonClick}>
-                    Log in
-                  </div>
-                </div>
+                <Button className='before_button white'>
+                  <div className='center white_word pointer'>Log in</div>
+                </Button>
 
                 <div className='center' style={{ fontSize: '12px' }}></div>
                 <br />

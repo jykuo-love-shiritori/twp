@@ -4,7 +4,7 @@ import '@style/global.css';
 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { Row, Col, NavbarBrand } from 'react-bootstrap';
+import { Row, Col, NavbarBrand, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
@@ -60,7 +60,7 @@ const NavBar = () => {
             <SearchBar />
           </Col>
           <Col sm={3}>
-            <div className='search_button center'>Search</div>
+            <Button className='search_button center'>Search</Button>
           </Col>
         </Row>
       </div>

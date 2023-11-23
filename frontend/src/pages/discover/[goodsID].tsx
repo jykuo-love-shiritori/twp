@@ -100,7 +100,7 @@ const EachGoods = () => {
             </div>
           </Col>
           <Col xs={12} md={7}>
-            <div style={{ padding: '7% 0% 7% 10%' }}>
+            <div style={{ padding: '7% 5% 7% 5%' }}>
               <div className='inpage_title'>{data.name}</div>
 
               {/* goods' description */}

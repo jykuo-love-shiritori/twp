@@ -48,19 +48,21 @@
 
 /* [item in page] search button on navbar */
 .search_button {
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.3);
+  border-radius: 15px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
   color: white;
-  padding: 3%;
+  padding: 3% !important;
+  width: 80%;
   margin: 10px;
-  border: rgba(255, 255, 255, 0.3) solid 1px;
+  border: rgba(255, 255, 255, 0.3) solid 1px !important;
   user-select: none;
 }
 
 .search_button:hover {
   cursor: pointer;
-  background-color: var(--button_dark);
-  border: var(--border) solid 1px;
+  background-color: var(--button_dark) !important;
+  border: var(--border) solid 1px !important;
+  transition-duration: 0.5s;
 }
 
 /* news*/
@@ -124,19 +126,19 @@
 
 /* [component] button for TButton */
 .button {
-  background-color: var(--button_light);
-  border: var(--button_light) solid 1px;
-  border-radius: 30px;
+  background-color: var(--button_light) !important;
+  border: var(--button_light) solid 1px !important;
+  border-radius: 30px !important;
   color: white;
-  padding: 10px 15% 10px 15%;
-  margin: 10px 0% 5px 0%;
-  width: 100%;
+  padding: 10px 15% 10px 15% !important;
+  margin: 10px 0% 5px 0% !important;
+  width: 100% !important;
   user-select: none;
 }
 
 .button:hover {
-  background-color: var(--button_dark);
-  border: var(--border) solid 1px;
+  background-color: var(--button_dark) !important;
+  border: var(--border) solid 1px !important;
   transition-duration: 0.5s;
 }
 
@@ -262,13 +264,13 @@
   width: 100%;
   flex-shrink: 0;
   padding: 2%;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.02);
+  border-radius: 30px !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
 }
 
 .before_button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
   transition-duration: 0.5s;
 }
 
