@@ -4,7 +4,7 @@ import '@style/global.css';
 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { Row, Col, NavbarBrand, Button } from 'react-bootstrap';
+import { Row, Col, NavbarBrand, Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,19 @@ import { Link } from 'react-router-dom';
 import SearchBar from '@components/SearchBar';
 
 const NavBar = () => {
+  const DropDownStyle = {
+    borderRadius: '25px',
+    border: '1px solid var(--border)',
+    background: ' var(--layout)',
+    padding: '10% 5% 10% 5%',
+    color: 'white',
+  };
+
+  const DropButtonStyle = {
+    background: ' var(--layout)',
+    border: 'none',
+  };
+
   return (
     <div className='navbar_twp'>
       <Navbar expand='lg' style={{ padding: '0px 8% 0px 8%' }}>
@@ -23,21 +36,65 @@ const NavBar = () => {
             <SearchBar />
           </div>
         </Nav>
-        <Navbar.Toggle aria-controls='basic-navbar-nav' />
-        <Navbar.Collapse id='basic-navbar-nav' className='navbar-dark'>
+        <Navbar.Toggle aria-controls='seller-nav' />
+        <Navbar.Collapse id='seller-nav' className='navbar-dark'>
           <Nav className='mt-auto'>
-            <Link to='/user/seller' className='nav_link none'>
-              Sell
-            </Link>
-            <Link to='/coupons' className='nav_link none'>
+            <Dropdown>
+              <Dropdown.Toggle id='dropdown-custom-1' style={DropButtonStyle} className='nav_link'>
+                Sell
+              </Dropdown.Toggle>
+              <Dropdown.Menu style={DropDownStyle}>
+                <Link to='/user/seller/info' className='none nav_link' style={{ padding: '0' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>Shop Info</div>
+                </Link>
+                <Link
+                  to='/user/seller/manageProducts'
+                  className='none nav_link'
+                  style={{ padding: '0%' }}
+                >
+                  <div style={{ padding: '5px 10% 5px 10%' }}>All Products</div>
+                </Link>
+                <Link
+                  to='/user/seller/manageCoupons'
+                  className='none nav_link'
+                  style={{ padding: '0%' }}
+                >
+                  <div style={{ padding: '5px 10% 5px 10%' }}>All Coupons</div>
+                </Link>
+                <Link to='/user/seller/orders' className='none nav_link' style={{ padding: '0%' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>All Shipments</div>
+                </Link>
+                <Link to='/user/seller/reports' className='none nav_link' style={{ padding: '0%' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>All Reports</div>
+                </Link>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Link to='/coupons' className='nav_link none' style={{ paddingLeft: '10px' }}>
               Coupons
             </Link>
           </Nav>
           <Nav className='ms-auto'>
-            <Link to='/user' className='nav_link none'>
-              <FontAwesomeIcon icon={faUser} />
-            </Link>
-            <Link to='/buyer/cart' className='nav_link none'>
+            <Dropdown>
+              <Dropdown.Toggle id='dropdown-custom-1' style={DropButtonStyle} className='nav_link'>
+                <FontAwesomeIcon icon={faUser} />
+              </Dropdown.Toggle>
+              <Dropdown.Menu style={DropDownStyle}>
+                <Link to='/user/info' className='none nav_link' style={{ padding: '0' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>Personal Info</div>
+                </Link>
+                <Link to='/user/security' className='none nav_link' style={{ padding: '0%' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>Security</div>
+                </Link>
+                <Link to='/user/buyer/order' className='none nav_link' style={{ padding: '0%' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>Order History</div>
+                </Link>
+                <hr className='hr' style={{ padding: '0', margin: '5px' }} />
+                <Link to='/login' className='none nav_link' style={{ padding: '0%' }}>
+                  <div style={{ padding: '5px 10% 5px 10%' }}>Logout</div>
+                </Link>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Link to='/buyer/cart' className='nav_link none' style={{ paddingLeft: '10px' }}>
               <FontAwesomeIcon icon={faCartShopping} />
             </Link>
           </Nav>

@@ -59,7 +59,11 @@ function App() {
           </Route>
 
           <Route path='/user/seller' element={<Seller />}>
+            <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
+            <Route path='/user/seller/manageCoupons' element={<NotFound />} />
+            <Route path='/user/seller/orders' element={<NotFound />} />
+            <Route path='/user/seller/reports' element={<NotFound />} />
           </Route>
 
           <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />

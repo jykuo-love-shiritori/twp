@@ -73,7 +73,11 @@ const EmptyGoods = () => {
                 <Col xs={9}></Col>
                 <Col xs={3}>
                   <form method='post' encType='multipart/form-data'>
-                    <label htmlFor='file' className='custom-file-upload'>
+                    <label
+                      htmlFor='file'
+                      className='custom-file-upload'
+                      style={{ minWidth: '40px' }}
+                    >
                       <div className='button pointer center' style={{ padding: '10px' }}>
                         <FontAwesomeIcon icon={faPen} className='white_word' />
                       </div>
