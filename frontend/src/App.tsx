@@ -27,6 +27,7 @@ import Products from '@pages/user/seller/allProducts';
 import NewGoods from '@pages/user/seller/allProducts/NewGoods';
 import Authorize from '@pages/user/authorize';
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
+import SellerShipment from '@pages/user/seller/allShipments';
 
 function App() {
   return (
@@ -63,7 +64,7 @@ function App() {
             <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
             <Route path='/user/seller/manageCoupons' element={<NotFound />} />
-            <Route path='/user/seller/orders' element={<NotFound />} />
+            <Route path='/user/seller/orders' element={<SellerShipment />} />
             <Route path='/user/seller/reports' element={<NotFound />} />
           </Route>
 
