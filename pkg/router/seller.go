@@ -76,7 +76,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			DBResponse(c, err, logger)
 		}
 		if param.Name == "" || hasSpecialChars(param.Name) {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name can be ''"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name invaild"})
 		}
 		param.ID = userID
 		param.Name = "^" + param.Name
@@ -107,7 +107,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			DBResponse(c, err, logger)
 		}
 		if param.Name == "" || hasSpecialChars(param.Name) {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name length must larger then 0"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "tag name invaild"})
 		}
 		param.SellerName = username
 		have, err := pg.Queries.HaveTagName(context.Background(), param)
@@ -115,7 +115,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return DBResponse(c, err, logger)
 		}
 		if have {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Bad Request (tagname have to be unique)"})
+			return c.JSON(http.StatusConflict, map[string]string{"error": "Conflict (tag name have to be unique)"})
 		}
 		tag, err := pg.Queries.InsertTag(context.Background(), db.InsertTagParams(param))
 		if err != nil {
@@ -266,7 +266,7 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return DBResponse(c, err, logger)
 		}
 		if effectRow != 1 {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Coupon"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Not Found (Coupon)"})
 		}
 		return DBResponse(c, nil, logger)
 	}
@@ -338,12 +338,11 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 }
 
 // @Summary Seller update order status
-// @Description update orders of shop.
+// @Description seller update orders status.
 // @Tags Seller, Shop, Order
 // @Param  id             path     int     true  "Order ID"
 // @Param  current_status body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
 // @Param  set_status     body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
-
 // @Produce json
 // @Success 200
 // @Failure 401
@@ -358,10 +357,10 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 		}
 		param.SellerName = username
 
-		// shop can only a prove the status traction {pending > paid ,paid > shipped ,paid > cancelled ,shipped > cancelled}
-		// pending > paid > shipped > delivered > (canelled || finished)
-		if !((param.CurrentStatus == "pending" && param.SetStatus == "paid") || (param.CurrentStatus == "paid" && param.SetStatus == "shipped")) {
-			return c.JSON(http.StatusBadRequest, failure{"Bad Request (parameters)"})
+		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
+		// paid > shipped > delivered > (canelled || finished)
+		if !((param.CurrentStatus == "paid" && param.SetStatus == "shipped") || (param.CurrentStatus == "shipped" && param.SetStatus == "delivered")) {
+			return c.JSON(http.StatusBadRequest, failure{"Bad Request (current_status or set_status)"})
 		}
 		order, err := pg.Queries.SellerUpdateOrderStatus(context.Background(), param)
 		if err != nil {
@@ -562,7 +561,7 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 			return DBResponse(c, err, logger)
 		}
 		if effectRow != 1 {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Not Found Product"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Not Found (Product)"})
 		}
 		return DBResponse(c, nil, logger)
 
