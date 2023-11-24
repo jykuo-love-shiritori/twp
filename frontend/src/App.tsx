@@ -10,8 +10,8 @@ import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
 import HistoryEach from '@pages/user/buyer/history/[historyID]';
-import Info from '@components/Info';
-import History from '@components/History';
+import Info from '@pages/user/buyer/info';
+import History from '@pages/user/buyer/history';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
 import APItest from '@components/APItest';
@@ -23,9 +23,10 @@ import Password from '@pages/user/buyer/security/Password';
 import CreditCard from '@pages/user/buyer/security/CreditCard';
 import NewCard from '@pages/user/buyer/security/NewCard';
 import Shop from '@pages/user/buyer/Shop';
-import Products from '@pages/user/seller/Products';
-import NewGoods from '@pages/user/seller/NewGoods';
+import Products from '@pages/user/seller/allProducts';
+import NewGoods from '@pages/user/seller/allProducts/NewGoods';
 import Authorize from '@pages/user/authorize';
+import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 
 function App() {
   return (
@@ -67,6 +68,9 @@ function App() {
           </Route>
 
           <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
+          <Route path='/user/seller/manageProducts'>
+            <Route path=':goods_id' element={<EachSellerGoods />} />
+          </Route>
 
           <Route path='/sellerID/shop' element={<Shop />} />
 

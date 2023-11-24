@@ -88,7 +88,7 @@ const NavBar = () => {
                 <Link to='/user/buyer/order' className='none nav_link' style={{ padding: '0%' }}>
                   <div style={{ padding: '5px 10% 5px 10%' }}>Order History</div>
                 </Link>
-                <hr className='hr' style={{ padding: '0', margin: '5px' }} />
+                <hr style={{ padding: '0', margin: '5px', color: 'var(--border)', opacity: '1' }} />
                 <Link to='/login' className='none nav_link' style={{ padding: '0%' }}>
                   <div style={{ padding: '5px 10% 5px 10%' }}>Logout</div>
                 </Link>

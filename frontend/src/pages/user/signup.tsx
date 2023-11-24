@@ -1,11 +1,17 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
 
 const Signup = () => {
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmedPassword, setConfirmedPassword] = useState<string>('');
+
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)' }}>
@@ -24,10 +30,14 @@ const Signup = () => {
               <Col xs={12}>
                 <div className='title center'>Sign up</div>
                 <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                  <InfoItem text='Name' isMore={false} />
-                  <InfoItem text='Email Address' isMore={false} />
-                  <PasswordItem text='Password' />
-                  <PasswordItem text='Confirm Password' />
+                  <InfoItem text='Name' isMore={false} value={name} setValue={setName} />
+                  <InfoItem text='Email Address' isMore={false} value={email} setValue={setEmail} />
+                  <PasswordItem text='Password' value={password} setValue={setPassword} />
+                  <PasswordItem
+                    text='Confirm Password'
+                    value={confirmedPassword}
+                    setValue={setConfirmedPassword}
+                  />
                 </div>
               </Col>
 
