@@ -20,7 +20,7 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 0
 
-		shopInfo, err := pg.Queries.GetSellerInfo(context.Background(), userID)
+		shopInfo, err := pg.Queries.SellerGetInfo(context.Background(), userID)
 		if err != nil {
 			return DBResponse(c, err, logger)
 		}
@@ -44,12 +44,12 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 0
 
-		var param db.UpdateSellerInfoParams
+		var param db.SellerUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
 			DBResponse(c, err, logger)
 		}
 		param.ID = userID
-		shopInfo, err := pg.Queries.UpdateSellerInfo(context.Background(), param)
+		shopInfo, err := pg.Queries.SellerUpdateInfo(context.Background(), param)
 		if err != nil {
 			return DBResponse(c, err, logger)
 		}
@@ -71,7 +71,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var userID int32 = 0
 		var tagPerPage int32 = 20
 
-		var param db.SearchTagParams
+		var param db.SellerSearchTagParams
 		if err := c.Bind(&param); err != nil {
 			DBResponse(c, err, logger)
 		}
@@ -81,7 +81,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		param.ID = userID
 		param.Name = "^" + param.Name
 		param.Limit = tagPerPage
-		tags, err := pg.Queries.SearchTag(context.Background(), param)
+		tags, err := pg.Queries.SellerSearchTag(context.Background(), param)
 		if err != nil {
 			return DBResponse(c, err, logger)
 		}
@@ -117,7 +117,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if have {
 			return c.JSON(http.StatusConflict, map[string]string{"error": "Conflict (tag name have to be unique)"})
 		}
-		tag, err := pg.Queries.InsertTag(context.Background(), db.InsertTagParams(param))
+		tag, err := pg.Queries.SellerInsertTag(context.Background(), db.SellerInsertTagParams(param))
 		if err != nil {
 			return DBResponse(c, err, logger)
 		}
@@ -290,7 +290,6 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err := c.Bind(&param); err != nil {
 			return DBResponse(c, err, logger)
 		}
-		logger.Info(param)
 		param.SellerName = username
 		param.Limit = orderPerPage
 		param.Offset = param.Offset * orderPerPage

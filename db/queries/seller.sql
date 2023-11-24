@@ -1,11 +1,11 @@
--- name: GetSellerInfo :one
+-- name: SellerGetInfo :one
 
 SELECT s.*
 FROM "user" u
     JOIN "shop" s ON u.username = s.seller_name
 WHERE u.id = $1;
 
--- name: UpdateSellerInfo :one
+-- name: SellerUpdateInfo :one
 
 UPDATE "shop"
 SET
@@ -20,7 +20,7 @@ WHERE "seller_name" IN (
     )
 RETURNING *;
 
--- name: SearchTag :many
+-- name: SellerSearchTag :many
 
 SELECT t."id", t."name"
 FROM "tag" t
@@ -45,7 +45,7 @@ SELECT
         ELSE false
     END;
 
--- name: InsertTag :one
+-- name: SellerInsertTag :one
 
 INSERT INTO
     "tag" ("shop_id", "name")

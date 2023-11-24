@@ -62,28 +62,6 @@ func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) (i
 	return result.RowsAffected(), nil
 }
 
-const getSellerInfo = `-- name: GetSellerInfo :one
-
-SELECT s.id, s.seller_name, s.image_id, s.name, s.description, s.enabled
-FROM "user" u
-    JOIN "shop" s ON u.username = s.seller_name
-WHERE u.id = $1
-`
-
-func (q *Queries) GetSellerInfo(ctx context.Context, id int32) (Shop, error) {
-	row := q.db.QueryRow(ctx, getSellerInfo, id)
-	var i Shop
-	err := row.Scan(
-		&i.ID,
-		&i.SellerName,
-		&i.ImageID,
-		&i.Name,
-		&i.Description,
-		&i.Enabled,
-	)
-	return i, err
-}
-
 const haveTagName = `-- name: HaveTagName :one
 
 SELECT
@@ -110,82 +88,6 @@ func (q *Queries) HaveTagName(ctx context.Context, arg HaveTagNameParams) (bool,
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const insertTag = `-- name: InsertTag :one
-
-INSERT INTO
-    "tag" ("shop_id", "name")
-VALUES ( (
-            SELECT s."id"
-            FROM "shop" s
-            WHERE
-                s."seller_name" = $1
-                AND s."enabled" = true
-        ),
-        $2
-    ) ON CONFLICT ("shop_id", "name")
-DO NOTHING
-RETURNING "id", "name"
-`
-
-type InsertTagParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	Name       string `json:"name"`
-}
-
-type InsertTagRow struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-}
-
-func (q *Queries) InsertTag(ctx context.Context, arg InsertTagParams) (InsertTagRow, error) {
-	row := q.db.QueryRow(ctx, insertTag, arg.SellerName, arg.Name)
-	var i InsertTagRow
-	err := row.Scan(&i.ID, &i.Name)
-	return i, err
-}
-
-const searchTag = `-- name: SearchTag :many
-
-SELECT t."id", t."name"
-FROM "tag" t
-    LEFT JOIN "shop" s ON "shop_id" = s.id
-    LEFT JOIN "user" u ON s.seller_name = u.username
-WHERE u.id = $1 AND t."name" ~* $2
-ORDER BY LENGTH(t."name")
-LIMIT $3
-`
-
-type SearchTagParams struct {
-	ID    int32  `json:"id" param:"id"`
-	Name  string `json:"name"`
-	Limit int32  `json:"limit"`
-}
-
-type SearchTagRow struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-}
-
-func (q *Queries) SearchTag(ctx context.Context, arg SearchTagParams) ([]SearchTagRow, error) {
-	rows, err := q.db.Query(ctx, searchTag, arg.ID, arg.Name, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []SearchTagRow{}
-	for rows.Next() {
-		var i SearchTagRow
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const sellerGetCoupon = `-- name: SellerGetCoupon :many
@@ -274,6 +176,28 @@ func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCoupon
 		&i.Discount,
 		&i.StartDate,
 		&i.ExpireDate,
+	)
+	return i, err
+}
+
+const sellerGetInfo = `-- name: SellerGetInfo :one
+
+SELECT s.id, s.seller_name, s.image_id, s.name, s.description, s.enabled
+FROM "user" u
+    JOIN "shop" s ON u.username = s.seller_name
+WHERE u.id = $1
+`
+
+func (q *Queries) SellerGetInfo(ctx context.Context, id int32) (Shop, error) {
+	row := q.db.QueryRow(ctx, sellerGetInfo, id)
+	var i Shop
+	err := row.Scan(
+		&i.ID,
+		&i.SellerName,
+		&i.ImageID,
+		&i.Name,
+		&i.Description,
+		&i.Enabled,
 	)
 	return i, err
 }
@@ -573,6 +497,40 @@ func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProdu
 	return i, err
 }
 
+const sellerInsertTag = `-- name: SellerInsertTag :one
+
+INSERT INTO
+    "tag" ("shop_id", "name")
+VALUES ( (
+            SELECT s."id"
+            FROM "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = true
+        ),
+        $2
+    ) ON CONFLICT ("shop_id", "name")
+DO NOTHING
+RETURNING "id", "name"
+`
+
+type SellerInsertTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Name       string `json:"name"`
+}
+
+type SellerInsertTagRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) SellerInsertTag(ctx context.Context, arg SellerInsertTagParams) (SellerInsertTagRow, error) {
+	row := q.db.QueryRow(ctx, sellerInsertTag, arg.SellerName, arg.Name)
+	var i SellerInsertTagRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const sellerOrderCheck = `-- name: SellerOrderCheck :one
 
 SELECT order_history.id, order_history.user_id, order_history.shop_id, order_history.shipment, order_history.total_price, order_history.status, order_history.created_at
@@ -663,6 +621,92 @@ func (q *Queries) SellerProductList(ctx context.Context, arg SellerProductListPa
 		return nil, err
 	}
 	return items, nil
+}
+
+const sellerSearchTag = `-- name: SellerSearchTag :many
+
+SELECT t."id", t."name"
+FROM "tag" t
+    LEFT JOIN "shop" s ON "shop_id" = s.id
+    LEFT JOIN "user" u ON s.seller_name = u.username
+WHERE u.id = $1 AND t."name" ~* $2
+ORDER BY LENGTH(t."name")
+LIMIT $3
+`
+
+type SellerSearchTagParams struct {
+	ID    int32  `json:"id" param:"id"`
+	Name  string `json:"name"`
+	Limit int32  `json:"limit"`
+}
+
+type SellerSearchTagRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) SellerSearchTag(ctx context.Context, arg SellerSearchTagParams) ([]SellerSearchTagRow, error) {
+	rows, err := q.db.Query(ctx, sellerSearchTag, arg.ID, arg.Name, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SellerSearchTagRow{}
+	for rows.Next() {
+		var i SellerSearchTagRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const sellerUpdateInfo = `-- name: SellerUpdateInfo :one
+
+UPDATE "shop"
+SET
+    "image_id" = COALESCE($2, "image_id"),
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "enabled" = COALESCE($5, "enabled")
+WHERE "seller_name" IN (
+        SELECT "username"
+        FROM "user" u
+        WHERE u.id = $1
+    )
+RETURNING id, seller_name, image_id, name, description, enabled
+`
+
+type SellerUpdateInfoParams struct {
+	ID          int32       `json:"id" param:"id"`
+	ImageID     pgtype.UUID `json:"image_id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Enabled     bool        `json:"enabled"`
+}
+
+func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoParams) (Shop, error) {
+	row := q.db.QueryRow(ctx, sellerUpdateInfo,
+		arg.ID,
+		arg.ImageID,
+		arg.Name,
+		arg.Description,
+		arg.Enabled,
+	)
+	var i Shop
+	err := row.Scan(
+		&i.ID,
+		&i.SellerName,
+		&i.ImageID,
+		&i.Name,
+		&i.Description,
+		&i.Enabled,
+	)
+	return i, err
 }
 
 const sellerUpdateOrderStatus = `-- name: SellerUpdateOrderStatus :one
@@ -834,50 +878,6 @@ func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoPa
 		&i.EditDate,
 		&i.Stock,
 		&i.Sales,
-		&i.Enabled,
-	)
-	return i, err
-}
-
-const updateSellerInfo = `-- name: UpdateSellerInfo :one
-
-UPDATE "shop"
-SET
-    "image_id" = COALESCE($2, "image_id"),
-    "name" = COALESCE($3, "name"),
-    "description" = COALESCE($4, "description"),
-    "enabled" = COALESCE($5, "enabled")
-WHERE "seller_name" IN (
-        SELECT "username"
-        FROM "user" u
-        WHERE u.id = $1
-    )
-RETURNING id, seller_name, image_id, name, description, enabled
-`
-
-type UpdateSellerInfoParams struct {
-	ID          int32       `json:"id" param:"id"`
-	ImageID     pgtype.UUID `json:"image_id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
-}
-
-func (q *Queries) UpdateSellerInfo(ctx context.Context, arg UpdateSellerInfoParams) (Shop, error) {
-	row := q.db.QueryRow(ctx, updateSellerInfo,
-		arg.ID,
-		arg.ImageID,
-		arg.Name,
-		arg.Description,
-		arg.Enabled,
-	)
-	var i Shop
-	err := row.Scan(
-		&i.ID,
-		&i.SellerName,
-		&i.ImageID,
-		&i.Name,
-		&i.Description,
 		&i.Enabled,
 	)
 	return i, err
