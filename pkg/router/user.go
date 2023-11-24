@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -32,14 +33,21 @@ func logout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var userID int32 = 0
+		user, err := pg.Queries.UserGetInfo(context.Background(), userID)
+		if err != nil {
+			return DBResponse(c, err, logger)
+		}
+		return c.JSON(http.StatusOK, user)
 	}
 }
 
 // @Summary User Edit Info
 // @Description Edit user information
 // @Tags User
+// @Param  name          body     string  true  "name of coupon"
+// @Param  address       body     string  true  "user address"
+// @Param  image_id      body     string  true  "image id"
 // @Accept json
 // @Produce json
 // @Success 200
@@ -47,8 +55,19 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user/edit [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var userID int32 = 0
 
-		return c.NoContent(http.StatusOK)
+		var param db.UserUpdateInfoParams
+		if err := c.Bind(&param); err != nil {
+			DBResponse(c, err, logger)
+		}
+		param.ID = userID
+		order, err := pg.Queries.UserUpdateInfo(context.Background(), param)
+		if err != nil {
+			return DBResponse(c, err, logger)
+		}
+
+		return c.JSON(http.StatusOK, order)
 	}
 }
 

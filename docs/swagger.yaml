@@ -767,6 +767,37 @@ paths:
       - Shop
       - Order
     patch:
+      description: update orders of shop.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: order status
+        in: body
+        name: current_status
+        required: true
+        schema:
+          enum:
+          - '''pending'''
+          - '''paid'''
+          - '''shipped'''
+          - '''delivered'''
+          - '''cancelled'''
+          type: string
+      - description: order status
+        in: body
+        name: set_status
+        required: true
+        schema:
+          enum:
+          - '''pending'''
+          - '''paid'''
+          - '''shipped'''
+          - '''delivered'''
+          - '''cancelled'''
+          type: string
       produces:
       - application/json
       responses:
@@ -774,6 +805,11 @@ paths:
           description: OK
         "401":
           description: Unauthorized
+      summary: Seller update order status
+      tags:
+      - Seller
+      - Shop
+      - Order
   /seller/order/{id}:
     get:
       description: Get order detail by ID for shop.

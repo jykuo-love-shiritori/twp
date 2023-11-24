@@ -1,11 +1,10 @@
 CREATE TYPE
     "order_status" AS ENUM (
-        'pending',
         'paid',
         'shipped',
         'delivered',
         'cancelled',
-        'finished',
+        'finished'
     );
 
 CREATE TYPE
@@ -111,13 +110,14 @@ CREATE TABLE
         "address" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
-        "credit_card" JSONB NOT NULL
+        "credit_card" JSONB NOT NULL,
+        "enabled" BOOL NOT NULL
     );
 
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_name" TEXT NOT NULL,
+        "seller_name" TEXT NOT NULL UNIQUE,
         "image_id" UUID NOT NULL,
         "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
@@ -135,13 +135,15 @@ CREATE TABLE
 CREATE TABLE
     "product_tag" (
         "tag_id" INT NOT NULL,
-        "product_id" INT NOT NULL
+        "product_id" INT NOT NULL,
+        CONSTRAINT unique_tag_product UNIQUE ("tag_id", "product_id")
     );
 
 CREATE TABLE
     "coupon_tag" (
         "coupon_id" INT NOT NULL,
-        "tag_id" INT NOT NULL
+        "tag_id" INT NOT NULL,
+        CONSTRAINT unique_tag_coupon UNIQUE ("tag_id", "coupon_id")
     );
 
 ALTER TABLE "cart_product"

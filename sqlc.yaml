@@ -11,6 +11,11 @@ sql:
         out: "db"
         sql_package: "pgx/v5"
         overrides:
+        - column: "user.credit_card"
+          go_type:
+            import: "github.com/jykuo-love-shiritori/twp/pkg"
+            package: "credit_card"
+            type: "JSONB"
         - column: user.id
           go_struct_tag: param:"id"
         - column: coupon.id

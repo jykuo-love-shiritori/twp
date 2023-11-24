@@ -10,13 +10,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type failure struct {
-	Error string `json:"error"`
-}
-
 type orderDetail struct {
 	OrderInfo db.OrderHistory              `json:"order_info"`
 	Products  []db.SellerGetOrderDetailRow `json:"products"`
+}
+type failure struct {
+	Error string `json:"error"`
 }
 
 func hasSpecialChars(input string) bool {
@@ -42,14 +41,11 @@ func DBResponse(c echo.Context, err error, logger *zap.SugaredLogger) error {
 		return c.JSON(http.StatusOK, failure{"success"})
 	case pgx.ErrNoRows:
 		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, failure{"Not Found"})
+		return c.JSON(http.StatusNotFound, failure{"Not Found"})
 	case pgx.ErrTooManyRows:
 		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, failure{"Too Many Result"})
-	case pgx.ErrTxClosed:
-		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
-	case pgx.ErrTxCommitRollback:
+	case pgx.ErrTooManyRows, pgx.ErrTxClosed, pgx.ErrTxCommitRollback:
 		logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
 	default:

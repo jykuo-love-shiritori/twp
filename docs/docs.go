@@ -1137,8 +1137,56 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "description": "update orders of shop.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller update order status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "order status",
+                        "name": "current_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "'pending'",
+                                "'paid'",
+                                "'shipped'",
+                                "'delivered'",
+                                "'cancelled'"
+                            ]
+                        }
+                    },
+                    {
+                        "description": "order status",
+                        "name": "set_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "'pending'",
+                                "'paid'",
+                                "'shipped'",
+                                "'delivered'",
+                                "'cancelled'"
+                            ]
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {

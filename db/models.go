@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	credit_card "github.com/jykuo-love-shiritori/twp/pkg"
 )
 
 type CouponType string
@@ -57,11 +58,11 @@ func (ns NullCouponType) Value() (driver.Value, error) {
 type OrderStatus string
 
 const (
-	OrderStatusPending   OrderStatus = "pending"
 	OrderStatusPaid      OrderStatus = "paid"
 	OrderStatusShipped   OrderStatus = "shipped"
 	OrderStatusDelivered OrderStatus = "delivered"
 	OrderStatusCancelled OrderStatus = "cancelled"
+	OrderStatusFinished  OrderStatus = "finished"
 )
 
 func (e *OrderStatus) Scan(src interface{}) error {
@@ -236,13 +237,14 @@ type Tag struct {
 }
 
 type User struct {
-	ID         int32       `json:"id" param:"id"`
-	Username   string      `json:"username"`
-	Password   string      `json:"password"`
-	Name       string      `json:"name"`
-	Email      string      `json:"email"`
-	Address    string      `json:"address"`
-	ImageID    pgtype.UUID `json:"image_id"`
-	Role       RoleType    `json:"role"`
-	CreditCard []byte      `json:"credit_card"`
+	ID         int32             `json:"id" param:"id"`
+	Username   string            `json:"username"`
+	Password   string            `json:"password"`
+	Name       string            `json:"name"`
+	Email      string            `json:"email"`
+	Address    string            `json:"address"`
+	ImageID    pgtype.UUID       `json:"image_id"`
+	Role       RoleType          `json:"role"`
+	CreditCard credit_card.JSONB `json:"credit_card"`
+	Enabled    bool              `json:"enabled"`
 }
