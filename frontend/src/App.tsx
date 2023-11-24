@@ -22,12 +22,13 @@ import Security from '@pages/user/buyer/security';
 import Password from '@pages/user/buyer/security/Password';
 import CreditCard from '@pages/user/buyer/security/CreditCard';
 import NewCard from '@pages/user/buyer/security/NewCard';
-import Shop from '@pages/user/buyer/Shop';
+import UserViewShop from '@pages/user/shop';
 import Products from '@pages/user/seller/allProducts';
 import NewGoods from '@pages/user/seller/allProducts/NewGoods';
 import Authorize from '@pages/user/authorize';
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
+import Shop from '@pages/user/shop/Shop';
 
 function App() {
   return (
@@ -44,9 +45,6 @@ function App() {
             <Route path=':news_id' element={<EachNews />} />
           </Route>
           <Route path='/discover' element={<Discover />} />
-          <Route path='/discover'>
-            <Route path=':goods_id' element={<EachGoods />} />
-          </Route>
           <Route path='/user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />
@@ -73,7 +71,19 @@ function App() {
             <Route path=':goods_id' element={<EachSellerGoods />} />
           </Route>
 
-          <Route path='/sellerID/shop' element={<Shop />} />
+          <Route path='/sellerID' element={<UserViewShop />}>
+            <Route index element={<Shop />} />
+            <Route path='/sellerID/shop' element={<Shop />} />
+            <Route path='/sellerID/coupons' element={<NotFound />} />
+          </Route>
+
+          <Route path='sellerID/shop'>
+            <Route path=':goods_id' element={<EachGoods />} />
+          </Route>
+
+          <Route path='/user/seller/order'>
+            <Route path=':history_id' element={<HistoryEach />} />
+          </Route>
 
           <Route path='/buyer/cart' element={<Cart />} />
 

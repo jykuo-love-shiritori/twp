@@ -6,7 +6,7 @@ import UserItem from '@components/UserItem';
 import historyData from '@pages/cart/boughtData.json';
 import goodsData from '@pages/discover/goodsData.json';
 
-const HistoryItem = ({ id }: { id: number }) => {
+const HistoryItem = ({ id, user }: { id: number; user: string }) => {
   const record = historyData.find((item) => item.recordID === id);
   const firstItem = goodsData.find((item) => record?.items[0].item_id === item.id);
 
@@ -44,7 +44,14 @@ const HistoryItem = ({ id }: { id: number }) => {
             Order Total : ${Total}
           </Col>
           <Col xs={12} md={2}>
-            <TButton text='Detail' url={`/user/buyer/order/${record.recordID}`} />
+            <TButton
+              text='Detail'
+              url={
+                user === 'buyer'
+                  ? `/user/buyer/order/${record.recordID}`
+                  : `/user/seller/order/${record.recordID}`
+              }
+            />
           </Col>
         </Row>
       </div>

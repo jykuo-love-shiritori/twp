@@ -1,11 +1,12 @@
 import { Col, Row } from 'react-bootstrap';
+import { Outlet } from 'react-router-dom';
+
+import TButton from '@components/TButton';
 
 import userData from '@pages/user/seller/sellerInfo.json';
 import goodsData from '@pages/discover/goodsData.json';
-import TButton from '@components/TButton';
-import GoodsItem from '@components/GoodsItem';
 
-const Shop = () => {
+const UserViewShop = () => {
   return (
     <Row>
       <Col xs={12} md={12}>
@@ -25,14 +26,15 @@ const Shop = () => {
               </h4>
             </div>
             <hr className='hr' />
-            <div className='center'> Products : 13 items</div>
+            <div className='center'> Products : {goodsData.length} items</div>
             <TButton text='Explore Shop' url='/sellerID/shop' />
-            <TButton text='Check Coupons' url='' />
+            <TButton text='Check Coupons' url='/sellerID/coupons' />
           </Col>
         </Row>
       </Col>
       <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
-        <div className='title'>All products</div>
+        <Outlet />
+        {/* <div className='title'>All products</div>
         <hr className='hr' />
         <Row>
           {goodsData.map((data, index) => {
@@ -42,10 +44,10 @@ const Shop = () => {
               </Col>
             );
           })}
-        </Row>
+        </Row> */}
       </Col>
     </Row>
   );
 };
 
-export default Shop;
+export default UserViewShop;

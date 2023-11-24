@@ -15,7 +15,7 @@ const History = () => {
         {historyData.map((item, index) => {
           return (
             <Col xs={12} key={index}>
-              <HistoryItem id={item.recordID} />
+              <HistoryItem id={item.recordID} user='buyer' />
             </Col>
           );
         })}

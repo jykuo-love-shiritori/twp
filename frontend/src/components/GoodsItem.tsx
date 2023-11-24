@@ -20,7 +20,7 @@ const GoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
         </p>
       </div>
 
-      <TButton text='more' url={isIndex ? `discover/${id}` : `${id}`} />
+      <TButton text='more' url={isIndex ? `sellerID/shop/${id}` : `${id}`} />
     </div>
   );
 };
