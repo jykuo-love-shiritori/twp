@@ -10,6 +10,10 @@ SELECT
     "enabled"
 FROM "user";
 
+-- name: UserExists :one
+
+SELECT EXISTS(SELECT 1 FROM "user" WHERE "username" = $1);
+
 -- name: AddUser :exec
 
 WITH _ AS (
@@ -45,9 +49,8 @@ UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE u."id" = $1
-        RETURNING
-            u."id"
+        WHERE
+            u."id" = $1 RETURNING u."id"
     ),
     disabled_shop AS (
         UPDATE "shop" AS s
@@ -58,9 +61,7 @@ WITH disabled_user AS (
                     u."seller_name"
                 FROM
                     disabled_user u
-            )
-        RETURNING
-            "seller_name"
+            ) RETURNING "seller_name"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -75,8 +76,7 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1
-        RETURNING s."id"
+            s."seller_name" = $1 RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -88,6 +88,10 @@ WHERE p."shop_id" = (
 -- name: DisableProductsFromShop :exec
 
 UPDATE "product" AS p SET p."enabled" = FALSE WHERE p."shop_id" = $1;
+
+-- name: CouponExists :one
+
+SELECT EXISTS(SELECT 1 FROM "coupon" WHERE "id" = $1);
 
 -- name: GetAnyCoupons :many
 
@@ -110,8 +114,7 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING (
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING (
         "id",
         "type",
         "scope",
@@ -134,8 +137,8 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE "id" = $1
-RETURNING (
+WHERE
+    "id" = $1 RETURNING (
         "id",
         "type",
         "scope",

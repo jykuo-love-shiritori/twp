@@ -24,8 +24,7 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING (
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING (
         "id",
         "type",
         "scope",
@@ -116,6 +115,18 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 	return err
 }
 
+const couponExists = `-- name: CouponExists :one
+
+SELECT EXISTS(SELECT 1 FROM "coupon" WHERE "id" = $1)
+`
+
+func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, couponExists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const deleteCoupon = `-- name: DeleteCoupon :exec
 
 WITH _ AS (
@@ -148,8 +159,7 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1
-        RETURNING s."id"
+            s."seller_name" = $1 RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -169,9 +179,8 @@ const disableUser = `-- name: DisableUser :exec
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE u."id" = $1
-        RETURNING
-            u."id"
+        WHERE
+            u."id" = $1 RETURNING u."id"
     ),
     disabled_shop AS (
         UPDATE "shop" AS s
@@ -182,9 +191,7 @@ WITH disabled_user AS (
                     u."seller_name"
                 FROM
                     disabled_user u
-            )
-        RETURNING
-            "seller_name"
+            ) RETURNING "seller_name"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -210,8 +217,8 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE "id" = $1
-RETURNING (
+WHERE
+    "id" = $1 RETURNING (
         "id",
         "type",
         "scope",
@@ -431,4 +438,16 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const userExists = `-- name: UserExists :one
+
+SELECT EXISTS(SELECT 1 FROM "user" WHERE "username" = $1)
+`
+
+func (q *Queries) UserExists(ctx context.Context, username string) (bool, error) {
+	row := q.db.QueryRow(ctx, userExists, username)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
