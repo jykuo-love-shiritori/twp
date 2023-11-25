@@ -62,8 +62,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/user/security/password", userEditPassword(db, logger))
 
 	api.GET("/user/security/credit_card", userGetCreditCard(db, logger))
-	api.DELETE("/user/security/credit_card", userDeleteCreditCard(db, logger))
-	api.POST("/user/security/credit_card", userAddCreditCard(db, logger))
+	api.PATCH("/user/security/credit_card", userUpdateCreditCard(db, logger))
 
 	// general
 	api.GET("/shop/:id", getShopInfo(db, logger)) // user
@@ -119,7 +118,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.GET("/seller/product", sellerListProduct(db, logger))
 	api.POST("/seller/product", sellerAddProduct(db, logger))
 	api.POST("/seller/product/:id/upload", sellerUploadProductImage(db, logger))
-	api.GET("/seller/product/:id", sellerGetProduct(db, logger))
+	api.GET("/seller/product/:id", sellerGetProductDetail(db, logger))
 	api.PATCH("/seller/product/:id", sellerEditProduct(db, logger))
 	api.POST("/seller/product/:id/tag", sellerAddProductTag(db, logger))
 	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(db, logger))

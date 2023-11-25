@@ -32,32 +32,19 @@ func hasSpecialChars(input string) bool {
 	return re.MatchString(input)
 }
 
-func DBResponse(c echo.Context, err error, logger *zap.SugaredLogger) error {
-	// Customize this function based on the specific errors you want to handle
-	if httpErr, ok := err.(*echo.HTTPError); ok {
-		switch httpErr.Code {
-		case http.StatusBadRequest:
-			logger.Errorw("Error binding request parameters", "error", err)
-			return c.JSON(http.StatusBadRequest, failure{"Bad Request (parameters)"})
-		default:
-			return err
-		}
-	}
-
+func DBResponse(c echo.Context, err error, errorMsg string, logger *zap.SugaredLogger) error {
 	switch err {
-	case nil:
-		return c.JSON(http.StatusOK, failure{"success"})
 	case pgx.ErrNoRows:
-		logger.Error(err)
+		logger.Errorw(errorMsg, "error", err)
 		return c.JSON(http.StatusNotFound, failure{"Not Found"})
 	case pgx.ErrTooManyRows:
-		logger.Error(err)
+		logger.Errorw(errorMsg, "error", err)
 		return c.JSON(http.StatusInternalServerError, failure{"Too Many Result"})
 	case pgx.ErrTooManyRows, pgx.ErrTxClosed, pgx.ErrTxCommitRollback:
-		logger.Error(err)
+		logger.Errorw(errorMsg, "error", err)
 		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
 	default:
-		logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, failure{"Internal Server Error"})
+		logger.Errorw(errorMsg, "error", err)
+		return c.JSON(http.StatusInternalServerError, failure{errorMsg})
 	}
 }

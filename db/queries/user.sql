@@ -1,6 +1,13 @@
 -- name: UserGetInfo :one
 
-SELECT u.* FROM "user" u WHERE u.id = $1;
+SELECT
+    "id",
+    "name",
+    "email",
+    "image_id",
+    "enabled"
+FROM "user" u
+WHERE u.id = $1;
 
 -- name: UserUpdateInfo :one
 
@@ -21,8 +28,27 @@ SET
 WHERE
     "id" = $1
     AND "password" = sqlc.arg(current_password)
-RETURNING *;
+RETURNING
+    "id",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "enabled";
 
 -- name: UserGetCreditCard :one
 
-SELECT "credit_card" FROM "user" WHERE "id" = $1 ;
+SELECT "credit_card" FROM "user" WHERE "id" = $1;
+
+-- name: UserUpdateCreditCard :one
+
+UPDATE "user"
+SET "credit_card" = $2
+WHERE "id" = $1
+RETURNING
+    "id",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "enabled";

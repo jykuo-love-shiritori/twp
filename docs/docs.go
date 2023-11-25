@@ -229,6 +229,219 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/user/avatar": {
+            "post": {
+                "description": "Upload user avatar",
+                "consumes": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Upload Avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image to upload",
+                        "name": "img",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/info": {
+            "get": {
+                "description": "Get user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Get Info",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Edit Info",
+                "parameters": [
+                    {
+                        "description": "name of coupon",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "user address",
+                        "name": "address",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "image id",
+                        "name": "image_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/security/credit_card": {
+            "get": {
+                "description": "Get all credit cards of the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CreditCard"
+                ],
+                "summary": "User Get Credit Card",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/security/credit_card/delete": {
+            "delete": {
+                "description": "Delete a credit card by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CreditCard"
+                ],
+                "summary": "User Delete Credit Card",
+                "parameters": [
+                    {
+                        "description": "Credit Card",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.creditCard"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/user/security/password": {
+            "post": {
+                "description": "Change user password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Edit Password",
+                "parameters": [
+                    {
+                        "description": "current password",
+                        "name": "current_password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "new password",
+                        "name": "new_password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/buyer/cart": {
             "get": {
                 "description": "Get all Carts of the user",
@@ -2000,246 +2213,23 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/user": {
-            "get": {
-                "description": "Get user information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Get Info",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/avatar": {
-            "post": {
-                "description": "Upload user avatar",
-                "consumes": [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Upload Avatar",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Image to upload",
-                        "name": "img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/edit": {
-            "patch": {
-                "description": "Edit user information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Edit Info",
-                "parameters": [
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "user address",
-                        "name": "address",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "image id",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/password": {
-            "post": {
-                "description": "Change user password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Edit Password",
-                "parameters": [
-                    {
-                        "description": "current password",
-                        "name": "current_password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "new password",
-                        "name": "new_password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/security/credit_card": {
-            "get": {
-                "description": "Get all credit cards of the user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CreditCard"
-                ],
-                "summary": "User Get Credit Card",
-                "parameters": [
-                    {
-                        "minimum": 0,
-                        "description": "offset page",
-                        "name": "offset",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/security/credit_card/add": {
-            "post": {
-                "description": "Add a new credit card for the user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CreditCard"
-                ],
-                "summary": "User Add Credit Card",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
-        "/user/security/credit_card/delete": {
-            "delete": {
-                "description": "Delete a credit card by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CreditCard"
-                ],
-                "summary": "User Delete Credit Card",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Credit Card ID",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
+        }
+    },
+    "definitions": {
+        "db.creditCard": {
+            "type": "object",
+            "properties": {
+                "CVV": {
+                    "type": "string"
+                },
+                "card_number": {
+                    "type": "string"
+                },
+                "expiry_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         }

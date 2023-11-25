@@ -30,13 +30,13 @@ func logout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200
 // @Failure 401
-// @Router /user [get]
+// @Router /api/user/info [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 		user, err := pg.Queries.UserGetInfo(context.Background(), userID)
 		if err != nil {
-			return DBResponse(c, err, logger)
+			return DBResponse(c, err, "failed to get user info", logger)
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -52,19 +52,19 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200
 // @Failure 401
-// @Router /user/edit [patch]
+// @Router /api/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
-			DBResponse(c, err, logger)
+			return err
 		}
 		param.ID = userID
 		order, err := pg.Queries.UserUpdateInfo(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, logger)
+			return DBResponse(c, err, "failed to user infomation", logger)
 		}
 
 		return c.JSON(http.StatusOK, order)
@@ -79,7 +79,7 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param img formData file true "Image to upload"
 // @Success 200
 // @Failure 401
-// @Router /user/avatar [post]
+// @Router /api/user/avatar [post]
 func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -96,18 +96,18 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200
 // @Failure 401
-// @Router /user/password [post]
+// @Router /api/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 		var param db.UserUpdatePasswordParams
 		if err := c.Bind(&param); err != nil {
-			return DBResponse(c, err, logger)
+			return err
 		}
 		param.ID = userID
 		orders, err := pg.Queries.UserUpdatePassword(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, logger)
+			return DBResponse(c, err, "failed to change user password", logger)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -116,27 +116,24 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary User Get Credit Card
 // @Description Get all credit cards of the user
 // @Tags CreditCard
-// @Param  offset   body   int   true  "offset page"   minimum(0)
 // @Accept json
 // @Produce json
 // @Success 200
 // @Failure 401
-// @Router /user/security/credit_card [get]
+// @Router /api/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// var userID int32 = 1
+		var userID int32 = 1
 
-		// var param db.UserGetCreditCardPram
-		// if err := c.Bind(&param); err != nil {
-		// 	return DBResponse(c, err, logger)
-		// }
-		// param.ID =userID
-		// creditCard, err := pg.Queries.(context.Background(), param)
-		// if err != nil {
-		// 	return DBResponse(c, err, logger)
-		// }
-		// return c.JSON(http.StatusOK, credit_card)
-		return c.NoContent(http.StatusOK)
+		if err := c.Bind(&userID); err != nil {
+			return err
+		}
+		userID = 1
+		credit_card, err := pg.Queries.UserGetCreditCard(context.Background(), userID)
+		if err != nil {
+			return DBResponse(c, err, "failed to get credit card", logger)
+		}
+		return c.JSON(http.StatusOK, credit_card)
 	}
 }
 
@@ -145,28 +142,22 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags CreditCard
 // @Accept json
 // @Produce json
-// @Param id query int true "Credit Card ID"
-// @Success 200
+// @Param  credit_card   body string true "Credit Card"
+// @Success 200 {array} db.creditCard
 // @Failure 401
-// @Router /user/security/credit_card/delete [delete]
-func userDeleteCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+// @Router /api/user/security/credit_card/delete [patch]
+func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
-	}
-}
-
-// @Summary User Add Credit Card
-// @Description Add a new credit card for the user
-// @Tags CreditCard
-// @Accept json
-// @Produce json
-// @Success 200
-// @Failure 401
-// @Router /user/security/credit_card/add [post]
-func userAddCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var userID int32 = 1
+		var param db.UserUpdateCreditCardParams
+		if err := c.Bind(&param); err != nil {
+			return err
+		}
+		param.ID = userID
+		credit_card, err := pg.Queries.UserUpdateCreditCard(context.Background(), param)
+		if err != nil {
+			return DBResponse(c, err, "failed to update credit card", logger)
+		}
+		return c.JSON(http.StatusOK, credit_card)
 	}
 }

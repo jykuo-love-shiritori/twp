@@ -25,22 +25,74 @@ func (q *Queries) UserGetCreditCard(ctx context.Context, id int32) ([]creditCard
 
 const userGetInfo = `-- name: UserGetInfo :one
 
-SELECT u.id, u.username, u.password, u.name, u.email, u.address, u.image_id, u.role, u.credit_card, u.enabled FROM "user" u WHERE u.id = $1
+SELECT
+    "id",
+    "name",
+    "email",
+    "image_id",
+    "enabled"
+FROM "user" u
+WHERE u.id = $1
 `
 
-func (q *Queries) UserGetInfo(ctx context.Context, id int32) (User, error) {
+type UserGetInfoRow struct {
+	ID      int32       `json:"id" param:"id"`
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	ImageID pgtype.UUID `json:"image_id"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserGetInfo(ctx context.Context, id int32) (UserGetInfoRow, error) {
 	row := q.db.QueryRow(ctx, userGetInfo, id)
-	var i User
+	var i UserGetInfoRow
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
-		&i.Password,
+		&i.Name,
+		&i.Email,
+		&i.ImageID,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
+
+UPDATE "user"
+SET "credit_card" = $2
+WHERE "id" = $1
+RETURNING
+    "id",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "enabled"
+`
+
+type UserUpdateCreditCardParams struct {
+	ID         int32        `json:"id" param:"id"`
+	CreditCard []creditCard `json:"credit_card"`
+}
+
+type UserUpdateCreditCardRow struct {
+	ID      int32       `json:"id" param:"id"`
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	Address string      `json:"address"`
+	ImageID pgtype.UUID `json:"image_id"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) (UserUpdateCreditCardRow, error) {
+	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.ID, arg.CreditCard)
+	var i UserUpdateCreditCardRow
+	err := row.Scan(
+		&i.ID,
 		&i.Name,
 		&i.Email,
 		&i.Address,
 		&i.ImageID,
-		&i.Role,
-		&i.CreditCard,
 		&i.Enabled,
 	)
 	return i, err
@@ -98,7 +150,13 @@ SET
 WHERE
     "id" = $1
     AND "password" = $3
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+RETURNING
+    "id",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "enabled"
 `
 
 type UserUpdatePasswordParams struct {
@@ -107,19 +165,24 @@ type UserUpdatePasswordParams struct {
 	CurrentPassword string `json:"current_password"`
 }
 
-func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (User, error) {
+type UserUpdatePasswordRow struct {
+	ID      int32       `json:"id" param:"id"`
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	Address string      `json:"address"`
+	ImageID pgtype.UUID `json:"image_id"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
 	row := q.db.QueryRow(ctx, userUpdatePassword, arg.ID, arg.NewPassword, arg.CurrentPassword)
-	var i User
+	var i UserUpdatePasswordRow
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
-		&i.Password,
 		&i.Name,
 		&i.Email,
 		&i.Address,
 		&i.ImageID,
-		&i.Role,
-		&i.CreditCard,
 		&i.Enabled,
 	)
 	return i, err
