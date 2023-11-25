@@ -582,26 +582,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/logout": {
-            "post": {
-                "description": "Logout the current user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Logout",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/news": {
             "get": {
                 "description": "Get news",
@@ -784,6 +764,36 @@ const docTemplate = `{
                     "Shop"
                 ],
                 "summary": "Seller edit shop info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "image_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "Description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "name search by q",
+                        "name": "enable",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -860,6 +870,29 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller delete coupon",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1091,7 +1124,7 @@ const docTemplate = `{
         },
         "/seller/report": {
             "get": {
-                "description": "Get all avaliable reports for shop.",
+                "description": "Get all available reports for shop.",
                 "produces": [
                     "application/json"
                 ],
@@ -1151,7 +1184,7 @@ const docTemplate = `{
         },
         "/seller/tag": {
             "get": {
-                "description": "Get all avaliable tags for shop.",
+                "description": "Get all available tags for shop.",
                 "produces": [
                     "application/json"
                 ],
@@ -1160,7 +1193,7 @@ const docTemplate = `{
                     "Shop",
                     "Tag"
                 ],
-                "summary": "Seller get avaliable tag",
+                "summary": "Seller get available tag",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1194,9 +1227,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}": {
+        "/shop/{seller_name}": {
             "get": {
-                "description": "Get shop information with shop ID",
+                "description": "Get shop information with seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1210,8 +1243,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     }
@@ -1226,9 +1259,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}/coupon": {
+        "/shop/{seller_name}/coupon": {
             "get": {
-                "description": "Get coupons for a shop with shop ID",
+                "description": "Get coupons for a shop with seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1243,8 +1276,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     }
@@ -1259,9 +1292,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/shop/{id}/search": {
+        "/shop/{seller_name}/search": {
             "get": {
-                "description": "Search products within a shop by shop ID",
+                "description": "Search products within a shop by seller username",
                 "consumes": [
                     "application/json"
                 ],
@@ -1277,8 +1310,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Shop ID",
-                        "name": "id",
+                        "description": "Seller username",
+                        "name": "seller_name",
                         "in": "path",
                         "required": true
                     },
@@ -1296,6 +1329,46 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/signup": {
+            "post": {
+                "description": "signup",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Customer signup",
+                "parameters": [
+                    {
+                        "description": "something",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.signupParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.HttpError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.HttpError"
+                        }
                     }
                 }
             }
@@ -1510,6 +1583,35 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized"
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "common.HttpError": {
+            "type": "object",
+            "properties": {
+                "message": {}
+            }
+        },
+        "user.signupParams": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test@gmail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secretp@ssword123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john"
                 }
             }
         }
