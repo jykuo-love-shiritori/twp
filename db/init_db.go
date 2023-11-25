@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DB struct {
 	Queries *Queries
-	Conn    *pgx.Conn
+	pool    *pgxpool.Pool
 }
 
 func NewDB() (*DB, error) {
@@ -19,18 +19,15 @@ func NewDB() (*DB, error) {
 	pass := os.Getenv("POSTGRES_PASSWORD")
 	dbname := os.Getenv("POSTGRES_DB")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, user, pass, dbname)
-	conn, err := pgx.Connect(context.Background(), dsn)
+	pool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
-	q := New(conn)
+	q := New(pool)
 
-	return &DB{Queries: q, Conn: conn}, nil
+	return &DB{Queries: q, pool: pool}, nil
 }
 
 func (db *DB) Close() {
-	err := db.Conn.Close(context.Background())
-	if err != nil {
-		panic(err)
-	}
+	db.pool.Close()
 }
