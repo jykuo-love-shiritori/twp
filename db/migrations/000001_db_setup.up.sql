@@ -20,7 +20,8 @@ CREATE TABLE
     "cart" (
         "id" SERIAL PRIMARY KEY,
         "user_id" INT NOT NULL,
-        "shop_id" INT NOT NULL
+        "shop_id" INT NOT NULL,
+        CONSTRAINT unique_shop_user UNIQUE ("shop_id", "user_id")
     );
 
 CREATE TABLE
@@ -110,7 +111,7 @@ CREATE TABLE
         "address" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
-        "credit_card" JSONB NOT NULL,
+        "credit_card" JSONB [] NOT NULL,
         "enabled" BOOL NOT NULL
     );
 
@@ -148,11 +149,11 @@ CREATE TABLE
 
 ALTER TABLE "cart_product"
 ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id");
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart_coupon"
 ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id");
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "product"
 ADD
@@ -164,27 +165,35 @@ ADD
 
 ALTER TABLE "coupon"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "tag"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "product_tag"
 ADD
-    FOREIGN KEY ("product_id") REFERENCES "product" ("id");
+    FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "product_tag"
+ADD
+    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "coupon_tag"
 ADD
-    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id");
+    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "coupon_tag"
+ADD
+    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
 ADD
-    FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "order_detail"
 ADD

@@ -133,7 +133,7 @@ WHERE c."id" = $2 AND "shop_id" = (
     )
 RETURNING *;
 
--- name: DeleteCoupon :execrows
+-- name: SellerDeleteCoupon :execrows
 
 DELETE FROM "coupon" c
 WHERE c."id" = $2 AND "shop_id" = (
@@ -191,14 +191,6 @@ LIMIT $3
 OFFSET $4;
 
 -- name: SellerUpdateOrderStatus :one
-
--- param: sellerName
-
--- param: orderID
-
--- param: currentStatus
-
--- param: setStatus
 
 UPDATE "order_history" oh
 SET
@@ -278,7 +270,7 @@ VALUES (
     )
 RETURNING *;
 
--- name: UpdateProductInfo :one
+-- name: SellerUpdateProductInfo :one
 
 UPDATE "product" p
 SET
@@ -301,7 +293,7 @@ WHERE "shop_id" = (
     AND p."id" = $2
 RETURNING *;
 
--- name: DeleteProduct :execrows
+-- name: SellerDeleteProduct :execrows
 
 DELETE FROM "product" p
 WHERE "shop_id" = (
@@ -312,3 +304,97 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND p."id" = $2;
+
+-- name: SellerGetProductTag :many
+
+SELECT pt.*
+FROM "product_tag" pt
+    JOIN "product" p ON p."id" = pt."product_id"
+    JOIN "shop" s ON s."id" = p."shop_id"
+WHERE
+    s."seller_name" = $1
+    AND "product_id" = $2;
+
+-- name: SellerGetCouponTag :many
+
+SELECT ct.*
+FROM "coupon_tag" ct
+    JOIN "coupon" c ON c."id" = ct."coupon_id"
+    JOIN "shop" s ON s."id" = c."shop_id"
+WHERE
+    s."seller_name" = $1
+    AND "coupon_id" = $2;
+
+-- name: SellerInsertProductTag :one
+
+INSERT INTO
+    "product_tag" ("tag_id", "product_id")
+SELECT $2, $3
+WHERE EXISTS (
+        SELECT 1
+        FROM "tag" t
+            JOIN "shop" s ON s."id" = t."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND t."id" = $2
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM "product" p
+            JOIN "shop" s ON s."id" = p."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND p."id" = $3
+    )
+RETURNING *;
+
+-- name: SellerDeleteProductTag :execrows
+
+DELETE FROM "product_tag" tp
+WHERE EXISTS (
+        SELECT 1
+        FROM "product" p
+            JOIN "shop" s ON s."id" = p."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND p."id" = $3
+    )
+    AND "product_id" = $3
+    AND "tag_id" = $2;
+
+-- name: SellerInsertCouponTag :one
+
+INSERT INTO
+    "coupon_tag" ("tag_id", "coupon_id")
+SELECT $2, $3
+WHERE EXISTS (
+        SELECT 1
+        FROM "tag" t
+            JOIN "shop" s ON s."id" = t."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND t."id" = $2
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM "coupon" c
+            JOIN "shop" s ON s."id" = c."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND c."id" = $3
+    )
+RETURNING *;
+
+-- name: SellerDeleteCouponTag :execrows
+
+DELETE FROM "coupon_tag" tp
+WHERE EXISTS (
+        SELECT 1
+        FROM "coupon" c
+            JOIN "shop" s ON s."id" = c."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND c."id" = $3
+    )
+    AND "coupon_id" = $3
+    AND "tag_id" = $2;

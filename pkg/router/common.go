@@ -14,6 +14,14 @@ type orderDetail struct {
 	OrderInfo db.OrderHistory              `json:"order_info"`
 	Products  []db.SellerGetOrderDetailRow `json:"products"`
 }
+type productDetail struct {
+	ProductInfo db.Product      `json:"product_info"`
+	Tags        []db.ProductTag `json:"tags"`
+}
+type couponDetail struct {
+	CouponInfo db.Coupon      `json:"coupon_info"`
+	Tags       []db.CouponTag `json:"tags"`
+}
 type failure struct {
 	Error string `json:"error"`
 }

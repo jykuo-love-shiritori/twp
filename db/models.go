@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	credit_card "github.com/jykuo-love-shiritori/twp/pkg"
 )
 
 type CouponType string
@@ -171,7 +170,7 @@ type Coupon struct {
 }
 
 type CouponTag struct {
-	CouponID int32 `json:"coupon_id"`
+	CouponID int32 `json:"coupon_id" param:"id"`
 	TagID    int32 `json:"tag_id"`
 }
 
@@ -218,7 +217,7 @@ type ProductArchive struct {
 
 type ProductTag struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 }
 
 type Shop struct {
@@ -237,14 +236,14 @@ type Tag struct {
 }
 
 type User struct {
-	ID         int32             `json:"id" param:"id"`
-	Username   string            `json:"username"`
-	Password   string            `json:"password"`
-	Name       string            `json:"name"`
-	Email      string            `json:"email"`
-	Address    string            `json:"address"`
-	ImageID    pgtype.UUID       `json:"image_id"`
-	Role       RoleType          `json:"role"`
-	CreditCard credit_card.JSONB `json:"credit_card"`
-	Enabled    bool              `json:"enabled"`
+	ID         int32        `json:"id" param:"id"`
+	Username   string       `json:"username"`
+	Password   string       `json:"password"`
+	Name       string       `json:"name"`
+	Email      string       `json:"email"`
+	Address    string       `json:"address"`
+	ImageID    pgtype.UUID  `json:"image_id"`
+	Role       RoleType     `json:"role"`
+	CreditCard []creditCard `json:"credit_card"`
+	Enabled    bool         `json:"enabled"`
 }

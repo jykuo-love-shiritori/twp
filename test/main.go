@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"testing"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -48,7 +49,7 @@ type testTable struct {
 	OrderDetail    []db.TestInsertOrderDetailParams    `json:"order_detail"`
 }
 
-func TestData() {
+func TestData(t *testing.T) {
 	var err error
 	db, err := db.NewDB()
 	if err != nil {
@@ -61,7 +62,7 @@ func TestData() {
 	byteValue, err := io.ReadAll(jsonFile)
 	var data testTable
 	json.Unmarshal(byteValue, &data)
-	// fmt.Println(data)
+	// fmt.Println(data.User[0].CreditCard)
 	fmt.Println("user")
 	// for _, userParam := range data.User {
 	// 	_, err = db.Queries.TestInsertUser(context.Background(), userParam)
@@ -73,28 +74,28 @@ func TestData() {
 	// for _, shopParam := range data.Shop {
 	// 	_, err = db.Queries.TestInsertShop(context.Background(), shopParam)
 	// 	if err != nil {
-	// 		t.Error(err)
+	// 		log.Fatal(err)
 	// 	}
 	// }
 	fmt.Println("coupon")
 	// for _, couponParam := range data.Coupon {
 	// 	_, err = db.Queries.TestInsertCoupon(context.Background(), couponParam)
 	// 	if err != nil {
-	// 		t.Error(err)
+	// 		log.Fatal(err)
 	// 	}
 	// }
 	fmt.Println("product")
 	// for _, productParam := range data.Product {
 	// 	_, err = db.Queries.TestInsertProduct(context.Background(), productParam)
 	// 	if err != nil {
-	// 		t.Error(err)
+	// 		log.Fatal(err)
 	// 	}
 	// }
 	fmt.Println("product Archive")
 	// for _, productArchiveParam := range data.ProductArchive {
 	// 	_, err = db.Queries.TestInsertProductArchive(context.Background(), productArchiveParam)
 	// 	if err != nil {
-	// 		t.Error(err)
+	// 		log.Fatal(err)
 	// 	}
 	// }
 	fmt.Println("tag")
@@ -112,17 +113,31 @@ func TestData() {
 	// 	}
 	// }
 	fmt.Println("coupon tag")
-	for _, couponTagParam := range data.CouponTag {
-		_, err = db.Queries.TestInsertCouponTag(context.Background(), couponTagParam)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	// for _, couponTagParam := range data.CouponTag {
+	// 	_, err = db.Queries.TestInsertCouponTag(context.Background(), couponTagParam)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
 	fmt.Println("cart")
-	for _, couponTagParam := range data.CouponTag {
-		_, err = db.Queries.TestInsertCouponTag(context.Background(), couponTagParam)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	// for _, cartParam := range data.Cart {
+	// 	_, err = db.Queries.TestInsertCart(context.Background(), cartParam)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
+	fmt.Println("order")
+	// for _, orderParam := range data.Order {
+	// 	_, err = db.Queries.TestInsertOrder(context.Background(), orderParam)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
+	fmt.Println("order detail")
+	// for _, orderDetailParam := range data.OrderDetail {
+	// 	_, err = db.Queries.TestInsertOrderDetail(context.Background(), orderDetailParam)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
 }

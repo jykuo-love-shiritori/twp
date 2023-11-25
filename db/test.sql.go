@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	credit_card "github.com/jykuo-love-shiritori/twp/pkg"
 )
 
 const testInsertCart = `-- name: TestInsertCart :one
@@ -137,7 +136,7 @@ RETURNING coupon_id, tag_id
 
 type TestInsertCouponTagParams struct {
 	TagID    int32 `json:"tag_id"`
-	CouponID int32 `json:"coupon_id"`
+	CouponID int32 `json:"coupon_id" param:"id"`
 }
 
 func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponTagParams) (CouponTag, error) {
@@ -358,7 +357,7 @@ RETURNING tag_id, product_id
 
 type TestInsertProductTagParams struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 }
 
 func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProductTagParams) (ProductTag, error) {
@@ -445,15 +444,15 @@ INSERT INTO
 `
 
 type TestInsertUserParams struct {
-	Username   string            `json:"username"`
-	Password   string            `json:"password"`
-	Name       string            `json:"name"`
-	Email      string            `json:"email"`
-	Address    string            `json:"address"`
-	ImageID    pgtype.UUID       `json:"image_id"`
-	Role       RoleType          `json:"role"`
-	CreditCard credit_card.JSONB `json:"credit_card"`
-	Enabled    bool              `json:"enabled"`
+	Username   string       `json:"username"`
+	Password   string       `json:"password"`
+	Name       string       `json:"name"`
+	Email      string       `json:"email"`
+	Address    string       `json:"address"`
+	ImageID    pgtype.UUID  `json:"image_id"`
+	Role       RoleType     `json:"role"`
+	CreditCard []creditCard `json:"credit_card"`
+	Enabled    bool         `json:"enabled"`
 }
 
 func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {

@@ -33,7 +33,7 @@ func logout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 0
+		var userID int32 = 1
 		user, err := pg.Queries.UserGetInfo(context.Background(), userID)
 		if err != nil {
 			return DBResponse(c, err, logger)
@@ -55,7 +55,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user/edit [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 0
+		var userID int32 = 1
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -90,6 +90,8 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary User Edit Password
 // @Description Change user password
 // @Tags User
+// @Param  current_password  body     string  true  "current password"
+// @Param  new_password      body     string  true  "new password"
 // @Accept json
 // @Produce json
 // @Success 200
@@ -97,14 +99,24 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var userID int32 = 1
+		var param db.UserUpdatePasswordParams
+		if err := c.Bind(&param); err != nil {
+			return DBResponse(c, err, logger)
+		}
+		param.ID = userID
+		orders, err := pg.Queries.UserUpdatePassword(context.Background(), param)
+		if err != nil {
+			return DBResponse(c, err, logger)
+		}
+		return c.JSON(http.StatusOK, orders)
 	}
 }
 
 // @Summary User Get Credit Card
 // @Description Get all credit cards of the user
 // @Tags CreditCard
+// @Param  offset   body   int   true  "offset page"   minimum(0)
 // @Accept json
 // @Produce json
 // @Success 200
@@ -112,7 +124,18 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		// var userID int32 = 1
 
+		// var param db.UserGetCreditCardPram
+		// if err := c.Bind(&param); err != nil {
+		// 	return DBResponse(c, err, logger)
+		// }
+		// param.ID =userID
+		// creditCard, err := pg.Queries.(context.Background(), param)
+		// if err != nil {
+		// 	return DBResponse(c, err, logger)
+		// }
+		// return c.JSON(http.StatusOK, credit_card)
 		return c.NoContent(http.StatusOK)
 	}
 }

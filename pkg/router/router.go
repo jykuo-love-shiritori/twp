@@ -106,6 +106,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/seller/coupon", sellerAddCoupon(db, logger))
 	api.PATCH("/seller/coupon/:id", sellerEditCoupon(db, logger))
 	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon(db, logger))
+	api.POST("/seller/coupon/:id/tag", sellerAddCouponTag(db, logger))
+	api.DELETE("/seller/coupon/:id/tag", sellerDeleteCouponTag(db, logger))
 
 	api.GET("/seller/order", sellerGetOrder(db, logger))
 	api.GET("/seller/order/:id", sellerGetOrderDetail(db, logger))
@@ -119,6 +121,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/seller/product/:id/upload", sellerUploadProductImage(db, logger))
 	api.GET("/seller/product/:id", sellerGetProduct(db, logger))
 	api.PATCH("/seller/product/:id", sellerEditProduct(db, logger))
+	api.POST("/seller/product/:id/tag", sellerAddProductTag(db, logger))
+	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(db, logger))
 	api.DELETE("/seller/product/:id", sellerDeleteProduct(db, logger))
 
 }

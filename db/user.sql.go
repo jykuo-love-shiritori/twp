@@ -11,6 +11,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const userGetCreditCard = `-- name: UserGetCreditCard :one
+
+SELECT "credit_card" FROM "user" WHERE "id" = $1
+`
+
+func (q *Queries) UserGetCreditCard(ctx context.Context, id int32) ([]creditCard, error) {
+	row := q.db.QueryRow(ctx, userGetCreditCard, id)
+	var credit_card []creditCard
+	err := row.Scan(&credit_card)
+	return credit_card, err
+}
+
 const userGetInfo = `-- name: UserGetInfo :one
 
 SELECT u.id, u.username, u.password, u.name, u.email, u.address, u.image_id, u.role, u.credit_card, u.enabled FROM "user" u WHERE u.id = $1
@@ -42,7 +54,8 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE "id" = $1 RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+WHERE "id" = $1
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
 `
 
 type UserUpdateInfoParams struct {
@@ -61,6 +74,41 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 		arg.Address,
 		arg.ImageID,
 	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.ImageID,
+		&i.Role,
+		&i.CreditCard,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const userUpdatePassword = `-- name: UserUpdatePassword :one
+
+UPDATE "user"
+SET
+    "password" = $2
+WHERE
+    "id" = $1
+    AND "password" = $3
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+`
+
+type UserUpdatePasswordParams struct {
+	ID              int32  `json:"id" param:"id"`
+	NewPassword     string `json:"new_password"`
+	CurrentPassword string `json:"current_password"`
+}
+
+func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (User, error) {
+	row := q.db.QueryRow(ctx, userUpdatePassword, arg.ID, arg.NewPassword, arg.CurrentPassword)
 	var i User
 	err := row.Scan(
 		&i.ID,

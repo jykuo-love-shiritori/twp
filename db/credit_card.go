@@ -1,4 +1,4 @@
-package credit_card
+package db
 
 type JSONB map[string]interface{}
 type creditCard struct {

@@ -13,18 +13,21 @@ sql:
         overrides:
         - column: "user.credit_card"
           go_type:
-            import: "github.com/jykuo-love-shiritori/twp/pkg"
-            package: "credit_card"
-            type: "JSONB"
+            type: "[] creditCard"
+
         - column: user.id
           go_struct_tag: param:"id"
         - column: coupon.id
+          go_struct_tag: param:"id"
+        - column: coupon_tag.coupon_id
           go_struct_tag: param:"id"
         - column: order_history.id
           go_struct_tag: param:"id"
         - column: order_detail.order_id
           go_struct_tag: param:"id"
         - column: product.id
+          go_struct_tag: param:"id"
+        - column: product_tag.product_id
           go_struct_tag: param:"id"
         - column: shop.seller_name
           go_struct_tag: param:"seller_name"

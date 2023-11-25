@@ -743,6 +743,63 @@ paths:
       - Seller
       - Shop
       - Coupon
+  /seller/coupon/{id}/tag:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller delete coupon tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    post:
+      consumes:
+      - application/json
+      description: Add tag on coupon
+      parameters:
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller add coupon tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
   /seller/order:
     get:
       description: Get all orders for shop.
@@ -767,7 +824,7 @@ paths:
       - Shop
       - Order
     patch:
-      description: update orders of shop.
+      description: seller update orders status.
       parameters:
       - description: Order ID
         in: path
@@ -1029,6 +1086,63 @@ paths:
       - Seller
       - Shop
       - Product
+  /seller/product/{id}/tag:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller delete product tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    post:
+      consumes:
+      - application/json
+      description: Add tag on product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller add product tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
   /seller/product/{id}/upload:
     post:
       consumes:
@@ -1282,6 +1396,25 @@ paths:
       consumes:
       - application/json
       description: Edit user information
+      parameters:
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: user address
+        in: body
+        name: address
+        required: true
+        schema:
+          type: string
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -1297,6 +1430,19 @@ paths:
       consumes:
       - application/json
       description: Change user password
+      parameters:
+      - description: current password
+        in: body
+        name: current_password
+        required: true
+        schema:
+          type: string
+      - description: new password
+        in: body
+        name: new_password
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -1312,6 +1458,14 @@ paths:
       consumes:
       - application/json
       description: Get all credit cards of the user
+      parameters:
+      - description: offset page
+        in: body
+        minimum: 0
+        name: offset
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:

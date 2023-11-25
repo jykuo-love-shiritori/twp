@@ -11,57 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteCoupon = `-- name: DeleteCoupon :execrows
-
-DELETE FROM "coupon" c
-WHERE c."id" = $2 AND "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE
-            s."seller_name" = $1
-            AND s."enabled" = true
-    )
-`
-
-type DeleteCouponParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
-}
-
-func (q *Queries) DeleteCoupon(ctx context.Context, arg DeleteCouponParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteCoupon, arg.SellerName, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteProduct = `-- name: DeleteProduct :execrows
-
-DELETE FROM "product" p
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE
-            s."seller_name" = $1
-            AND s."enabled" = true
-    )
-    AND p."id" = $2
-`
-
-type DeleteProductParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
-}
-
-func (q *Queries) DeleteProduct(ctx context.Context, arg DeleteProductParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProduct, arg.SellerName, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const haveTagName = `-- name: HaveTagName :one
 
 SELECT
@@ -88,6 +37,115 @@ func (q *Queries) HaveTagName(ctx context.Context, arg HaveTagNameParams) (bool,
 	var column_1 bool
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
+
+DELETE FROM "coupon" c
+WHERE c."id" = $2 AND "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+`
+
+type SellerDeleteCouponParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	ID         int32  `json:"id" param:"id"`
+}
+
+func (q *Queries) SellerDeleteCoupon(ctx context.Context, arg SellerDeleteCouponParams) (int64, error) {
+	result, err := q.db.Exec(ctx, sellerDeleteCoupon, arg.SellerName, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const sellerDeleteCouponTag = `-- name: SellerDeleteCouponTag :execrows
+
+DELETE FROM "coupon_tag" tp
+WHERE EXISTS (
+        SELECT 1
+        FROM "coupon" c
+            JOIN "shop" s ON s."id" = c."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND c."id" = $3
+    )
+    AND "coupon_id" = $3
+    AND "tag_id" = $2
+`
+
+type SellerDeleteCouponTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	TagID      int32  `json:"tag_id"`
+	ID         int32  `json:"id" param:"id"`
+}
+
+func (q *Queries) SellerDeleteCouponTag(ctx context.Context, arg SellerDeleteCouponTagParams) (int64, error) {
+	result, err := q.db.Exec(ctx, sellerDeleteCouponTag, arg.SellerName, arg.TagID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const sellerDeleteProduct = `-- name: SellerDeleteProduct :execrows
+
+DELETE FROM "product" p
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+    AND p."id" = $2
+`
+
+type SellerDeleteProductParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	ID         int32  `json:"id" param:"id"`
+}
+
+func (q *Queries) SellerDeleteProduct(ctx context.Context, arg SellerDeleteProductParams) (int64, error) {
+	result, err := q.db.Exec(ctx, sellerDeleteProduct, arg.SellerName, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const sellerDeleteProductTag = `-- name: SellerDeleteProductTag :execrows
+
+DELETE FROM "product_tag" tp
+WHERE EXISTS (
+        SELECT 1
+        FROM "product" p
+            JOIN "shop" s ON s."id" = p."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND p."id" = $3
+    )
+    AND "product_id" = $3
+    AND "tag_id" = $2
+`
+
+type SellerDeleteProductTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	TagID      int32  `json:"tag_id"`
+	ID         int32  `json:"id" param:"id"`
+}
+
+func (q *Queries) SellerDeleteProductTag(ctx context.Context, arg SellerDeleteProductTagParams) (int64, error) {
+	result, err := q.db.Exec(ctx, sellerDeleteProductTag, arg.SellerName, arg.TagID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const sellerGetCoupon = `-- name: SellerGetCoupon :many
@@ -178,6 +236,42 @@ func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCoupon
 		&i.ExpireDate,
 	)
 	return i, err
+}
+
+const sellerGetCouponTag = `-- name: SellerGetCouponTag :many
+
+SELECT ct.coupon_id, ct.tag_id
+FROM "coupon_tag" ct
+    JOIN "coupon" c ON c."id" = ct."coupon_id"
+    JOIN "shop" s ON s."id" = c."shop_id"
+WHERE
+    s."seller_name" = $1
+    AND "coupon_id" = $2
+`
+
+type SellerGetCouponTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	CouponID   int32  `json:"coupon_id" param:"id"`
+}
+
+func (q *Queries) SellerGetCouponTag(ctx context.Context, arg SellerGetCouponTagParams) ([]CouponTag, error) {
+	rows, err := q.db.Query(ctx, sellerGetCouponTag, arg.SellerName, arg.CouponID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CouponTag{}
+	for rows.Next() {
+		var i CouponTag
+		if err := rows.Scan(&i.CouponID, &i.TagID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const sellerGetInfo = `-- name: SellerGetInfo :one
@@ -359,6 +453,42 @@ func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProdu
 	return i, err
 }
 
+const sellerGetProductTag = `-- name: SellerGetProductTag :many
+
+SELECT pt.tag_id, pt.product_id
+FROM "product_tag" pt
+    JOIN "product" p ON p."id" = pt."product_id"
+    JOIN "shop" s ON s."id" = p."shop_id"
+WHERE
+    s."seller_name" = $1
+    AND "product_id" = $2
+`
+
+type SellerGetProductTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	ProductID  int32  `json:"product_id" param:"id"`
+}
+
+func (q *Queries) SellerGetProductTag(ctx context.Context, arg SellerGetProductTagParams) ([]ProductTag, error) {
+	rows, err := q.db.Query(ctx, sellerGetProductTag, arg.SellerName, arg.ProductID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ProductTag{}
+	for rows.Next() {
+		var i ProductTag
+		if err := rows.Scan(&i.TagID, &i.ProductID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const sellerInsertCoupon = `-- name: SellerInsertCoupon :one
 
 INSERT INTO
@@ -419,6 +549,43 @@ func (q *Queries) SellerInsertCoupon(ctx context.Context, arg SellerInsertCoupon
 		&i.StartDate,
 		&i.ExpireDate,
 	)
+	return i, err
+}
+
+const sellerInsertCouponTag = `-- name: SellerInsertCouponTag :one
+
+INSERT INTO
+    "coupon_tag" ("tag_id", "coupon_id")
+SELECT $2, $3
+WHERE EXISTS (
+        SELECT 1
+        FROM "tag" t
+            JOIN "shop" s ON s."id" = t."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND t."id" = $2
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM "coupon" c
+            JOIN "shop" s ON s."id" = c."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND c."id" = $3
+    )
+RETURNING coupon_id, tag_id
+`
+
+type SellerInsertCouponTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	TagID      int32  `json:"tag_id"`
+	CouponID   int32  `json:"coupon_id" param:"id"`
+}
+
+func (q *Queries) SellerInsertCouponTag(ctx context.Context, arg SellerInsertCouponTagParams) (CouponTag, error) {
+	row := q.db.QueryRow(ctx, sellerInsertCouponTag, arg.SellerName, arg.TagID, arg.CouponID)
+	var i CouponTag
+	err := row.Scan(&i.CouponID, &i.TagID)
 	return i, err
 }
 
@@ -494,6 +661,43 @@ func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProdu
 		&i.Sales,
 		&i.Enabled,
 	)
+	return i, err
+}
+
+const sellerInsertProductTag = `-- name: SellerInsertProductTag :one
+
+INSERT INTO
+    "product_tag" ("tag_id", "product_id")
+SELECT $2, $3
+WHERE EXISTS (
+        SELECT 1
+        FROM "tag" t
+            JOIN "shop" s ON s."id" = t."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND t."id" = $2
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM "product" p
+            JOIN "shop" s ON s."id" = p."shop_id"
+        WHERE
+            s."seller_name" = $1
+            AND p."id" = $3
+    )
+RETURNING tag_id, product_id
+`
+
+type SellerInsertProductTagParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	TagID      int32  `json:"tag_id"`
+	ProductID  int32  `json:"product_id" param:"id"`
+}
+
+func (q *Queries) SellerInsertProductTag(ctx context.Context, arg SellerInsertProductTagParams) (ProductTag, error) {
+	row := q.db.QueryRow(ctx, sellerInsertProductTag, arg.SellerName, arg.TagID, arg.ProductID)
+	var i ProductTag
+	err := row.Scan(&i.TagID, &i.ProductID)
 	return i, err
 }
 
@@ -711,10 +915,6 @@ func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoPara
 
 const sellerUpdateOrderStatus = `-- name: SellerUpdateOrderStatus :one
 
-
-
-
-
 UPDATE "order_history" oh
 SET
     "status" = $3
@@ -737,10 +937,6 @@ type SellerUpdateOrderStatusParams struct {
 	CurrentStatus OrderStatus `json:"current_status"`
 }
 
-// param: sellerName
-// param: orderID
-// param: currentStatus
-// param: setStatus
 func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateOrderStatusParams) (OrderHistory, error) {
 	row := q.db.QueryRow(ctx, sellerUpdateOrderStatus,
 		arg.SellerName,
@@ -757,6 +953,72 @@ func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateO
 		&i.TotalPrice,
 		&i.Status,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const sellerUpdateProductInfo = `-- name: SellerUpdateProductInfo :one
+
+UPDATE "product" p
+SET
+    "name" = COALESCE($3, "name"),
+    "description" = COALESCE($4, "description"),
+    "price" = COALESCE($5, "price"),
+    "image_id" = COALESCE($6, "image_id"),
+    "expire_date" = COALESCE($7, "expire_date"),
+    "enabled" = COALESCE($8, "enabled"),
+    "stock" = COALESCE($9, "stock"),
+    "edit_date" = NOW(),
+    "version" = "version" + 1
+WHERE "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    )
+    AND p."id" = $2
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+`
+
+type SellerUpdateProductInfoParams struct {
+	SellerName  string             `json:"seller_name" param:"seller_name"`
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Price       pgtype.Numeric     `json:"price"`
+	ImageID     pgtype.UUID        `json:"image_id"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Enabled     bool               `json:"enabled"`
+	Stock       int32              `json:"stock"`
+}
+
+func (q *Queries) SellerUpdateProductInfo(ctx context.Context, arg SellerUpdateProductInfoParams) (Product, error) {
+	row := q.db.QueryRow(ctx, sellerUpdateProductInfo,
+		arg.SellerName,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.Price,
+		arg.ImageID,
+		arg.ExpireDate,
+		arg.Enabled,
+		arg.Stock,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Version,
+		&i.ShopID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ImageID,
+		&i.ExpireDate,
+		&i.EditDate,
+		&i.Stock,
+		&i.Sales,
+		&i.Enabled,
 	)
 	return i, err
 }
@@ -813,72 +1075,6 @@ func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoPara
 		&i.Discount,
 		&i.StartDate,
 		&i.ExpireDate,
-	)
-	return i, err
-}
-
-const updateProductInfo = `-- name: UpdateProductInfo :one
-
-UPDATE "product" p
-SET
-    "name" = COALESCE($3, "name"),
-    "description" = COALESCE($4, "description"),
-    "price" = COALESCE($5, "price"),
-    "image_id" = COALESCE($6, "image_id"),
-    "expire_date" = COALESCE($7, "expire_date"),
-    "enabled" = COALESCE($8, "enabled"),
-    "stock" = COALESCE($9, "stock"),
-    "edit_date" = NOW(),
-    "version" = "version" + 1
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE
-            s."seller_name" = $1
-            AND s."enabled" = true
-    )
-    AND p."id" = $2
-RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
-`
-
-type UpdateProductInfoParams struct {
-	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
-	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
-	Enabled     bool               `json:"enabled"`
-	Stock       int32              `json:"stock"`
-}
-
-func (q *Queries) UpdateProductInfo(ctx context.Context, arg UpdateProductInfoParams) (Product, error) {
-	row := q.db.QueryRow(ctx, updateProductInfo,
-		arg.SellerName,
-		arg.ID,
-		arg.Name,
-		arg.Description,
-		arg.Price,
-		arg.ImageID,
-		arg.ExpireDate,
-		arg.Enabled,
-		arg.Stock,
-	)
-	var i Product
-	err := row.Scan(
-		&i.ID,
-		&i.Version,
-		&i.ShopID,
-		&i.Name,
-		&i.Description,
-		&i.Price,
-		&i.ImageID,
-		&i.ExpireDate,
-		&i.EditDate,
-		&i.Stock,
-		&i.Sales,
-		&i.Enabled,
 	)
 	return i, err
 }
