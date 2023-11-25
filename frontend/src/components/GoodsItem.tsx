@@ -7,10 +7,9 @@ interface Props {
   id: number;
   name: string;
   imgUrl: string;
-  isIndex: boolean;
 }
 
-const GoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
+const GoodsItem = ({ id, name, imgUrl }: Props) => {
   return (
     <div className='goods_item'>
       <img src={imgUrl} style={{ borderRadius: '0 0 30px 0', width: '100%' }} />
@@ -20,7 +19,7 @@ const GoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
         </p>
       </div>
 
-      <TButton text='more' url={isIndex ? `sellerID/shop/${id}` : `${id}`} />
+      <TButton text='more' url={`/sellerID/shop/${id}`} />
     </div>
   );
 };

@@ -13,7 +13,7 @@ const Shop = () => {
         {goodsData.map((data, index) => {
           return (
             <Col xs={6} md={3} key={index}>
-              <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
+              <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
             </Col>
           );
         })}

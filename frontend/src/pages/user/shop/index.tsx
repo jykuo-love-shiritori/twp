@@ -8,7 +8,7 @@ import goodsData from '@pages/discover/goodsData.json';
 
 const UserViewShop = () => {
   return (
-    <Row>
+    <Row style={{ width: '100%' }}>
       <Col xs={12} md={12}>
         <div className='user_bg center'>
           <div style={{ padding: '6% 10% 6% 10%' }}>{userData.introduction}</div>
@@ -34,17 +34,6 @@ const UserViewShop = () => {
       </Col>
       <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
         <Outlet />
-        {/* <div className='title'>All products</div>
-        <hr className='hr' />
-        <Row>
-          {goodsData.map((data, index) => {
-            return (
-              <Col xs={6} md={3} key={index}>
-                <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
-              </Col>
-            );
-          })}
-        </Row> */}
       </Col>
     </Row>
   );

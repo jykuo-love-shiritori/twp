@@ -7,7 +7,7 @@ import userData from '@pages/user/buyer/buyerInfo.json';
 
 const User = () => {
   return (
-    <Row>
+    <Row style={{ width: '100%' }}>
       <Col xs={12} md={12}>
         <div className='user_bg center' />
       </Col>

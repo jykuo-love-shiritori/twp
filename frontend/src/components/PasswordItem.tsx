@@ -15,7 +15,7 @@ const PasswordItem = ({ text, value, setValue }: Props) => {
       </Col>
       <Col xs={12} md={8}>
         <input
-          type='text'
+          type='password'
           placeholder={text}
           className='inputBox'
           value={value ? value : ''}
