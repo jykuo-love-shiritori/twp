@@ -23,6 +23,7 @@ const QuantityBar = () => {
             className='quantity_box'
             value={quality}
             onChange={(e) => setQuality(parseInt(e.target.value) || 0)}
+            style={{ textAlign: 'center' }}
           />
         </div>
       </Col>

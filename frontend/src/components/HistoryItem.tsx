@@ -32,18 +32,29 @@ const HistoryItem = ({ id, user }: { id: number; user: string }) => {
             Record ID : {record?.recordID}
           </Col>
           <Col sm={12} md={12}>
-            <hr style={{ color: 'var(--button_dark)', opacity: '1', margin: '10px' }} />
+            <hr
+              style={{
+                color: 'var(--button_dark)',
+                opacity: '1',
+                margin: '10px 0px 10px 0px',
+                width: '100%',
+              }}
+            />
           </Col>
-          <Col xs={2} md={2} className='center'>
-            <img src={firstItem?.imgUrl} style={{ width: '70px' }} />
+          <Col xs={4} md={2} lg={1} className='center'>
+            <img src={firstItem?.imgUrl} style={{ width: '100%' }} />
           </Col>
-          <Col xs={4} md={4} className='center_vertical'>
-            {firstItem?.name}
+          <Col xs={8} md={8} lg={9} className='center_vertical'>
+            <Row style={{ width: '100%' }}>
+              <Col xs={12} lg={6}>
+                {firstItem?.name}
+              </Col>
+              <Col xs={12} lg={6}>
+                Order Total : ${Total}
+              </Col>
+            </Row>
           </Col>
-          <Col xs={4} md={4} className='center_vertical'>
-            Order Total : ${Total}
-          </Col>
-          <Col xs={12} md={2}>
+          <Col xs={12} md={2} className='right'>
             <TButton
               text='Detail'
               url={

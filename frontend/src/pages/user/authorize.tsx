@@ -12,8 +12,8 @@ const Authorize = () => {
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
-        <Row style={{ width: '100%' }}>
-          <Col xs={12} md={6}>
+        <Row style={{ width: '100%', padding: '0', margin: '0' }}>
+          <Col xs={12} md={6} style={{ padding: '0' }}>
             <div
               className='flex-wrapper'
               style={{

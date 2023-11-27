@@ -217,7 +217,7 @@
 /* [component] history item component */
 .history_container {
   margin: 3% 0% 3% 0%;
-  padding: 2% 3% 2% 3%;
+  padding: 20px 20px 20px 20px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 30px;
   backdrop-filter: blur(10px);
@@ -279,10 +279,11 @@
   color: var(--white, #fff);
   text-align: center;
   font-family: Noto Sans TC;
-  font-size: 64px;
+  font-size: 56px;
   font-style: normal;
   font-weight: 900;
   line-height: normal;
+  word-break: break-all;
 }
 
 /* [item in page] users info page */

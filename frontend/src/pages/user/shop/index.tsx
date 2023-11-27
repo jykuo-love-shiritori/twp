@@ -8,8 +8,8 @@ import goodsData from '@pages/discover/goodsData.json';
 
 const UserViewShop = () => {
   return (
-    <Row style={{ width: '100%' }}>
-      <Col xs={12} md={12}>
+    <Row style={{ width: '100%', padding: '0', margin: '0' }}>
+      <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
         <div className='user_bg center'>
           <div style={{ padding: '6% 10% 6% 10%' }}>{userData.introduction}</div>
         </div>
@@ -32,7 +32,7 @@ const UserViewShop = () => {
           </Col>
         </Row>
       </Col>
-      <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
+      <Col xs={12} md={10} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
         <Outlet />
       </Col>
     </Row>

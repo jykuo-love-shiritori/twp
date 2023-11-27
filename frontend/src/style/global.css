@@ -82,6 +82,13 @@ p {
   justify-content: flex-start;
 }
 
+.wrap_login {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 .disappear_desktop {
   display: block;
 }
