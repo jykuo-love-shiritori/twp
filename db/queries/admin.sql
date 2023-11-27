@@ -12,7 +12,7 @@ FROM "user";
 
 -- name: UserExists :one
 
-SELECT EXISTS(SELECT 1 FROM "user" WHERE "username" = $1);
+SELECT EXISTS( SELECT 1 FROM "user" WHERE "username" = $1 );
 
 -- name: AddUser :exec
 
@@ -49,26 +49,29 @@ UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE
-            u."id" = $1 RETURNING u."id"
+        WHERE u."id" = $1
+        RETURNING
+            "username"
     ),
     disabled_shop AS (
-        UPDATE "shop" AS s
-        SET s."enabled" = FALSE
-        WHERE
-            s."seller_name" = (
+        UPDATE "shop"
+        SET "enabled" = FALSE
+        WHERE "seller_name" = (
                 SELECT
-                    u."seller_name"
+                    "username"
                 FROM
-                    disabled_user u
-            ) RETURNING "seller_name"
+                    disabled_user
+            )
+        RETURNING "id"
     )
-UPDATE "product" AS p
-SET p."enabled" = FALSE
-WHERE p."shop_id" = (
-        SELECT s."id"
-        FROM disabled_shop s
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM disabled_shop
     );
+
+-- there are some sql 🪄 happening here
 
 -- name: DisableShop :exec
 
@@ -76,7 +79,8 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1 RETURNING s."id"
+            s."seller_name" = $1
+        RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -91,7 +95,7 @@ UPDATE "product" AS p SET p."enabled" = FALSE WHERE p."shop_id" = $1;
 
 -- name: CouponExists :one
 
-SELECT EXISTS(SELECT 1 FROM "coupon" WHERE "id" = $1);
+SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 );
 
 -- name: GetAnyCoupons :many
 
@@ -99,7 +103,17 @@ SELECT * FROM "coupon";
 
 -- name: GetCouponDetail :one
 
-SELECT * FROM "coupon" WHERE "id" = $1;
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "id" = $1;
 
 -- name: AddCoupon :one
 
@@ -114,16 +128,16 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING (
-        "id",
-        "type",
-        "scope",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    );
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date";
 
 -- i don't feel right about this
 
@@ -137,17 +151,16 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE
-    "id" = $1 RETURNING (
-        "id",
-        "type",
-        "scope",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    );
+WHERE "id" = $1
+RETURNING
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date";
 
 -- name: DeleteCoupon :exec
 

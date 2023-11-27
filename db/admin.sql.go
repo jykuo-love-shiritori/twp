@@ -24,16 +24,16 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING (
-        "id",
-        "type",
-        "scope",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
 `
 
 type AddCouponParams struct {
@@ -47,7 +47,18 @@ type AddCouponParams struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
-func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (interface{}, error) {
+type AddCouponRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCouponRow, error) {
 	row := q.db.QueryRow(ctx, addCoupon,
 		arg.Type,
 		arg.Scope,
@@ -58,9 +69,18 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (interface
 		arg.StartDate,
 		arg.ExpireDate,
 	)
-	var column_1 interface{}
-	err := row.Scan(&column_1)
-	return column_1, err
+	var i AddCouponRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
 }
 
 const addUser = `-- name: AddUser :exec
@@ -117,7 +137,7 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 
 const couponExists = `-- name: CouponExists :one
 
-SELECT EXISTS(SELECT 1 FROM "coupon" WHERE "id" = $1)
+SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 )
 `
 
 func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
@@ -159,7 +179,8 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1 RETURNING s."id"
+            s."seller_name" = $1
+        RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -179,25 +200,26 @@ const disableUser = `-- name: DisableUser :exec
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE
-            u."id" = $1 RETURNING u."id"
+        WHERE u."id" = $1
+        RETURNING
+            "username"
     ),
     disabled_shop AS (
-        UPDATE "shop" AS s
-        SET s."enabled" = FALSE
-        WHERE
-            s."seller_name" = (
+        UPDATE "shop"
+        SET "enabled" = FALSE
+        WHERE "seller_name" = (
                 SELECT
-                    u."seller_name"
+                    "username"
                 FROM
-                    disabled_user u
-            ) RETURNING "seller_name"
+                    disabled_user
+            )
+        RETURNING "id"
     )
-UPDATE "product" AS p
-SET p."enabled" = FALSE
-WHERE p."shop_id" = (
-        SELECT s."id"
-        FROM disabled_shop s
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM disabled_shop
     )
 `
 
@@ -217,17 +239,16 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE
-    "id" = $1 RETURNING (
-        "id",
-        "type",
-        "scope",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    )
+WHERE "id" = $1
+RETURNING
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
 `
 
 type EditCouponParams struct {
@@ -240,8 +261,19 @@ type EditCouponParams struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
+type EditCouponRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
 // i don't feel right about this
-func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (interface{}, error) {
+func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (EditCouponRow, error) {
 	row := q.db.QueryRow(ctx, editCoupon,
 		arg.ID,
 		arg.Type,
@@ -251,9 +283,18 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (interfa
 		arg.StartDate,
 		arg.ExpireDate,
 	)
-	var column_1 interface{}
-	err := row.Scan(&column_1)
-	return column_1, err
+	var i EditCouponRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
 }
 
 const enabledShop = `-- name: EnabledShop :exec
@@ -303,17 +344,37 @@ func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
 
 const getCouponDetail = `-- name: GetCouponDetail :one
 
-SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon" WHERE "id" = $1
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "id" = $1
 `
 
-func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (Coupon, error) {
+type GetCouponDetailRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetailRow, error) {
 	row := q.db.QueryRow(ctx, getCouponDetail, id)
-	var i Coupon
+	var i GetCouponDetailRow
 	err := row.Scan(
 		&i.ID,
 		&i.Type,
 		&i.Scope,
-		&i.ShopID,
 		&i.Name,
 		&i.Description,
 		&i.Discount,
@@ -442,7 +503,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 
 const userExists = `-- name: UserExists :one
 
-SELECT EXISTS(SELECT 1 FROM "user" WHERE "username" = $1)
+SELECT EXISTS( SELECT 1 FROM "user" WHERE "username" = $1 )
 `
 
 func (q *Queries) UserExists(ctx context.Context, username string) (bool, error) {

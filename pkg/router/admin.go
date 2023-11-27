@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
@@ -38,21 +39,21 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Delete(disable) User
-// @Description Delete(disable) user.
+// @Summary Admin Disable User
+// @Description Disable user.
 // @Tags Admin, User
 // @Produce json
-// @param id path int true "User ID"
+// @param username path string true "Username"
 // @Success 200 {string} string constants.SUCCESS
 // @Failure 400 {object} Failure
 // @Failure 404 {object} Failure
 // @Failure 500 {object} Failure
-// @Router /admin/user/{username} [delete]
+// @Router /admin/user/{username} [patch]
 func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string
-		if err := c.Bind(&username); err != nil {
-			logger.Errorw("failed to bind username", "error", err)
+		username := c.Param("username")
+		if username == "" {
+			logger.Errorw("username is empty")
 			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
 		}
 		id, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
@@ -69,21 +70,32 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 }
 
 // @Summary Admin Get Coupon
-// @Description Get all coupons (include shops).
+// @Description Get all coupons (include shops' coupon).
 // @Tags Admin, Coupon
 // @Produce json
+// @param offset query int false "Begin index" default(0)
+// @param limit query int false "limit" default(10)
 // @Success 200 {array} db.Coupon
 // @Failure 400 {object} Failure
 // @Failure 500 {object} Failure
 // @Router /admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		q := QueryParams{Offset: 0, Limit: 10}
+		if err := c.Bind(&q); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
 		result, err := pg.Queries.GetAnyCoupons(c.Request().Context())
 		if err != nil {
 			logger.Errorw("failed to get coupons", "error", err)
 			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
 		}
-		return c.JSON(http.StatusOK, result)
+		if int(q.Offset) > len(result) {
+			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+		}
+		q.Limit = min(q.Limit, int32(len(result))-q.Offset)
+		return c.JSON(http.StatusOK, result[q.Offset:q.Offset+q.Limit])
 	}
 }
 
@@ -92,25 +104,28 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags Admin, Coupon, Shop
 // @Produce json
 // @Param id path int true "Coupon ID"
-// @Success 200 {object} db.Coupon
+// @Success 200 {object} db.GetCouponDetailRow
 // @Failure 400 {object} Failure
 // @Failure 404 {object} Failure
 // @Failure 500 {string} Failure
 // @Router /admin/coupon/{id} [get]
 func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var id int32
-		if err := c.Bind(&id); err != nil {
-			logger.Errorw("failed to bind id", "error", err)
+		id := c.Param("id")
+		idInt, err := strconv.ParseInt(id, 10, 32)
+		if err != nil {
+			logger.Errorw("failed to parse id", "error", err)
 			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
 		}
-		if exist, err := pg.Queries.CouponExists(c.Request().Context(), id); err != nil {
+		idInt32 := int32(idInt)
+		if exist, err := pg.Queries.CouponExists(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to check coupon exist", "error", err)
 			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
 		} else if !exist {
+			logger.Infow("coupon not found", "id", id)
 			return c.JSON(http.StatusNotFound, Failure{"Coupon not found"})
 		}
-		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), id); err != nil {
+		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to get coupon detail", "error", err)
 			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
 		} else {
@@ -124,7 +139,8 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Tags Admin, Coupon
 // @Accept json
 // @Produce json
-// @Success 200 {object} db.Coupon
+// @Param coupon body db.AddCouponParams true "Coupon"
+// @Success 200 {object} db.AddCouponRow
 // @Failure 400 {object} Failure
 // @Failure 500 {object} Failure
 // @Router /admin/coupon [post]
@@ -141,9 +157,7 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to add coupon", "error", err)
 			return c.JSON(http.StatusInternalServerError, "Failed to add coupon")
 		}
-		// cast result(interface{}) to db.Coupon
-		couponResult := result.(db.Coupon)
-		return c.JSON(http.StatusOK, couponResult)
+		return c.JSON(http.StatusOK, result)
 	}
 }
 
@@ -153,8 +167,10 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path int true "Coupon ID"
-// @Success 200
-// @Failure 401
+// @Param coupon body db.EditCouponParams true "Coupon"
+// @Success 200 {object} db.EditCouponRow
+// @Failure 400 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /admin/coupon/{id} [patch]
 func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -177,19 +193,26 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags Admin, Coupon
 // @Produce json
 // @Param id path int true "Coupon ID"
-// @Success 200
-// @Failure 401
+// @Success 200 {string} string constants.SUCCESS
+// @Failure 400 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /admin/coupon/{id} [delete]
 func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var id int32
+		id := c.Param("id")
+		idInt, err := strconv.ParseInt(id, 10, 32)
+		if err != nil {
+			logger.Errorw("failed to parse id", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		idInt32 := int32(idInt)
 		if err := c.Bind(&id); err != nil {
 			logger.Errorw("failed to bind id", "error", err)
-			return c.JSON(http.StatusBadRequest, nil)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
 		}
-		if err := pg.Queries.DeleteCoupon(c.Request().Context(), id); err != nil {
+		if err := pg.Queries.DeleteCoupon(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to delete coupon", "error", err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.JSON(http.StatusInternalServerError, Failure{"Failed to delete coupon"})
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
@@ -199,20 +222,23 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description Get site report.
 // @Tags Admin, Report
 // @Produce json
-// @Success 200
-// @Failure 401
+// @Param start_date query string true "Start date"
+// @Param end_date query string true "End date"
+// @Success 200 {array} db.OrderHistory
+// @Failure 400 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var report db.GetReportParams
 		if err := c.Bind(&report); err != nil {
 			logger.Errorw("failed to bind report", "error", err)
-			return c.JSON(http.StatusBadRequest, nil)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
 		}
 		result, err := pg.Queries.GetReport(c.Request().Context(), report)
 		if err != nil {
 			logger.Errorw("failed to get report", "error", err)
-			return c.JSON(http.StatusInternalServerError, nil)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
 		}
 		return c.JSON(http.StatusOK, result)
 	}

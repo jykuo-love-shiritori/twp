@@ -1,5 +1,43 @@
 basePath: /api
 definitions:
+  db.AddCouponParams:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      shop_id:
+        type: integer
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.AddCouponRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   db.Coupon:
     properties:
       description:
@@ -39,6 +77,61 @@ definitions:
     - CouponTypePercentage
     - CouponTypeFixed
     - CouponTypeShipping
+  db.EditCouponParams:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.EditCouponRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.GetCouponDetailRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   db.GetUsersRow:
     properties:
       address:
@@ -58,6 +151,37 @@ definitions:
       username:
         type: string
     type: object
+  db.OrderHistory:
+    properties:
+      created_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      id:
+        type: integer
+      shipment:
+        type: integer
+      shop_id:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  db.OrderStatus:
+    enum:
+    - pending
+    - paid
+    - shipped
+    - delivered
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - OrderStatusPending
+    - OrderStatusPaid
+    - OrderStatusShipped
+    - OrderStatusDelivered
+    - OrderStatusCancelled
   db.RoleType:
     enum:
     - admin
@@ -66,6 +190,25 @@ definitions:
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeCustomer
+  pgtype.InfinityModifier:
+    enum:
+    - 1
+    - 0
+    - -1
+    type: integer
+    x-enum-varnames:
+    - Infinity
+    - Finite
+    - NegativeInfinity
+  pgtype.Timestamptz:
+    properties:
+      infinityModifier:
+        $ref: '#/definitions/pgtype.InfinityModifier'
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
   router.Failure:
     properties:
       message:
@@ -90,7 +233,18 @@ info:
 paths:
   /admin/coupon:
     get:
-      description: Get all coupons (include shops).
+      description: Get all coupons (include shops' coupon).
+      parameters:
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -116,13 +270,20 @@ paths:
       consumes:
       - application/json
       description: Add global coupon.
+      parameters:
+      - description: Coupon
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/db.AddCouponParams'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Coupon'
+            $ref: '#/definitions/db.AddCouponRow'
         "400":
           description: Bad Request
           schema:
@@ -149,8 +310,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Delete Coupon
       tags:
       - Admin
@@ -169,7 +338,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Coupon'
+            $ref: '#/definitions/db.GetCouponDetailRow'
         "400":
           description: Bad Request
           schema:
@@ -197,13 +366,27 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Coupon
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/db.EditCouponParams'
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.EditCouponRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Edit Coupon
       tags:
       - Admin
@@ -211,13 +394,34 @@ paths:
   /admin/report:
     get:
       description: Get site report.
+      parameters:
+      - description: Start date
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End date
+        in: query
+        name: end_date
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.OrderHistory'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Get Site Report
       tags:
       - Admin
@@ -255,14 +459,14 @@ paths:
       - Admin
       - User
   /admin/user/{username}:
-    delete:
-      description: Delete(disable) user.
+    patch:
+      description: Disable user.
       parameters:
-      - description: User ID
+      - description: Username
         in: path
-        name: id
+        name: username
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -282,7 +486,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/router.Failure'
-      summary: Admin Delete(disable) User
+      summary: Admin Disable User
       tags:
       - Admin
       - User

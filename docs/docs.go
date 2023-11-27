@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/admin/coupon": {
             "get": {
-                "description": "Get all coupons (include shops).",
+                "description": "Get all coupons (include shops' coupon).",
                 "produces": [
                     "application/json"
                 ],
@@ -35,6 +35,22 @@ const docTemplate = `{
                     "Coupon"
                 ],
                 "summary": "Admin Get Coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -72,11 +88,22 @@ const docTemplate = `{
                     "Coupon"
                 ],
                 "summary": "Admin Add Coupon",
+                "parameters": [
+                    {
+                        "description": "Coupon",
+                        "name": "coupon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.AddCouponParams"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Coupon"
+                            "$ref": "#/definitions/db.AddCouponRow"
                         }
                     },
                     "400": {
@@ -119,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Coupon"
+                            "$ref": "#/definitions/db.GetCouponDetailRow"
                         }
                     },
                     "400": {
@@ -163,10 +190,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             },
@@ -190,14 +229,35 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Coupon",
+                        "name": "coupon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.EditCouponParams"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.EditCouponRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             }
@@ -213,12 +273,43 @@ const docTemplate = `{
                     "Report"
                 ],
                 "summary": "Admin Get Site Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date",
+                        "name": "start_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date",
+                        "name": "end_date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.OrderHistory"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             }
@@ -270,8 +361,8 @@ const docTemplate = `{
             }
         },
         "/admin/user/{username}": {
-            "delete": {
-                "description": "Delete(disable) user.",
+            "patch": {
+                "description": "Disable user.",
                 "produces": [
                     "application/json"
                 ],
@@ -279,12 +370,12 @@ const docTemplate = `{
                     "Admin",
                     "User"
                 ],
-                "summary": "Admin Delete(disable) User",
+                "summary": "Admin Disable User",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
                         "in": "path",
                         "required": true
                     }
@@ -1656,6 +1747,64 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "db.AddCouponParams": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.AddCouponRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
         "db.Coupon": {
             "type": "object",
             "properties": {
@@ -1712,6 +1861,90 @@ const docTemplate = `{
                 "CouponTypeShipping"
             ]
         },
+        "db.EditCouponParams": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.EditCouponRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetCouponDetailRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
         "db.GetUsersRow": {
             "type": "object",
             "properties": {
@@ -1741,6 +1974,49 @@ const docTemplate = `{
                 }
             }
         },
+        "db.OrderHistory": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "paid",
+                "shipped",
+                "delivered",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "OrderStatusPending",
+                "OrderStatusPaid",
+                "OrderStatusShipped",
+                "OrderStatusDelivered",
+                "OrderStatusCancelled"
+            ]
+        },
         "db.RoleType": {
             "type": "string",
             "enum": [
@@ -1751,6 +2027,33 @@ const docTemplate = `{
                 "RoleTypeAdmin",
                 "RoleTypeCustomer"
             ]
+        },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
+        "pgtype.Timestamptz": {
+            "type": "object",
+            "properties": {
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
         },
         "router.Failure": {
             "type": "object",
