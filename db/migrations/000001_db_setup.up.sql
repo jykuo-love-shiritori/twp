@@ -1,20 +1,18 @@
-CREATE TYPE
-    "order_status" AS ENUM (
-        'paid',
-        'shipped',
-        'delivered',
-        'cancelled',
-        'finished'
-    );
+CREATE TYPE "order_status" AS ENUM (
+    'paid',
+    'shipped',
+    'delivered',
+    'cancelled',
+    'finished'
+);
 
-CREATE TYPE
-    "coupon_type" AS ENUM (
-        'percentage',
-        'fixed',
-        'shipping'
-    );
+CREATE TYPE "coupon_type" AS ENUM (
+    'percentage',
+    'fixed',
+    'shipping'
+);
 
-CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
+CREATE TYPE "role_type" AS ENUM ('admin', 'customer');
 
 CREATE TABLE
     "cart" (
@@ -28,7 +26,8 @@ CREATE TABLE
     "cart_product" (
         "cart_id" INT NOT NULL,
         "product_id" INT NOT NULL,
-        "quantity" INT NOT NULL
+        "quantity" INT NOT NULL,
+        CONSTRAINT unique_cart_product UNIQUE ("cart_id", "product_id")
     );
 
 CREATE TABLE
@@ -58,7 +57,8 @@ CREATE TABLE
 CREATE TABLE
     "cart_coupon" (
         "cart_id" INT NOT NULL,
-        "coupon_id" INT NOT NULL
+        "coupon_id" INT NOT NULL,
+        CONSTRAINT unique_cart_coupon UNIQUE ("cart_id", "coupon_id")
     );
 
 CREATE TABLE
@@ -147,25 +147,17 @@ CREATE TABLE
         CONSTRAINT unique_tag_coupon UNIQUE ("tag_id", "coupon_id")
     );
 
-ALTER TABLE "cart_product"
+ALTER TABLE "shop"
 ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
-
-ALTER TABLE "cart_coupon"
-ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+    FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
 
 ALTER TABLE "product"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
-ALTER TABLE "shop"
-ADD
-    FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
-
 ALTER TABLE "coupon"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
 ALTER TABLE "tag"
 ADD
@@ -194,6 +186,22 @@ ADD
 ALTER TABLE "cart"
 ADD
     FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_product"
+ADD
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_product"
+ADD
+    FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_coupon"
+ADD
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_coupon"
+ADD
+    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "order_detail"
 ADD

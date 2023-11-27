@@ -32,4 +32,4 @@ sql:
         - column: shop.seller_name
           go_struct_tag: param:"seller_name"
         - column: cart.cart_id
-          go_struct_tag: param:"seller_name"
+          go_struct_tag: param:"id"

@@ -360,7 +360,7 @@ const docTemplate = `{
             }
         },
         "/api/user/security/credit_card/delete": {
-            "delete": {
+            "patch": {
                 "description": "Delete a credit card by its ID",
                 "consumes": [
                     "application/json"
@@ -375,7 +375,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Credit Card",
-                        "name": "id",
+                        "name": "credit_card",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -967,85 +967,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller": {
-            "get": {
-                "description": "Get shop info, includes user picture, name, description.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop"
-                ],
-                "summary": "Seller get shop info",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            },
-            "patch": {
-                "description": "Edit shop name, description, visibility.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop"
-                ],
-                "summary": "Seller edit shop info",
-                "parameters": [
-                    {
-                        "description": "update image UUID",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "minLength": 6,
-                        "description": "update shop name",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "update description",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "update enabled status",
-                        "name": "enabled",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/seller/coupon": {
             "get": {
                 "description": "Get all coupons for shop.",
@@ -1072,10 +993,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.SellerGetCouponRow"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1155,10 +1103,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Coupon"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1186,10 +1152,34 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.couponDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1218,10 +1208,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "success"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1308,10 +1313,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Coupon"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1328,7 +1351,8 @@ const docTemplate = `{
                 "tags": [
                     "Seller",
                     "Shop",
-                    "Coupon"
+                    "Coupon",
+                    "Tag"
                 ],
                 "summary": "Seller add coupon tag",
                 "parameters": [
@@ -1351,10 +1375,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Coupon"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1369,7 +1411,8 @@ const docTemplate = `{
                 "tags": [
                     "Seller",
                     "Shop",
-                    "Coupon"
+                    "Coupon",
+                    "Tag"
                 ],
                 "summary": "Seller delete coupon tag",
                 "parameters": [
@@ -1392,10 +1435,134 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "success"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/info": {
+            "get": {
+                "description": "Get shop info, includes user picture, name, description.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop"
+                ],
+                "summary": "Seller get shop info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Shop"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Edit shop name, description, visibility.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop"
+                ],
+                "summary": "Seller edit shop info",
+                "parameters": [
+                    {
+                        "description": "update image UUID",
+                        "name": "image_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "minLength": 6,
+                        "description": "update shop name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "update description",
+                        "name": "description",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "update enabled status",
+                        "name": "enabled",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateInfoRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1426,18 +1593,33 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerGetOrderRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
             "patch": {
                 "description": "seller update orders status.",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Seller",
                     "Shop",
@@ -1487,10 +1669,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.OrderHistory"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1528,10 +1728,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.orderDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1565,10 +1783,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerProductListRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1652,10 +1888,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Product"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1686,10 +1940,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.productDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1718,10 +1990,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "success"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1812,10 +2099,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Product"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -1832,7 +2137,8 @@ const docTemplate = `{
                 "tags": [
                     "Seller",
                     "Shop",
-                    "Coupon"
+                    "Product",
+                    "Tag"
                 ],
                 "summary": "Seller add product tag",
                 "parameters": [
@@ -1855,10 +2161,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.ProductTag"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -1896,10 +2220,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "success"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -2033,10 +2372,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerSearchTagRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             },
@@ -2068,10 +2425,34 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerInsertTagRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.failure"
+                        }
                     }
                 }
             }
@@ -2216,6 +2597,320 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "big.Int": {
+            "type": "object"
+        },
+        "db.Coupon": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "expire_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.CouponTag": {
+            "type": "object",
+            "properties": {
+                "coupon_id": {
+                    "type": "integer"
+                },
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.CouponType": {
+            "type": "string",
+            "enum": [
+                "percentage",
+                "fixed",
+                "shipping"
+            ],
+            "x-enum-varnames": [
+                "CouponTypePercentage",
+                "CouponTypeFixed",
+                "CouponTypeShipping"
+            ]
+        },
+        "db.OrderHistory": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "paid",
+                "shipped",
+                "delivered",
+                "cancelled",
+                "finished"
+            ],
+            "x-enum-varnames": [
+                "OrderStatusPaid",
+                "OrderStatusShipped",
+                "OrderStatusDelivered",
+                "OrderStatusCancelled",
+                "OrderStatusFinished"
+            ]
+        },
+        "db.Product": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "edit_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "expire_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.ProductTag": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "integer"
+                },
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.SellerGetCouponRow": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "expire_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.SellerGetOrderDetailRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "id": {
+                    "$ref": "#/definitions/pgtype.Int4"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "price": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "version": {
+                    "$ref": "#/definitions/pgtype.Int4"
+                }
+            }
+        },
+        "db.SellerGetOrderRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "shop_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.SellerInsertTagRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.SellerProductListRow": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.SellerSearchTagRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.SellerUpdateInfoRow": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Shop": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.creditCard": {
             "type": "object",
             "properties": {
@@ -2230,6 +2925,125 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
+        "pgtype.Int4": {
+            "type": "object",
+            "properties": {
+                "int32": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Numeric": {
+            "type": "object",
+            "properties": {
+                "exp": {
+                    "type": "integer"
+                },
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "int": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "naN": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Text": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Timestamptz": {
+            "type": "object",
+            "properties": {
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "router.couponDetail": {
+            "type": "object",
+            "properties": {
+                "coupon_info": {
+                    "$ref": "#/definitions/db.Coupon"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.CouponTag"
+                    }
+                }
+            }
+        },
+        "router.failure": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "router.orderDetail": {
+            "type": "object",
+            "properties": {
+                "order_info": {
+                    "$ref": "#/definitions/db.OrderHistory"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerGetOrderDetailRow"
+                    }
+                }
+            }
+        },
+        "router.productDetail": {
+            "type": "object",
+            "properties": {
+                "product_info": {
+                    "$ref": "#/definitions/db.Product"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.ProductTag"
+                    }
                 }
             }
         }

@@ -95,8 +95,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(db, logger))
 
 	// seller
-	api.GET("/seller", sellerGetShopInfo(db, logger))
-	api.PATCH("/seller", sellerEditInfo(db, logger))
+	api.GET("/seller/info", sellerGetShopInfo(db, logger))
+	api.PATCH("/seller/info", sellerEditInfo(db, logger))
 	api.GET("/seller/tag", sellerGetTag(db, logger))  // search available tag
 	api.POST("/seller/tag", sellerAddTag(db, logger)) // add tag for shop
 

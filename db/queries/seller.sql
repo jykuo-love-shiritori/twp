@@ -16,9 +16,13 @@ SET
 WHERE "seller_name" IN (
         SELECT "username"
         FROM "user" u
-        WHERE u.id = $1
-    )
-RETURNING *;
+        WHERE
+            u.id = $1
+    ) RETURNING "id",
+    "seller_name",
+    "image_id",
+    "name",
+    "enabled";
 
 -- name: SellerSearchTag :many
 
@@ -58,8 +62,9 @@ VALUES ( (
         ),
         $2
     ) ON CONFLICT ("shop_id", "name")
-DO NOTHING
-RETURNING "id", "name";
+DO
+    NOTHING RETURNING "id",
+    "name";
 
 -- name: SellerGetCoupon :many
 
@@ -111,8 +116,7 @@ VALUES (
         $5,
         $6,
         $7
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: UpdateCouponInfo :one
 
@@ -130,8 +134,7 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerDeleteCoupon :execrows
 
@@ -203,8 +206,7 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = sqlc.arg(current_status)
-RETURNING *;
+    AND oh."status" = sqlc.arg(current_status) RETURNING *;
 
 -- SellerGetReport :many
 
@@ -267,8 +269,7 @@ VALUES (
         NOW(),
         $7,
         $8
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerUpdateProductInfo :one
 
@@ -290,8 +291,7 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2
-RETURNING *;
+    AND p."id" = $2 RETURNING *;
 
 -- name: SellerDeleteProduct :execrows
 
@@ -345,8 +345,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerDeleteProductTag :execrows
 
@@ -382,8 +381,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND c."id" = $3
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerDeleteCouponTag :execrows
 
