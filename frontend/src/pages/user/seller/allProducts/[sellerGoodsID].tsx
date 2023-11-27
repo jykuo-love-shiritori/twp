@@ -212,7 +212,7 @@ const EachSellerGoods = () => {
                         onClick={() => changeModification(index)}
                       />
                     </Col>
-                    <Col xs={10}>
+                    <Col xs={8} lg={10}>
                       {modification[index] ? (
                         <input
                           type='text'
