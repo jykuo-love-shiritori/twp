@@ -32,7 +32,7 @@ const UserViewShop = () => {
           </Col>
         </Row>
       </Col>
-      <Col xs={12} md={10} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
+      <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
         <Outlet />
       </Col>
     </Row>
