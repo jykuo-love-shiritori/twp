@@ -21,7 +21,6 @@ func main() {
 
 	TestInsertData(db)
 	TestDeleteData(db)
-	// TestInsertData()
 }
 
 type testTable struct {
@@ -165,6 +164,14 @@ func TestDeleteData(pg *db.DB) {
 	fmt.Println("DeleteTestProduct success")
 	for _, orderDetailParam := range data.OrderDetail {
 		_, err = pg.Queries.TestDeleteOrderDetailByOrderId(context.Background(), orderDetailParam.OrderID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestOrderDetail success")
+
+	for _, tagParam := range data.Tag {
+		_, err = pg.Queries.TestDeleteTagById(context.Background(), tagParam.ID)
 		if err != nil {
 			log.Fatal(err)
 		}

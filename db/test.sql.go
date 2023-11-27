@@ -94,6 +94,19 @@ func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (int64, erro
 	return result.RowsAffected(), nil
 }
 
+const testDeleteTagById = `-- name: TestDeleteTagById :execrows
+
+DELETE FROM "tag" WHERE "id" = $1
+`
+
+func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (int64, error) {
+	result, err := q.db.Exec(ctx, testDeleteTagById, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const testDeleteUserById = `-- name: TestDeleteUserById :execrows
 
 DELETE FROM "user" WHERE "id" = $1
@@ -111,7 +124,8 @@ const testInsertCart = `-- name: TestInsertCart :one
 
 INSERT INTO
     "cart" ("id", "user_id", "shop_id")
-VALUES ($1, $2, $3) RETURNING id, user_id, shop_id
+VALUES ($1, $2, $3)
+RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
@@ -131,7 +145,8 @@ const testInsertCartCoupon = `-- name: TestInsertCartCoupon :one
 
 INSERT INTO
     "cart_coupon" ("cart_id", "coupon_id")
-VALUES ($1, $2) RETURNING cart_id, coupon_id
+VALUES ($1, $2)
+RETURNING cart_id, coupon_id
 `
 
 type TestInsertCartCouponParams struct {
@@ -154,7 +169,8 @@ INSERT INTO
         "product_id",
         "quantity"
     )
-VALUES ($1, $2, $3) RETURNING cart_id, product_id, quantity
+VALUES ($1, $2, $3)
+RETURNING cart_id, product_id, quantity
 `
 
 type TestInsertCartProductParams struct {
@@ -183,7 +199,8 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
 `
 
 type TestInsertCouponParams struct {
@@ -226,7 +243,8 @@ const testInsertCouponTag = `-- name: TestInsertCouponTag :one
 
 INSERT INTO
     "coupon_tag" ("tag_id", "coupon_id")
-VALUES ($1, $2) RETURNING coupon_id, tag_id
+VALUES ($1, $2)
+RETURNING coupon_id, tag_id
 `
 
 type TestInsertCouponTagParams struct {
@@ -250,7 +268,8 @@ INSERT INTO
         "product_version",
         "quantity"
     )
-VALUES ($1, $2, $3, $4) RETURNING order_id, product_id, product_version, quantity
+VALUES ($1, $2, $3, $4)
+RETURNING order_id, product_id, product_version, quantity
 `
 
 type TestInsertOrderDetailParams struct {
@@ -288,7 +307,8 @@ INSERT INTO
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
@@ -352,7 +372,8 @@ VALUES (
         $9,
         $10,
         $11
-    ) RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+    )
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type TestInsertProductParams struct {
@@ -412,7 +433,8 @@ INSERT INTO
         "price",
         "image_id"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, version, name, description, price, image_id
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, version, name, description, price, image_id
 `
 
 type TestInsertProductArchiveParams struct {
@@ -449,7 +471,8 @@ const testInsertProductTag = `-- name: TestInsertProductTag :one
 
 INSERT INTO
     "product_tag" ("tag_id", "product_id")
-VALUES ($1, $2) RETURNING tag_id, product_id
+VALUES ($1, $2)
+RETURNING tag_id, product_id
 `
 
 type TestInsertProductTagParams struct {
@@ -475,7 +498,8 @@ INSERT INTO
         "description",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_name, image_id, name, description, enabled
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, seller_name, image_id, name, description, enabled
 `
 
 type TestInsertShopParams struct {
@@ -510,16 +534,20 @@ func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) 
 
 const testInsertTag = `-- name: TestInsertTag :one
 
-INSERT INTO "tag" ("shop_id", "name") VALUES ($1, $2) RETURNING id, shop_id, name
+INSERT INTO
+    "tag" ("id", "shop_id", "name")
+VALUES ($1, $2, $3)
+RETURNING id, shop_id, name
 `
 
 type TestInsertTagParams struct {
+	ID     int32  `json:"id"`
 	ShopID int32  `json:"shop_id"`
 	Name   string `json:"name"`
 }
 
 func (q *Queries) TestInsertTag(ctx context.Context, arg TestInsertTagParams) (Tag, error) {
-	row := q.db.QueryRow(ctx, testInsertTag, arg.ShopID, arg.Name)
+	row := q.db.QueryRow(ctx, testInsertTag, arg.ID, arg.ShopID, arg.Name)
 	var i Tag
 	err := row.Scan(&i.ID, &i.ShopID, &i.Name)
 	return i, err

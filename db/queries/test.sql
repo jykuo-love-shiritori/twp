@@ -26,7 +26,8 @@ INSERT INTO
         "description",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
 
 -- name: TestInsertCoupon :one
 
@@ -41,7 +42,8 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *;
 
 -- name: TestInsertProduct :one
 
@@ -73,7 +75,8 @@ VALUES (
         $9,
         $10,
         $11
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: TestInsertProductArchive :one
 
@@ -86,29 +89,36 @@ INSERT INTO
         "price",
         "image_id"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
 
 -- name: TestInsertTag :one
 
-INSERT INTO "tag" ("shop_id", "name") VALUES ($1, $2) RETURNING *;
+INSERT INTO
+    "tag" ("id", "shop_id", "name")
+VALUES ($1, $2, $3)
+RETURNING *;
 
 -- name: TestInsertProductTag :one
 
 INSERT INTO
     "product_tag" ("tag_id", "product_id")
-VALUES ($1, $2) RETURNING *;
+VALUES ($1, $2)
+RETURNING *;
 
 -- name: TestInsertCouponTag :one
 
 INSERT INTO
     "coupon_tag" ("tag_id", "coupon_id")
-VALUES ($1, $2) RETURNING *;
+VALUES ($1, $2)
+RETURNING *;
 
 -- name: TestInsertCart :one
 
 INSERT INTO
     "cart" ("id", "user_id", "shop_id")
-VALUES ($1, $2, $3) RETURNING *;
+VALUES ($1, $2, $3)
+RETURNING *;
 
 -- name: TestInsertCartProduct :one
 
@@ -118,13 +128,15 @@ INSERT INTO
         "product_id",
         "quantity"
     )
-VALUES ($1, $2, $3) RETURNING *;
+VALUES ($1, $2, $3)
+RETURNING *;
 
 -- name: TestInsertCartCoupon :one
 
 INSERT INTO
     "cart_coupon" ("cart_id", "coupon_id")
-VALUES ($1, $2) RETURNING *;
+VALUES ($1, $2)
+RETURNING *;
 
 -- name: TestInsertOrderHistory :one
 
@@ -137,7 +149,8 @@ INSERT INTO
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
 
 -- name: TestInsertOrderDetail :one
 
@@ -148,7 +161,8 @@ INSERT INTO
         "product_version",
         "quantity"
     )
-VALUES ($1, $2, $3, $4) RETURNING *;
+VALUES ($1, $2, $3, $4)
+RETURNING *;
 
 -- name: TestDeleteUserById :execrows
 
@@ -177,3 +191,7 @@ DELETE FROM "order_history" WHERE "id" = $1;
 -- name: TestDeleteProductArchiveByIdVersion :execrows
 
 DELETE FROM "product_archive" WHERE "id" = $1 AND "version" = $2;
+
+-- name: TestDeleteTagById :execrows
+
+DELETE FROM "tag" WHERE "id" = $1;
