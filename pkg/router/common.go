@@ -10,6 +10,11 @@ type Failure struct {
 	Msg string `json:"message"`
 }
 
+type QueryParams struct {
+	Offset int32 `query:"offset"` // the start index of the query
+	Limit  int32 `query:"limit"`  // the number of the query
+}
+
 func hasSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)

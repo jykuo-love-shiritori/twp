@@ -42,7 +42,6 @@ func AddMockUsers(pg *db.DB) {
 			"exp_year":    fmt.Sprint(i),
 			"cvc":         fmt.Sprint(i),
 		}
-
 		// Marshal the empty JSON object into a JSON-formatted byte slice
 		jsonData, err := json.Marshal(emptyJSON)
 		if err != nil {

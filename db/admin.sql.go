@@ -39,12 +39,12 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING (
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id"`
+	ShopID      pgtype.Int4        `json:"shop_id" swaggertype:"integer"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount"`
-	StartDate   pgtype.Timestamptz `json:"start_date"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (interface{}, error) {
@@ -91,7 +91,7 @@ VALUES ($1, $6, '', '', FALSE)
 `
 
 type AddUserParams struct {
-	SellerName string      `json:"seller_name" params:"seller_name"`
+	SellerName string      `json:"seller_name" param:"seller_name"`
 	Password   string      `json:"password"`
 	Name       string      `json:"name"`
 	Email      string      `json:"email"`
@@ -231,13 +231,13 @@ WHERE
 `
 
 type EditCouponParams struct {
-	ID          int32              `json:"id" params:"id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount"`
-	StartDate   pgtype.Timestamptz `json:"start_date"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 // i don't feel right about this

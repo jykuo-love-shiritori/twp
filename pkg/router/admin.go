@@ -13,17 +13,28 @@ import (
 // @Description Get all user information. Include user's icon, name, email, created time and role.
 // @Tags Admin, User
 // @Produce json
+// @Param offset query int false "Begin index" default(0)
+// @Param limit query int false "limit" default(10)
 // @Success 200 {array} db.GetUsersRow
 // @Failure 400 {object} Failure
 // @Router /admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		q := QueryParams{Offset: 0, Limit: 10}
+		if err := c.Bind(&q); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
 		users, err := pg.Queries.GetUsers(c.Request().Context())
 		if err != nil {
 			logger.Errorw("failed to get users", "error", err)
 			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
 		}
-		return c.JSON(http.StatusOK, users)
+		if int(q.Offset) > len(users) {
+			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+		}
+		q.Limit = min(q.Limit, int32(len(users))-q.Offset)
+		return c.JSON(http.StatusOK, users[q.Offset:q.Offset+q.Limit])
 	}
 }
 
@@ -113,7 +124,7 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Tags Admin, Coupon
 // @Accept json
 // @Produce json
-// @Success 200 {object} db.AddCoupon
+// @Success 200 {object} db.Coupon
 // @Failure 400 {object} Failure
 // @Failure 500 {object} Failure
 // @Router /admin/coupon [post]
@@ -130,7 +141,9 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to add coupon", "error", err)
 			return c.JSON(http.StatusInternalServerError, "Failed to add coupon")
 		}
-		return c.JSON(http.StatusOK, result)
+		// cast result(interface{}) to db.Coupon
+		couponResult := result.(db.Coupon)
+		return c.JSON(http.StatusOK, couponResult)
 	}
 }
 

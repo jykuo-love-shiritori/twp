@@ -1,5 +1,44 @@
 basePath: /api
 definitions:
+  db.Coupon:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      shop_id:
+        type: integer
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.CouponScope:
+    enum:
+    - global
+    - shop
+    type: string
+    x-enum-varnames:
+    - CouponScopeGlobal
+    - CouponScopeShop
+  db.CouponType:
+    enum:
+    - percentage
+    - fixed
+    - shipping
+    type: string
+    x-enum-varnames:
+    - CouponTypePercentage
+    - CouponTypeFixed
+    - CouponTypeShipping
   db.GetUsersRow:
     properties:
       address:
@@ -27,6 +66,11 @@ definitions:
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeCustomer
+  router.Failure:
+    properties:
+      message:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -52,8 +96,18 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.Coupon'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Get Coupon
       tags:
       - Admin
@@ -67,8 +121,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.Coupon'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Add Coupon
       tags:
       - Admin
@@ -106,8 +168,20 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.Coupon'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
       summary: Admin Get Coupon Detail
       tags:
       - Admin
@@ -152,6 +226,17 @@ paths:
     get:
       description: Get all user information. Include user's icon, name, email, created
         time and role.
+      parameters:
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -161,8 +246,10 @@ paths:
             items:
               $ref: '#/definitions/db.GetUsersRow'
             type: array
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Get User
       tags:
       - Admin
@@ -181,8 +268,20 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/router.Failure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/router.Failure'
       summary: Admin Delete(disable) User
       tags:
       - Admin
