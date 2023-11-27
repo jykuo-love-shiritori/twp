@@ -7,9 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"testing"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 )
 
@@ -21,16 +19,9 @@ func main() {
 	}
 	defer db.Close()
 
-	err = db.Queries.InsertTestUser(context.Background(), pgtype.UUID{Valid: true})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("InsertTestUser success")
-	err = db.Queries.DeleteTestUser(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("DeleteTestUser success")
+	TestInsertData(db)
+	TestDeleteData(db)
+	// TestInsertData()
 }
 
 type testTable struct {
@@ -45,99 +36,169 @@ type testTable struct {
 	Cart           []db.TestInsertCartParams           `json:"cart"`
 	CartProduct    []db.TestInsertCartProductParams    `json:"cart_product"`
 	CartCoupon     []db.TestInsertCartCouponParams     `json:"cart_coupon"`
-	Order          []db.TestInsertOrderParams          `json:"order_history"`
+	OrderHistory   []db.TestInsertOrderHistoryParams   `json:"order_history"`
 	OrderDetail    []db.TestInsertOrderDetailParams    `json:"order_detail"`
 }
 
-func TestData(t *testing.T) {
-	var err error
-	db, err := db.NewDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+func TestInsertData(pg *db.DB) {
 
 	jsonFile, err := os.Open("data.json")
 	defer jsonFile.Close()
 	byteValue, err := io.ReadAll(jsonFile)
 	var data testTable
 	json.Unmarshal(byteValue, &data)
-	// fmt.Println(data.User[0].CreditCard)
-	fmt.Println("user")
-	// for _, userParam := range data.User {
-	// 	_, err = db.Queries.TestInsertUser(context.Background(), userParam)
-	// 	if err != nil {
-	// 		t.Error(err)
-	// 	}
-	// }
-	fmt.Println("shop")
-	// for _, shopParam := range data.Shop {
-	// 	_, err = db.Queries.TestInsertShop(context.Background(), shopParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("coupon")
-	// for _, couponParam := range data.Coupon {
-	// 	_, err = db.Queries.TestInsertCoupon(context.Background(), couponParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("product")
-	// for _, productParam := range data.Product {
-	// 	_, err = db.Queries.TestInsertProduct(context.Background(), productParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("product Archive")
-	// for _, productArchiveParam := range data.ProductArchive {
-	// 	_, err = db.Queries.TestInsertProductArchive(context.Background(), productArchiveParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("tag")
-	// for _, tagParam := range data.Tag {
-	// 	_, err = db.Queries.TestInsertTag(context.Background(), tagParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("product tag")
-	// for _, productTagParam := range data.ProductTag {
-	// 	_, err = db.Queries.TestInsertProductTag(context.Background(), productTagParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("coupon tag")
-	// for _, couponTagParam := range data.CouponTag {
-	// 	_, err = db.Queries.TestInsertCouponTag(context.Background(), couponTagParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("cart")
-	// for _, cartParam := range data.Cart {
-	// 	_, err = db.Queries.TestInsertCart(context.Background(), cartParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("order")
-	// for _, orderParam := range data.Order {
-	// 	_, err = db.Queries.TestInsertOrder(context.Background(), orderParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	fmt.Println("order detail")
-	// for _, orderDetailParam := range data.OrderDetail {
-	// 	_, err = db.Queries.TestInsertOrderDetail(context.Background(), orderDetailParam)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
+
+	for _, userParam := range data.User {
+		_, err = pg.Queries.TestInsertUser(context.Background(), userParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestUser success")
+	for _, shopParam := range data.Shop {
+		_, err = pg.Queries.TestInsertShop(context.Background(), shopParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestShop success")
+	for _, couponParam := range data.Coupon {
+		_, err = pg.Queries.TestInsertCoupon(context.Background(), couponParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestCoupon success")
+	for _, productParam := range data.Product {
+		_, err = pg.Queries.TestInsertProduct(context.Background(), productParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestProduct success")
+	for _, productArchiveParam := range data.ProductArchive {
+		_, err = pg.Queries.TestInsertProductArchive(context.Background(), productArchiveParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestProductArchive success")
+	for _, tagParam := range data.Tag {
+		_, err = pg.Queries.TestInsertTag(context.Background(), tagParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestTag success")
+	for _, productTagParam := range data.ProductTag {
+		_, err = pg.Queries.TestInsertProductTag(context.Background(), productTagParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestProductTag success")
+	for _, couponTagParam := range data.CouponTag {
+		_, err = pg.Queries.TestInsertCouponTag(context.Background(), couponTagParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestCouponTag success")
+	for _, cartParam := range data.Cart {
+		_, err = pg.Queries.TestInsertCart(context.Background(), cartParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestCart success")
+	for _, orderParam := range data.OrderHistory {
+		_, err = pg.Queries.TestInsertOrderHistory(context.Background(), orderParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestOrderHistory success")
+	for _, orderDetailParam := range data.OrderDetail {
+		_, err = pg.Queries.TestInsertOrderDetail(context.Background(), orderDetailParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestOrderDetail success")
+	for _, cartProductParam := range data.CartProduct {
+		_, err = pg.Queries.TestInsertCartProduct(context.Background(), cartProductParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestCartProduct success")
+	for _, cartCouponParam := range data.CartCoupon {
+		_, err = pg.Queries.TestInsertCartCoupon(context.Background(), cartCouponParam)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("InsertTestCartProduct success")
+}
+
+func TestDeleteData(pg *db.DB) {
+
+	jsonFile, err := os.Open("data.json")
+	defer jsonFile.Close()
+	byteValue, err := io.ReadAll(jsonFile)
+	var data testTable
+	json.Unmarshal(byteValue, &data)
+	for _, couponParam := range data.Coupon {
+		_, err = pg.Queries.TestDeleteCouponById(context.Background(), couponParam.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestCoupon success")
+
+	for _, productParam := range data.Product {
+		_, err = pg.Queries.TestDeleteProductById(context.Background(), productParam.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestProduct success")
+	for _, orderDetailParam := range data.OrderDetail {
+		_, err = pg.Queries.TestDeleteOrderDetailByOrderId(context.Background(), orderDetailParam.OrderID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestOrderDetail success")
+
+	for _, orderParam := range data.OrderHistory {
+		_, err = pg.Queries.TestDeleteOrderById(context.Background(), orderParam.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestOrderHistory success")
+	for _, ProductArchiveParam := range data.ProductArchive {
+
+		_, err = pg.Queries.TestDeleteProductArchiveByIdVersion(context.Background(), db.TestDeleteProductArchiveByIdVersionParams{ID: ProductArchiveParam.ID, Version: ProductArchiveParam.Version})
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestProductArchive success")
+	for _, shopParam := range data.Shop {
+		_, err = pg.Queries.TestDeleteShopById(context.Background(), shopParam.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestShop success")
+
+	for _, userParam := range data.User {
+		_, err = pg.Queries.TestDeleteUserById(context.Background(), userParam.ID)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	fmt.Println("DeleteTestUser success")
 }
