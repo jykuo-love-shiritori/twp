@@ -26,3 +26,5 @@ go.work
 *.env
 !.example.env
 data.json
+
+.DS_Store

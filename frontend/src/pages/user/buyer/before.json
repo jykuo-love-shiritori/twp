@@ -6,7 +6,9 @@
     "subContent": "",
     "way": "Don’t have an account ?",
     "path": "Sign Up",
-    "url": "/signup"
+    "url": "/signup",
+    "buttonContent": "Log in",
+    "fillInformation": [{ "information": "Email Address" }, { "information": "Password" }]
   },
   "register": {
     "imgUrl": "/images/register.jpg",
@@ -15,6 +17,13 @@
     "subContent": "Sign up to agree to our Terms of Use and confirm that you've read our Privacy Policy.",
     "way": "Already have an account? ",
     "path": "Login",
-    "url": "/login"
+    "url": "/login",
+    "buttonContent": "Sign up",
+    "fillInformation": [
+      { "information": "Name" },
+      { "information": "Email Address" },
+      { "information": "Password" },
+      { "information": "Confirm Password" }
+    ]
   }
 }

@@ -12,9 +12,9 @@ const History = () => {
       <br />
 
       <Row>
-        {historyData.map((item) => {
+        {historyData.map((item, index) => {
           return (
-            <Col xs={12}>
+            <Col xs={12} key={index}>
               <HistoryItem id={item.recordID} />
             </Col>
           );
