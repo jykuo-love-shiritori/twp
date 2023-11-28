@@ -41,36 +41,34 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
   };
 
   return (
-    <div className='manage_user_table_row'>
-      <Row>
-        <Col md={1} xs={2} className='center' style={currentStyle.style}>
-          <img src={data.iconUrl} className='user_img' />
-        </Col>
-        <Col md={2} xs={10} className='left center_vertical' style={currentStyle.style}>
-          <h4>{data.name}</h4>
-        </Col>
-        <Col md={4} xs={12} className='left center_vertical' style={currentStyle.style}>
-          <h4>{data.email}</h4>
-        </Col>
-        <Col md={3} xs={12} className='left center_vertical' style={currentStyle.style}>
-          <h4>{data.createDate}</h4>
-        </Col>
-        <Col md={1} xs={6} className='center center_vertical' style={currentStyle.style}>
-          <div onClick={toggleIsAdmin}>
-            {isCheckedAdmin ? (
-              <FontAwesomeIcon icon={faGear} size='2x' />
-            ) : (
-              <FontAwesomeIcon icon={faGear} size='2x' color='black' />
-            )}
-          </div>
-        </Col>
-        <Col md={1} xs={6} className='center center_vertical' style={currentStyle.style}>
-          <div onClick={toggleIsDelete}>
-            <FontAwesomeIcon icon={faTrash} size='2x' />
-          </div>
-        </Col>
-      </Row>
-    </div>
+    <Row style={{ padding: '0 0 0 0' }}>
+      <Col md={1} xs={2} className={'center'} style={currentStyle.style}>
+        <img src={data.iconUrl} className='user_img' />
+      </Col>
+      <Col md={2} xs={10} className={'left center_vertical'} style={currentStyle.style}>
+        <h4>{data.name}</h4>
+      </Col>
+      <Col md={4} xs={12} className={'left center_vertical'} style={currentStyle.style}>
+        <h4>{data.email}</h4>
+      </Col>
+      <Col md={3} xs={12} className={'left center_vertical'} style={currentStyle.style}>
+        <h4>{data.createDate}</h4>
+      </Col>
+      <Col md={1} xs={6} className={'center center_vertical'} style={currentStyle.style}>
+        <div onClick={toggleIsAdmin}>
+          {isCheckedAdmin ? (
+            <FontAwesomeIcon icon={faGear} size='2x' />
+          ) : (
+            <FontAwesomeIcon icon={faGear} size='2x' color='black' />
+          )}
+        </div>
+      </Col>
+      <Col md={1} xs={6} className={'center center_vertical'} style={currentStyle.style}>
+        <div onClick={toggleIsDelete}>
+          <FontAwesomeIcon icon={faTrash} size='2x' />
+        </div>
+      </Col>
+    </Row>
   );
 };
 

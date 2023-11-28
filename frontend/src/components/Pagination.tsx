@@ -18,22 +18,20 @@ const Pagination = ({ currentPageInit = 1, totalPage }: Props) => {
       setCurrentPage(currentPage + 1);
     }
   };
-  const handlePageChange = (e: any) => {
+  const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputPage = parseInt(e.target.value);
     if (inputPage > 0 && inputPage <= totalPage) {
       setCurrentPage(inputPage);
     }
   };
   return (
-    <div style={{ maxWidth: '300px' }}>
-      <div className='pagination center_vertical'>
-        <div onClick={onPrevious}>{'<'}</div>
-        <div>{'Page:'}</div>
-        <input type='text' value={currentPage} onChange={handlePageChange} />
-        <div>of</div>
-        <div>{totalPage}</div>
-        <div onClick={onNext}>{'>'}</div>
-      </div>
+    <div className='pagination center_vertical'>
+      <div onClick={onPrevious}>{'<'}</div>
+      <div>{'Page:'}</div>
+      <input type='text' value={currentPage} onChange={handlePageChange} />
+      <div>of</div>
+      <div>{totalPage}</div>
+      <div onClick={onNext}>{'>'}</div>
     </div>
   );
 };
