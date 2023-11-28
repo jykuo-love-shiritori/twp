@@ -346,12 +346,12 @@
 
 /* [item in page] manageUser */
 .manage_user_confirm_button {
-  width: 50vw;
+  width: 100%;
   max-width: 300px;
   height: 47.5px;
   padding: 5px;
   margin: 0;
-  border-radius: 30px;
+  border-radius: 20px;
   background-color: var(--button_light);
   color: white;
   cursor: pointer;
@@ -362,7 +362,7 @@
 .manage_user_confirm_button:hover {
   background-color: var(--button_dark);
   color: var(--white);
-  border-radius: 30px;
+  border-radius: 20px;
   transition: all 0.3s ease-in-out;
 }
 
