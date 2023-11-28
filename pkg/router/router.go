@@ -31,8 +31,8 @@ import (
 
 //	@securityDefinitions.basic	BasicAuth
 
-//	@externalDocs.description	OpenAPI
-//	@externalDocs.url			https://swagger.io/resources/open-api/
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func RegisterDocs(e *echo.Echo) {
 	docs := e.Group(constants.SWAGGER_PATH)
 	docs.GET("/*", echoSwagger.WrapHandler)

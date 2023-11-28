@@ -276,20 +276,28 @@ func (q *Queries) SellerGetCouponTag(ctx context.Context, arg SellerGetCouponTag
 
 const sellerGetInfo = `-- name: SellerGetInfo :one
 
-SELECT s.id, s.seller_name, s.image_id, s.name, s.description, s.enabled
-FROM "user" u
-    JOIN "shop" s ON u.username = s.seller_name
-WHERE u.id = $1
+SELECT
+    "seller_name",
+    "image_id",
+    "description",
+    "enabled"
+FROM "shop"
+WHERE "seller_name" = $1
 `
 
-func (q *Queries) SellerGetInfo(ctx context.Context, id int32) (Shop, error) {
-	row := q.db.QueryRow(ctx, sellerGetInfo, id)
-	var i Shop
+type SellerGetInfoRow struct {
+	SellerName  string      `json:"seller_name" param:"seller_name"`
+	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Description string      `json:"description"`
+	Enabled     bool        `json:"enabled"`
+}
+
+func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerGetInfoRow, error) {
+	row := q.db.QueryRow(ctx, sellerGetInfo, sellerName)
+	var i SellerGetInfoRow
 	err := row.Scan(
-		&i.ID,
 		&i.SellerName,
 		&i.ImageID,
-		&i.Name,
 		&i.Description,
 		&i.Enabled,
 	)
@@ -514,7 +522,8 @@ VALUES (
         $5,
         $6,
         $7
-    ) RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
+    )
+RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
 `
 
 type SellerInsertCouponParams struct {
@@ -571,7 +580,8 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND c."id" = $3
-    ) RETURNING coupon_id, tag_id
+    )
+RETURNING coupon_id, tag_id
 `
 
 type SellerInsertCouponTagParams struct {
@@ -618,7 +628,8 @@ VALUES (
         NOW(),
         $7,
         $8
-    ) RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+    )
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type SellerInsertProductParams struct {
@@ -681,7 +692,8 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
-    ) RETURNING tag_id, product_id
+    )
+RETURNING tag_id, product_id
 `
 
 type SellerInsertProductTagParams struct {
@@ -710,9 +722,8 @@ VALUES ( (
         ),
         $2
     ) ON CONFLICT ("shop_id", "name")
-DO
-    NOTHING RETURNING "id",
-    "name"
+DO NOTHING
+RETURNING "id", "name"
 `
 
 type SellerInsertTagParams struct {
@@ -829,16 +840,17 @@ const sellerSearchTag = `-- name: SellerSearchTag :many
 SELECT t."id", t."name"
 FROM "tag" t
     LEFT JOIN "shop" s ON "shop_id" = s.id
-    LEFT JOIN "user" u ON s.seller_name = u.username
-WHERE u.id = $1 AND t."name" ~* $2
-ORDER BY LENGTH(t."name")
+WHERE
+    s."seller_name" = $1
+    AND t."name" ~* $2
+ORDER BY LENGTH(t."name") ASC
 LIMIT $3
 `
 
 type SellerSearchTagParams struct {
-	ID    int32  `json:"id" param:"id"`
-	Name  string `json:"name"`
-	Limit int32  `json:"limit"`
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Name       string `json:"name"`
+	Limit      int32  `json:"limit"`
 }
 
 type SellerSearchTagRow struct {
@@ -847,7 +859,7 @@ type SellerSearchTagRow struct {
 }
 
 func (q *Queries) SellerSearchTag(ctx context.Context, arg SellerSearchTagParams) ([]SellerSearchTagRow, error) {
-	rows, err := q.db.Query(ctx, sellerSearchTag, arg.ID, arg.Name, arg.Limit)
+	rows, err := q.db.Query(ctx, sellerSearchTag, arg.SellerName, arg.Name, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -874,12 +886,8 @@ SET
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "enabled" = COALESCE($5, "enabled")
-WHERE "seller_name" IN (
-        SELECT "username"
-        FROM "user" u
-        WHERE
-            u.id = $1
-    ) RETURNING "id",
+WHERE "seller_name" = $1
+RETURNING
     "seller_name",
     "image_id",
     "name",
@@ -887,7 +895,7 @@ WHERE "seller_name" IN (
 `
 
 type SellerUpdateInfoParams struct {
-	ID          int32       `json:"id" param:"id"`
+	SellerName  string      `json:"seller_name" param:"seller_name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
@@ -895,7 +903,6 @@ type SellerUpdateInfoParams struct {
 }
 
 type SellerUpdateInfoRow struct {
-	ID         int32       `json:"id"`
 	SellerName string      `json:"seller_name" param:"seller_name"`
 	ImageID    pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Name       string      `json:"name"`
@@ -904,7 +911,7 @@ type SellerUpdateInfoRow struct {
 
 func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoParams) (SellerUpdateInfoRow, error) {
 	row := q.db.QueryRow(ctx, sellerUpdateInfo,
-		arg.ID,
+		arg.SellerName,
 		arg.ImageID,
 		arg.Name,
 		arg.Description,
@@ -912,7 +919,6 @@ func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoPara
 	)
 	var i SellerUpdateInfoRow
 	err := row.Scan(
-		&i.ID,
 		&i.SellerName,
 		&i.ImageID,
 		&i.Name,
@@ -934,7 +940,8 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = $4 RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+    AND oh."status" = $4
+RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type SellerUpdateOrderStatusParams struct {
@@ -984,7 +991,8 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2 RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+    AND p."id" = $2
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type SellerUpdateProductInfoParams struct {
@@ -1045,7 +1053,8 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    ) RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
+    )
+RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
 `
 
 type UpdateCouponInfoParams struct {
