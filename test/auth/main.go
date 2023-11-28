@@ -45,7 +45,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp.Body.Close()
+
+	err = resp.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(string(body))
 }
