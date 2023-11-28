@@ -7,11 +7,14 @@ const ManageUser = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flexGrow: '9' }}>
+        {/* title */}
         <Row>
           <Col md={12} xs={12} className='title'>
             Manage Users
           </Col>
         </Row>
+
+        {/* table header */}
         <Row className='user_table_header'>
           <Col md={1} xs={2} style={{ textAlign: 'center' }}>
             <h4>Icon</h4>
@@ -32,18 +35,22 @@ const ManageUser = () => {
             <h4>Delete</h4>
           </Col>
         </Row>
+
         <hr />
 
+        {/* table body */}
         {datas.map((data) => (
           <UserTableRow data={data} />
         ))}
       </div>
+
+      {/* pagination and comfirm buttom*/}
       <div style={{ display: 'flex', flexGrow: '1', flexDirection: 'row' }}>
-        <div className='center' style={{ flexGrow: '1', alignSelf: 'center' }}>
+        <div className='manager_user_bottem'>
           <Pagination currentPageInit={1} totalPage={10} />
         </div>
-        <div className='center' style={{ flexGrow: '1', alignSelf: 'center' }}>
-          <div className='manage_user_confirm_button center center_vertical '>Confirm</div>
+        <div className='manager_user_bottem'>
+          <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
         </div>
       </div>
     </div>

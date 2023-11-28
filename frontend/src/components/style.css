@@ -336,6 +336,36 @@
   }
 }
 
+/* [item in page] manageUser */
+.manager_user_bottem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+/* [item in page] manageUser */
+.manage_user_confirm_button {
+  width: 50vw;
+  max-width: 300px;
+  height: 47.5px;
+  padding: 5px;
+  margin: 0;
+  border-radius: 30px;
+  background-color: var(--button_light);
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+.manage_user_confirm_button:hover {
+  background-color: var(--button_dark);
+  color: var(--white);
+  border-radius: 30px;
+  transition: all 0.3s ease-in-out;
+}
+
 /* [item in page] pagination */
 .pagination {
   display: flex;
@@ -375,26 +405,4 @@
   color: var(--button_light);
   font-size: 20px;
   font-weight: 900;
-}
-
-/* [item in page] manageUser */
-.manage_user_confirm_button {
-  width: '50vw';
-  max-width: 300px;
-  height: 47.5px;
-  padding: 5px;
-  margin: 0;
-  border-radius: 30px;
-  background-color: var(--button_light);
-  color: white;
-  text-align: center;
-  cursor: pointer;
-  font-size: 20px;
-  font-weight: 700;
-}
-.manage_user_confirm_button:hover {
-  background-color: var(--button_dark);
-  color: var(--white);
-  border-radius: 30px;
-  transition: all 0.3s ease-in-out;
 }
