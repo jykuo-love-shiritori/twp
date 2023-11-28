@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
-import { Next } from 'react-bootstrap/esm/PageItem';
 
 interface Props {
   currentPageInit: number;
@@ -26,19 +24,16 @@ const Pagination = ({ currentPageInit = 1, totalPage }: Props) => {
       setCurrentPage(inputPage);
     }
   };
-
-  let newPage = currentPage;
-
   return (
-    <div style={{ width: '300px' }}>
-      <Container className='pagination center_vertical'>
+    <div style={{ maxWidth: '300px' }}>
+      <div className='pagination center_vertical'>
         <div onClick={onPrevious}>{'<'}</div>
         <div>{'Page:'}</div>
-        <input type='text' value={newPage} onChange={handlePageChange} />
+        <input type='text' value={currentPage} onChange={handlePageChange} />
         <div>of</div>
         <div>{totalPage}</div>
         <div onClick={onNext}>{'>'}</div>
-      </Container>
+      </div>
     </div>
   );
 };

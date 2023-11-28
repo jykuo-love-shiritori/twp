@@ -338,9 +338,7 @@
   background-color: var(--button_light);
   border-radius: 20px;
   font-size: 20px;
-}
-.pagination > * {
-  flex-basis: 0;
+  font-weight: 700;
   text-align: center;
 }
 .pagination > :first-child,
@@ -349,8 +347,18 @@
   font-weight: 900;
   font-size: 25px;
   min-width: 50px;
+  transition: all 0.3s ease-in-out;
+}
+.pagination > :first-child:hover,
+.pagination > :last-child:hover {
+  background-color: var(--button_dark);
+  color: var(--white);
+  border-radius: 15px;
+  transition: all 0.3s ease-in-out;
 }
 .pagination > input {
+  text-align: center;
+  flex-basis: 0;
   min-width: 50px;
   border: none;
   border-radius: 10px;
