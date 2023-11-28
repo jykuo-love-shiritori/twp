@@ -1,14 +1,24 @@
+import { useState } from 'react';
+
 import TButton from '@components/TButton';
 import PasswordItem from '@components/PasswordItem';
 
 const Password = () => {
+  const [password, setPassword] = useState<string>('');
+  const [confirmedPassword, setConfirmedPassword] = useState<string>('');
+  const [oldPassword, setOldPassword] = useState<string>('');
+
   return (
     <div>
       <div className='title'>Security - Password</div>
       <hr className='hr' />
-      <PasswordItem text='Password' />
-      <PasswordItem text='ConfirmedPassword' />
-      <PasswordItem text='Old Password' />
+      <PasswordItem text='Password' value={password} setValue={setPassword} />
+      <PasswordItem
+        text='ConfirmedPassword'
+        value={confirmedPassword}
+        setValue={setConfirmedPassword}
+      />
+      <PasswordItem text='Old Password' value={oldPassword} setValue={setOldPassword} />
       <TButton text='Save' url='' />
     </div>
   );

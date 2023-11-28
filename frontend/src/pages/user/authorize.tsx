@@ -1,16 +1,19 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
 
 const Authorize = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
-        <Row style={{ width: '100%' }}>
-          <Col xs={12} md={6}>
+        <Row style={{ width: '100%', padding: '0', margin: '0' }}>
+          <Col xs={12} md={6} style={{ padding: '0' }}>
             <div
               className='flex-wrapper'
               style={{
@@ -24,8 +27,8 @@ const Authorize = () => {
               <Col xs={12}>
                 <div className='title center'> Log in</div>
                 <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                  <InfoItem text='Email Address' isMore={false} />
-                  <PasswordItem text='Password' />
+                  <InfoItem text='Email Address' isMore={false} value={email} setValue={setEmail} />
+                  <PasswordItem text='Password' value={password} setValue={setPassword} />
                 </div>
               </Col>
 

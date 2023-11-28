@@ -44,20 +44,20 @@ const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input)
     return (
       <div className='cart_item' style={{ margin: '2% 0 2% 0' }}>
         <Row>
-          <Col xs={3} md={1} className=''>
-            <img src={data.imgUrl} style={{ width: '70%' }} />
+          <Col xs={4} md={1} className='center'>
+            <img src={data.imgUrl} style={{ width: '100%', borderRadius: '10px' }} />
           </Col>
-          <Col xs={9} md={11} className='dark'>
-            <Row>
-              <Col xs={9} md={5} className='center_vertical'>
+          <Col xs={8} md={11} className='dark center_vertical'>
+            <Row style={{ width: '100%' }}>
+              <Col xs={12} md={5} className='center_vertical' style={{ wordBreak: 'break-all' }}>
                 {data.name}
               </Col>
 
-              <Col xs={12} md={4} className='center'>
+              <Col xs={12} md={isCart ? 4 : 2} className='right'>
                 {isCart ? <QuantityBar /> : `x${data.quantity}`}
               </Col>
 
-              <Col xs={6} md={2} className='center_vertical'>
+              <Col xs={isCart ? 6 : 12} md={isCart ? 2 : 4} className='right'>
                 ${data.subtotal}
               </Col>
 

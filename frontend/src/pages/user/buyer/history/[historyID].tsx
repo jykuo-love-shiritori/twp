@@ -56,8 +56,10 @@ const HistoryEach = () => {
 
         <UserItem img_path='../../../images/person.png' name='Tom Johnathan' />
 
-        {record?.items.map((data) => {
-          return <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} />;
+        {record?.items.map((data, index) => {
+          return (
+            <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} key={index} />
+          );
         })}
 
         <Row className='light'>
