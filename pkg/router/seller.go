@@ -9,7 +9,7 @@ import (
 )
 
 type orderDetail struct {
-	OrderInfo db.SellerOrderCheckRow       `json:"order_info"`
+	OrderInfo db.SellerGetOrderHistoryRow  `json:"order_info"`
 	Products  []db.SellerGetOrderDetailRow `json:"products"`
 }
 type productDetail struct {
@@ -455,7 +455,7 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		param.Offset = orderPerPage * param.Offset
 		var result orderDetail
 		var err error
-		result.OrderInfo, err = pg.Queries.SellerOrderCheck(c.Request().Context(), db.SellerOrderCheckParams{SellerName: param.SellerName, ID: param.OrderID})
+		result.OrderInfo, err = pg.Queries.SellerGetOrderHistory(c.Request().Context(), db.SellerGetOrderHistoryParams{SellerName: param.SellerName, ID: param.OrderID})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to find order")

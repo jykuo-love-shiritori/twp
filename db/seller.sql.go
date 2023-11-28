@@ -423,6 +423,50 @@ func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDe
 	return items, nil
 }
 
+const sellerGetOrderHistory = `-- name: SellerGetOrderHistory :one
+
+SELECT
+    "order_history"."id",
+    "order_history"."user_id",
+    "order_history"."shipment",
+    "order_history"."total_price",
+    "order_history"."status",
+    "order_history"."created_at"
+FROM "order_history"
+    JOIN shop ON order_history.shop_id = shop.id
+WHERE
+    shop.seller_name = $1
+    AND order_history.id = $2
+`
+
+type SellerGetOrderHistoryParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	ID         int32  `json:"id" param:"id"`
+}
+
+type SellerGetOrderHistoryRow struct {
+	ID         int32              `json:"id" param:"id"`
+	UserID     int32              `json:"user_id"`
+	Shipment   int32              `json:"shipment"`
+	TotalPrice int32              `json:"total_price"`
+	Status     OrderStatus        `json:"status"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+}
+
+func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderHistoryParams) (SellerGetOrderHistoryRow, error) {
+	row := q.db.QueryRow(ctx, sellerGetOrderHistory, arg.SellerName, arg.ID)
+	var i SellerGetOrderHistoryRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Shipment,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
 
 
@@ -780,50 +824,6 @@ func (q *Queries) SellerInsertTag(ctx context.Context, arg SellerInsertTagParams
 	row := q.db.QueryRow(ctx, sellerInsertTag, arg.SellerName, arg.Name)
 	var i SellerInsertTagRow
 	err := row.Scan(&i.ID, &i.Name)
-	return i, err
-}
-
-const sellerOrderCheck = `-- name: SellerOrderCheck :one
-
-SELECT
-    "order_history"."id",
-    "order_history"."user_id",
-    "order_history"."shipment",
-    "order_history"."total_price",
-    "order_history"."status",
-    "order_history"."created_at"
-FROM "order_history"
-    JOIN shop ON order_history.shop_id = shop.id
-WHERE
-    shop.seller_name = $1
-    AND order_history.id = $2
-`
-
-type SellerOrderCheckParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
-}
-
-type SellerOrderCheckRow struct {
-	ID         int32              `json:"id" param:"id"`
-	UserID     int32              `json:"user_id"`
-	Shipment   int32              `json:"shipment"`
-	TotalPrice int32              `json:"total_price"`
-	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
-}
-
-func (q *Queries) SellerOrderCheck(ctx context.Context, arg SellerOrderCheckParams) (SellerOrderCheckRow, error) {
-	row := q.db.QueryRow(ctx, sellerOrderCheck, arg.SellerName, arg.ID)
-	var i SellerOrderCheckRow
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Shipment,
-		&i.TotalPrice,
-		&i.Status,
-		&i.CreatedAt,
-	)
 	return i, err
 }
 

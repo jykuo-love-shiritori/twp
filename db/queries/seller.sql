@@ -178,7 +178,7 @@ ORDER BY "created_at" DESC
 LIMIT $2
 OFFSET $3;
 
--- name: SellerOrderCheck :one
+-- name: SellerGetOrderHistory :one
 
 SELECT
     "order_history"."id",
