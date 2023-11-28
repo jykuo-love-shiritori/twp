@@ -12,7 +12,6 @@ import (
 	_ "github.com/jykuo-love-shiritori/twp/docs"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
-	"github.com/jykuo-love-shiritori/twp/pkg/user"
 )
 
 // @title           twp API
@@ -51,7 +50,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 		return c.JSON(http.StatusOK, map[string]string{"message": "delay"})
 	})
 
-	api.POST("/signup", user.Signup(db, logger))
+	api.POST("/signup", auth.Signup(db, logger))
 
 	api.Any("/oauth/authorize", auth.Authorize(db, logger))
 	api.POST("/oauth/token", auth.Token(db, logger))

@@ -582,6 +582,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/logout": {
+            "post": {
+                "description": "Logout the current user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/news": {
             "get": {
                 "description": "Get news",
@@ -1350,7 +1370,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.signupParams"
+                            "$ref": "#/definitions/auth.signupParams"
                         }
                     }
                 ],
@@ -1361,7 +1381,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/common.HttpError"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
@@ -1588,13 +1608,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "common.HttpError": {
-            "type": "object",
-            "properties": {
-                "message": {}
-            }
-        },
-        "user.signupParams": {
+        "auth.signupParams": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1613,6 +1627,18 @@ const docTemplate = `{
                     "type": "string",
                     "example": "john"
                 }
+            }
+        },
+        "common.HttpError": {
+            "type": "object",
+            "properties": {
+                "message": {}
+            }
+        },
+        "echo.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {}
             }
         }
     },

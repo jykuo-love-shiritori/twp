@@ -18,6 +18,8 @@ type loginParams struct {
 	ResponseType        responseType        `query:"response_type"`
 	Scope               string              `query:"scope"`
 	State               string              `query:"state"`
+	Username            string              `json:"username"`
+	Password            string              `json:"password"`
 }
 
 func Authorize(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -45,6 +47,14 @@ func Authorize(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		default:
 			return echo.NewHTTPError(http.StatusBadRequest, "Unsupported response type")
 		}
+
+		_, err = hashPassword(params.Password)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+		}
+
+		// TODO: Add user authentication
 
 		buf := make([]byte, 32)
 		_, err = rand.Read(buf)

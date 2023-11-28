@@ -1,13 +1,13 @@
-package user
+package auth
 
 import (
 	"net/http"
 	"net/mail"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type signupParams struct {
@@ -25,8 +25,8 @@ type signupParams struct {
 //	@Produce		json
 //	@Param			request	body	signupParams	true	"something"
 //	@Success		200
-//	@Failure		400	{object}	common.HttpError
-//	@Failure		500	{object}	common.HttpError
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
 //	@Router			/signup [post]
 func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -57,7 +57,7 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid email")
 		}
 
-		hash, err := bcrypt.GenerateFromPassword([]byte(params.Password), 14)
+		hash, err := hashPassword(params.Password)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
@@ -65,10 +65,10 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		err = pg.Queries.AddUser(c.Request().Context(), db.AddUserParams{
 			Username: params.Username,
-			Password: string(hash),
+			Password: hash,
 			Name:     params.Name,
 			Email:    params.Email,
-			ImageID:  defaultImageUuid,
+			ImageID:  common.DefaultImageUuid,
 		})
 		if err != nil {
 			logger.Error(err)

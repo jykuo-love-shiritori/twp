@@ -1,10 +1,6 @@
 basePath: /api
 definitions:
-  common.HttpError:
-    properties:
-      message: {}
-    type: object
-  user.signupParams:
+  auth.signupParams:
     properties:
       email:
         example: test@gmail.com
@@ -18,6 +14,14 @@ definitions:
       username:
         example: john
         type: string
+    type: object
+  common.HttpError:
+    properties:
+      message: {}
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
     type: object
 externalDocs:
   description: OpenAPI
@@ -414,6 +418,19 @@ paths:
       tags:
       - Discover
       - Product
+  /logout:
+    post:
+      description: Logout the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Logout
+      tags:
+      - Auth
   /news:
     get:
       consumes:
@@ -932,7 +949,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.signupParams'
+          $ref: '#/definitions/auth.signupParams'
       produces:
       - application/json
       responses:
@@ -941,7 +958,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/common.HttpError'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
