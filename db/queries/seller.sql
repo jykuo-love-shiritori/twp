@@ -36,18 +36,15 @@ LIMIT $3;
 
 -- name: HaveTagName :one
 
-SELECT
-    CASE
-        WHEN EXISTS (
-            SELECT *
-            FROM "tag" t
-                LEFT JOIN "shop" s ON "shop_id" = s.id
-            WHERE
-                s."seller_name" = $1
-                AND t."name" = $2
-        ) THEN true
-        ELSE false
-    END;
+SELECT EXISTS (
+        SELECT *
+        FROM "tag" t
+            LEFT JOIN "shop" s ON "shop_id" = s.id
+        WHERE
+            s."seller_name" = $1
+            AND t."name" = $2
+    )
+END;
 
 -- name: SellerInsertTag :one
 
@@ -61,8 +58,7 @@ VALUES ( (
                 AND s."enabled" = true
         ),
         $2
-    ) ON CONFLICT ("shop_id", "name")
-DO NOTHING
+    )
 RETURNING "id", "name";
 
 -- name: SellerGetCoupon :many
@@ -70,7 +66,6 @@ RETURNING "id", "name";
 SELECT
     c."id",
     c."type",
-    c."shop_id",
     c."name",
     c."discount",
     c."expire_date"
@@ -152,7 +147,6 @@ WHERE c."id" = $2 AND "shop_id" = (
 
 SELECT
     "id",
-    "shop_id",
     "shipment",
     "total_price",
     "status",
@@ -272,7 +266,16 @@ VALUES (
         $7,
         $8
     )
-RETURNING *;
+RETURNING
+    "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "expire_date",
+    "edit_date",
+    "stock",
+    "sales";
 
 -- name: SellerUpdateProductInfo :one
 
@@ -295,7 +298,16 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND p."id" = $2
-RETURNING *;
+RETURNING
+    "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "expire_date",
+    "edit_date",
+    "stock",
+    "sales";
 
 -- name: SellerDeleteProduct :execrows
 

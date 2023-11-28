@@ -363,7 +363,13 @@ const docTemplate = `{
                 "summary": "User Get Credit Card",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.creditCard"
+                            }
+                        }
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -1196,7 +1202,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success"
+                        "description": "success\"\tstring",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1411,7 +1420,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success"
+                        "description": "success\"\tstring",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -1842,7 +1854,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Product"
+                            "$ref": "#/definitions/db.SellerInsertProductRow"
                         }
                     },
                     "400": {
@@ -1930,7 +1942,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success"
+                        "description": "success\"\tstring",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2041,7 +2056,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Product"
+                            "$ref": "#/definitions/db.SellerUpdateProductInfoRow"
                         }
                     },
                     "400": {
@@ -2148,7 +2163,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success"
+                        "description": "success\"\t  string",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2748,9 +2766,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "shop_id": {
-                    "type": "integer"
-                },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
                 }
@@ -2794,13 +2809,42 @@ const docTemplate = `{
                 "shipment": {
                     "type": "integer"
                 },
-                "shop_id": {
-                    "type": "integer"
-                },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
                 "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.SellerInsertProductRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "edit_date": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
                     "type": "integer"
                 }
             }
@@ -2859,6 +2903,29 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.SellerUpdateProductInfoRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "edit_date": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2868,8 +2935,14 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "seller_name": {
-                    "type": "string"
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         },

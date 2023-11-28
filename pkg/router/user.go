@@ -46,7 +46,8 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+
 		}
 		param.ID = userID
 		info, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
@@ -91,7 +92,8 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.UserUpdatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+
 		}
 		param.ID = userID
 		orders, err := pg.Queries.UserUpdatePassword(c.Request().Context(), param)
@@ -108,7 +110,7 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Success		200
+// @success		200	{array}	db.creditCard
 // @Failure		401
 // @Router			/api/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -117,7 +119,8 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		if err := c.Bind(&userID); err != nil {
 			logger.Error(err)
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+
 		}
 		userID = 1
 		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), userID)
@@ -144,7 +147,8 @@ func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		var param db.UserUpdateCreditCardParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+
 		}
 		param.ID = userID
 		credit_card, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
