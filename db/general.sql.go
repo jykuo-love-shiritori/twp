@@ -59,6 +59,18 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 	return i, err
 }
 
+const getSellerNameByShopID = `-- name: GetSellerNameByShopID :one
+
+SELECT "seller_name" FROM "shop" WHERE "id" = $1
+`
+
+func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, error) {
+	row := q.db.QueryRow(ctx, getSellerNameByShopID, id)
+	var seller_name string
+	err := row.Scan(&seller_name)
+	return seller_name, err
+}
+
 const getShopCoupons = `-- name: GetShopCoupons :many
 
 SELECT

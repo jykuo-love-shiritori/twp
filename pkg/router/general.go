@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -28,19 +29,19 @@ func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		sellerName := c.Param("seller_name")
 		if sellerName == "" {
 			logger.Errorw("seller_name is empty")
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if _, err := pg.Queries.ShopExists(c.Request().Context(), sellerName); err != nil {
 			if err == pgx.ErrNoRows {
-				return c.JSON(http.StatusNotFound, Failure{"Shop Not Found/Disabled"})
+				return echo.NewHTTPError(http.StatusNotFound, "Shop Not Found")
 			}
 			logger.Errorw("failed to check shop exists", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		shopInfo, err := pg.Queries.GetShopInfo(c.Request().Context(), sellerName)
 		if err != nil {
 			logger.Errorw("failed to get shop info", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, shopInfo)
 	}
@@ -64,28 +65,28 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		seller_name := c.Param("seller_name")
 		if seller_name == "" {
 			logger.Errorw("seller_name is empty")
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		q := NewQueryParams(0, 10)
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		shop_id, err := pg.Queries.ShopExists(c.Request().Context(), seller_name)
 		if err != nil {
 			if err == pgx.ErrNoRows {
-				return c.JSON(http.StatusNotFound, Failure{"Shop Not Found/Disabled"})
+				return echo.NewHTTPError(http.StatusNotFound, "Shop Not Found")
 			}
 			logger.Errorw("failed to check shop exists", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), pgtype.Int4{Int32: shop_id, Valid: true})
 		if err != nil {
 			logger.Errorw("failed to get shop coupons", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if int(q.Offset) > len(coupons) {
-			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
 		}
 		q.Limit = min(q.Limit, int32(len(coupons))-q.Offset)
 		return c.JSON(http.StatusOK, coupons[q.Offset:q.Offset+q.Limit])
@@ -125,16 +126,16 @@ func getTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		idInt, err := strconv.ParseInt(id, 10, 32)
 		if err != nil {
 			logger.Errorw("failed to parse id", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		idInt32 := int32(idInt)
 		result, err := pg.Queries.GetTagInfo(c.Request().Context(), idInt32)
 		if err != nil {
 			if err == pgx.ErrNoRows {
-				return c.JSON(http.StatusNotFound, Failure{"Tag Not Found"})
+				return echo.NewHTTPError(http.StatusNotFound, "Tag Not Found")
 			}
 			logger.Errorw("failed to get tag info", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -240,16 +241,16 @@ func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		idInt, err := strconv.ParseInt(id, 10, 32)
 		if err != nil {
 			logger.Errorw("failed to parse id", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		idInt32 := int32(idInt)
 		result, err := pg.Queries.GetProductInfo(c.Request().Context(), idInt32)
 		if err != nil {
 			if err == pgx.ErrNoRows {
-				return c.JSON(http.StatusNotFound, Failure{"Product Not Found"})
+				return echo.NewHTTPError(http.StatusNotFound, "Product Not Found")
 			}
 			logger.Errorw("failed to get product info", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}

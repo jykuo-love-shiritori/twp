@@ -53,3 +53,7 @@ SELECT
     "enabled"
 FROM "product"
 WHERE "id" = $1;
+
+-- name: GetSellerNameByShopID :one
+
+SELECT "seller_name" FROM "shop" WHERE "id" = $1;

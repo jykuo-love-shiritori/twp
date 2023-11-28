@@ -7,6 +7,8 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
+
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"go.uber.org/zap"
 )
 
@@ -21,18 +23,18 @@ import (
 // @Router /admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		q := QueryParams{Offset: 0, Limit: 10}
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		users, err := pg.Queries.GetUsers(c.Request().Context())
 		if err != nil {
 			logger.Errorw("failed to get users", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if int(q.Offset) > len(users) {
-			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
 		}
 		q.Limit = min(q.Limit, int32(len(users))-q.Offset)
 		return c.JSON(http.StatusOK, users[q.Offset:q.Offset+q.Limit])
@@ -54,16 +56,16 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		username := c.Param("username")
 		if username == "" {
 			logger.Errorw("username is empty")
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		id, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
 		if err != nil {
 			logger.Errorw("failed to get user id", "error", err)
-			return c.JSON(http.StatusNotFound, Failure{"User not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "User not found")
 		}
 		if err := pg.Queries.DisableUser(c.Request().Context(), id); err != nil {
 			logger.Errorw("failed to disable user", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Failed to disable user"})
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to disable user")
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
@@ -81,18 +83,18 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		q := QueryParams{Offset: 0, Limit: 10}
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		result, err := pg.Queries.GetAnyCoupons(c.Request().Context())
 		if err != nil {
 			logger.Errorw("failed to get coupons", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if int(q.Offset) > len(result) {
-			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
 		}
 		q.Limit = min(q.Limit, int32(len(result))-q.Offset)
 		return c.JSON(http.StatusOK, result[q.Offset:q.Offset+q.Limit])
@@ -115,19 +117,19 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		idInt, err := strconv.ParseInt(id, 10, 32)
 		if err != nil {
 			logger.Errorw("failed to parse id", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		idInt32 := int32(idInt)
 		if exist, err := pg.Queries.CouponExists(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to check coupon exist", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else if !exist {
 			logger.Infow("coupon not found", "id", id)
-			return c.JSON(http.StatusNotFound, Failure{"Coupon not found"})
+			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
 		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to get coupon detail", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else {
 			return c.JSON(http.StatusOK, result)
 		}
@@ -149,13 +151,13 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var coupon db.AddCouponParams
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
-			return c.JSON(http.StatusBadRequest, "Bad request")
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		coupon.Scope = "global"
 		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
 		if err != nil {
 			logger.Errorw("failed to add coupon", "error", err)
-			return c.JSON(http.StatusInternalServerError, "Failed to add coupon")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -177,12 +179,12 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var coupon db.EditCouponParams
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
-			return c.JSON(http.StatusBadRequest, "Invalid coupon data")
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid coupon data")
 		}
 		result, err := pg.Queries.EditCoupon(c.Request().Context(), coupon)
 		if err != nil {
 			logger.Errorw("failed to edit coupon", "error", err)
-			return c.JSON(http.StatusInternalServerError, "Failed to edit coupon")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -203,16 +205,16 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		idInt, err := strconv.ParseInt(id, 10, 32)
 		if err != nil {
 			logger.Errorw("failed to parse id", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		idInt32 := int32(idInt)
 		if err := c.Bind(&id); err != nil {
 			logger.Errorw("failed to bind id", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if err := pg.Queries.DeleteCoupon(c.Request().Context(), idInt32); err != nil {
 			logger.Errorw("failed to delete coupon", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Failed to delete coupon"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
@@ -233,12 +235,12 @@ func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var report db.GetReportParams
 		if err := c.Bind(&report); err != nil {
 			logger.Errorw("failed to bind report", "error", err)
-			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		result, err := pg.Queries.GetReport(c.Request().Context(), report)
 		if err != nil {
 			logger.Errorw("failed to get report", "error", err)
-			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}

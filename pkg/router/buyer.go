@@ -3,7 +3,10 @@ package router
 import (
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -12,13 +15,38 @@ import (
 // @Description Get all order history of the user
 // @Tags Buyer, Order
 // @Produce json
-// @Success 200
-// @Failure 401
+// @Param offset query int false "Begin index" default(0)
+// @Param limit query int false "limit" default(10)
+// @Success 200 {array} db.GetOrderHistoryRow
+// @Failure 400 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /buyer/order [get]
 func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "🤡"
+		userId, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return echo.NewHTTPError(http.StatusNotFound, "User Not Found/Disabled")
+			}
+			logger.Errorw("failed to get user id", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		q := common.NewQueryParams(0, 10)
+		if err := c.Bind(q); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		orders, err := pg.Queries.GetOrderHistory(c.Request().Context(), userId)
+		if err != nil {
+			logger.Errorw("failed to get order history", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if int(q.Offset) > len(orders) {
+			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
+		}
+		q.Limit = min(q.Limit, int32(len(orders))-q.Offset)
+		return c.JSON(http.StatusOK, orders[q.Offset:q.Offset+q.Limit])
 	}
 }
 
@@ -41,13 +69,41 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Description Get all Carts of the user
 // @Tags Buyer, Cart
 // @Produce json
-// @Success 200
-// @Failure 401
+// @Success 200 {array} Cart
+// @Failure 400 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /buyer/cart [get]
 func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "🤡"
+		userId, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
+		if err != nil {
+			logger.Errorw("failed to get user id", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		carts, err := pg.Queries.GetCart(c.Request().Context(), userId)
+		if err != nil {
+			logger.Errorw("failed to get cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		var result []common.Cart
+		for _, cartInfo := range carts {
+			var cart common.Cart
+			products, err := pg.Queries.GetProductInCart(c.Request().Context(), cartInfo.ID)
+			if err != nil {
+				logger.Errorw("failed to get product in cart", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			seller_name, err := pg.Queries.GetSellerNameByShopID(c.Request().Context(), cartInfo.ShopID)
+			if err != nil {
+				logger.Errorw("failed to get seller name", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			cart.Seller_name = seller_name
+			cart.Products = products
+			result = append(result, cart)
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 

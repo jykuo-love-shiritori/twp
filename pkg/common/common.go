@@ -1,9 +1,9 @@
-package router
+package common
 
 import (
 	"regexp"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jykuo-love-shiritori/twp/db"
 )
 
 type Failure struct {
@@ -19,21 +19,13 @@ func NewQueryParams(offset int32, limit int32) QueryParams {
 	return QueryParams{Offset: offset, Limit: limit}
 }
 
-func hasSpecialChars(input string) bool {
+type Cart struct {
+	Seller_name string
+	Products    []db.GetProductInCartRow
+}
+
+func HasSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
-}
-
-func PGXErrorExtraction(err error) string {
-	switch err {
-	case nil:
-		return "success"
-	case pgx.ErrNoRows:
-		return "Not Found"
-	case pgx.ErrTooManyRows:
-		return "Too Many Result"
-	default:
-		return "Internal Server Error"
-	}
 }
