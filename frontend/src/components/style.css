@@ -326,3 +326,36 @@
   font-weight: 900;
   line-height: normal;
 }
+
+/* [item in page] pagination */
+.pagination {
+  display: flex;
+  max-width: 100%;
+  margin: 0;
+  padding: 5px 5px 5px 5px;
+  gap: 5px;
+  justify-content: center;
+  background-color: var(--button_light);
+  border-radius: 20px;
+  font-size: 20px;
+}
+.pagination > * {
+  flex-basis: 0;
+  text-align: center;
+}
+.pagination > :first-child,
+.pagination > :last-child {
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 25px;
+  min-width: 50px;
+}
+.pagination > input {
+  min-width: 50px;
+  border: none;
+  border-radius: 10px;
+  background-color: white;
+  color: var(--button_light);
+  font-size: 20px;
+  font-weight: 900;
+}

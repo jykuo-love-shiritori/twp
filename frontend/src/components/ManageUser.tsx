@@ -1,7 +1,7 @@
 import UserTableRow from '@components/UserTableRow';
 import { Col, Row } from 'react-bootstrap';
 import datas from '@pages/user/admin/UserData.json';
-import TButton from './TButton';
+import Pagination from '@components/Pagination';
 
 const tableColStyle = {
   fontSize: '16px',
@@ -42,6 +42,7 @@ const ManageUser = () => {
           <UserTableRow data={data} />
         ))}
       </Row>
+      <Pagination currentPageInit={1} totalPage={10} />
     </>
   );
 };
