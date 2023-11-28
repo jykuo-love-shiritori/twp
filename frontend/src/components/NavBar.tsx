@@ -32,6 +32,9 @@ const NavBar = () => {
             <Link to='/coupons' className='nav_link none'>
               Coupons
             </Link>
+            <Link to='/admin' className='nav_link none'>
+              Admin
+            </Link>
           </Nav>
           <Nav className='ms-auto'>
             <Link to='/user' className='nav_link none'>

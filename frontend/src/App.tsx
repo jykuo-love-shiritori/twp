@@ -10,6 +10,8 @@ import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
 import HistoryEach from '@pages/user/buyer/history/[historyID]';
+import Admin from '@pages/user/admin/index';
+import ManageUser from '@components/ManageUser';
 import Info from '@components/Info';
 import History from '@components/History';
 import NotFound from '@components/NotFound';
@@ -67,6 +69,13 @@ function App() {
           <Route path='/sellerID/shop' element={<Shop />} />
 
           <Route path='/buyer/cart' element={<Cart />} />
+
+          <Route path='/admin' element={<Admin />}>
+            <Route index element={<ManageUser />} />
+            <Route path='/admin/manageUser' element={<ManageUser />} />
+            {/* <Route path='/admin/manageCoupons' element={<ManageCoupon />} /> */}
+            {/* <Route path='/admin/report' element={<AdminReport />} /> */}
+          </Route>
 
           <Route path='/search?' element={<SearchNotFound />} />
 
