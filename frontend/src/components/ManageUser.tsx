@@ -12,7 +12,7 @@ const ManageUser = () => {
             Manage Users
           </Col>
         </Row>
-        <Row className='userTableHeader'>
+        <Row className='user_table_header'>
           <Col md={1} xs={2} style={{ textAlign: 'center' }}>
             <h4>Icon</h4>
           </Col>
@@ -38,8 +38,13 @@ const ManageUser = () => {
           <UserTableRow data={data} />
         ))}
       </div>
-      <div style={{ flexGrow: '1', alignSelf: 'center' }}>
-        <Pagination currentPageInit={1} totalPage={10} />
+      <div style={{ display: 'flex', flexGrow: '1', flexDirection: 'row' }}>
+        <div className='center' style={{ flexGrow: '1', alignSelf: 'center' }}>
+          <Pagination currentPageInit={1} totalPage={10} />
+        </div>
+        <div className='center' style={{ flexGrow: '1', alignSelf: 'center' }}>
+          <div className='manage_user_confirm_button center center_vertical '>Confirm</div>
+        </div>
       </div>
     </div>
   );
