@@ -14,25 +14,25 @@ import (
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
-// @title           twp API
-// @version         0.o
-// @description     twp server api.
-// @termsOfService  http://swagger.io/terms/
+//	@title			twp API
+//	@version		0.o
+//	@description	twp server api.
+//	@termsOfService	http://swagger.io/terms/
 
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
 
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
-// @BasePath  /api
+//	@host		localhost:8080
+//	@BasePath	/api
 
-// @securityDefinitions.basic  BasicAuth
+//	@securityDefinitions.basic	BasicAuth
 
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 func RegisterDocs(e *echo.Echo) {
 	docs := e.Group(constants.SWAGGER_PATH)
 	docs.GET("/*", echoSwagger.WrapHandler)

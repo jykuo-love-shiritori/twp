@@ -42,14 +42,7 @@ VALUES (
         'address0',
         $1,
         'customer',
-<<<<<<< HEAD
-        '{"card_number": "**** **** **** 7890",
-        "expiry_date": "01/23",
-        "name": "card 5",
-        "CVV": "053"}'
-=======
         '{"card_number": "card_number0", "expiration_date": "expiration_date0", "cvv": "cvv0"}'
->>>>>>> twp/main
     )
 `
 

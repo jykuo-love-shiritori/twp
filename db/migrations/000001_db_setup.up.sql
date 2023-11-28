@@ -1,16 +1,18 @@
-CREATE TYPE "order_status" AS ENUM (
-    'paid',
-    'shipped',
-    'delivered',
-    'cancelled',
-    'finished'
-);
+CREATE TYPE
+    "order_status" AS ENUM (
+        'paid',
+        'shipped',
+        'delivered',
+        'cancelled',
+        'finished'
+    );
 
-CREATE TYPE "coupon_type" AS ENUM (
-    'percentage',
-    'fixed',
-    'shipping'
-);
+CREATE TYPE
+    "coupon_type" AS ENUM (
+        'percentage',
+        'fixed',
+        'shipping'
+    );
 
 CREATE TYPE "role_type" AS ENUM ('admin', 'customer');
 
@@ -118,7 +120,7 @@ CREATE TABLE
 CREATE TABLE
     "shop" (
         "id" SERIAL PRIMARY KEY,
-        "seller_name" TEXT NOT NULL UNIQUE,
+        "seller_name" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,

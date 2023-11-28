@@ -42,10 +42,21 @@ type testTable struct {
 func TestInsertData(pg *db.DB) {
 
 	jsonFile, err := os.Open("data.json")
-	defer jsonFile.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var data testTable
-	json.Unmarshal(byteValue, &data)
+	err = json.Unmarshal(byteValue, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = jsonFile.Close(); err != nil {
+		log.Fatal(err)
+	}
 
 	for _, userParam := range data.User {
 		_, err = pg.Queries.TestInsertUser(context.Background(), userParam)
@@ -143,10 +154,21 @@ func TestInsertData(pg *db.DB) {
 func TestDeleteData(pg *db.DB) {
 
 	jsonFile, err := os.Open("data.json")
-	defer jsonFile.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var data testTable
-	json.Unmarshal(byteValue, &data)
+	err = json.Unmarshal(byteValue, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = jsonFile.Close(); err != nil {
+		log.Fatal(err)
+	}
 	for _, couponParam := range data.Coupon {
 		_, err = pg.Queries.TestDeleteCouponById(context.Background(), couponParam.ID)
 		if err != nil {

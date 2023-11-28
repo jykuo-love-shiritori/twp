@@ -22,14 +22,14 @@ type couponDetail struct {
 	Tags       []db.CouponTag `json:"tags"`
 }
 
-// @Summary Seller get shop info
-// @Description Get shop info, includes user picture, name, description.
-// @Tags Seller, Shop
-// @Produce json
-// @success 200 {object} db.Shop
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/info [get]
+//	@Summary		Seller get shop info
+//	@Description	Get shop info, includes user picture, name, description.
+//	@Tags			Seller, Shop
+//	@Produce		json
+//	@success		200	{object}	db.Shop
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/info [get]
 func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
@@ -43,18 +43,18 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller edit shop info
-// @Description Edit shop name, description, visibility.
-// @Tags Seller, Shop
-// @Param  image_id      body     string  true  "update image UUID"
-// @Param  name          body     string  true  "update shop name"       minlength(6)
-// @Param  description   body     string  true  "update description"
-// @Param  enabled       body     bool    true  "update enabled status"
-// @Produce json
-// @success 200 {object} db.SellerUpdateInfoRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/info [patch]
+//	@Summary		Seller edit shop info
+//	@Description	Edit shop name, description, visibility.
+//	@Tags			Seller, Shop
+//	@Param			image_id	body	string	true	"update image UUID"
+//	@Param			name		body	string	true	"update shop name"	minlength(6)
+//	@Param			description	body	string	true	"update description"
+//	@Param			enabled		body	bool	true	"update enabled status"
+//	@Produce		json
+//	@success		200	{object}	db.SellerUpdateInfoRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/info [patch]
 func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
@@ -74,15 +74,15 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller get available tag
-// @Description Get all available tags for shop.
-// @Tags Seller, Shop, Tag
-// @Param  name   body    string  true  "search tagname start with"     minlength(1)
-// @Produce json
-// @success 200 {object} db.SellerSearchTagRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/tag [get]
+//	@Summary		Seller get available tag
+//	@Description	Get all available tags for shop.
+//	@Tags			Seller, Shop, Tag
+//	@Param			name	body	string	true	"search tagname start with"	minlength(1)
+//	@Produce		json
+//	@success		200	{object}	db.SellerSearchTagRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/tag [get]
 func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
@@ -110,17 +110,17 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller add tag
-// @Description Add tag for shop.
-// @Tags Seller, Shop, Tag
-// @Accept json
-// @Param  name   body    string  true  "insert tag"     minlength(1)
-// @Produce json
-// @success 200 {object} db.SellerInsertTagRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 409 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/tag [post]
+//	@Summary		Seller add tag
+//	@Description	Add tag for shop.
+//	@Tags			Seller, Shop, Tag
+//	@Accept			json
+//	@Param			name	body	string	true	"insert tag"	minlength(1)
+//	@Produce		json
+//	@success		200	{object}	db.SellerInsertTagRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		409	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/tag [post]
 func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -153,15 +153,15 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller get shop coupon
-// @Description Get all coupons for shop.
-// @Tags Seller, Shop, Coupon
-// @Param  offset   body  int   true  "offset page"   minimum(0)
-// @Produce json
-// @success 200 {object} []db.SellerGetCouponRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon [get]
+//	@Summary		Seller get shop coupon
+//	@Description	Get all coupons for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Param			offset	body	int	true	"offset page"	minimum(0)
+//	@Produce		json
+//	@success		200	{object}	[]db.SellerGetCouponRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon [get]
 func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -184,15 +184,15 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	}
 }
 
-// @Summary Seller get coupon detail
-// @Description Get coupon detail by ID for shop.
-// @Tags Seller, Shop, Coupon
-// @Produce json
-// @Param id path int true "Coupon ID"
-// @success 200 {object} couponDetail
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon/{id} [get]
+//	@Summary		Seller get coupon detail
+//	@Description	Get coupon detail by ID for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Produce		json
+//	@Param			id	path		int	true	"Coupon ID"
+//	@success		200	{object}	couponDetail
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon/{id} [get]
 func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -221,21 +221,21 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
-// @Summary Seller add coupon
-// @Description Add coupon for shop.
-// @Tags Seller, Shop, Coupon
-// @Param  type          body     string  true  "Coupon type" Enums('percentage', 'fixed', 'shipping')
-// @Param  name          body     string  true  "name of coupon"
-// @Param  description   body     string  true  "description of coupon"
-// @Param  discount      body     number  false "discount perscent"
-// @Param  start_date    body     time    true  "start date"
-// @Param  expire_date   body     time    true  "expire date"
-// @Accept json
-// @Produce json
-// @success 200 {object} db.Coupon
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon [post]
+//	@Summary		Seller add coupon
+//	@Description	Add coupon for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Param			type		body	string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
+//	@Param			name		body	string	true	"name of coupon"
+//	@Param			description	body	string	true	"description of coupon"
+//	@Param			discount	body	number	false	"discount perscent"
+//	@Param			start_date	body	time	true	"start date"
+//	@Param			expire_date	body	time	true	"expire date"
+//	@Accept			json
+//	@Produce		json
+//	@success		200	{object}	db.Coupon
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon [post]
 func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -255,17 +255,17 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller add coupon tag
-// @Description Add tag on coupon
-// @Tags Seller, Shop, Coupon,Tag
-// @Accept json
-// @Param  id       path     string  true  "coupon id"
-// @Param  tag_id   body     int     true  "add tag id"
-// @Produce json
-// @success 200 {object} db.Coupon
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon/{id}/tag [post]
+//	@Summary		Seller add coupon tag
+//	@Description	Add tag on coupon
+//	@Tags			Seller, Shop, Coupon,Tag
+//	@Accept			json
+//	@Param			id		path	string	true	"coupon id"
+//	@Param			tag_id	body	int		true	"add tag id"
+//	@Produce		json
+//	@success		200	{object}	db.Coupon
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon/{id}/tag [post]
 func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -285,22 +285,22 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller edit coupon
-// @Description Edit coupon for shop.
-// @Tags Seller, Shop, Coupon
-// @Accept json
-// @Produce json
-// @Param  id            path     int     true  "Coupon ID"
-// @Param  type          body     string  true  "Coupon type" Enums('percentage', 'fixed', 'shipping')
-// @Param  name          body     string  true  "name of coupon"
-// @Param  description   body     string  true  "description of coupon"
-// @Param  discount      body     number  false "discount perscent"
-// @Param  start_date    body     time    true  "start date"
-// @Param  expire_date   body     time    true  "expire date"
-// @success 200 {object} db.Coupon
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon/{id} [patch]
+//	@Summary		Seller edit coupon
+//	@Description	Edit coupon for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int		true	"Coupon ID"
+//	@Param			type		body		string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
+//	@Param			name		body		string	true	"name of coupon"
+//	@Param			description	body		string	true	"description of coupon"
+//	@Param			discount	body		number	false	"discount perscent"
+//	@Param			start_date	body		time	true	"start date"
+//	@Param			expire_date	body		time	true	"expire date"
+//	@success		200			{object}	db.Coupon
+//	@Failure		400			{object}	echo.HTTPError
+//	@Failure		500			{object}	echo.HTTPError
+//	@Router			/seller/coupon/{id} [patch]
 func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -319,17 +319,17 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller delete coupon
-// @Description Delete coupon for shop.
-// @Tags Seller, Shop, Coupon
-// @Param  id       path     int     true  "Coupon ID"
-// @Accept json
-// @Produce json
-// @Success 200 "success" string
-// @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon/{id} [delete]
+//	@Summary		Seller delete coupon
+//	@Description	Delete coupon for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Param			id	path	int	true	"Coupon ID"
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	"success"	string
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		404	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon/{id} [delete]
 func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -353,18 +353,18 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller delete coupon tag
-// @Description Delete coupon for shop.
-// @Tags Seller, Shop, Coupon,Tag
-// @Param  id       path     string  true  "coupon id"
-// @Param  tag_id   body     int  true  "add tag id"
-// @Accept json
-// @Produce json
-// @Success 200 "success" string
-// @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/coupon/{id}/tag [delete]
+//	@Summary		Seller delete coupon tag
+//	@Description	Delete coupon for shop.
+//	@Tags			Seller, Shop, Coupon,Tag
+//	@Param			id		path	string	true	"coupon id"
+//	@Param			tag_id	body	int		true	"add tag id"
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	"success"	string
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		404	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/coupon/{id}/tag [delete]
 func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -388,15 +388,15 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
-// @Summary Seller get order
-// @Description Get all orders for shop.
-// @Tags Seller, Shop, Order
-// @Param  offset   body   int   true  "offset page"   minimum(0)
-// @Produce json
-// @Success 200 {object} db.SellerGetOrderRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/order [get]
+//	@Summary		Seller get order
+//	@Description	Get all orders for shop.
+//	@Tags			Seller, Shop, Order
+//	@Param			offset	body	int	true	"offset page"	minimum(0)
+//	@Produce		json
+//	@Success		200	{object}	db.SellerGetOrderRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/order [get]
 func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -420,17 +420,17 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller get order detail
-// @Description Get order detail by ID for shop.
-// @Tags Seller, Shop, Order
-// @Produce json
-// @Param  id       path   int   true  "Order ID"
-// @Param  offset   body   int   true  "offset page"   minimum(0)
-// @Success 200 {object} orderDetail
-// @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/order/{id} [get]
+//	@Summary		Seller get order detail
+//	@Description	Get order detail by ID for shop.
+//	@Tags			Seller, Shop, Order
+//	@Produce		json
+//	@Param			id		path		int	true	"Order ID"
+//	@Param			offset	body		int	true	"offset page"	minimum(0)
+//	@Success		200		{object}	orderDetail
+//	@Failure		400		{object}	echo.HTTPError
+//	@Failure		404		{object}	echo.HTTPError
+//	@Failure		500		{object}	echo.HTTPError
+//	@Router			/seller/order/{id} [get]
 func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -460,16 +460,16 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-// @Summary Seller update order status
-// @Description seller update orders status.
-// @Tags Seller, Shop, Order
-// @Param  id             path     int     true  "Order ID"
-// @Param  current_status body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
-// @Param  set_status     body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
-// @Success 200 {object} db.OrderHistory
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/order [patch]
+//	@Summary		Seller update order status
+//	@Description	seller update orders status.
+//	@Tags			Seller, Shop, Order
+//	@Param			id				path		int		true	"Order ID"
+//	@Param			current_status	body		string	true	"order status"	Enums('pending','paid','shipped','delivered','cancelled')
+//	@Param			set_status		body		string	true	"order status"	Enums('pending','paid','shipped','delivered','cancelled')
+//	@Success		200				{object}	db.OrderHistory
+//	@Failure		400				{object}	echo.HTTPError
+//	@Failure		500				{object}	echo.HTTPError
+//	@Router			/seller/order [patch]
 func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -495,13 +495,13 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 	}
 }
 
-// @Summary Seller get report
-// @Description Get all available reports for shop.
-// @Tags Seller, Shop, Report
-// @Produce json
-// @Success 200
-// @Failure 401
-// @Router /seller/report [get]
+//	@Summary		Seller get report
+//	@Description	Get all available reports for shop.
+//	@Tags			Seller, Shop, Report
+//	@Produce		json
+//	@Success		200
+//	@Failure		401
+//	@Router			/seller/report [get]
 func sellerGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -509,15 +509,15 @@ func sellerGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller get report detail
-// @Description Get report detail by year and month for shop.
-// @Tags Seller, Shop, Report
-// @Produce json
-// @Param year path int true "Year"
-// @Param month path int true "Month"
-// @Success 200
-// @Failure 401
-// @Router /seller/report/{year}/{month} [get]
+//	@Summary		Seller get report detail
+//	@Description	Get report detail by year and month for shop.
+//	@Tags			Seller, Shop, Report
+//	@Produce		json
+//	@Param			year	path	int	true	"Year"
+//	@Param			month	path	int	true	"Month"
+//	@Success		200
+//	@Failure		401
+//	@Router			/seller/report/{year}/{month} [get]
 func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -525,16 +525,16 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
-// @Summary Seller get product
-// @Description Delete product for shop.
-// @Tags Seller, Shop, Product
-// @Accept json
-// @Produce json
-// @Param   id path int true "Product ID"
-// @Success 200 {object} productDetail
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product/{id} [get]
+//	@Summary		Seller get product
+//	@Description	Delete product for shop.
+//	@Tags			Seller, Shop, Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Product ID"
+//	@Success		200	{object}	productDetail
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product/{id} [get]
 func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -561,16 +561,16 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 	}
 }
 
-// @Summary Seller get product
-// @Description Add product for shop.
-// @Tags Seller, Shop, Product
-// @Param  offset   body   int   true  "offset page"   minimum(0)
-// @Accept json
-// @Produce json
-// @Success 200 {object} db.SellerProductListRow
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product [get]
+//	@Summary		Seller get product
+//	@Description	Add product for shop.
+//	@Tags			Seller, Shop, Product
+//	@Param			offset	body	int	true	"offset page"	minimum(0)
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	db.SellerProductListRow
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product [get]
 func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -594,22 +594,22 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller add product
-// @Description Add product for shop.
-// @Tags Seller, Shop, Product
-// @Param  name          body     string  true  "name of product"
-// @Param  description   body     string  true  "description of product"
-// @Param  price         body     number  false "price"
-// @Param  image_id      body     string  true  "image id"
-// @Param  expire_date   body     time    true  "expire date"
-// @Param  stock         body     int     true  "stock"
-// @Param  enabled       body     time    true  "enabled"
-// @Accept json
-// @Produce json
-// @Success 200 {object} db.Product
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product [post]
+//	@Summary		Seller add product
+//	@Description	Add product for shop.
+//	@Tags			Seller, Shop, Product
+//	@Param			name		body	string	true	"name of product"
+//	@Param			description	body	string	true	"description of product"
+//	@Param			price		body	number	false	"price"
+//	@Param			image_id	body	string	true	"image id"
+//	@Param			expire_date	body	time	true	"expire date"
+//	@Param			stock		body	int		true	"stock"
+//	@Param			enabled		body	time	true	"enabled"
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	db.Product
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product [post]
 func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -629,16 +629,16 @@ func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller upload product image
-// @Description Upload product image for shop.
-// @Tags Seller, Shop, Product
-// @Accept png,jpeg,gif
-// @Produce json
-// @Param id path int true "Product ID"
-// @Param img formData file true "image to upload"
-// @Success 200
-// @Failure 401
-// @Router /seller/product/{id}/upload [post]
+//	@Summary		Seller upload product image
+//	@Description	Upload product image for shop.
+//	@Tags			Seller, Shop, Product
+//	@Accept			png,jpeg,gif
+//	@Produce		json
+//	@Param			id	path		int		true	"Product ID"
+//	@Param			img	formData	file	true	"image to upload"
+//	@Success		200
+//	@Failure		401
+//	@Router			/seller/product/{id}/upload [post]
 func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -646,23 +646,23 @@ func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.Handler
 	}
 }
 
-// @Summary Seller edit product
-// @Description Edit product for shop.
-// @Tags Seller, Shop, Product
-// @Accept json
-// @Produce json
-// @Param  id            path     int     true  "Product ID"
-// @Param  name          body     string  true  "name of product"
-// @Param  description   body     string  true  "description of product"
-// @Param  price         body     number  false "price"
-// @Param  image_id      body     string  true  "image id"
-// @Param  expire_date   body     time    true  "expire date"
-// @Param  stock         body     int     true  "stock"
-// @Param  enabled       body     time    true  "enabled"
-// @Success 200 {object} db.Product
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product/{id} [patch]
+//	@Summary		Seller edit product
+//	@Description	Edit product for shop.
+//	@Tags			Seller, Shop, Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int		true	"Product ID"
+//	@Param			name		body		string	true	"name of product"
+//	@Param			description	body		string	true	"description of product"
+//	@Param			price		body		number	false	"price"
+//	@Param			image_id	body		string	true	"image id"
+//	@Param			expire_date	body		time	true	"expire date"
+//	@Param			stock		body		int		true	"stock"
+//	@Param			enabled		body		time	true	"enabled"
+//	@Success		200			{object}	db.Product
+//	@Failure		400			{object}	echo.HTTPError
+//	@Failure		500			{object}	echo.HTTPError
+//	@Router			/seller/product/{id} [patch]
 func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -682,17 +682,17 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Seller add product tag
-// @Description Add tag on product
-// @Tags Seller, Shop, Product,Tag
-// @Accept json
-// @Param  id       path     string  true  "product id"
-// @Param  tag_id   body     int     true  "add tag id"
-// @Produce json
-// @Success 200 {object} db.ProductTag
-// @Failure 400 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product/{id}/tag [post]
+//	@Summary		Seller add product tag
+//	@Description	Add tag on product
+//	@Tags			Seller, Shop, Product,Tag
+//	@Accept			json
+//	@Param			id		path	string	true	"product id"
+//	@Param			tag_id	body	int		true	"add tag id"
+//	@Produce		json
+//	@Success		200	{object}	db.ProductTag
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product/{id}/tag [post]
 func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -712,17 +712,17 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	}
 }
 
-// @Summary Seller delete product
-// @Description Delete product for shop.
-// @Tags Seller, Shop, Product
-// @Accept json
-// @Produce json
-// @Param   id path int true "Product ID"
-// @Success 200 "success" string
-// @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product/{id} [delete]
+//	@Summary		Seller delete product
+//	@Description	Delete product for shop.
+//	@Tags			Seller, Shop, Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		int	true	"Product ID"
+//	@Success		200	"success"	string
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		404	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product/{id} [delete]
 func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -747,18 +747,18 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	}
 }
 
-// @Summary Seller delete product tag
-// @Description Delete product for shop.
-// @Tags Seller, Shop, Coupon
-// @Param  id       path     int     true  "product id"
-// @Param  tag_id   body     int     true  "add tag id"
-// @Accept json
-// @Produce json
-// @Success 200 "success" string
-// @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /seller/product/{id}/tag [delete]
+//	@Summary		Seller delete product tag
+//	@Description	Delete product for shop.
+//	@Tags			Seller, Shop, Coupon
+//	@Param			id		path	int	true	"product id"
+//	@Param			tag_id	body	int	true	"add tag id"
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	"success"	string
+//	@Failure		400	{object}	echo.HTTPError
+//	@Failure		404	{object}	echo.HTTPError
+//	@Failure		500	{object}	echo.HTTPError
+//	@Router			/seller/product/{id}/tag [delete]
 func sellerDeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
