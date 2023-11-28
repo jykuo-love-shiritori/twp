@@ -32,7 +32,6 @@ INSERT INTO
         "address",
         "image_id",
         "role",
-        "session_token",
         "credit_card"
     )
 VALUES (
@@ -43,7 +42,6 @@ VALUES (
         'address0',
         $1,
         'customer',
-        'session_token0',
         '{"card_number": "card_number0", "expiration_date": "expiration_date0", "cvv": "cvv0"}'
     )
 `
