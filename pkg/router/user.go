@@ -9,20 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Logout
-// @Description Logout the current user
-// @Tags Auth
-// @Produce json
-// @Success 200
-// @Failure 401
-// @Router /logout [post]
-func logout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
-	}
-}
-
 // @Summary User Get Info
 // @Description Get user information
 // @Tags User

@@ -11,6 +11,73 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addUser = `-- name: AddUser :exec
+
+INSERT INTO
+    "user" (
+        "username",
+        "password",
+        "name",
+        "email",
+        "address",
+        "image_id",
+        "role",
+        "credit_card"
+    )
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        '',
+        $5,
+        'customer',
+        '{}'
+    )
+`
+
+type AddUserParams struct {
+	Username string      `json:"username"`
+	Password string      `json:"password"`
+	Name     string      `json:"name"`
+	Email    string      `json:"email"`
+	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+}
+
+func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
+	_, err := q.db.Exec(ctx, addUser,
+		arg.Username,
+		arg.Password,
+		arg.Name,
+		arg.Email,
+		arg.ImageID,
+	)
+	return err
+}
+
+const userExists = `-- name: UserExists :one
+
+SELECT EXISTS (
+        SELECT 1
+        FROM "user"
+        WHERE
+            "username" = $1
+            OR "email" = $2
+    )
+`
+
+type UserExistsParams struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userExists, arg.Username, arg.Email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const userGetCreditCard = `-- name: UserGetCreditCard :one
 
 SELECT "credit_card" FROM "user" WHERE "id" = $1
@@ -60,9 +127,8 @@ const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
 
 UPDATE "user"
 SET "credit_card" = $2
-WHERE "id" = $1
-RETURNING
-    "id",
+WHERE
+    "id" = $1 RETURNING "id",
     "name",
     "email",
     "address",
@@ -106,8 +172,7 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE "id" = $1
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+WHERE "id" = $1 RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
 `
 
 type UserUpdateInfoParams struct {
@@ -149,9 +214,7 @@ SET
     "password" = $2
 WHERE
     "id" = $1
-    AND "password" = $3
-RETURNING
-    "id",
+    AND "password" = $3 RETURNING "id",
     "name",
     "email",
     "address",

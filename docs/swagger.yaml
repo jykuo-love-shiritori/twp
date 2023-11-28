@@ -1,5 +1,20 @@
 basePath: /api
 definitions:
+  auth.signupParams:
+    properties:
+      email:
+        example: test@gmail.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: secretp@ssword123
+        type: string
+      username:
+        example: john
+        type: string
+    type: object
   db.Coupon:
     properties:
       description:
@@ -1996,6 +2011,32 @@ paths:
       - Shop
       - Product
       - Search
+  /signup:
+    post:
+      description: signup
+      parameters:
+      - description: something
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.signupParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Customer signup
+      tags:
+      - User
   /tag/{id}:
     get:
       consumes:
