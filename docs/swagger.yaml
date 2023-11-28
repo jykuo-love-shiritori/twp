@@ -1008,14 +1008,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1080,10 +1072,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1143,14 +1131,6 @@ paths:
             $ref: '#/definitions/router.couponDetail'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "409":
-          description: Conflict
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1220,10 +1200,6 @@ paths:
             $ref: '#/definitions/db.Coupon'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1302,10 +1278,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1326,8 +1298,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/db.Shop'
-        "404":
-          description: Not Found
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1377,10 +1349,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1409,10 +1377,6 @@ paths:
             $ref: '#/definitions/db.SellerGetOrderRow'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1463,10 +1427,6 @@ paths:
             $ref: '#/definitions/db.OrderHistory'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1542,10 +1502,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1612,10 +1568,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1677,10 +1629,6 @@ paths:
             $ref: '#/definitions/router.productDetail'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1752,10 +1700,6 @@ paths:
             $ref: '#/definitions/db.Product'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1831,10 +1775,6 @@ paths:
             $ref: '#/definitions/db.ProductTag'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
@@ -1940,10 +1880,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1974,10 +1910,6 @@ paths:
             $ref: '#/definitions/db.SellerInsertTagRow'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "409":

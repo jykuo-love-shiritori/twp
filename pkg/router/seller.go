@@ -27,7 +27,7 @@ type couponDetail struct {
 // @Tags Seller, Shop
 // @Produce json
 // @success 200 {object} db.Shop
-// @Failure 404 {object} echo.HTTPError
+// @Failure 400 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/info [get]
 func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -53,7 +53,6 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @success 200 {object} db.SellerUpdateInfoRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/info [patch]
 func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -82,7 +81,6 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @success 200 {object} db.SellerSearchTagRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/tag [get]
 func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -120,7 +118,6 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @success 200 {object} db.SellerInsertTagRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 409 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/tag [post]
@@ -163,8 +160,6 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @success 200 {object} []db.SellerGetCouponRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 409 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon [get]
 func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -196,8 +191,6 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Param id path int true "Coupon ID"
 // @success 200 {object} couponDetail
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
-// @Failure 409 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id} [get]
 func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -241,7 +234,6 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Produce json
 // @success 200 {object} db.Coupon
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon [post]
 func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -272,7 +264,6 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @success 200 {object} db.Coupon
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id}/tag [post]
 func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -308,7 +299,6 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  expire_date   body     time    true  "expire date"
 // @success 200 {object} db.Coupon
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id} [patch]
 func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -405,7 +395,6 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Produce json
 // @Success 200 {object} db.SellerGetOrderRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/order [get]
 func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -479,7 +468,6 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Param  set_status     body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
 // @Success 200 {object} db.OrderHistory
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/order [patch]
 func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -495,7 +483,7 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
 		// paid > shipped > delivered > (canelled || finished)
 		if !((param.CurrentStatus == "paid" && param.SetStatus == "shipped") || (param.CurrentStatus == "shipped" && param.SetStatus == "delivered")) {
-			logger.Error("invaild stage")
+			logger.Error("invaild status chage")
 			return echo.NewHTTPError(http.StatusBadRequest, "Bad Request (current_status or set_status)")
 		}
 		order, err := pg.Queries.SellerUpdateOrderStatus(context.Background(), param)
@@ -545,7 +533,6 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param   id path int true "Product ID"
 // @Success 200 {object} productDetail
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id} [get]
 func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -582,7 +569,6 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Produce json
 // @Success 200 {object} db.SellerProductListRow
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/product [get]
 func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -622,7 +608,6 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200 {object} db.Product
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/product [post]
 func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -676,7 +661,6 @@ func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.Handler
 // @Param  enabled       body     time    true  "enabled"
 // @Success 200 {object} db.Product
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id} [patch]
 func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -707,7 +691,6 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce json
 // @Success 200 {object} db.ProductTag
 // @Failure 400 {object} echo.HTTPError
-// @Failure 404 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id}/tag [post]
 func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
