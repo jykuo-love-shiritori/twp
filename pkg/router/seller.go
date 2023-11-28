@@ -9,20 +9,34 @@ import (
 	"go.uber.org/zap"
 )
 
+type orderDetail struct {
+	OrderInfo db.OrderHistory              `json:"order_info"`
+	Products  []db.SellerGetOrderDetailRow `json:"products"`
+}
+type productDetail struct {
+	ProductInfo db.Product      `json:"product_info"`
+	Tags        []db.ProductTag `json:"tags"`
+}
+type couponDetail struct {
+	CouponInfo db.Coupon      `json:"coupon_info"`
+	Tags       []db.CouponTag `json:"tags"`
+}
+
 // @Summary Seller get shop info
 // @Description Get shop info, includes user picture, name, description.
 // @Tags Seller, Shop
 // @Produce json
 // @success 200 {object} db.Shop
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/info [get]
 func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 		shopInfo, err := pg.Queries.SellerGetInfo(context.Background(), userID)
 		if err != nil {
-			return DBResponse(c, err, "failed to get shop infomation", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller infomation")
 		}
 		return c.JSON(http.StatusOK, shopInfo)
 
@@ -38,9 +52,9 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  enabled       body     bool    true  "update enabled status"
 // @Produce json
 // @success 200 {object} db.SellerUpdateInfoRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/info [patch]
 func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -48,12 +62,14 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.ID = userID
 		shopInfo, err := pg.Queries.SellerUpdateInfo(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to update seller infomation", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller infomation")
 		}
 		return c.JSON(http.StatusOK, shopInfo)
 	}
@@ -65,9 +81,9 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  name   body    string  true  "search tagname start with"     minlength(1)
 // @Produce json
 // @success 200 {object} db.SellerSearchTagRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/tag [get]
 func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
@@ -77,17 +93,20 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerSearchTagParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		if param.Name == "" || hasSpecialChars(param.Name) {
-			return c.JSON(http.StatusBadRequest, failure{"tag name invaild"})
+			logger.Error("tag name invaild")
+			return echo.NewHTTPError(http.StatusInternalServerError, "tag name invaild")
 		}
 		param.ID = userID
 		param.Name = "^" + param.Name
 		param.Limit = tagPerPage
 		tags, err := pg.Queries.SellerSearchTag(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to search tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to search tag")
 		}
 		return c.JSON(http.StatusOK, tags)
 	}
@@ -100,10 +119,10 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  name   body    string  true  "insert tag"     minlength(1)
 // @Produce json
 // @success 200 {object} db.SellerInsertTagRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 409 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 409 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/tag [post]
 func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -111,22 +130,27 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.HaveTagNameParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		if param.Name == "" || hasSpecialChars(param.Name) {
-			return c.JSON(http.StatusBadRequest, failure{"tag name invaild"})
+			logger.Error("tag name invaild")
+			return echo.NewHTTPError(http.StatusInternalServerError, "tag name invaild")
 		}
 		param.SellerName = username
 		have, err := pg.Queries.HaveTagName(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to check tag uniquity", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to check tag uniquity")
 		}
 		if have {
-			return c.JSON(http.StatusConflict, failure{"Conflict (tag name have to be unique)"})
+			logger.Error("Conflict (tag name have to be unique")
+			return echo.NewHTTPError(http.StatusConflict, "Conflict (tag name have to be unique")
 		}
 		tag, err := pg.Queries.SellerInsertTag(context.Background(), db.SellerInsertTagParams(param))
 		if err != nil {
-			return DBResponse(c, err, "failed to add tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to add tag")
 		}
 		return c.JSON(http.StatusOK, tag)
 	}
@@ -138,10 +162,10 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  offset   body  int   true  "offset page"   minimum(0)
 // @Produce json
 // @success 200 {object} []db.SellerGetCouponRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 409 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 409 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon [get]
 func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -150,6 +174,7 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 
 		var param db.SellerGetCouponParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
@@ -157,7 +182,8 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		param.Offset = param.Offset * couponPerPage
 		coupons, err := pg.Queries.SellerGetCoupon(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get seller coupon", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get seller coupon")
 		}
 		return c.JSON(http.StatusOK, coupons)
 	}
@@ -169,10 +195,10 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Produce json
 // @Param id path int true "Coupon ID"
 // @success 200 {object} couponDetail
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 409 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 409 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id} [get]
 func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -181,6 +207,7 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 
 		var param db.SellerGetCouponDetailParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		var result couponDetail
@@ -188,11 +215,13 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 		param.SellerName = username
 		result.CouponInfo, err = pg.Queries.SellerGetCouponDetail(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get coupon detail", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get coupon detail")
 		}
 		result.Tags, err = pg.Queries.SellerGetCouponTag(context.Background(), db.SellerGetCouponTagParams{SellerName: param.SellerName, CouponID: param.ID})
 		if err != nil {
-			return DBResponse(c, err, "failed to get coupon tags", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get coupon tags")
 		}
 
 		return c.JSON(http.StatusOK, result)
@@ -211,9 +240,9 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Accept json
 // @Produce json
 // @success 200 {object} db.Coupon
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon [post]
 func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -221,12 +250,14 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerInsertCouponParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		coupon, err := pg.Queries.SellerInsertCoupon(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to add coupon", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to add coupon")
 		}
 		return c.JSON(http.StatusOK, coupon)
 	}
@@ -240,9 +271,9 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  tag_id   body     int     true  "add tag id"
 // @Produce json
 // @success 200 {object} db.Coupon
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id}/tag [post]
 func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -250,12 +281,14 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerInsertCouponTagParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		couponTag, err := pg.Queries.SellerInsertCouponTag(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to add coupon tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to add coupon tag")
 		}
 		return c.JSON(http.StatusOK, couponTag)
 	}
@@ -274,9 +307,9 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  start_date    body     time    true  "start date"
 // @Param  expire_date   body     time    true  "expire date"
 // @success 200 {object} db.Coupon
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id} [patch]
 func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -284,12 +317,13 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.UpdateCouponInfoParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		coupon, err := pg.Queries.UpdateCouponInfo(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to update coupon", logger)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update coupon")
 		}
 		return c.JSON(http.StatusOK, coupon)
 	}
@@ -302,9 +336,9 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Success 200 "success" string
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id} [delete]
 func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -312,15 +346,18 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerDeleteCouponParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		effectRow, err := pg.Queries.SellerDeleteCoupon(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to delete coupon", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete coupon")
 		}
 		if effectRow == 0 {
-			return c.JSON(http.StatusNotFound, failure{"Not Found (Coupon)"})
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusNotFound, "Not Found (Coupon)")
 		}
 		return c.JSON(http.StatusOK, "success")
 	}
@@ -334,9 +371,9 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Success 200 "success" string
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/coupon/{id}/tag [delete]
 func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -344,15 +381,18 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 
 		var param db.SellerDeleteCouponTagParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		effectRow, err := pg.Queries.SellerDeleteCouponTag(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to delete coupon tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete coupon tag")
 		}
 		if effectRow == 0 {
-			return c.JSON(http.StatusNotFound, failure{"Not Found (coupon_id or tag_id)"})
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusNotFound, "Not Found (coupon_id or tag_id)")
 		}
 		return c.JSON(http.StatusOK, "success")
 	}
@@ -364,9 +404,9 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param  offset   body   int   true  "offset page"   minimum(0)
 // @Produce json
 // @Success 200 {object} db.SellerGetOrderRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/order [get]
 func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -376,6 +416,7 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerGetOrderParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
@@ -383,7 +424,8 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		param.Offset = param.Offset * orderPerPage
 		orders, err := pg.Queries.SellerGetOrder(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get order", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get order")
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -396,9 +438,9 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  id       path   int   true  "Order ID"
 // @Param  offset   body   int   true  "offset page"   minimum(0)
 // @Success 200 {object} orderDetail
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/order/{id} [get]
 func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -407,6 +449,7 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 
 		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
@@ -416,11 +459,13 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		var err error
 		result.OrderInfo, err = pg.Queries.SellerOrderCheck(context.Background(), db.SellerOrderCheckParams{SellerName: param.SellerName, ID: param.OrderID})
 		if err != nil {
-			return DBResponse(c, err, "failed to find order", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to find order")
 		}
 		result.Products, err = pg.Queries.SellerGetOrderDetail(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get order detail product", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get order detail product")
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -433,9 +478,9 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Param  current_status body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
 // @Param  set_status     body     string  true  "order status" Enums('pending','paid','shipped','delivered','cancelled')
 // @Success 200 {object} db.OrderHistory
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/order [patch]
 func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -450,11 +495,13 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
 		// paid > shipped > delivered > (canelled || finished)
 		if !((param.CurrentStatus == "paid" && param.SetStatus == "shipped") || (param.CurrentStatus == "shipped" && param.SetStatus == "delivered")) {
-			return c.JSON(http.StatusBadRequest, failure{"Bad Request (current_status or set_status)"})
+			logger.Error("invaild stage")
+			return echo.NewHTTPError(http.StatusBadRequest, "Bad Request (current_status or set_status)")
 		}
 		order, err := pg.Queries.SellerUpdateOrderStatus(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to update order status", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update order status")
 		}
 		return c.JSON(http.StatusOK, order)
 	}
@@ -497,9 +544,9 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Produce json
 // @Param   id path int true "Product ID"
 // @Success 200 {object} productDetail
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id} [get]
 func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -507,6 +554,7 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 
 		var param db.SellerGetProductDetailParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		var result productDetail
@@ -514,11 +562,13 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 		param.SellerName = username
 		result.ProductInfo, err = pg.Queries.SellerGetProductDetail(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get product detail", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get product detail")
 		}
 		result.Tags, err = pg.Queries.SellerGetProductTag(context.Background(), db.SellerGetProductTagParams{SellerName: param.SellerName, ProductID: param.ID})
 		if err != nil {
-			return DBResponse(c, err, "failed to get product tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get product tag")
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -531,9 +581,9 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Accept json
 // @Produce json
 // @Success 200 {object} db.SellerProductListRow
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product [get]
 func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -542,6 +592,7 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerProductListParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 
@@ -550,7 +601,8 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		param.Offset = orderPerPage * param.Offset
 		products, err := pg.Queries.SellerProductList(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get product", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get product")
 		}
 		return c.JSON(http.StatusOK, products)
 	}
@@ -569,9 +621,9 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Success 200 {object} db.Product
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product [post]
 func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -579,12 +631,14 @@ func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerInsertProductParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		product, err := pg.Queries.SellerInsertProduct(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to insert product", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to insert product")
 		}
 		return c.JSON(http.StatusOK, product)
 	}
@@ -621,9 +675,9 @@ func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.Handler
 // @Param  stock         body     int     true  "stock"
 // @Param  enabled       body     time    true  "enabled"
 // @Success 200 {object} db.Product
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id} [patch]
 func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -631,12 +685,14 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.SellerUpdateProductInfoParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		product, err := pg.Queries.SellerUpdateProductInfo(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to get product tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get product tag")
 		}
 		return c.JSON(http.StatusOK, product)
 	}
@@ -650,9 +706,9 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  tag_id   body     int     true  "add tag id"
 // @Produce json
 // @Success 200 {object} db.ProductTag
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id}/tag [post]
 func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -660,13 +716,14 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 
 		var param db.SellerInsertProductTagParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
-		logger.Info(param)
 		productTag, err := pg.Queries.SellerInsertProductTag(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to add product tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to add product tag")
 		}
 		return c.JSON(http.StatusOK, productTag)
 	}
@@ -679,9 +736,9 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Produce json
 // @Param   id path int true "Product ID"
 // @Success 200 "success" string
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id} [delete]
 func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -689,15 +746,18 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 
 		var param db.SellerDeleteProductParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		effectRow, err := pg.Queries.SellerDeleteProduct(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to delete product", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete product")
 		}
 		if effectRow == 0 {
-			return c.JSON(http.StatusNotFound, failure{"Not Found (Product)"})
+			logger.Error(err)
+			return c.JSON(http.StatusNotFound, "Not Found (Product)")
 		}
 		return c.JSON(http.StatusOK, "success")
 
@@ -712,9 +772,9 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Accept json
 // @Produce json
 // @Success 200 "success" string
-// @Failure 400 {object} failure
-// @Failure 404 {object} failure
-// @Failure 500 {object} failure
+// @Failure 400 {object} echo.HTTPError
+// @Failure 404 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
 // @Router /seller/product/{id}/tag [delete]
 func sellerDeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -722,15 +782,18 @@ func sellerDeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 
 		var param db.SellerDeleteProductTagParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.SellerName = username
 		effectRow, err := pg.Queries.SellerDeleteProductTag(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to delete product tag", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete product tag")
 		}
 		if effectRow == 0 {
-			return c.JSON(http.StatusNotFound, failure{"Not Found (product_id or tag_id)"})
+			logger.Error(err)
+			return c.JSON(http.StatusNotFound, "Not Found (product_id or tag_id)")
 		}
 		return c.JSON(http.StatusOK, "success")
 	}

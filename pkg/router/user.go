@@ -28,15 +28,16 @@ func logout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Success 200
-// @Failure 401
+// @success 200 {object} db.UserGetInfoRow
+// @Failure 500 {object} echo.HTTPError
 // @Router /api/user/info [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 		user, err := pg.Queries.UserGetInfo(context.Background(), userID)
 		if err != nil {
-			return DBResponse(c, err, "failed to get user info", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user info")
 		}
 		return c.JSON(http.StatusOK, user)
 	}
@@ -50,8 +51,8 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  image_id      body     string  true  "image id"
 // @Accept json
 // @Produce json
-// @Success 200
-// @Failure 401
+// @success 200 {object} db.User
+// @Failure 500 {object} echo.HTTPError
 // @Router /api/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -59,15 +60,17 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.ID = userID
-		order, err := pg.Queries.UserUpdateInfo(context.Background(), param)
+		info, err := pg.Queries.UserUpdateInfo(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to user infomation", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to user infomation")
 		}
 
-		return c.JSON(http.StatusOK, order)
+		return c.JSON(http.StatusOK, info)
 	}
 }
 
@@ -94,20 +97,22 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param  new_password      body     string  true  "new password"
 // @Accept json
 // @Produce json
-// @Success 200
-// @Failure 401
+// @success 200 {object} db.UserUpdatePasswordRow
+// @Failure 500 {object} echo.HTTPError
 // @Router /api/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 		var param db.UserUpdatePasswordParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.ID = userID
 		orders, err := pg.Queries.UserUpdatePassword(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to change user password", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to change user password")
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -126,12 +131,14 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var userID int32 = 1
 
 		if err := c.Bind(&userID); err != nil {
+			logger.Error(err)
 			return err
 		}
 		userID = 1
 		credit_card, err := pg.Queries.UserGetCreditCard(context.Background(), userID)
 		if err != nil {
-			return DBResponse(c, err, "failed to get credit card", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get credit card")
 		}
 		return c.JSON(http.StatusOK, credit_card)
 	}
@@ -151,12 +158,14 @@ func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		var userID int32 = 1
 		var param db.UserUpdateCreditCardParams
 		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
 			return err
 		}
 		param.ID = userID
 		credit_card, err := pg.Queries.UserUpdateCreditCard(context.Background(), param)
 		if err != nil {
-			return DBResponse(c, err, "failed to update credit card", logger)
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update credit card")
 		}
 		return c.JSON(http.StatusOK, credit_card)
 	}

@@ -1,15 +1,13 @@
 basePath: /api
 definitions:
-  big.Int:
-    type: object
   db.Coupon:
     properties:
       description:
         type: string
       discount:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: string
       expire_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       id:
         type: integer
       name:
@@ -17,7 +15,7 @@ definitions:
       shop_id:
         type: integer
       start_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
@@ -41,7 +39,7 @@ definitions:
   db.OrderHistory:
     properties:
       created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       id:
         type: integer
       shipment:
@@ -74,11 +72,11 @@ definitions:
       description:
         type: string
       edit_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       enabled:
         type: boolean
       expire_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       id:
         type: integer
       image_id:
@@ -86,7 +84,7 @@ definitions:
       name:
         type: string
       price:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: number
       sales:
         type: integer
       shop_id:
@@ -103,12 +101,20 @@ definitions:
       tag_id:
         type: integer
     type: object
+  db.RoleType:
+    enum:
+    - admin
+    - customer
+    type: string
+    x-enum-varnames:
+    - RoleTypeAdmin
+    - RoleTypeCustomer
   db.SellerGetCouponRow:
     properties:
       discount:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: string
       expire_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       id:
         type: integer
       name:
@@ -129,7 +135,7 @@ definitions:
       name:
         $ref: '#/definitions/pgtype.Text'
       price:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: number
       quantity:
         type: integer
       version:
@@ -138,7 +144,7 @@ definitions:
   db.SellerGetOrderRow:
     properties:
       created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
+        type: string
       id:
         type: integer
       shipment:
@@ -168,7 +174,7 @@ definitions:
       name:
         type: string
       price:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: number
       sales:
         type: integer
       stock:
@@ -209,6 +215,59 @@ definitions:
       seller_name:
         type: string
     type: object
+  db.User:
+    properties:
+      address:
+        type: string
+      credit_card:
+        items:
+          $ref: '#/definitions/db.creditCard'
+        type: array
+      email:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/db.RoleType'
+      username:
+        type: string
+    type: object
+  db.UserGetInfoRow:
+    properties:
+      email:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
+  db.UserUpdatePasswordRow:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
   db.creditCard:
     properties:
       CVV:
@@ -220,16 +279,10 @@ definitions:
       name:
         type: string
     type: object
-  pgtype.InfinityModifier:
-    enum:
-    - 1
-    - 0
-    - -1
-    type: integer
-    x-enum-varnames:
-    - Infinity
-    - Finite
-    - NegativeInfinity
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
   pgtype.Int4:
     properties:
       int32:
@@ -237,31 +290,9 @@ definitions:
       valid:
         type: boolean
     type: object
-  pgtype.Numeric:
-    properties:
-      exp:
-        type: integer
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      int:
-        $ref: '#/definitions/big.Int'
-      naN:
-        type: boolean
-      valid:
-        type: boolean
-    type: object
   pgtype.Text:
     properties:
       string:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  pgtype.Timestamptz:
-    properties:
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      time:
         type: string
       valid:
         type: boolean
@@ -274,11 +305,6 @@ definitions:
         items:
           $ref: '#/definitions/db.CouponTag'
         type: array
-    type: object
-  router.failure:
-    properties:
-      error:
-        type: string
     type: object
   router.orderDetail:
     properties:
@@ -487,8 +513,12 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.UserGetInfoRow'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Get Info
       tags:
       - User
@@ -520,8 +550,12 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Edit Info
       tags:
       - User
@@ -589,8 +623,12 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.UserUpdatePasswordRow'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Edit Password
       tags:
       - User
@@ -969,19 +1007,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get shop coupon
       tags:
       - Seller
@@ -1041,15 +1079,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add coupon
       tags:
       - Seller
@@ -1074,15 +1112,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller delete coupon
       tags:
       - Seller
@@ -1106,19 +1144,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get coupon detail
       tags:
       - Seller
@@ -1183,15 +1221,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller edit coupon
       tags:
       - Seller
@@ -1222,15 +1260,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller delete coupon tag
       tags:
       - Seller
@@ -1263,15 +1301,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add coupon tag
       tags:
       - Seller
@@ -1291,11 +1329,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get shop info
       tags:
       - Seller
@@ -1338,15 +1376,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller edit shop info
       tags:
       - Seller
@@ -1372,15 +1410,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get order
       tags:
       - Seller
@@ -1426,15 +1464,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller update order status
       tags:
       - Seller
@@ -1466,15 +1504,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get order detail
       tags:
       - Seller
@@ -1503,15 +1541,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get product
       tags:
       - Seller
@@ -1573,15 +1611,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add product
       tags:
       - Seller
@@ -1606,15 +1644,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller delete product
       tags:
       - Seller
@@ -1640,15 +1678,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get product
       tags:
       - Seller
@@ -1715,15 +1753,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller edit product
       tags:
       - Seller
@@ -1754,15 +1792,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller delete product tag
       tags:
       - Seller
@@ -1794,15 +1832,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add product tag
       tags:
       - Seller
@@ -1901,15 +1939,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get available tag
       tags:
       - Seller
@@ -1937,19 +1975,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/router.failure'
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add tag
       tags:
       - Seller

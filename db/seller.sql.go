@@ -176,8 +176,8 @@ type SellerGetCouponRow struct {
 	Type       CouponType         `json:"type"`
 	ShopID     int32              `json:"shop_id"`
 	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date"`
+	Discount   pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetCoupon(ctx context.Context, arg SellerGetCouponParams) ([]SellerGetCouponRow, error) {
@@ -330,7 +330,7 @@ type SellerGetOrderRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) (SellerGetOrderRow, error) {
@@ -376,8 +376,8 @@ type SellerGetOrderDetailRow struct {
 	Version     pgtype.Int4    `json:"version"`
 	Name        pgtype.Text    `json:"name"`
 	Description pgtype.Text    `json:"description"`
-	Price       pgtype.Numeric `json:"price"`
-	ImageID     pgtype.UUID    `json:"image_id"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -522,9 +522,9 @@ type SellerInsertCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount"`
-	StartDate   pgtype.Timestamptz `json:"start_date"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerInsertCoupon(ctx context.Context, arg SellerInsertCouponParams) (Coupon, error) {
@@ -625,9 +625,9 @@ type SellerInsertProductParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
-	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Enabled     bool               `json:"enabled"`
 }
@@ -789,8 +789,8 @@ type SellerProductListParams struct {
 type SellerProductListRow struct {
 	ID      int32          `json:"id" param:"id"`
 	Name    string         `json:"name"`
-	ImageID pgtype.UUID    `json:"image_id"`
-	Price   pgtype.Numeric `json:"price"`
+	ImageID pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
 	Stock   int32          `json:"stock"`
 	Enabled bool           `json:"enabled"`
@@ -888,7 +888,7 @@ WHERE "seller_name" IN (
 
 type SellerUpdateInfoParams struct {
 	ID          int32       `json:"id" param:"id"`
-	ImageID     pgtype.UUID `json:"image_id"`
+	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Enabled     bool        `json:"enabled"`
@@ -897,7 +897,7 @@ type SellerUpdateInfoParams struct {
 type SellerUpdateInfoRow struct {
 	ID         int32       `json:"id"`
 	SellerName string      `json:"seller_name" param:"seller_name"`
-	ImageID    pgtype.UUID `json:"image_id"`
+	ImageID    pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Name       string      `json:"name"`
 	Enabled    bool        `json:"enabled"`
 }
@@ -992,9 +992,9 @@ type SellerUpdateProductInfoParams struct {
 	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
-	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Enabled     bool               `json:"enabled"`
 	Stock       int32              `json:"stock"`
 }
@@ -1054,9 +1054,9 @@ type UpdateCouponInfoParams struct {
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount"`
-	StartDate   pgtype.Timestamptz `json:"start_date"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoParams) (Coupon, error) {

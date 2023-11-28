@@ -39,7 +39,7 @@ type UserGetInfoRow struct {
 	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
-	ImageID pgtype.UUID `json:"image_id"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Enabled bool        `json:"enabled"`
 }
 
@@ -80,7 +80,7 @@ type UserUpdateCreditCardRow struct {
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Enabled bool        `json:"enabled"`
 }
 
@@ -115,7 +115,7 @@ type UserUpdateInfoParams struct {
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 }
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (User, error) {
@@ -170,7 +170,7 @@ type UserUpdatePasswordRow struct {
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Enabled bool        `json:"enabled"`
 }
 
