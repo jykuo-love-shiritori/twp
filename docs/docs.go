@@ -1387,7 +1387,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/common.HttpError"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -1627,12 +1627,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "john"
                 }
-            }
-        },
-        "common.HttpError": {
-            "type": "object",
-            "properties": {
-                "message": {}
             }
         },
         "echo.HTTPError": {
