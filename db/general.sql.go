@@ -84,7 +84,16 @@ SELECT
     "expire_date"
 FROM "coupon"
 WHERE "shop_id" = $1
+ORDER BY "id"
+LIMIT $2
+OFFSET $3
 `
+
+type GetShopCouponsParams struct {
+	ShopID pgtype.Int4 `json:"shop_id" swaggertype:"integer"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+}
 
 type GetShopCouponsRow struct {
 	ID          int32              `json:"id" param:"id"`
@@ -97,8 +106,8 @@ type GetShopCouponsRow struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
-func (q *Queries) GetShopCoupons(ctx context.Context, shopID pgtype.Int4) ([]GetShopCouponsRow, error) {
-	rows, err := q.db.Query(ctx, getShopCoupons, shopID)
+func (q *Queries) GetShopCoupons(ctx context.Context, arg GetShopCouponsParams) ([]GetShopCouponsRow, error) {
+	rows, err := q.db.Query(ctx, getShopCoupons, arg.ShopID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -177,13 +186,9 @@ const shopExists = `-- name: ShopExists :one
 
 SELECT "id"
 FROM "shop" AS s
-WHERE EXISTS(
-        SELECT 1
-        FROM "shop"
-        WHERE
-            "enabled" = TRUE
-    )
-    AND s."seller_name" = $1
+WHERE
+    s."seller_name" = $1
+    AND s."enabled" = TRUE
 `
 
 func (q *Queries) ShopExists(ctx context.Context, sellerName string) (int32, error) {

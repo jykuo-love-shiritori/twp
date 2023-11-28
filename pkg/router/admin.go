@@ -8,7 +8,6 @@ import (
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 
-	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"go.uber.org/zap"
 )
 
@@ -23,21 +22,17 @@ import (
 // @Router /admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		q := common.NewQueryParams(0, 10)
+		var q db.GetUsersParams
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		users, err := pg.Queries.GetUsers(c.Request().Context())
+		users, err := pg.Queries.GetUsers(c.Request().Context(), q)
 		if err != nil {
 			logger.Errorw("failed to get users", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		if int(q.Offset) > len(users) {
-			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
-		}
-		q.Limit = min(q.Limit, int32(len(users))-q.Offset)
-		return c.JSON(http.StatusOK, users[q.Offset:q.Offset+q.Limit])
+		return c.JSON(http.StatusOK, users)
 	}
 }
 
@@ -83,21 +78,17 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		q := common.NewQueryParams(0, 10)
+		var q db.GetAnyCouponsParams
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		result, err := pg.Queries.GetAnyCoupons(c.Request().Context())
+		result, err := pg.Queries.GetAnyCoupons(c.Request().Context(), q)
 		if err != nil {
 			logger.Errorw("failed to get coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		if int(q.Offset) > len(result) {
-			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
-		}
-		q.Limit = min(q.Limit, int32(len(result))-q.Offset)
-		return c.JSON(http.StatusOK, result[q.Offset:q.Offset+q.Limit])
+		return c.JSON(http.StatusOK, result)
 	}
 }
 

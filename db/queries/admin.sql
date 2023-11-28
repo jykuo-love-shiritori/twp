@@ -8,7 +8,10 @@ SELECT
     "role",
     "credit_card",
     "enabled"
-FROM "user";
+FROM "user"
+ORDER BY "id"
+LIMIT $1
+OFFSET $2;
 
 -- name: UserExists :one
 
@@ -49,9 +52,8 @@ UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE u."id" = $1
-        RETURNING
-            "username"
+        WHERE
+            u."id" = $1 RETURNING "username"
     ),
     disabled_shop AS (
         UPDATE "shop"
@@ -61,8 +63,7 @@ WITH disabled_user AS (
                     "username"
                 FROM
                     disabled_user
-            )
-        RETURNING "id"
+            ) RETURNING "id"
     )
 UPDATE "product"
 SET "enabled" = FALSE
@@ -79,8 +80,7 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1
-        RETURNING s."id"
+            s."seller_name" = $1 RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -99,7 +99,7 @@ SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 );
 
 -- name: GetAnyCoupons :many
 
-SELECT * FROM "coupon";
+SELECT * FROM "coupon" ORDER BY "id" LIMIT $1 OFFSET $2;
 
 -- name: GetCouponDetail :one
 
@@ -128,9 +128,7 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING
-    "id",
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
     "type",
     "scope",
     "name",
@@ -151,9 +149,8 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE "id" = $1
-RETURNING
-    "id",
+WHERE
+    "id" = $1 RETURNING "id",
     "type",
     "scope",
     "name",

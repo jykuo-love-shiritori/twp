@@ -12,13 +12,9 @@ WHERE "seller_name" = $1;
 
 SELECT "id"
 FROM "shop" AS s
-WHERE EXISTS(
-        SELECT 1
-        FROM "shop"
-        WHERE
-            "enabled" = TRUE
-    )
-    AND s."seller_name" = $1;
+WHERE
+    s."seller_name" = $1
+    AND s."enabled" = TRUE;
 
 -- name: GetShopCoupons :many
 
@@ -32,7 +28,10 @@ SELECT
     "start_date",
     "expire_date"
 FROM "coupon"
-WHERE "shop_id" = $1;
+WHERE "shop_id" = $1
+ORDER BY "id"
+LIMIT $2
+OFFSET $3;
 
 -- name: GetTagInfo :one
 

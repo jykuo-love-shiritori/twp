@@ -7,7 +7,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
-	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -67,7 +66,7 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("seller_name is empty")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		q := common.NewQueryParams(0, 10)
+		var q db.GetShopCouponsParams
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
@@ -80,16 +79,13 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to check shop exists", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), pgtype.Int4{Int32: shop_id, Valid: true})
+		q.ShopID = pgtype.Int4{Int32: shop_id, Valid: true}
+		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), q)
 		if err != nil {
 			logger.Errorw("failed to get shop coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		if int(q.Offset) > len(coupons) {
-			return echo.NewHTTPError(http.StatusBadRequest, "Offset out of range")
-		}
-		q.Limit = min(q.Limit, int32(len(coupons))-q.Offset)
-		return c.JSON(http.StatusOK, coupons[q.Offset:q.Offset+q.Limit])
+		return c.JSON(http.StatusOK, coupons)
 	}
 }
 

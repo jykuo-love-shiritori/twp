@@ -24,9 +24,7 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING
-    "id",
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
     "type",
     "scope",
     "name",
@@ -180,8 +178,7 @@ WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
         WHERE
-            s."seller_name" = $1
-        RETURNING s."id"
+            s."seller_name" = $1 RETURNING s."id"
     )
 UPDATE "product" AS p
 SET p."enabled" = FALSE
@@ -202,9 +199,8 @@ const disableUser = `-- name: DisableUser :exec
 WITH disabled_user AS (
         UPDATE "user" AS u
         SET "enabled" = FALSE
-        WHERE u."id" = $1
-        RETURNING
-            "username"
+        WHERE
+            u."id" = $1 RETURNING "username"
     ),
     disabled_shop AS (
         UPDATE "shop"
@@ -214,8 +210,7 @@ WITH disabled_user AS (
                     "username"
                 FROM
                     disabled_user
-            )
-        RETURNING "id"
+            ) RETURNING "id"
     )
 UPDATE "product"
 SET "enabled" = FALSE
@@ -241,9 +236,8 @@ SET
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE "id" = $1
-RETURNING
-    "id",
+WHERE
+    "id" = $1 RETURNING "id",
     "type",
     "scope",
     "name",
@@ -311,11 +305,16 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) error {
 
 const getAnyCoupons = `-- name: GetAnyCoupons :many
 
-SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon"
+SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon" ORDER BY "id" LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetAnyCoupons(ctx context.Context) ([]Coupon, error) {
-	rows, err := q.db.Query(ctx, getAnyCoupons)
+type GetAnyCouponsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetAnyCoupons(ctx context.Context, arg GetAnyCouponsParams) ([]Coupon, error) {
+	rows, err := q.db.Query(ctx, getAnyCoupons, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +462,15 @@ SELECT
     "credit_card",
     "enabled"
 FROM "user"
+ORDER BY "id"
+LIMIT $1
+OFFSET $2
 `
+
+type GetUsersParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
 
 type GetUsersRow struct {
 	Username   string   `json:"username"`
@@ -475,8 +482,8 @@ type GetUsersRow struct {
 	Enabled    bool     `json:"enabled"`
 }
 
-func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
-	rows, err := q.db.Query(ctx, getUsers)
+func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersRow, error) {
+	rows, err := q.db.Query(ctx, getUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
