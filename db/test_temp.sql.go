@@ -32,7 +32,6 @@ INSERT INTO
         "address",
         "image_id",
         "role",
-        "session_token",
         "credit_card"
     )
 VALUES (
@@ -43,7 +42,6 @@ VALUES (
         'address0',
         $1,
         'customer',
-        'session_token0',
         '{"card_number": "card_number0", "expiration_date": "expiration_date0", "cvv": "cvv0"}'
     )
 `
@@ -55,7 +53,7 @@ func (q *Queries) InsertTestUser(ctx context.Context, imageID pgtype.UUID) error
 
 const searchTestUser = `-- name: SearchTestUser :one
 
-SELECT id, username, password, name, email, address, image_id, role, session_token, credit_card FROM "user" WHERE "username" = 'user0'
+SELECT id, username, password, name, email, address, image_id, role, credit_card FROM "user" WHERE "username" = 'user0'
 `
 
 func (q *Queries) SearchTestUser(ctx context.Context) (User, error) {
@@ -70,7 +68,6 @@ func (q *Queries) SearchTestUser(ctx context.Context) (User, error) {
 		&i.Address,
 		&i.ImageID,
 		&i.Role,
-		&i.SessionToken,
 		&i.CreditCard,
 	)
 	return i, err
