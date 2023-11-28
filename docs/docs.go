@@ -860,10 +860,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.GetProductInfoRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             }
@@ -1441,7 +1459,7 @@ const docTemplate = `{
                 "summary": "Get Shop Info",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "seller username",
                         "name": "seller_name",
                         "in": "path",
@@ -1450,10 +1468,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.GetShopInfoRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             }
@@ -1474,19 +1510,54 @@ const docTemplate = `{
                 "summary": "Get Shop Coupons",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "seller username",
                         "name": "seller_name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetShopCouponsRow"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/router.Failure"
+                        }
                     }
                 }
             }
@@ -1747,6 +1818,9 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "big.Int": {
+            "type": "object"
+        },
         "db.AddCouponParams": {
             "type": "object",
             "properties": {
@@ -1945,6 +2019,87 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetProductInfoRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "exp_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetShopCouponsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetShopInfoRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.GetUsersRow": {
             "type": "object",
             "properties": {
@@ -2040,6 +2195,26 @@ const docTemplate = `{
                 "Finite",
                 "NegativeInfinity"
             ]
+        },
+        "pgtype.Numeric": {
+            "type": "object",
+            "properties": {
+                "exp": {
+                    "type": "integer"
+                },
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "int": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "naN": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
         },
         "pgtype.Timestamptz": {
             "type": "object",

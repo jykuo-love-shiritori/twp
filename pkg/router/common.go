@@ -15,6 +15,10 @@ type QueryParams struct {
 	Limit  int32 `query:"limit"`  // the number of the query
 }
 
+func NewQueryParams(offset int32, limit int32) QueryParams {
+	return QueryParams{Offset: offset, Limit: limit}
+}
+
 func hasSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)

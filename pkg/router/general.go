@@ -2,7 +2,10 @@ package router
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -13,14 +16,33 @@ import (
 // @Tags Shop
 // @Accept json
 // @Produce json
-// @Param seller_name path int true "seller username"
-// @Success 200
-// @Failure 401
+// @Param seller_name path string true "seller username"
+// @Success 200 {object} db.GetShopInfoRow
+// @Failure 400 {object} Failure
+// @Failure 404 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /shop/{seller_name} [get]
 func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var shopInfo db.GetShopInfoRow
+		sellerName := c.Param("seller_name")
+		if sellerName == "" {
+			logger.Errorw("seller_name is empty")
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		if _, err := pg.Queries.ShopExists(c.Request().Context(), sellerName); err != nil {
+			if err == pgx.ErrNoRows {
+				return c.JSON(http.StatusNotFound, Failure{"Shop Not Found/Disabled"})
+			}
+			logger.Errorw("failed to check shop exists", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		shopInfo, err := pg.Queries.GetShopInfo(c.Request().Context(), sellerName)
+		if err != nil {
+			logger.Errorw("failed to get shop info", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		return c.JSON(http.StatusOK, shopInfo)
 	}
 }
 
@@ -29,17 +51,48 @@ func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags Shop,Coupon
 // @Accept json
 // @Produce json
-// @Param seller_name path int true "seller username"
-// @Success 200
-// @Failure 401
+// @Param seller_name path string true "seller username"
+// @Param offset query int false "Begin index" default(0)
+// @Param limit query int false "limit" default(10)
+// @Success 200 {array} db.GetShopCouponsRow
+// @Failure 400 {object} Failure
+// @Failure 404 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /shop/{seller_name}/coupon [get]
 func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		seller_name := c.Param("seller_name")
+		if seller_name == "" {
+			logger.Errorw("seller_name is empty")
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		q := NewQueryParams(0, 10)
+		if err := c.Bind(&q); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		shop_id, err := pg.Queries.ShopExists(c.Request().Context(), seller_name)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return c.JSON(http.StatusNotFound, Failure{"Shop Not Found/Disabled"})
+			}
+			logger.Errorw("failed to check shop exists", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), pgtype.Int4{Int32: shop_id, Valid: true})
+		if err != nil {
+			logger.Errorw("failed to get shop coupons", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		if int(q.Offset) > len(coupons) {
+			return c.JSON(http.StatusBadRequest, Failure{"Offset out of range"})
+		}
+		q.Limit = min(q.Limit, int32(len(coupons))-q.Offset)
+		return c.JSON(http.StatusOK, coupons[q.Offset:q.Offset+q.Limit])
 	}
 }
 
+// TODO
 // @Summary Search Shop Products
 // @Description Search products within a shop by seller username
 // @Tags Shop,Product,Search
@@ -68,11 +121,26 @@ func searchShopProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router /tag/{id} [get]
 func getTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		id := c.Param("id")
+		idInt, err := strconv.ParseInt(id, 10, 32)
+		if err != nil {
+			logger.Errorw("failed to parse id", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		idInt32 := int32(idInt)
+		result, err := pg.Queries.GetTagInfo(c.Request().Context(), idInt32)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return c.JSON(http.StatusNotFound, Failure{"Tag Not Found"})
+			}
+			logger.Errorw("failed to get tag info", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 
+// TODO
 // @Summary Search for Products and Shops
 // @Description Search for products and shops
 // @Tags Search
@@ -89,6 +157,7 @@ func search(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+// TODO
 // @Summary Search for Shops by Name
 // @Description Search for shops by name
 // @Tags Search,Shop
@@ -105,6 +174,7 @@ func searchShopByName(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+// TODO
 // @Summary Get News
 // @Description Get news
 // @Tags News
@@ -120,6 +190,7 @@ func getNews(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+// TODO
 // @Summary Get News Detail
 // @Description Get details of a specific news item by ID
 // @Tags News
@@ -136,6 +207,7 @@ func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+// TODO
 // @Summary Get Discover
 // @Description Get discover content
 // @Tags Discover,Product
@@ -157,12 +229,28 @@ func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path int true "Product ID"
-// @Success 200
-// @Failure 401
+// @Success 200 {object} db.GetProductInfoRow
+// @Failure 400 {object} Failure
+// @Failure 404 {object} Failure
+// @Failure 500 {object} Failure
 // @Router /product/{id} [get]
 func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		id := c.Param("id")
+		idInt, err := strconv.ParseInt(id, 10, 32)
+		if err != nil {
+			logger.Errorw("failed to parse id", "error", err)
+			return c.JSON(http.StatusBadRequest, Failure{"Bad request"})
+		}
+		idInt32 := int32(idInt)
+		result, err := pg.Queries.GetProductInfo(c.Request().Context(), idInt32)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return c.JSON(http.StatusNotFound, Failure{"Product Not Found"})
+			}
+			logger.Errorw("failed to get product info", "error", err)
+			return c.JSON(http.StatusInternalServerError, Failure{"Internal Server Error"})
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }

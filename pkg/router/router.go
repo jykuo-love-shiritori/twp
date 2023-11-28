@@ -66,9 +66,9 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/user/security/credit_card", userAddCreditCard(db, logger))
 
 	// general
-	api.GET("/shop/:id", getShopInfo(db, logger)) // user
-	api.GET("/shop/:id/coupon", getShopCoupon(db, logger))
-	api.GET("/shop/:id/search", searchShopProduct(db, logger))
+	api.GET("/shop/:seller_name", getShopInfo(db, logger)) // user
+	api.GET("/shop/:seller_name/coupon", getShopCoupon(db, logger))
+	api.GET("/shop/:seller_name/search", searchShopProduct(db, logger))
 
 	api.GET("/tag/:id", getTagInfo(db, logger))
 

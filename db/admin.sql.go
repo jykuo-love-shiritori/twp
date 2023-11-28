@@ -175,6 +175,7 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) err
 
 const disableShop = `-- name: DisableShop :exec
 
+
 WITH disable_shop AS (
         UPDATE "shop" AS s
         SET s."enabled" = FALSE
@@ -190,6 +191,7 @@ WHERE p."shop_id" = (
     )
 `
 
+// there are some sql 🪄 happening here
 func (q *Queries) DisableShop(ctx context.Context, sellerName string) error {
 	_, err := q.db.Exec(ctx, disableShop, sellerName)
 	return err
