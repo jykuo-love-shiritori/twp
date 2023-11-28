@@ -82,33 +82,6 @@ definitions:
     - OrderStatusDelivered
     - OrderStatusCancelled
     - OrderStatusFinished
-  db.Product:
-    properties:
-      description:
-        type: string
-      edit_date:
-        type: string
-      enabled:
-        type: boolean
-      expire_date:
-        type: string
-      id:
-        type: integer
-      image_id:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-      sales:
-        type: integer
-      shop_id:
-        type: integer
-      stock:
-        type: integer
-      version:
-        type: integer
-    type: object
   db.ProductTag:
     properties:
       product_id:
@@ -124,6 +97,19 @@ definitions:
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeCustomer
+  db.SellerGetCouponDetailRow:
+    properties:
+      discount:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   db.SellerGetCouponRow:
     properties:
       discount:
@@ -167,6 +153,23 @@ definitions:
       total_price:
         type: integer
     type: object
+  db.SellerGetProductDetailRow:
+    properties:
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
   db.SellerInsertProductRow:
     properties:
       description:
@@ -194,6 +197,21 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  db.SellerOrderCheckRow:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+      user_id:
+        type: integer
     type: object
   db.SellerProductListRow:
     properties:
@@ -351,7 +369,7 @@ definitions:
   router.couponDetail:
     properties:
       coupon_info:
-        $ref: '#/definitions/db.Coupon'
+        $ref: '#/definitions/db.SellerGetCouponDetailRow'
       tags:
         items:
           $ref: '#/definitions/db.CouponTag'
@@ -360,7 +378,7 @@ definitions:
   router.orderDetail:
     properties:
       order_info:
-        $ref: '#/definitions/db.OrderHistory'
+        $ref: '#/definitions/db.SellerOrderCheckRow'
       products:
         items:
           $ref: '#/definitions/db.SellerGetOrderDetailRow'
@@ -369,7 +387,7 @@ definitions:
   router.productDetail:
     properties:
       product_info:
-        $ref: '#/definitions/db.Product'
+        $ref: '#/definitions/db.SellerGetProductDetailRow'
       tags:
         items:
           $ref: '#/definitions/db.ProductTag'
@@ -603,6 +621,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/db.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -624,8 +646,14 @@ paths:
             items:
               $ref: '#/definitions/db.creditCard'
             type: array
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Get Credit Card
       tags:
       - CreditCard
@@ -650,8 +678,14 @@ paths:
             items:
               $ref: '#/definitions/db.creditCard'
             type: array
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Delete Credit Card
       tags:
       - CreditCard
@@ -680,6 +714,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/db.UserUpdatePasswordRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -1151,7 +1189,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: "success\"\tstring"
+          description: success
           schema:
             type: string
         "400":
@@ -1289,7 +1327,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: "success\"\tstring"
+          description: success
           schema:
             type: string
         "400":
@@ -1332,7 +1370,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Coupon'
+            $ref: '#/definitions/db.CouponTag'
         "400":
           description: Bad Request
           schema:
@@ -1541,7 +1579,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Add product for shop.
+      description: seller get product
       parameters:
       - description: offset page
         in: body
@@ -1556,7 +1594,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerProductListRow'
+            items:
+              $ref: '#/definitions/db.SellerProductListRow'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -1651,7 +1691,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: "success\"\tstring"
+          description: success
           schema:
             type: string
         "400":
@@ -1793,7 +1833,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: "success\"\t  string"
+          description: success
           schema:
             type: string
         "400":

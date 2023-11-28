@@ -127,13 +127,8 @@ const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
 
 UPDATE "user"
 SET "credit_card" = $2
-WHERE
-    "id" = $1 RETURNING "id",
-    "name",
-    "email",
-    "address",
-    "image_id",
-    "enabled"
+WHERE "id" = $1
+RETURNING "credit_card"
 `
 
 type UserUpdateCreditCardParams struct {
@@ -141,27 +136,11 @@ type UserUpdateCreditCardParams struct {
 	CreditCard []creditCard `json:"credit_card"`
 }
 
-type UserUpdateCreditCardRow struct {
-	ID      int32       `json:"id" param:"id"`
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
-}
-
-func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) (UserUpdateCreditCardRow, error) {
+func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) ([]creditCard, error) {
 	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.ID, arg.CreditCard)
-	var i UserUpdateCreditCardRow
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Email,
-		&i.Address,
-		&i.ImageID,
-		&i.Enabled,
-	)
-	return i, err
+	var credit_card []creditCard
+	err := row.Scan(&credit_card)
+	return credit_card, err
 }
 
 const userUpdateInfo = `-- name: UserUpdateInfo :one
@@ -172,7 +151,8 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE "id" = $1 RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+WHERE "id" = $1
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
 `
 
 type UserUpdateInfoParams struct {
@@ -214,7 +194,9 @@ SET
     "password" = $2
 WHERE
     "id" = $1
-    AND "password" = $3 RETURNING "id",
+    AND "password" = $3
+RETURNING
+    "id",
     "name",
     "email",
     "address",

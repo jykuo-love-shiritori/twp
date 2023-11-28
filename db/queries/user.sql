@@ -17,7 +17,8 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE "id" = $1 RETURNING *;
+WHERE "id" = $1
+RETURNING *;
 
 -- name: UserUpdatePassword :one
 
@@ -26,7 +27,9 @@ SET
     "password" = sqlc.arg(new_password)
 WHERE
     "id" = $1
-    AND "password" = sqlc.arg(current_password) RETURNING "id",
+    AND "password" = sqlc.arg(current_password)
+RETURNING
+    "id",
     "name",
     "email",
     "address",
@@ -41,13 +44,8 @@ SELECT "credit_card" FROM "user" WHERE "id" = $1;
 
 UPDATE "user"
 SET "credit_card" = $2
-WHERE
-    "id" = $1 RETURNING "id",
-    "name",
-    "email",
-    "address",
-    "image_id",
-    "enabled";
+WHERE "id" = $1
+RETURNING "credit_card";
 
 -- name: AddUser :exec
 

@@ -37,6 +37,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept			json
 // @Produce		json
 // @success		200	{object}	db.User
+// @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/api/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -84,6 +85,7 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept			json
 // @Produce		json
 // @success		200	{object}	db.UserUpdatePasswordRow
+// @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/api/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -110,8 +112,9 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @success		200	{array}	db.creditCard
-// @Failure		401
+// @success		200	{array}		db.creditCard
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/api/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -137,9 +140,10 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Param			credit_card	body	string	true	"Credit Card"
-// @Success		200			{array}	db.creditCard
-// @Failure		401
+// @Param			credit_card	body		string	true	"Credit Card"
+// @Success		200			{array}		db.creditCard
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
 // @Router			/api/user/security/credit_card/delete [patch]
 func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -151,11 +155,11 @@ func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 
 		}
 		param.ID = userID
-		credit_card, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
+		credit_cards, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update credit card")
 		}
-		return c.JSON(http.StatusOK, credit_card)
+		return c.JSON(http.StatusOK, credit_cards)
 	}
 }

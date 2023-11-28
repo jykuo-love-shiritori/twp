@@ -78,7 +78,12 @@ OFFSET $3;
 
 -- name: SellerGetCouponDetail :one
 
-SELECT c.*
+SELECT
+    c."id",
+    c."type",
+    c."name",
+    c."discount",
+    c."expire_date"
 FROM "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
 WHERE
@@ -111,7 +116,12 @@ VALUES (
         $6,
         $7
     )
-RETURNING *;
+RETURNING
+    "id",
+    "type",
+    "name",
+    "discount",
+    "expire_date";
 
 -- name: UpdateCouponInfo :one
 
@@ -130,7 +140,12 @@ WHERE c."id" = $2 AND "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-RETURNING *;
+RETURNING
+    c."id",
+    c."type",
+    c."name",
+    c."discount",
+    c."expire_date";
 
 -- name: SellerDeleteCoupon :execrows
 
@@ -165,7 +180,13 @@ OFFSET $3;
 
 -- name: SellerOrderCheck :one
 
-SELECT order_history.*
+SELECT
+    "order_history"."id",
+    "order_history"."user_id",
+    "order_history"."shipment",
+    "order_history"."total_price",
+    "order_history"."status",
+    "order_history"."created_at"
 FROM "order_history"
     JOIN shop ON order_history.shop_id = shop.id
 WHERE
@@ -210,7 +231,14 @@ RETURNING *;
 
 -- name: SellerGetProductDetail :one
 
-SELECT P.*
+SELECT
+    p."id",
+    p."name",
+    p."image_id",
+    p."price",
+    p."sales",
+    p."stock",
+    p."enabled"
 FROM "product" p
     JOIN "shop" s ON p."shop_id" = s.id
 WHERE
