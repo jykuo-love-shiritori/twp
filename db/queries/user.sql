@@ -9,7 +9,8 @@ INSERT INTO
         "address",
         "image_id",
         "role",
-        "credit_card"
+        "credit_card",
+        "enabled"
     )
 VALUES (
         $1,
@@ -19,7 +20,8 @@ VALUES (
         '',
         $5,
         'customer',
-        '{}'
+        '{}',
+        TRUE
     );
 
 -- name: UserExists :one
@@ -31,3 +33,7 @@ SELECT EXISTS (
             "username" = $1
             OR "email" = $2
     );
+
+-- name: FindUserPassword :one
+
+SELECT "password" FROM "user" WHERE "username" = $1 OR "email" = $1;

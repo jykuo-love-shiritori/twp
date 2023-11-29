@@ -48,14 +48,17 @@ func Authorize(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Unsupported response type")
 		}
 
-		_, err = hashPassword(params.Password)
+		hashedPassword, err := pg.Queries.FindUserPassword(c.Request().Context(), params.Username)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(params.Password))
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Wrong username, email, or password")
 		}
 
-		// TODO: Add user authentication
-
+		// generate OTP
 		buf := make([]byte, 32)
 		_, err = rand.Read(buf)
 		if err != nil {

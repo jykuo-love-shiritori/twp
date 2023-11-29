@@ -22,7 +22,8 @@ INSERT INTO
         "address",
         "image_id",
         "role",
-        "credit_card"
+        "credit_card",
+        "enabled"
     )
 VALUES (
         $1,
@@ -32,7 +33,8 @@ VALUES (
         '',
         $5,
         'customer',
-        '{}'
+        '{}',
+        TRUE
     )
 `
 
@@ -53,6 +55,18 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 		arg.ImageID,
 	)
 	return err
+}
+
+const findUserPassword = `-- name: FindUserPassword :one
+
+SELECT "password" FROM "user" WHERE "username" = $1 OR "email" = $1
+`
+
+func (q *Queries) FindUserPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRow(ctx, findUserPassword, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
 }
 
 const userExists = `-- name: UserExists :one
