@@ -16,9 +16,8 @@ SET
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "enabled" = COALESCE($5, "enabled")
-WHERE "seller_name" = $1
-RETURNING
-    "seller_name",
+WHERE
+    "seller_name" = $1 RETURNING "seller_name",
     "image_id",
     "name",
     "enabled";
@@ -58,8 +57,8 @@ VALUES ( (
                 AND s."enabled" = true
         ),
         $2
-    )
-RETURNING "id", "name";
+    ) RETURNING "id",
+    "name";
 
 -- name: SellerGetCoupon :many
 
@@ -115,9 +114,7 @@ VALUES (
         $5,
         $6,
         $7
-    )
-RETURNING
-    "id",
+    ) RETURNING "id",
     "type",
     "name",
     "discount",
@@ -139,9 +136,7 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    )
-RETURNING
-    c."id",
+    ) RETURNING c."id",
     c."type",
     c."name",
     c."discount",
@@ -205,9 +200,7 @@ FROM "order_detail"
 WHERE
     shop.seller_name = $1
     AND order_detail.order_id = $2
-ORDER BY quantity * price DESC
-LIMIT $3
-OFFSET $4;
+ORDER BY quantity * price;
 
 -- name: SellerUpdateOrderStatus :one
 
@@ -222,8 +215,7 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = sqlc.arg(current_status)
-RETURNING *;
+    AND oh."status" = sqlc.arg(current_status) RETURNING *;
 
 -- SellerGetReport :many
 
@@ -293,9 +285,7 @@ VALUES (
         NOW(),
         $7,
         $8
-    )
-RETURNING
-    "id",
+    ) RETURNING "id",
     "name",
     "description",
     "price",
@@ -325,9 +315,7 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2
-RETURNING
-    "id",
+    AND p."id" = $2 RETURNING "id",
     "name",
     "description",
     "price",
@@ -389,8 +377,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerDeleteProductTag :execrows
 
@@ -426,8 +413,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND c."id" = $3
-    )
-RETURNING *;
+    ) RETURNING *;
 
 -- name: SellerDeleteCouponTag :execrows
 

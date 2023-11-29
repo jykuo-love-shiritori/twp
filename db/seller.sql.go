@@ -368,16 +368,12 @@ FROM "order_detail"
 WHERE
     shop.seller_name = $1
     AND order_detail.order_id = $2
-ORDER BY quantity * price DESC
-LIMIT $3
-OFFSET $4
+ORDER BY quantity * price
 `
 
 type SellerGetOrderDetailParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	OrderID    int32  `json:"order_id" param:"id"`
-	Limit      int32  `json:"limit"`
-	Offset     int32  `json:"offset"`
 }
 
 type SellerGetOrderDetailRow struct {
@@ -391,12 +387,7 @@ type SellerGetOrderDetailRow struct {
 }
 
 func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDetailParams) ([]SellerGetOrderDetailRow, error) {
-	rows, err := q.db.Query(ctx, sellerGetOrderDetail,
-		arg.SellerName,
-		arg.OrderID,
-		arg.Limit,
-		arg.Offset,
-	)
+	rows, err := q.db.Query(ctx, sellerGetOrderDetail, arg.SellerName, arg.OrderID)
 	if err != nil {
 		return nil, err
 	}
@@ -579,9 +570,7 @@ VALUES (
         $5,
         $6,
         $7
-    )
-RETURNING
-    "id",
+    ) RETURNING "id",
     "type",
     "name",
     "discount",
@@ -647,8 +636,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND c."id" = $3
-    )
-RETURNING coupon_id, tag_id
+    ) RETURNING coupon_id, tag_id
 `
 
 type SellerInsertCouponTagParams struct {
@@ -695,9 +683,7 @@ VALUES (
         NOW(),
         $7,
         $8
-    )
-RETURNING
-    "id",
+    ) RETURNING "id",
     "name",
     "description",
     "price",
@@ -777,8 +763,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
-    )
-RETURNING tag_id, product_id
+    ) RETURNING tag_id, product_id
 `
 
 type SellerInsertProductTagParams struct {
@@ -806,8 +791,8 @@ VALUES ( (
                 AND s."enabled" = true
         ),
         $2
-    )
-RETURNING "id", "name"
+    ) RETURNING "id",
+    "name"
 `
 
 type SellerInsertTagParams struct {
@@ -940,9 +925,8 @@ SET
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "enabled" = COALESCE($5, "enabled")
-WHERE "seller_name" = $1
-RETURNING
-    "seller_name",
+WHERE
+    "seller_name" = $1 RETURNING "seller_name",
     "image_id",
     "name",
     "enabled"
@@ -994,8 +978,7 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = $4
-RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+    AND oh."status" = $4 RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type SellerUpdateOrderStatusParams struct {
@@ -1045,9 +1028,7 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2
-RETURNING
-    "id",
+    AND p."id" = $2 RETURNING "id",
     "name",
     "description",
     "price",
@@ -1125,9 +1106,7 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    )
-RETURNING
-    c."id",
+    ) RETURNING c."id",
     c."type",
     c."name",
     c."discount",

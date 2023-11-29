@@ -1035,14 +1035,21 @@ const docTemplate = `{
                 "summary": "Seller get shop coupon",
                 "parameters": [
                     {
+                        "maximum": 20,
+                        "minimum": 3,
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "minimum": 0,
+                        "type": "integer",
                         "description": "offset page",
                         "name": "offset",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1593,14 +1600,21 @@ const docTemplate = `{
                 "summary": "Seller get order",
                 "parameters": [
                     {
+                        "maximum": 20,
+                        "minimum": 3,
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "minimum": 0,
-                        "description": "offset page",
+                        "type": "integer",
+                        "description": "offset",
                         "name": "offset",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1714,16 +1728,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "minimum": 0,
-                        "description": "offset page",
-                        "name": "offset",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -1771,14 +1775,21 @@ const docTemplate = `{
                 "summary": "Seller get product",
                 "parameters": [
                     {
+                        "maximum": 20,
+                        "minimum": 3,
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "minimum": 0,
+                        "type": "integer",
                         "description": "offset page",
                         "name": "offset",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2809,6 +2820,29 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerGetOrderHistoryRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
@@ -2895,29 +2929,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "db.SellerOrderCheckRow": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "shipment": {
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/db.OrderStatus"
-                },
-                "total_price": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -3174,7 +3185,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "order_info": {
-                    "$ref": "#/definitions/db.SellerOrderCheckRow"
+                    "$ref": "#/definitions/db.SellerGetOrderHistoryRow"
                 },
                 "products": {
                     "type": "array",

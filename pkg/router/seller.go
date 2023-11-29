@@ -157,7 +157,8 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller get shop coupon
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			offset	body	int	true	"offset page"	minimum(0)
+// @Param			limit	query	int	true	"limit"			minimum(3)	maximum(20)
+// @Param			offset	query	int	true	"offset page"	minimum(0)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -166,17 +167,15 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var couponPerPage int32 = 20
 
-		var param db.SellerGetCouponParams
-		if err := c.Bind(&param); err != nil {
+		var requsetParam searchParams
+		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
 
 		}
-		param.SellerName = username
-		param.Limit = couponPerPage
-		param.Offset = param.Offset * couponPerPage
+
+		param := db.SellerGetCouponParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
 		coupons, err := pg.Queries.SellerGetCoupon(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -398,7 +397,8 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Summary		Seller get order
 // @Description	Get all orders for shop.
 // @Tags			Seller, Shop, Order
-// @Param			offset	body	int	true	"offset page"	minimum(0)
+// @Param			limit	query	int	true	"limit"		minimum(3)maximum(20)
+// @Param			offset	query	int	true	"offset"	minimum(0)
 // @Produce		json
 // @Success		200	{object}	db.SellerGetOrderRow
 // @Failure		400	{object}	echo.HTTPError
@@ -408,17 +408,15 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		var username string = "user1"
-		var orderPerPage int32 = 20
 
-		var param db.SellerGetOrderParams
-		if err := c.Bind(&param); err != nil {
+		var requsetParam searchParams
+		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
 
 		}
-		param.SellerName = username
-		param.Limit = orderPerPage
-		param.Offset = param.Offset * orderPerPage
+		param := db.SellerGetOrderParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
+
 		orders, err := pg.Queries.SellerGetOrder(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -432,17 +430,15 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Get order detail by ID for shop.
 // @Tags			Seller, Shop, Order
 // @Produce		json
-// @Param			id		path		int	true	"Order ID"
-// @Param			offset	body		int	true	"offset page"	minimum(0)
-// @Success		200		{object}	orderDetail
-// @Failure		400		{object}	echo.HTTPError
-// @Failure		404		{object}	echo.HTTPError
-// @Failure		500		{object}	echo.HTTPError
+// @Param			id	path		int	true	"Order ID"
+// @Success		200	{object}	orderDetail
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/order/{id} [get]
 func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var orderPerPage int32 = 20
 
 		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
@@ -451,8 +447,6 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 
 		}
 		param.SellerName = username
-		param.Limit = orderPerPage
-		param.Offset = orderPerPage * param.Offset
 		var result orderDetail
 		var err error
 		result.OrderInfo, err = pg.Queries.SellerGetOrderHistory(c.Request().Context(), db.SellerGetOrderHistoryParams{SellerName: param.SellerName, ID: param.OrderID})
@@ -575,7 +569,8 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Summary		Seller get product
 // @Description	seller get product
 // @Tags			Seller, Shop, Product
-// @Param			offset	body	int	true	"offset page"	minimum(0)
+// @Param			limit	query	int	true	"limit"			minimum(3)maximum(20)
+// @Param			offset	query	int	true	"offset page"	minimum(0)
 // @Accept			json
 // @Produce		json
 // @Success		200	{array}		db.SellerProductListRow
@@ -585,18 +580,14 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var orderPerPage int32 = 20
 
-		var param db.SellerProductListParams
-		if err := c.Bind(&param); err != nil {
+		var requsetParam searchParams
+		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
 
 		}
-
-		param.SellerName = username
-		param.Limit = orderPerPage
-		param.Offset = orderPerPage * param.Offset
+		param := db.SellerProductListParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
 		products, err := pg.Queries.SellerProductList(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -732,7 +723,7 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Tags			Seller, Shop, Product
 // @Accept			json
 // @Produce		json
-// @Param			id	path		int	true	"Product ID"
+// @Param			id	path		int		true	"Product ID"
 // @Success		200	{string}	string	"success"
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError

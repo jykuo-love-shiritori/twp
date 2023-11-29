@@ -140,6 +140,21 @@ definitions:
       version:
         $ref: '#/definitions/pgtype.Int4'
     type: object
+  db.SellerGetOrderHistoryRow:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   db.SellerGetOrderRow:
     properties:
       created_at:
@@ -197,21 +212,6 @@ definitions:
         type: integer
       name:
         type: string
-    type: object
-  db.SellerOrderCheckRow:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      shipment:
-        type: integer
-      status:
-        $ref: '#/definitions/db.OrderStatus'
-      total_price:
-        type: integer
-      user_id:
-        type: integer
     type: object
   db.SellerProductListRow:
     properties:
@@ -378,7 +378,7 @@ definitions:
   router.orderDetail:
     properties:
       order_info:
-        $ref: '#/definitions/db.SellerOrderCheckRow'
+        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
       products:
         items:
           $ref: '#/definitions/db.SellerGetOrderDetailRow'
@@ -1081,13 +1081,19 @@ paths:
     get:
       description: Get all coupons for shop.
       parameters:
+      - description: limit
+        in: query
+        maximum: 20
+        minimum: 3
+        name: limit
+        required: true
+        type: integer
       - description: offset page
-        in: body
+        in: query
         minimum: 0
         name: offset
         required: true
-        schema:
-          type: integer
+        type: integer
       produces:
       - application/json
       responses:
@@ -1458,13 +1464,19 @@ paths:
     get:
       description: Get all orders for shop.
       parameters:
-      - description: offset page
-        in: body
+      - description: limit
+        in: query
+        maximum: 20
+        minimum: 3
+        name: limit
+        required: true
+        type: integer
+      - description: offset
+        in: query
         minimum: 0
         name: offset
         required: true
-        schema:
-          type: integer
+        type: integer
       produces:
       - application/json
       responses:
@@ -1544,13 +1556,6 @@ paths:
         name: id
         required: true
         type: integer
-      - description: offset page
-        in: body
-        minimum: 0
-        name: offset
-        required: true
-        schema:
-          type: integer
       produces:
       - application/json
       responses:
@@ -1581,13 +1586,19 @@ paths:
       - application/json
       description: seller get product
       parameters:
+      - description: limit
+        in: query
+        maximum: 20
+        minimum: 3
+        name: limit
+        required: true
+        type: integer
       - description: offset page
-        in: body
+        in: query
         minimum: 0
         name: offset
         required: true
-        schema:
-          type: integer
+        type: integer
       produces:
       - application/json
       responses:
