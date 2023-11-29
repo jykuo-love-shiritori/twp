@@ -2367,7 +2367,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerSearchTagRow"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.SellerSearchTagRow"
+                            }
                         }
                     },
                     "400": {
