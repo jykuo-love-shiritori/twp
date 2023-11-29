@@ -23,7 +23,7 @@ const ManageUser = () => {
         </Row>
 
         {/* table header */}
-        <UserTableHeader isBigScreen={winSize >= 1024} />
+        <UserTableHeader />
 
         {/* table body */}
         {datas.map((data) => (
@@ -31,13 +31,25 @@ const ManageUser = () => {
         ))}
       </div>
 
-      {/* pagination and comfirm buttom*/}
       <div style={{ display: 'flex', flexGrow: '1', flexDirection: 'row' }}>
+        {/* pagination */}
         <Row style={{ width: '100%' }}>
-          <Col className='center' md={winSize >= 1024 ? 6 : 12} xs={12} style={{ margin: '5px 0' }}>
+          <Col
+            className='center'
+            md={winSize >= 1024 ? 6 : 12}
+            xs={12}
+            style={{ margin: '5px 0 0 0 ' }}
+          >
             <Pagination currentPageInit={1} totalPage={10} />
           </Col>
-          <Col className='center' md={winSize >= 1024 ? 6 : 12} xs={12} style={{ margin: '5px 0' }}>
+
+          {/* comfirm buttom */}
+          <Col
+            className='center'
+            md={winSize >= 1024 ? 6 : 12}
+            xs={12}
+            style={{ margin: '5px 0 5px 0' }}
+          >
             <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
           </Col>
         </Row>

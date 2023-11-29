@@ -11,7 +11,7 @@ type UserTableRowProps = {
     createDate: string;
     isAdmin: boolean;
   };
-  isBigScreen: boolean;
+  isBigScreen?: boolean;
 };
 
 const UserTableRow = ({ data, isBigScreen = true }: UserTableRowProps) => {
