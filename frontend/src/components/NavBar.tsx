@@ -31,22 +31,18 @@ const NavBar = () => {
         <Row style={{ width: '100%' }}>
           <Col xs={2} className='center'>
             <NavbarBrand href='/' className='disappear_desktop'>
-              <img
-                src='/images/logo.png'
-                alt='logo'
-                style={{ width: '35px', backgroundColor: 'blue' }}
-              />
+              <img src='/images/logo.png' alt='logo' style={{ width: '35px' }} />
             </NavbarBrand>
           </Col>
           <Col xs={8} className='center'>
-            <Nav>
+            <Nav style={{ width: '100%' }}>
               <div className='disappear_desktop'>
                 <SearchBar />
               </div>
             </Nav>
           </Col>
 
-          <Col xs={2} md={12}>
+          <Col xs={2} ld={12} className='center'>
             <Navbar.Toggle aria-controls='seller-nav' />
           </Col>
           <Col xs={12} md={12}>
