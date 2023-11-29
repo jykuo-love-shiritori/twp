@@ -307,7 +307,7 @@ func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerG
 	return i, err
 }
 
-const sellerGetOrder = `-- name: SellerGetOrder :one
+const sellerGetOrder = `-- name: SellerGetOrder :many
 
 SELECT
     "id",
@@ -342,17 +342,30 @@ type SellerGetOrderRow struct {
 	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
-func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) (SellerGetOrderRow, error) {
-	row := q.db.QueryRow(ctx, sellerGetOrder, arg.SellerName, arg.Limit, arg.Offset)
-	var i SellerGetOrderRow
-	err := row.Scan(
-		&i.ID,
-		&i.Shipment,
-		&i.TotalPrice,
-		&i.Status,
-		&i.CreatedAt,
-	)
-	return i, err
+func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) ([]SellerGetOrderRow, error) {
+	rows, err := q.db.Query(ctx, sellerGetOrder, arg.SellerName, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SellerGetOrderRow{}
+	for rows.Next() {
+		var i SellerGetOrderRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Shipment,
+			&i.TotalPrice,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const sellerGetOrderDetail = `-- name: SellerGetOrderDetail :many
@@ -367,7 +380,7 @@ FROM "order_detail"
 WHERE
     shop.seller_name = $1
     AND order_detail.order_id = $2
-ORDER BY quantity * price
+ORDER BY quantity * price DESC
 `
 
 type SellerGetOrderDetailParams struct {
@@ -913,6 +926,70 @@ func (q *Queries) SellerSearchTag(ctx context.Context, arg SellerSearchTagParams
 	return items, nil
 }
 
+const sellerUpdateCouponInfo = `-- name: SellerUpdateCouponInfo :one
+
+UPDATE "coupon" c
+SET
+    "type" = COALESCE($3, "type"),
+    "name" = COALESCE($4, "name"),
+    "description" = COALESCE($5, "description"),
+    "discount" = COALESCE($6, "discount"),
+    "start_date" = COALESCE($7, "start_date"),
+    "expire_date" = COALESCE($8, "expire_date")
+WHERE c."id" = $2 AND "shop_id" = (
+        SELECT s."id"
+        FROM "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = true
+    ) RETURNING c."id",
+    c."type",
+    c."name",
+    c."discount",
+    c."expire_date"
+`
+
+type SellerUpdateCouponInfoParams struct {
+	SellerName  string             `json:"seller_name" param:"seller_name"`
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+type SellerUpdateCouponInfoRow struct {
+	ID         int32              `json:"id" param:"id"`
+	Type       CouponType         `json:"type"`
+	Name       string             `json:"name"`
+	Discount   pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) SellerUpdateCouponInfo(ctx context.Context, arg SellerUpdateCouponInfoParams) (SellerUpdateCouponInfoRow, error) {
+	row := q.db.QueryRow(ctx, sellerUpdateCouponInfo,
+		arg.SellerName,
+		arg.ID,
+		arg.Type,
+		arg.Name,
+		arg.Description,
+		arg.Discount,
+		arg.StartDate,
+		arg.ExpireDate,
+	)
+	var i SellerUpdateCouponInfoRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Name,
+		&i.Discount,
+		&i.ExpireDate,
+	)
+	return i, err
+}
+
 const sellerUpdateInfo = `-- name: SellerUpdateInfo :one
 
 UPDATE "shop"
@@ -974,7 +1051,11 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = $4 RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+    AND oh."status" = $4 RETURNING oh."id",
+    oh."shipment",
+    oh."total_price",
+    oh."status",
+    oh."created_at"
 `
 
 type SellerUpdateOrderStatusParams struct {
@@ -984,18 +1065,24 @@ type SellerUpdateOrderStatusParams struct {
 	CurrentStatus OrderStatus `json:"current_status"`
 }
 
-func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateOrderStatusParams) (OrderHistory, error) {
+type SellerUpdateOrderStatusRow struct {
+	ID         int32              `json:"id" param:"id"`
+	Shipment   int32              `json:"shipment"`
+	TotalPrice int32              `json:"total_price"`
+	Status     OrderStatus        `json:"status"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+}
+
+func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateOrderStatusParams) (SellerUpdateOrderStatusRow, error) {
 	row := q.db.QueryRow(ctx, sellerUpdateOrderStatus,
 		arg.SellerName,
 		arg.ID,
 		arg.SetStatus,
 		arg.CurrentStatus,
 	)
-	var i OrderHistory
+	var i SellerUpdateOrderStatusRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
-		&i.ShopID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -1082,70 +1169,6 @@ func (q *Queries) SellerUpdateProductInfo(ctx context.Context, arg SellerUpdateP
 		&i.EditDate,
 		&i.Stock,
 		&i.Sales,
-	)
-	return i, err
-}
-
-const updateCouponInfo = `-- name: UpdateCouponInfo :one
-
-UPDATE "coupon" c
-SET
-    "type" = COALESCE($3, "type"),
-    "name" = COALESCE($4, "name"),
-    "description" = COALESCE($5, "description"),
-    "discount" = COALESCE($6, "discount"),
-    "start_date" = COALESCE($7, "start_date"),
-    "expire_date" = COALESCE($8, "expire_date")
-WHERE c."id" = $2 AND "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE
-            s."seller_name" = $1
-            AND s."enabled" = true
-    ) RETURNING c."id",
-    c."type",
-    c."name",
-    c."discount",
-    c."expire_date"
-`
-
-type UpdateCouponInfoParams struct {
-	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"id"`
-	Type        CouponType         `json:"type"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
-	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-}
-
-type UpdateCouponInfoRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Type       CouponType         `json:"type"`
-	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount" swaggertype:"string"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-}
-
-func (q *Queries) UpdateCouponInfo(ctx context.Context, arg UpdateCouponInfoParams) (UpdateCouponInfoRow, error) {
-	row := q.db.QueryRow(ctx, updateCouponInfo,
-		arg.SellerName,
-		arg.ID,
-		arg.Type,
-		arg.Name,
-		arg.Description,
-		arg.Discount,
-		arg.StartDate,
-		arg.ExpireDate,
-	)
-	var i UpdateCouponInfoRow
-	err := row.Scan(
-		&i.ID,
-		&i.Type,
-		&i.Name,
-		&i.Discount,
-		&i.ExpireDate,
 	)
 	return i, err
 }

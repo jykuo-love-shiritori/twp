@@ -25,7 +25,7 @@ type couponDetail struct {
 // @Description	Get shop info, includes user picture, name, description.
 // @Tags			Seller, Shop
 // @Produce		json
-// @success		200	{object}	db.Shop
+// @success		200	{object}	db.SellerGetInfoRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [get]
@@ -35,7 +35,7 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		shopInfo, err := pg.Queries.SellerGetInfo(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller infomation")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller Information")
 		}
 		return c.JSON(http.StatusOK, shopInfo)
 
@@ -61,13 +61,13 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 		}
 		param.SellerName = username
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller infomation")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update seller Information")
 		}
 		return c.JSON(http.StatusOK, shopInfo)
 	}
@@ -91,10 +91,10 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerSearchTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
-		if param.Name == "" || hasSpecialChars(param.Name) {
+		if param.Name == "" || hasRegexSpecialChars(param.Name) {
 			logger.Error("tag name invaild")
 			return echo.NewHTTPError(http.StatusBadRequest, "tag name invaild")
 		}
@@ -128,10 +128,10 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.HaveTagNameParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
-		if param.Name == "" || hasSpecialChars(param.Name) {
+		if param.Name == "" || hasRegexSpecialChars(param.Name) {
 			logger.Error("tag name invaild")
 			return echo.NewHTTPError(http.StatusBadRequest, "tag name invaild")
 		}
@@ -171,7 +171,7 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		var requsetParam searchParams
 		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 
@@ -202,7 +202,7 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 		var param db.SellerGetCouponDetailParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		var result couponDetail
@@ -234,7 +234,7 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param			expire_date	body	time	true	"expire date"
 // @Accept			json
 // @Produce		json
-// @success		200	{object}	db.Coupon
+// @success		200	{object}	db.SellerInsertCouponRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/coupon [post]
@@ -245,7 +245,7 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerInsertCouponParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -276,7 +276,7 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerInsertCouponTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 		}
 		param.SellerName = username
 		couponTag, err := pg.Queries.SellerInsertCouponTag(c.Request().Context(), param)
@@ -300,7 +300,7 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			discount	body		number	false	"discount perscent"
 // @Param			start_date	body		time	true	"start date"
 // @Param			expire_date	body		time	true	"expire date"
-// @success		200			{object}	db.Coupon
+// @success		200			{object}	db.SellerUpdateCouponInfoRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/seller/coupon/{id} [patch]
@@ -308,14 +308,14 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var param db.UpdateCouponInfoParams
+		var param db.SellerUpdateCouponInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
-		coupon, err := pg.Queries.UpdateCouponInfo(c.Request().Context(), param)
+		coupon, err := pg.Queries.SellerUpdateCouponInfo(c.Request().Context(), param)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to update coupon")
 		}
@@ -341,7 +341,7 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerDeleteCouponParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -377,7 +377,7 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 		var param db.SellerDeleteCouponTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -400,7 +400,7 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param			limit	query	int	true	"limit"		minimum(3)maximum(20)
 // @Param			offset	query	int	true	"offset"	minimum(0)
 // @Produce		json
-// @Success		200	{object}	db.SellerGetOrderRow
+// @Success		200	{array}	db.SellerGetOrderRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/order [get]
@@ -412,7 +412,7 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var requsetParam searchParams
 		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param := db.SellerGetOrderParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
@@ -443,7 +443,7 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -469,7 +469,7 @@ func sellerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Param			id				path		int		true	"Order ID"
 // @Param			current_status	body		string	true	"order status"	Enums('pending','paid','shipped','delivered','cancelled')
 // @Param			set_status		body		string	true	"order status"	Enums('pending','paid','shipped','delivered','cancelled')
-// @Success		200				{object}	db.OrderHistory
+// @Success		200				{object}	db.SellerUpdateOrderStatusRow
 // @Failure		400				{object}	echo.HTTPError
 // @Failure		500				{object}	echo.HTTPError
 // @Router			/seller/order [patch]
@@ -479,7 +479,7 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 
 		var param db.SellerUpdateOrderStatusParams
 		if err := c.Bind(&param); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -546,7 +546,7 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 		var param db.SellerGetProductDetailParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		var result productDetail
@@ -584,7 +584,7 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var requsetParam searchParams
 		if err := c.Bind(&requsetParam); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param := db.SellerProductListParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
@@ -620,7 +620,7 @@ func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerInsertProductParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -674,7 +674,7 @@ func sellerEditProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerUpdateProductInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -705,7 +705,7 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		var param db.SellerInsertProductTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -736,7 +736,7 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		var param db.SellerDeleteProductParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username
@@ -773,7 +773,7 @@ func sellerDeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 		var param db.SellerDeleteProductTagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.SellerName = username

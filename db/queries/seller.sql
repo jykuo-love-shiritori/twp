@@ -119,7 +119,7 @@ VALUES (
     "discount",
     "expire_date";
 
--- name: UpdateCouponInfo :one
+-- name: SellerUpdateCouponInfo :one
 
 UPDATE "coupon" c
 SET
@@ -152,7 +152,7 @@ WHERE c."id" = $2 AND "shop_id" = (
             AND s."enabled" = true
     );
 
--- name: SellerGetOrder :one
+-- name: SellerGetOrder :many
 
 SELECT
     "id",
@@ -198,7 +198,7 @@ FROM "order_detail"
 WHERE
     shop.seller_name = $1
     AND order_detail.order_id = $2
-ORDER BY quantity * price;
+ORDER BY quantity * price DESC;
 
 -- name: SellerUpdateOrderStatus :one
 
@@ -213,7 +213,11 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = sqlc.arg(current_status) RETURNING *;
+    AND oh."status" = sqlc.arg(current_status) RETURNING oh."id",
+    oh."shipment",
+    oh."total_price",
+    oh."status",
+    oh."created_at";
 
 -- SellerGetReport :many
 

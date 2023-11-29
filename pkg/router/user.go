@@ -47,14 +47,14 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.ID = userID
 		info, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to user infomation")
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to user Information")
 		}
 
 		return c.JSON(http.StatusOK, info)
@@ -94,7 +94,7 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.UserUpdatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.ID = userID
@@ -122,7 +122,7 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		if err := c.Bind(&userID); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		userID = 1
@@ -151,7 +151,7 @@ func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		var param db.UserUpdateCreditCardParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest, "paramter error")
+			return echo.NewHTTPError(http.StatusBadRequest, "parameter error")
 
 		}
 		param.ID = userID

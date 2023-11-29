@@ -1154,7 +1154,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Coupon"
+                            "$ref": "#/definitions/db.SellerInsertCouponRow"
                         }
                     },
                     "400": {
@@ -1349,7 +1349,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Coupon"
+                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
                         }
                     },
                     "400": {
@@ -1498,7 +1498,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.Shop"
+                            "$ref": "#/definitions/db.SellerGetInfoRow"
                         }
                     },
                     "400": {
@@ -1621,7 +1621,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerGetOrderRow"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.SellerGetOrderRow"
+                            }
                         }
                     },
                     "400": {
@@ -1691,7 +1694,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.OrderHistory"
+                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
                         }
                     },
                     "400": {
@@ -2636,35 +2639,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.Coupon": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "string"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "shop_id": {
-                    "type": "integer"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.CouponTag": {
             "type": "object",
             "properties": {
@@ -2688,32 +2662,6 @@ const docTemplate = `{
                 "CouponTypeFixed",
                 "CouponTypeShipping"
             ]
-        },
-        "db.OrderHistory": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "shipment": {
-                    "type": "integer"
-                },
-                "shop_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/db.OrderStatus"
-                },
-                "total_price": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
         },
         "db.OrderStatus": {
             "type": "string",
@@ -2794,6 +2742,23 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerGetInfoRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.SellerGetOrderDetailRow": {
             "type": "object",
             "properties": {
@@ -2836,9 +2801,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/db.OrderStatus"
                 },
                 "total_price": {
-                    "type": "integer"
-                },
-                "user_id": {
                     "type": "integer"
                 }
             }
@@ -2886,6 +2848,26 @@ const docTemplate = `{
                 },
                 "stock": {
                     "type": "integer"
+                }
+            }
+        },
+        "db.SellerInsertCouponRow": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -2969,6 +2951,26 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerUpdateCouponInfoRow": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
         "db.SellerUpdateInfoRow": {
             "type": "object",
             "properties": {
@@ -2983,6 +2985,26 @@ const docTemplate = `{
                 },
                 "seller_name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.SellerUpdateOrderStatusRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
                 }
             }
         },
@@ -3015,29 +3037,6 @@ const docTemplate = `{
                 },
                 "stock": {
                     "type": "integer"
-                }
-            }
-        },
-        "db.Shop": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "seller_name": {
-                    "type": "string"
                 }
             }
         },

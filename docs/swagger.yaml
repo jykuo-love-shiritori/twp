@@ -15,25 +15,6 @@ definitions:
         example: john
         type: string
     type: object
-  db.Coupon:
-    properties:
-      description:
-        type: string
-      discount:
-        type: string
-      expire_date:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      shop_id:
-        type: integer
-      start_date:
-        type: string
-      type:
-        $ref: '#/definitions/db.CouponType'
-    type: object
   db.CouponTag:
     properties:
       coupon_id:
@@ -51,23 +32,6 @@ definitions:
     - CouponTypePercentage
     - CouponTypeFixed
     - CouponTypeShipping
-  db.OrderHistory:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      shipment:
-        type: integer
-      shop_id:
-        type: integer
-      status:
-        $ref: '#/definitions/db.OrderStatus'
-      total_price:
-        type: integer
-      user_id:
-        type: integer
-    type: object
   db.OrderStatus:
     enum:
     - paid
@@ -123,6 +87,17 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  db.SellerGetInfoRow:
+    properties:
+      description:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      seller_name:
+        type: string
+    type: object
   db.SellerGetOrderDetailRow:
     properties:
       description:
@@ -151,8 +126,6 @@ definitions:
       status:
         $ref: '#/definitions/db.OrderStatus'
       total_price:
-        type: integer
-      user_id:
         type: integer
     type: object
   db.SellerGetOrderRow:
@@ -184,6 +157,19 @@ definitions:
         type: integer
       stock:
         type: integer
+    type: object
+  db.SellerInsertCouponRow:
+    properties:
+      discount:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   db.SellerInsertProductRow:
     properties:
@@ -237,6 +223,19 @@ definitions:
       name:
         type: string
     type: object
+  db.SellerUpdateCouponInfoRow:
+    properties:
+      discount:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   db.SellerUpdateInfoRow:
     properties:
       enabled:
@@ -247,6 +246,19 @@ definitions:
         type: string
       seller_name:
         type: string
+    type: object
+  db.SellerUpdateOrderStatusRow:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
     type: object
   db.SellerUpdateProductInfoRow:
     properties:
@@ -268,21 +280,6 @@ definitions:
         type: integer
       stock:
         type: integer
-    type: object
-  db.Shop:
-    properties:
-      description:
-        type: string
-      enabled:
-        type: boolean
-      id:
-        type: integer
-      image_id:
-        type: string
-      name:
-        type: string
-      seller_name:
-        type: string
     type: object
   db.User:
     properties:
@@ -1166,7 +1163,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Coupon'
+            $ref: '#/definitions/db.SellerInsertCouponRow'
         "400":
           description: Bad Request
           schema:
@@ -1298,7 +1295,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Coupon'
+            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
         "400":
           description: Bad Request
           schema:
@@ -1400,7 +1397,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.Shop'
+            $ref: '#/definitions/db.SellerGetInfoRow'
         "400":
           description: Bad Request
           schema:
@@ -1483,7 +1480,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerGetOrderRow'
+            items:
+              $ref: '#/definitions/db.SellerGetOrderRow'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -1533,7 +1532,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.OrderHistory'
+            $ref: '#/definitions/db.SellerUpdateOrderStatusRow'
         "400":
           description: Bad Request
           schema:

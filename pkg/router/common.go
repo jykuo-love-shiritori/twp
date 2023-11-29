@@ -9,7 +9,7 @@ type searchParams struct {
 	Offset int32 `json:"offset" query:"offset"`
 }
 
-func hasSpecialChars(input string) bool {
+func hasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
