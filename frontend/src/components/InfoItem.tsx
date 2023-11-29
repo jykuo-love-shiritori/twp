@@ -19,14 +19,14 @@ const InfoItem = ({ text, isMore, value, setValue }: Props) => {
           <input
             type='text'
             placeholder={text}
-            className='inputBox'
+            className='input_box'
             value={value ? value : ''}
             onChange={setValue ? (e) => setValue(e.target.value) : undefined}
           />
         ) : (
           <textarea
             placeholder={text}
-            className='inputBox'
+            className='input_box'
             value={value ? value : ''}
             onChange={setValue ? (e) => setValue(e.target.value) : undefined}
           />

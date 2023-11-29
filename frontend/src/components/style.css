@@ -205,7 +205,7 @@
 }
 
 /* [component] input box, for info component*/
-.inputBox {
+.input_box {
   border-radius: 20px;
   border: 1px solid var(--border);
   background: var(--button_dark);
