@@ -87,9 +87,11 @@ const UserTableRow = ({ data, isBigScreen = true }: UserTableRowProps) => {
           </Col>
           <Col xs={6} md={6} className={'left center_vertical'} style={currentStyle.style}>
             <Row>
-              <h5>{'name: ' + data.name}</h5>
-              <h5>{'email: ' + data.email}</h5>
-              <h5>{'created: ' + data.createDate}</h5>
+              <p>
+                {'name: ' + data.name} <br />
+                {'email: ' + data.email} <br />
+                {'created: ' + data.createDate}
+              </p>
             </Row>
           </Col>
           <Col xs={2} md={2}>
