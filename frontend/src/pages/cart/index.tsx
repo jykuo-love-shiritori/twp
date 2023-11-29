@@ -3,7 +3,7 @@ import CartGroup from '@components/CartGroup';
 
 const Cart = () => {
   return (
-    <div style={{ padding: '10%' }}>
+    <div style={{ padding: '10% 5% 10% 5%' }}>
       <span className='title'>Cart</span>
 
       <CartGroup />

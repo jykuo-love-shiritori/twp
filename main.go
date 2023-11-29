@@ -37,7 +37,7 @@ func main() {
 		router.RegisterDocs(e)
 	}
 	go func() {
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(":" + os.Getenv("TWP_PORT")); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()

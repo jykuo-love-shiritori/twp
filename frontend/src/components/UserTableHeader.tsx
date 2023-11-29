@@ -9,24 +9,24 @@ const UserTableHeader = ({ isBigScreen = true }: UserTableHeaderProps) => {
     // layout for big screen
     return (
       <>
-        <Row className='user_table_header'>
+        <Row className='user_table_header' style={{ fontSize: '20px' }}>
           <Col md={1} xs={2} style={{ textAlign: 'center' }}>
-            <h4>Icon</h4>
+            Icon
           </Col>
           <Col md={2} xs={10} style={{ textAlign: 'left' }}>
-            <h4>Name</h4>
+            Name
           </Col>
           <Col md={4} xs={12} style={{ textAlign: 'left' }}>
-            <h4>Email</h4>
+            Email
           </Col>
           <Col md={3} xs={12} style={{ textAlign: 'left' }}>
-            <h4>Create Date</h4>
+            Create Date
           </Col>
           <Col md={1} xs={6} style={{ textAlign: 'center' }}>
-            <h4>Admin</h4>
+            Admin
           </Col>
           <Col md={1} xs={6} style={{ textAlign: 'center' }}>
-            <h4>Delete</h4>
+            Delete
           </Col>
         </Row>
         <hr />

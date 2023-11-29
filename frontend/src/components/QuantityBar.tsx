@@ -12,7 +12,7 @@ const QuantityBar = () => {
   return (
     <Row>
       <Col xs={3} onClick={handleMinus} className='pointer'>
-        <div className='quantity_f pointer'>-</div>
+        <div className='quantity_f pointer center'>-</div>
       </Col>
 
       <Col xs={6} className='center'>
@@ -23,12 +23,13 @@ const QuantityBar = () => {
             className='quantity_box'
             value={quality}
             onChange={(e) => setQuality(parseInt(e.target.value) || 0)}
+            style={{ textAlign: 'center' }}
           />
         </div>
       </Col>
 
       <Col xs={3} onClick={handleAdd} className='pointer'>
-        <div className='quantity_f pointer'>+</div>
+        <div className='quantity_f pointer center'>+</div>
       </Col>
     </Row>
   );

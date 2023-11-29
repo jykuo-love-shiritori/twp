@@ -1,4 +1,24 @@
 basePath: /api
+definitions:
+  auth.signupParams:
+    properties:
+      email:
+        example: test@gmail.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: secretp@ssword123
+        type: string
+      username:
+        example: john
+        type: string
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -523,6 +543,27 @@ paths:
       - Shop
     patch:
       description: Edit shop name, description, visibility.
+      parameters:
+      - description: name search by q
+        format: email
+        in: query
+        name: image_id
+        type: string
+      - description: name search by q
+        format: email
+        in: query
+        name: name
+        type: string
+      - description: name search by q
+        format: email
+        in: query
+        name: Description
+        type: string
+      - description: name search by q
+        format: email
+        in: query
+        name: enable
+        type: string
       produces:
       - application/json
       responses:
@@ -566,6 +607,22 @@ paths:
       - Shop
       - Coupon
   /seller/coupon/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: Seller delete coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
     get:
       description: Get coupon detail by ID for shop.
       parameters:
@@ -738,7 +795,7 @@ paths:
       - Product
   /seller/report:
     get:
-      description: Get all avaliable reports for shop.
+      description: Get all available reports for shop.
       produces:
       - application/json
       responses:
@@ -779,7 +836,7 @@ paths:
       - Report
   /seller/tag:
     get:
-      description: Get all avaliable tags for shop.
+      description: Get all available tags for shop.
       produces:
       - application/json
       responses:
@@ -787,7 +844,7 @@ paths:
           description: OK
         "401":
           description: Unauthorized
-      summary: Seller get avaliable tag
+      summary: Seller get available tag
       tags:
       - Seller
       - Shop
@@ -808,15 +865,15 @@ paths:
       - Seller
       - Shop
       - Tag
-  /shop/{id}:
+  /shop/{seller_name}:
     get:
       consumes:
       - application/json
-      description: Get shop information with shop ID
+      description: Get shop information with seller username
       parameters:
-      - description: Shop ID
+      - description: seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       produces:
@@ -829,15 +886,15 @@ paths:
       summary: Get Shop Info
       tags:
       - Shop
-  /shop/{id}/coupon:
+  /shop/{seller_name}/coupon:
     get:
       consumes:
       - application/json
-      description: Get coupons for a shop with shop ID
+      description: Get coupons for a shop with seller username
       parameters:
-      - description: Shop ID
+      - description: seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       produces:
@@ -851,15 +908,15 @@ paths:
       tags:
       - Shop
       - Coupon
-  /shop/{id}/search:
+  /shop/{seller_name}/search:
     get:
       consumes:
       - application/json
-      description: Search products within a shop by shop ID
+      description: Search products within a shop by seller username
       parameters:
-      - description: Shop ID
+      - description: Seller username
         in: path
-        name: id
+        name: seller_name
         required: true
         type: integer
       - description: search word
@@ -879,6 +936,32 @@ paths:
       - Shop
       - Product
       - Search
+  /signup:
+    post:
+      description: signup
+      parameters:
+      - description: something
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.signupParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Customer signup
+      tags:
+      - User
   /tag/{id}:
     get:
       consumes:
