@@ -166,7 +166,6 @@ WHERE "shop_id" = (
         FROM "shop" s
         WHERE
             s."seller_name" = $1
-            AND s."enabled" = true
     )
 ORDER BY "created_at" DESC
 LIMIT $2
@@ -347,7 +346,8 @@ FROM "product_tag" pt
     JOIN "shop" s ON s."id" = p."shop_id"
 WHERE
     s."seller_name" = $1
-    AND "product_id" = $2;
+    AND "product_id" = $2
+    AND s."enabled" = true;
 
 -- name: SellerGetCouponTag :many
 
@@ -371,6 +371,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND t."id" = $2
+            AND s."enabled" = true
     )
     AND EXISTS (
         SELECT 1
@@ -391,6 +392,7 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
+            AND s."enabled" = true
     )
     AND "product_id" = $3
     AND "tag_id" = $2;
@@ -406,6 +408,7 @@ WHERE EXISTS (
             JOIN "shop" s ON s."id" = t."shop_id"
         WHERE
             s."seller_name" = $1
+            AND s."enabled" = true
             AND t."id" = $2
     )
     AND EXISTS (
@@ -414,6 +417,7 @@ WHERE EXISTS (
             JOIN "shop" s ON s."id" = c."shop_id"
         WHERE
             s."seller_name" = $1
+            AND s."enabled" = true
             AND c."id" = $3
     ) RETURNING *;
 
@@ -426,6 +430,7 @@ WHERE EXISTS (
             JOIN "shop" s ON s."id" = c."shop_id"
         WHERE
             s."seller_name" = $1
+            AND s."enabled" = true
             AND c."id" = $3
     )
     AND "coupon_id" = $3

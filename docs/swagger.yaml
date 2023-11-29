@@ -515,182 +515,6 @@ paths:
       tags:
       - Admin
       - User
-  /api/user/avatar:
-    post:
-      consumes:
-      - image/png
-      - image/jpeg
-      - image/gif
-      description: Upload user avatar
-      parameters:
-      - description: Image to upload
-        in: formData
-        name: img
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Upload Avatar
-      tags:
-      - User
-  /api/user/info:
-    get:
-      consumes:
-      - application/json
-      description: Get user information
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.UserGetInfoRow'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: User Get Info
-      tags:
-      - User
-    patch:
-      consumes:
-      - application/json
-      description: Edit user information
-      parameters:
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: user address
-        in: body
-        name: address
-        required: true
-        schema:
-          type: string
-      - description: image id
-        in: body
-        name: image_id
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.UserUpdateInfoRow'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: User Edit Info
-      tags:
-      - User
-  /api/user/security/credit_card:
-    get:
-      consumes:
-      - application/json
-      description: Get all credit cards of the user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: User Get Credit Card
-      tags:
-      - CreditCard
-  /api/user/security/credit_card/delete:
-    patch:
-      consumes:
-      - application/json
-      description: Delete a credit card by its ID
-      parameters:
-      - description: Credit Card
-        in: body
-        name: credit_card
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: User Delete Credit Card
-      tags:
-      - CreditCard
-  /api/user/security/password:
-    post:
-      consumes:
-      - application/json
-      description: Change user password
-      parameters:
-      - description: current password
-        in: body
-        name: current_password
-        required: true
-        schema:
-          type: string
-      - description: new password
-        in: body
-        name: new_password
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.UserUpdatePasswordRow'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: User Edit Password
-      tags:
-      - User
   /buyer/cart:
     get:
       description: Get all Carts of the user
@@ -2127,6 +1951,179 @@ paths:
       summary: Get Tag Info
       tags:
       - Tag
+  /user/avatar:
+    post:
+      consumes:
+      - image/png
+      - image/jpeg
+      - image/gif
+      description: Upload user avatar
+      parameters:
+      - description: Image to upload
+        in: formData
+        name: img
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+      summary: User Upload Avatar
+      tags:
+      - User
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.UserGetInfoRow'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Get Info
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Edit user information
+      parameters:
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: user address
+        in: body
+        name: address
+        required: true
+        schema:
+          type: string
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.UserUpdateInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Edit Info
+      tags:
+      - User
+  /user/security/credit_card:
+    get:
+      consumes:
+      - application/json
+      description: Get all credit cards of the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Get Credit Card
+      tags:
+      - CreditCard
+    patch:
+      consumes:
+      - application/json
+      description: Delete a credit card by its ID
+      parameters:
+      - description: Credit Card
+        in: body
+        name: credit_card
+        required: true
+        schema:
+          items:
+            type: integer
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Delete Credit Card
+      tags:
+      - CreditCard
+  /user/security/password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: current password
+        in: body
+        name: current_password
+        required: true
+        schema:
+          type: string
+      - description: new password
+        in: body
+        name: new_password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.UserUpdatePasswordRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Edit Password
+      tags:
+      - User
 securityDefinitions:
   BasicAuth:
     type: basic

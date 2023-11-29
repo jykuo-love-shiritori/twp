@@ -15,7 +15,7 @@ import (
 // @Produce		json
 // @success		200	{object}	db.UserGetInfoRow
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/api/user/info [get]
+// @Router			/user/info [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
@@ -39,7 +39,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @success		200	{object}	db.UserUpdateInfoRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/api/user/info [patch]
+// @Router			/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
@@ -69,7 +69,7 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			img	formData	file	true	"Image to upload"
 // @Success		200
 // @Failure		401
-// @Router			/api/user/avatar [post]
+// @Router			/user/avatar [post]
 func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -87,7 +87,7 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @success		200	{object}	db.UserUpdatePasswordRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/api/user/security/password [post]
+// @Router			/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
@@ -113,19 +113,12 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	json.RawMessage
-// @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/api/user/security/credit_card [get]
+// @Router			/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
 
-		if err := c.Bind(&userID); err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-
-		}
-		userID = 1
 		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), userID)
 		if err != nil {
 			logger.Error(err)
@@ -140,11 +133,11 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Param			credit_card	body		string	true	"Credit Card"
+// @Param			credit_card	body		json.RawMessage	true	"Credit Card"
 // @Success		200			{object}	json.RawMessage
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
-// @Router			/api/user/security/credit_card/delete [patch]
+// @Router			/user/security/credit_card [patch]
 func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var userID int32 = 1
