@@ -1,17 +1,10 @@
 import { Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
 import UserTableRow from '@components/UserTableRow';
 import datas from '@pages/user/admin/UserData.json';
 import Pagination from '@components/Pagination';
 import UserTableHeader from './UserTableHeader';
 
 const ManageUser = () => {
-  //resize
-  const [winSize, setWinSize] = useState(window.innerWidth);
-  window.addEventListener('resize', () => {
-    setWinSize(window.innerWidth);
-  });
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flexGrow: '9' }}>
@@ -27,29 +20,18 @@ const ManageUser = () => {
 
         {/* table body */}
         {datas.map((data, index) => (
-          <UserTableRow data={data} isBigScreen={winSize >= 1024} key={index} />
+          <UserTableRow data={data} key={index} />
         ))}
       </div>
-
-      <div style={{ display: 'flex', flexGrow: '1', flexDirection: 'row' }}>
-        {/* pagination */}
+      <div className='center' style={{ display: 'flex', flexDirection: 'row' }}>
         <Row style={{ width: '100%' }}>
-          <Col
-            className='center'
-            md={winSize >= 1024 ? 6 : 12}
-            xs={12}
-            style={{ margin: '5px 0 0 0 ' }}
-          >
+          {/* pagination */}
+          <Col className='center' xl={6} md={12} xs={12} style={{ margin: '5px 0 0 0 ' }}>
             <Pagination currentPageInit={1} totalPage={10} />
           </Col>
 
           {/* comfirm buttom */}
-          <Col
-            className='center'
-            md={winSize >= 1024 ? 6 : 12}
-            xs={12}
-            style={{ margin: '5px 0 5px 0' }}
-          >
+          <Col className='center' xl={6} md={12} xs={12} style={{ margin: '5px 0 5px 0' }}>
             <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
           </Col>
         </Row>

@@ -2,7 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 
 const UserTableHeader = () => {
   return (
-    <div className='disappear_phone'>
+    <div className='disappear_tablet disappear_phone'>
       <Row className='user_table_header' style={{ fontSize: '20px' }}>
         <Col md={1} xs={2} style={{ textAlign: 'center' }}>
           Icon
@@ -14,10 +14,10 @@ const UserTableHeader = () => {
           Email
         </Col>
         <Col md={2} xs={12} style={{ textAlign: 'left' }}>
-          Create Date
+          Created
         </Col>
         <Col md={1} xs={6} style={{ textAlign: 'center' }}>
-          Admin
+          Delete
         </Col>
       </Row>
       <hr />
