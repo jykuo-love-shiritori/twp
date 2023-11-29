@@ -26,8 +26,8 @@ const ManageUser = () => {
         <UserTableHeader />
 
         {/* table body */}
-        {datas.map((data) => (
-          <UserTableRow data={data} isBigScreen={winSize >= 1024} />
+        {datas.map((data, index) => (
+          <UserTableRow data={data} isBigScreen={winSize >= 1024} key={index} />
         ))}
       </div>
 
