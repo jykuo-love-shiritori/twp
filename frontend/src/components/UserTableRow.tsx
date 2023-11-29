@@ -11,9 +11,10 @@ type UserTableRowProps = {
     createDate: string;
     isAdmin: boolean;
   };
+  isBigScreen: boolean;
 };
 
-const UserTableRow = ({ data }: UserTableRowProps) => {
+const UserTableRow = ({ data, isBigScreen = true }: UserTableRowProps) => {
   //admin checkbox
   const [isCheckedAdmin, setIsCheckedAdmin] = useState(data.isAdmin);
   const toggleIsAdmin = () => {
@@ -40,13 +41,8 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
     );
   };
 
-  //resize
-  const [winSize, setWinSize] = useState(window.innerWidth);
-  window.addEventListener('resize', () => {
-    setWinSize(window.innerWidth);
-  });
-
-  if (winSize >= 1024) {
+  if (isBigScreen) {
+    // layout for big screen
     return (
       <Row style={{ padding: '0 0 0 0' }}>
         <Col md={1} className={'center'} style={currentStyle.style}>
@@ -62,23 +58,26 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
           <h4>{data.createDate}</h4>
         </Col>
         <Col md={1} className={'center center_vertical'} style={currentStyle.style}>
-          <div onClick={toggleIsAdmin}>
-            {isCheckedAdmin ? (
-              <FontAwesomeIcon icon={faGear} size='2x' />
-            ) : (
-              <FontAwesomeIcon icon={faGear} size='2x' color='black' />
-            )}
-          </div>
+          <FontAwesomeIcon
+            icon={faGear}
+            size='2x'
+            color={isCheckedAdmin ? 'auto' : 'black'}
+            onClick={toggleIsAdmin}
+            style={{ cursor: 'pointer' }}
+          />
         </Col>
         <Col md={1} className={'center center_vertical'} style={currentStyle.style}>
-          <div onClick={toggleIsDelete}>
-            <FontAwesomeIcon icon={faTrash} size='2x' />
-          </div>
+          <FontAwesomeIcon
+            icon={faTrash}
+            size='2x'
+            onClick={toggleIsDelete}
+            style={{ cursor: 'pointer' }}
+          />
         </Col>
       </Row>
     );
   } else {
-    const ButtonFlexStyle = { display: 'flex', flexGrow: '1', justifyContent: 'center' };
+    // layout for small screen
     return (
       <>
         <hr />
@@ -95,19 +94,40 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
           </Col>
           <Col xs={2} md={2}>
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ ...currentStyle.style, ...ButtonFlexStyle }}>
-                <div className='center center_vertical' onClick={toggleIsAdmin}>
-                  {isCheckedAdmin ? (
-                    <FontAwesomeIcon icon={faGear} size='2x' />
-                  ) : (
-                    <FontAwesomeIcon icon={faGear} size='2x' color='black' />
-                  )}
-                </div>
+              {/* gear (admin) button */}
+              <div
+                className='center center_vertical'
+                style={{
+                  display: 'flex',
+                  flexGrow: '1',
+                  justifyContent: 'center',
+                  ...currentStyle.style,
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faGear}
+                  size='2x'
+                  color={isCheckedAdmin ? 'auto' : 'black'}
+                  onClick={toggleIsAdmin}
+                  style={{ cursor: 'pointer' }}
+                />
               </div>
-              <div style={{ ...currentStyle.style, ...ButtonFlexStyle }}>
-                <div className='center center_vertical' onClick={toggleIsDelete}>
-                  <FontAwesomeIcon icon={faTrash} size='2x' />
-                </div>
+              {/* delete button */}
+              <div
+                className='center center_vertical'
+                style={{
+                  display: 'flex',
+                  flexGrow: '1',
+                  justifyContent: 'center',
+                  ...currentStyle.style,
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  size='2x'
+                  onClick={toggleIsDelete}
+                  style={{ cursor: 'pointer' }}
+                />
               </div>
             </div>
           </Col>

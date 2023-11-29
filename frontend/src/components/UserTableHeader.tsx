@@ -1,14 +1,12 @@
-import { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 
-const UserTableHeader = () => {
-  //resize
-  const [winSize, setWinSize] = useState(window.innerWidth);
-  window.addEventListener('resize', () => {
-    setWinSize(window.innerWidth);
-  });
+interface UserTableHeaderProps {
+  isBigScreen: boolean;
+}
 
-  if (winSize >= 1024) {
+const UserTableHeader = ({ isBigScreen = true }: UserTableHeaderProps) => {
+  if (isBigScreen) {
+    // layout for big screen
     return (
       <>
         <Row className='user_table_header'>
@@ -35,6 +33,7 @@ const UserTableHeader = () => {
       </>
     );
   } else {
+    // dont show header for small screen
     return null;
   }
 };
