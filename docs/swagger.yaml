@@ -53,14 +53,6 @@ definitions:
       tag_id:
         type: integer
     type: object
-  db.RoleType:
-    enum:
-    - admin
-    - customer
-    type: string
-    x-enum-varnames:
-    - RoleTypeAdmin
-    - RoleTypeCustomer
   db.SellerGetCouponDetailRow:
     properties:
       discount:
@@ -281,14 +273,8 @@ definitions:
       stock:
         type: integer
     type: object
-  db.User:
+  db.UserGetInfoRow:
     properties:
-      address:
-        type: string
-      credit_card:
-        items:
-          $ref: '#/definitions/db.creditCard'
-        type: array
       email:
         type: string
       enabled:
@@ -299,14 +285,8 @@ definitions:
         type: string
       name:
         type: string
-      password:
-        type: string
-      role:
-        $ref: '#/definitions/db.RoleType'
-      username:
-        type: string
     type: object
-  db.UserGetInfoRow:
+  db.UserUpdateInfoRow:
     properties:
       email:
         type: string
@@ -330,17 +310,6 @@ definitions:
       id:
         type: integer
       image_id:
-        type: string
-      name:
-        type: string
-    type: object
-  db.creditCard:
-    properties:
-      CVV:
-        type: string
-      card_number:
-        type: string
-      expiry_date:
         type: string
       name:
         type: string
@@ -617,7 +586,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.User'
+            $ref: '#/definitions/db.UserUpdateInfoRow'
         "400":
           description: Bad Request
           schema:
@@ -641,7 +610,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.creditCard'
+              type: integer
             type: array
         "400":
           description: Bad Request
@@ -673,7 +642,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.creditCard'
+              type: integer
             type: array
         "400":
           description: Bad Request

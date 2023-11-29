@@ -400,7 +400,7 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param			limit	query	int	true	"limit"		minimum(3)maximum(20)
 // @Param			offset	query	int	true	"offset"	minimum(0)
 // @Produce		json
-// @Success		200	{array}	db.SellerGetOrderRow
+// @Success		200	{array}		db.SellerGetOrderRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/order [get]

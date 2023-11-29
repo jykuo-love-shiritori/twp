@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -83,9 +84,9 @@ const userGetCreditCard = `-- name: UserGetCreditCard :one
 SELECT "credit_card" FROM "user" WHERE "id" = $1
 `
 
-func (q *Queries) UserGetCreditCard(ctx context.Context, id int32) ([]creditCard, error) {
+func (q *Queries) UserGetCreditCard(ctx context.Context, id int32) (json.RawMessage, error) {
 	row := q.db.QueryRow(ctx, userGetCreditCard, id)
-	var credit_card []creditCard
+	var credit_card json.RawMessage
 	err := row.Scan(&credit_card)
 	return credit_card, err
 }
@@ -127,18 +128,18 @@ const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
 
 UPDATE "user"
 SET "credit_card" = $2
-WHERE "id" = $1
-RETURNING "credit_card"
+WHERE
+    "id" = $1 RETURNING "credit_card"
 `
 
 type UserUpdateCreditCardParams struct {
-	ID         int32        `json:"id" param:"id"`
-	CreditCard []creditCard `json:"credit_card"`
+	ID         int32           `json:"id" param:"id"`
+	CreditCard json.RawMessage `json:"credit_card"`
 }
 
-func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) ([]creditCard, error) {
+func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) (json.RawMessage, error) {
 	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.ID, arg.CreditCard)
-	var credit_card []creditCard
+	var credit_card json.RawMessage
 	err := row.Scan(&credit_card)
 	return credit_card, err
 }
@@ -151,8 +152,12 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE "id" = $1
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+WHERE
+    "id" = $1 RETURNING "id",
+    "name",
+    "email",
+    "image_id",
+    "enabled"
 `
 
 type UserUpdateInfoParams struct {
@@ -163,7 +168,15 @@ type UserUpdateInfoParams struct {
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 }
 
-func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (User, error) {
+type UserUpdateInfoRow struct {
+	ID      int32       `json:"id" param:"id"`
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
 	row := q.db.QueryRow(ctx, userUpdateInfo,
 		arg.ID,
 		arg.Name,
@@ -171,17 +184,12 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 		arg.Address,
 		arg.ImageID,
 	)
-	var i User
+	var i UserUpdateInfoRow
 	err := row.Scan(
 		&i.ID,
-		&i.Username,
-		&i.Password,
 		&i.Name,
 		&i.Email,
-		&i.Address,
 		&i.ImageID,
-		&i.Role,
-		&i.CreditCard,
 		&i.Enabled,
 	)
 	return i, err
@@ -194,9 +202,7 @@ SET
     "password" = $2
 WHERE
     "id" = $1
-    AND "password" = $3
-RETURNING
-    "id",
+    AND "password" = $3 RETURNING "id",
     "name",
     "email",
     "address",

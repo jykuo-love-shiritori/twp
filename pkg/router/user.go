@@ -36,7 +36,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			image_id	body	string	true	"image id"
 // @Accept			json
 // @Produce		json
-// @success		200	{object}	db.User
+// @success		200	{object}	db.UserUpdateInfoRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/api/user/info [patch]
@@ -112,7 +112,7 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @success		200	{array}		db.creditCard
+// @Success		200	{object}	json.RawMessage
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/api/user/security/credit_card [get]
@@ -141,7 +141,7 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept			json
 // @Produce		json
 // @Param			credit_card	body		string	true	"Credit Card"
-// @Success		200			{array}		db.creditCard
+// @Success		200			{object}	json.RawMessage
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/api/user/security/credit_card/delete [patch]

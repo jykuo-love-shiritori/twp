@@ -336,7 +336,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.User"
+                            "$ref": "#/definitions/db.UserUpdateInfoRow"
                         }
                     },
                     "400": {
@@ -373,7 +373,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.creditCard"
+                                "type": "integer"
                             }
                         }
                     },
@@ -422,7 +422,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.creditCard"
+                                "type": "integer"
                             }
                         }
                     },
@@ -2691,17 +2691,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.RoleType": {
-            "type": "string",
-            "enum": [
-                "admin",
-                "customer"
-            ],
-            "x-enum-varnames": [
-                "RoleTypeAdmin",
-                "RoleTypeCustomer"
-            ]
-        },
         "db.SellerGetCouponDetailRow": {
             "type": "object",
             "properties": {
@@ -3040,18 +3029,9 @@ const docTemplate = `{
                 }
             }
         },
-        "db.User": {
+        "db.UserGetInfoRow": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "credit_card": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.creditCard"
-                    }
-                },
                 "email": {
                     "type": "string"
                 },
@@ -3066,19 +3046,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/db.RoleType"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
-        "db.UserGetInfoRow": {
+        "db.UserUpdateInfoRow": {
             "type": "object",
             "properties": {
                 "email": {
@@ -3114,23 +3085,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "db.creditCard": {
-            "type": "object",
-            "properties": {
-                "CVV": {
-                    "type": "string"
-                },
-                "card_number": {
-                    "type": "string"
-                },
-                "expiry_date": {
                     "type": "string"
                 },
                 "name": {

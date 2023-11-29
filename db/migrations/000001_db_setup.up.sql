@@ -113,7 +113,7 @@ CREATE TABLE
         "address" TEXT NOT NULL,
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
-        "credit_card" JSONB [] NOT NULL,
+        "credit_card" JSONB NOT NULL,
         "enabled" BOOL NOT NULL
     );
 

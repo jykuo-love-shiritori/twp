@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -572,16 +573,16 @@ INSERT INTO
 `
 
 type TestInsertUserParams struct {
-	ID         int32        `json:"id" param:"id"`
-	Username   string       `json:"username"`
-	Password   string       `json:"password"`
-	Name       string       `json:"name"`
-	Email      string       `json:"email"`
-	Address    string       `json:"address"`
-	ImageID    pgtype.UUID  `json:"image_id" swaggertype:"string"`
-	Role       RoleType     `json:"role"`
-	CreditCard []creditCard `json:"credit_card"`
-	Enabled    bool         `json:"enabled"`
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `json:"name"`
+	Email      string          `json:"email"`
+	Address    string          `json:"address"`
+	ImageID    pgtype.UUID     `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
 }
 
 func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
