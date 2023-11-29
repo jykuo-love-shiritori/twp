@@ -25,13 +25,17 @@ const Pagination = ({ currentPageInit = 1, totalPage }: Props) => {
     }
   };
   return (
-    <div className='pagination center_vertical'>
-      <div onClick={onPrevious}>{'<'}</div>
-      <div>{'Page:'}</div>
-      <input type='text' value={currentPage} onChange={handlePageChange} />
-      <div>of</div>
-      <div>{totalPage}</div>
-      <div onClick={onNext}>{'>'}</div>
+    <div className='pagination center_vertical center'>
+      <div className='center' onClick={onPrevious}>
+        {'<'}
+      </div>
+      <div className='center'>{'Page:'}</div>
+      <input className='center' type='text' value={currentPage} onChange={handlePageChange} />
+      <div className='center'>of</div>
+      <div className='center'>{totalPage}</div>
+      <div className='center' onClick={onNext}>
+        {'>'}
+      </div>
     </div>
   );
 };

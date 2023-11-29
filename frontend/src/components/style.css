@@ -340,8 +340,6 @@
 /* [item in page] manageUser */
 .manager_user_bottem {
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-grow: 1;
 }
 
@@ -358,7 +356,6 @@
   cursor: pointer;
   font-size: 20px;
   font-weight: 700;
-  text-align: center;
 }
 .manage_user_confirm_button:hover {
   background-color: var(--button_dark);
@@ -374,12 +371,10 @@
   margin: 0;
   padding: 5px;
   gap: 5px;
-  justify-content: center;
   background-color: var(--button_light);
   border-radius: 20px;
   font-size: 20px;
-  font-weight: 700;
-  text-align: center;
+  font-weight: 500;
 }
 .pagination > :first-child,
 .pagination > :last-child {
@@ -395,6 +390,7 @@
   color: var(--white);
   border-radius: 15px;
   transition: all 0.3s ease-in-out;
+  user-select: none;
 }
 .pagination > input {
   text-align: center;
