@@ -21,7 +21,6 @@ SELECT EXISTS (
             s."seller_name" = $1
             AND t."name" = $2
     )
-END
 `
 
 type HaveTagNameParams struct {
@@ -31,9 +30,9 @@ type HaveTagNameParams struct {
 
 func (q *Queries) HaveTagName(ctx context.Context, arg HaveTagNameParams) (bool, error) {
 	row := q.db.QueryRow(ctx, haveTagName, arg.SellerName, arg.Name)
-	var end bool
-	err := row.Scan(&end)
-	return end, err
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
@@ -418,7 +417,6 @@ const sellerGetOrderHistory = `-- name: SellerGetOrderHistory :one
 
 SELECT
     "order_history"."id",
-    "order_history"."user_id",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
@@ -437,7 +435,6 @@ type SellerGetOrderHistoryParams struct {
 
 type SellerGetOrderHistoryRow struct {
 	ID         int32              `json:"id" param:"id"`
-	UserID     int32              `json:"user_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
@@ -449,7 +446,6 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 	var i SellerGetOrderHistoryRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,

@@ -42,8 +42,7 @@ SELECT EXISTS (
         WHERE
             s."seller_name" = $1
             AND t."name" = $2
-    )
-END;
+    );
 
 -- name: SellerInsertTag :one
 
@@ -177,7 +176,6 @@ OFFSET $3;
 
 SELECT
     "order_history"."id",
-    "order_history"."user_id",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
