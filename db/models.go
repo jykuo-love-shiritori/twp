@@ -237,7 +237,7 @@ type Tag struct {
 }
 
 type User struct {
-	ID         int32           `json:"id" param:"id"`
+	ID         int32           `json:"-"`
 	Username   string          `json:"username"`
 	Password   string          `json:"password"`
 	Name       string          `json:"name"`

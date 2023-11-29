@@ -279,8 +279,6 @@ definitions:
         type: string
       enabled:
         type: boolean
-      id:
-        type: integer
       image_id:
         type: string
       name:
@@ -292,8 +290,6 @@ definitions:
         type: string
       enabled:
         type: boolean
-      id:
-        type: integer
       image_id:
         type: string
       name:
@@ -307,8 +303,6 @@ definitions:
         type: string
       enabled:
         type: boolean
-      id:
-        type: integer
       image_id:
         type: string
       name:

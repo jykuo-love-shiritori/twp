@@ -3036,9 +3036,6 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "image_id": {
                     "type": "string"
                 },
@@ -3055,9 +3052,6 @@ const docTemplate = `{
                 },
                 "enabled": {
                     "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "image_id": {
                     "type": "string"
@@ -3078,9 +3072,6 @@ const docTemplate = `{
                 },
                 "enabled": {
                     "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "image_id": {
                     "type": "string"

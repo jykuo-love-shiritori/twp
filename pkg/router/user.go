@@ -18,8 +18,8 @@ import (
 // @Router			/user/info [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
-		user, err := pg.Queries.UserGetInfo(c.Request().Context(), userID)
+		var username string = "user1"
+		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -42,7 +42,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
+		var username string = "user1"
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -50,7 +50,7 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param.ID = userID
+		param.Username = username
 		info, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -90,14 +90,14 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
+		var username string = "user1"
 		var param db.UserUpdatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param.ID = userID
+		param.Username = username
 		orders, err := pg.Queries.UserUpdatePassword(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -117,9 +117,9 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
+		var username string = "user1"
 
-		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), userID)
+		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -140,14 +140,14 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [patch]
 func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var userID int32 = 1
+		var username string = "user1"
 		var param db.UserUpdateCreditCardParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param.ID = userID
+		param.Username = username
 		credit_cards, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)

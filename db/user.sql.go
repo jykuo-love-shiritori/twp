@@ -81,11 +81,11 @@ func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, e
 
 const userGetCreditCard = `-- name: UserGetCreditCard :one
 
-SELECT "credit_card" FROM "user" WHERE "id" = $1
+SELECT "credit_card" FROM "user" WHERE "username" = $1
 `
 
-func (q *Queries) UserGetCreditCard(ctx context.Context, id int32) (json.RawMessage, error) {
-	row := q.db.QueryRow(ctx, userGetCreditCard, id)
+func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.RawMessage, error) {
+	row := q.db.QueryRow(ctx, userGetCreditCard, username)
 	var credit_card json.RawMessage
 	err := row.Scan(&credit_card)
 	return credit_card, err
@@ -100,19 +100,19 @@ SELECT
     "image_id",
     "enabled"
 FROM "user" u
-WHERE u.id = $1
+WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	ID      int32       `json:"id" param:"id"`
+	ID      int32       `json:"-"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Enabled bool        `json:"enabled"`
 }
 
-func (q *Queries) UserGetInfo(ctx context.Context, id int32) (UserGetInfoRow, error) {
-	row := q.db.QueryRow(ctx, userGetInfo, id)
+func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
+	row := q.db.QueryRow(ctx, userGetInfo, username)
 	var i UserGetInfoRow
 	err := row.Scan(
 		&i.ID,
@@ -128,17 +128,17 @@ const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
 
 UPDATE "user"
 SET "credit_card" = $2
-WHERE
-    "id" = $1 RETURNING "credit_card"
+WHERE "username" = $1
+RETURNING "credit_card"
 `
 
 type UserUpdateCreditCardParams struct {
-	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
 	CreditCard json.RawMessage `json:"credit_card"`
 }
 
 func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) (json.RawMessage, error) {
-	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.ID, arg.CreditCard)
+	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.Username, arg.CreditCard)
 	var credit_card json.RawMessage
 	err := row.Scan(&credit_card)
 	return credit_card, err
@@ -152,8 +152,9 @@ SET
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
-WHERE
-    "id" = $1 RETURNING "id",
+WHERE "username" = $1
+RETURNING
+    "id",
     "name",
     "email",
     "image_id",
@@ -161,15 +162,15 @@ WHERE
 `
 
 type UserUpdateInfoParams struct {
-	ID      int32       `json:"id" param:"id"`
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Username string      `json:"username"`
+	Name     string      `json:"name"`
+	Email    string      `json:"email"`
+	Address  string      `json:"address"`
+	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
 }
 
 type UserUpdateInfoRow struct {
-	ID      int32       `json:"id" param:"id"`
+	ID      int32       `json:"-"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
@@ -178,7 +179,7 @@ type UserUpdateInfoRow struct {
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
 	row := q.db.QueryRow(ctx, userUpdateInfo,
-		arg.ID,
+		arg.Username,
 		arg.Name,
 		arg.Email,
 		arg.Address,
@@ -201,8 +202,10 @@ UPDATE "user"
 SET
     "password" = $2
 WHERE
-    "id" = $1
-    AND "password" = $3 RETURNING "id",
+    "username" = $1
+    AND "password" = $3
+RETURNING
+    "id",
     "name",
     "email",
     "address",
@@ -211,13 +214,13 @@ WHERE
 `
 
 type UserUpdatePasswordParams struct {
-	ID              int32  `json:"id" param:"id"`
+	Username        string `json:"username"`
 	NewPassword     string `json:"new_password"`
 	CurrentPassword string `json:"current_password"`
 }
 
 type UserUpdatePasswordRow struct {
-	ID      int32       `json:"id" param:"id"`
+	ID      int32       `json:"-"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
@@ -226,7 +229,7 @@ type UserUpdatePasswordRow struct {
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
-	row := q.db.QueryRow(ctx, userUpdatePassword, arg.ID, arg.NewPassword, arg.CurrentPassword)
+	row := q.db.QueryRow(ctx, userUpdatePassword, arg.Username, arg.NewPassword, arg.CurrentPassword)
 	var i UserUpdatePasswordRow
 	err := row.Scan(
 		&i.ID,

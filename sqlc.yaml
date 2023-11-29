@@ -16,7 +16,7 @@ sql:
               type: "json.RawMessage"
 
           - column: user.id
-            go_struct_tag: param:"id"
+            go_struct_tag: json:"-"
           - column: coupon.id
             go_struct_tag: param:"id"
           - column: coupon_tag.coupon_id
