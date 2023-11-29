@@ -11,16 +11,16 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Buyer Get Order History
-// @Description Get all order history of the user
-// @Tags Buyer, Order
-// @Produce json
-// @Param offset query int false "Begin index" default(0)
-// @Param limit query int false "limit" default(10)
-// @Success 200 {array} db.GetOrderHistoryRow
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /buyer/order [get]
+// @Summary		Buyer Get Order History
+// @Description	Get all order history of the user
+// @Tags			Buyer, Order
+// @Produce		json
+// @Param			offset	query		int	false	"Begin index"	default(0)
+// @Param			limit	query		int	false	"limit"			default(10)
+// @Success		200		{array}		db.GetOrderHistoryRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
+// @Router			/buyer/order [get]
 func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "🤡"
@@ -50,14 +50,14 @@ func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-// @Summary Buyer Get Order Detail
-// @Description Get specific order detail
-// @Tags Buyer, Order
-// @Produce json
-// @Param id path int true "Order ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/order/{id} [get]
+// @Summary		Buyer Get Order Detail
+// @Description	Get specific order detail
+// @Tags			Buyer, Order
+// @Produce		json
+// @Param			id	path	int	true	"Order ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/order/{id} [get]
 func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -65,14 +65,14 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	}
 }
 
-// @Summary Buyer Get Cart
-// @Description Get all Carts of the user
-// @Tags Buyer, Cart
-// @Produce json
-// @Success 200 {array} Cart
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /buyer/cart [get]
+// @Summary		Buyer Get Cart
+// @Description	Get all Carts of the user
+// @Tags			Buyer, Cart
+// @Produce		json
+// @Success		200	{array}		common.Cart
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/buyer/cart [get]
 func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "🤡"
@@ -107,16 +107,16 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Buyer Edit Product In Cart
-// @Description Edit product quantity in cart
-// @Tags Buyer, Cart
-// @Accept json
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Param product_id path int true "Product ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/product/{product_id} [patch]
+// @Summary		Buyer Edit Product In Cart
+// @Description	Edit product quantity in cart
+// @Tags			Buyer, Cart
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path	int	true	"Cart ID"
+// @Param			product_id	path	int	true	"Product ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/product/{product_id} [patch]
 func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -124,16 +124,16 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 	}
 }
 
-// @Summary Buyer Add Product To Cart
-// @Description Add product to cart
-// @Tags Buyer, Cart
-// @Accept json
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Param product_id path int true "Product ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/product/{product_id} [post]
+// @Summary		Buyer Add Product To Cart
+// @Description	Add product to cart
+// @Tags			Buyer, Cart
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path	int	true	"Cart ID"
+// @Param			product_id	path	int	true	"Product ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/product/{product_id} [post]
 func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -141,16 +141,16 @@ func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
-// @Summary Buyer Add Coupon To Cart
-// @Description Add coupon to cart
-// @Tags Buyer, Cart, Coupon
-// @Accept json
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Param coupon_id path int true "Coupon ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [post]
+// @Summary		Buyer Add Coupon To Cart
+// @Description	Add coupon to cart
+// @Tags			Buyer, Cart, Coupon
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path	int	true	"Cart ID"
+// @Param			coupon_id	path	int	true	"Coupon ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [post]
 func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -158,16 +158,16 @@ func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-// @Summary Buyer Delete Product From Cart
-// @Description Delete product from cart
-// @Tags Buyer, Cart
-// @Accept json
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Param product_id path int true "Product ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/product/{product_id} [delete]
+// @Summary		Buyer Delete Product From Cart
+// @Description	Delete product from cart
+// @Tags			Buyer, Cart
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path	int	true	"Cart ID"
+// @Param			product_id	path	int	true	"Product ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/product/{product_id} [delete]
 func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -175,16 +175,16 @@ func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.Handl
 	}
 }
 
-// @Summary Buyer Delete Coupon From Cart
-// @Description Delete coupon from cart
-// @Tags Buyer, Cart, Coupon
-// @Accept json
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Param coupon_id path int true "Coupon ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
+// @Summary		Buyer Delete Coupon From Cart
+// @Description	Delete coupon from cart
+// @Tags			Buyer, Cart, Coupon
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path	int	true	"Cart ID"
+// @Param			coupon_id	path	int	true	"Coupon ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
 func buyerDeleteCouponFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -192,14 +192,14 @@ func buyerDeleteCouponFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.Handle
 	}
 }
 
-// @Summary Buyer Get Checkout
-// @Description Get all checkout data
-// @Tags Buyer, Checkout
-// @Produce json
-// @Param cart_id path int true "Cart ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/checkout [get]
+// @Summary		Buyer Get Checkout
+// @Description	Get all checkout data
+// @Tags			Buyer, Checkout
+// @Produce		json
+// @Param			cart_id	path	int	true	"Cart ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/checkout [get]
 func buyerGetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -207,15 +207,15 @@ func buyerGetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Buyer Checkout
-// @Description Checkout
-// @Tags Buyer, Checkout
-// @Accept json
-// @Produce json
-// @param cart_id path int true "Cart ID"
-// @Success 200
-// @Failure 401
-// @Router /buyer/cart/{cart_id}/checkout [post]
+// @Summary		Buyer Checkout
+// @Description	Checkout
+// @Tags			Buyer, Checkout
+// @Accept			json
+// @Produce		json
+// @param			cart_id	path	int	true	"Cart ID"
+// @Success		200
+// @Failure		401
+// @Router			/buyer/cart/{cart_id}/checkout [post]
 func buyerCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 

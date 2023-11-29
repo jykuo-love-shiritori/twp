@@ -64,13 +64,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -109,13 +109,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -152,13 +152,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
@@ -198,13 +198,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -250,13 +250,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -302,13 +302,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -354,7 +354,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -390,19 +390,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -421,10 +421,25 @@ const docTemplate = `{
                 "summary": "Buyer Get Cart",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/common.Cart"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -697,12 +712,43 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "Buyer Get Order History",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetOrderHistoryRow"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -868,19 +914,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -1476,19 +1522,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -1544,19 +1590,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/router.Failure"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }
@@ -1821,6 +1867,20 @@ const docTemplate = `{
         "big.Int": {
             "type": "object"
         },
+        "common.Cart": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductInCartRow"
+                    }
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.AddCouponParams": {
             "type": "object",
             "properties": {
@@ -2019,6 +2079,37 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetOrderHistoryRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetProductInCartRow": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.GetProductInfoRow": {
             "type": "object",
             "properties": {
@@ -2183,6 +2274,12 @@ const docTemplate = `{
                 "RoleTypeCustomer"
             ]
         },
+        "echo.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {}
+            }
+        },
         "pgtype.InfinityModifier": {
             "type": "integer",
             "enum": [
@@ -2227,14 +2324,6 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
-                }
-            }
-        },
-        "router.Failure": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
                 }
             }
         }

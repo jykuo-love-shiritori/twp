@@ -11,15 +11,15 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Summary Admin Get User
-// @Description Get all user information. Include user's icon, name, email, created time and role.
-// @Tags Admin, User
-// @Produce json
-// @Param offset query int false "Begin index" default(0)
-// @Param limit query int false "limit" default(10)
-// @Success 200 {array} db.GetUsersRow
-// @Failure 400 {object} Failure
-// @Router /admin/user [get]
+// @Summary		Admin Get User
+// @Description	Get all user information. Include user's icon, name, email, created time and role.
+// @Tags			Admin, User
+// @Produce		json
+// @Param			offset	query		int	false	"Begin index"	default(0)
+// @Param			limit	query		int	false	"limit"			default(10)
+// @Success		200		{array}		db.GetUsersRow
+// @Failure		400		{object}	echo.HTTPError
+// @Router			/admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var q db.GetUsersParams
@@ -36,16 +36,16 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Disable User
-// @Description Disable user.
-// @Tags Admin, User
-// @Produce json
-// @param username path string true "Username"
-// @Success 200 {string} string constants.SUCCESS
-// @Failure 400 {object} Failure
-// @Failure 404 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/user/{username} [patch]
+// @Summary		Admin Disable User
+// @Description	Disable user.
+// @Tags			Admin, User
+// @Produce		json
+// @param			username	path		string	true	"Username"
+// @Success		200			{string}	string	constants.SUCCESS
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		404			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/admin/user/{username} [patch]
 func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := c.Param("username")
@@ -66,16 +66,16 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Get Coupon
-// @Description Get all coupons (include shops' coupon).
-// @Tags Admin, Coupon
-// @Produce json
-// @param offset query int false "Begin index" default(0)
-// @param limit query int false "limit" default(10)
-// @Success 200 {array} db.Coupon
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/coupon [get]
+// @Summary		Admin Get Coupon
+// @Description	Get all coupons (include shops' coupon).
+// @Tags			Admin, Coupon
+// @Produce		json
+// @param			offset	query		int	false	"Begin index"	default(0)
+// @param			limit	query		int	false	"limit"			default(10)
+// @Success		200		{array}		db.Coupon
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
+// @Router			/admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var q db.GetAnyCouponsParams
@@ -92,16 +92,16 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Get Coupon Detail
-// @Description Get coupon details.
-// @Tags Admin, Coupon, Shop
-// @Produce json
-// @Param id path int true "Coupon ID"
-// @Success 200 {object} db.GetCouponDetailRow
-// @Failure 400 {object} Failure
-// @Failure 404 {object} Failure
-// @Failure 500 {string} Failure
-// @Router /admin/coupon/{id} [get]
+// @Summary		Admin Get Coupon Detail
+// @Description	Get coupon details.
+// @Tags			Admin, Coupon, Shop
+// @Produce		json
+// @Param			id	path		int	true	"Coupon ID"
+// @Success		200	{object}	db.GetCouponDetailRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Failure		500	{string}	echo.HTTPError
+// @Router			/admin/coupon/{id} [get]
 func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
@@ -127,16 +127,16 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-// @Summary Admin Add Coupon
-// @Description Add global coupon.
-// @Tags Admin, Coupon
-// @Accept json
-// @Produce json
-// @Param coupon body db.AddCouponParams true "Coupon"
-// @Success 200 {object} db.AddCouponRow
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/coupon [post]
+// @Summary		Admin Add Coupon
+// @Description	Add global coupon.
+// @Tags			Admin, Coupon
+// @Accept			json
+// @Produce		json
+// @Param			coupon	body		db.AddCouponParams	true	"Coupon"
+// @Success		200		{object}	db.AddCouponRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
+// @Router			/admin/coupon [post]
 func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var coupon db.AddCouponParams
@@ -154,17 +154,17 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Edit Coupon
-// @Description Edit global coupon.
-// @Tags Admin, Coupon
-// @Accept json
-// @Produce json
-// @Param id path int true "Coupon ID"
-// @Param coupon body db.EditCouponParams true "Coupon"
-// @Success 200 {object} db.EditCouponRow
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/coupon/{id} [patch]
+// @Summary		Admin Edit Coupon
+// @Description	Edit global coupon.
+// @Tags			Admin, Coupon
+// @Accept			json
+// @Produce		json
+// @Param			id		path		int					true	"Coupon ID"
+// @Param			coupon	body		db.EditCouponParams	true	"Coupon"
+// @Success		200		{object}	db.EditCouponRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
+// @Router			/admin/coupon/{id} [patch]
 func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var coupon db.EditCouponParams
@@ -181,15 +181,15 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Delete Coupon
-// @Description Delete coupon (include shops').
-// @Tags Admin, Coupon
-// @Produce json
-// @Param id path int true "Coupon ID"
-// @Success 200 {string} string constants.SUCCESS
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/coupon/{id} [delete]
+// @Summary		Admin Delete Coupon
+// @Description	Delete coupon (include shops').
+// @Tags			Admin, Coupon
+// @Produce		json
+// @Param			id	path		int		true	"Coupon ID"
+// @Success		200	{string}	string	constants.SUCCESS
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/admin/coupon/{id} [delete]
 func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
@@ -211,16 +211,16 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// @Summary Admin Get Site Report
-// @Description Get site report.
-// @Tags Admin, Report
-// @Produce json
-// @Param start_date query string true "Start date"
-// @Param end_date query string true "End date"
-// @Success 200 {array} db.OrderHistory
-// @Failure 400 {object} Failure
-// @Failure 500 {object} Failure
-// @Router /admin/report [get]
+// @Summary		Admin Get Site Report
+// @Description	Get site report.
+// @Tags			Admin, Report
+// @Produce		json
+// @Param			start_date	query		string	true	"Start date"
+// @Param			end_date	query		string	true	"End date"
+// @Success		200			{array}		db.OrderHistory
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var report db.GetReportParams
