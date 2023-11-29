@@ -25,6 +25,9 @@ const NavBar = () => {
     border: 'none',
   };
 
+  // TODO: read user auth later
+  const isAdmin = true;
+
   return (
     <div className='navbar_twp'>
       <Navbar expand='lg' style={{ padding: '0px 8% 0px 8%' }}>
@@ -103,9 +106,6 @@ const NavBar = () => {
                     <Link to='/coupons' className='nav_link none' style={{ paddingLeft: '10px' }}>
                       Coupons
                     </Link>
-                    <Link to='/admin' className='nav_link none'>
-                      Admin
-                    </Link>
                   </Nav>
                 </Col>
                 <Col xs={4} />
@@ -145,6 +145,23 @@ const NavBar = () => {
                             opacity: '1',
                           }}
                         />
+                        {isAdmin ? (
+                          <>
+                            <Link to='/admin' className='nav_link none' style={{ padding: '0%' }}>
+                              <div style={{ padding: '5px 10% 5px 10%' }}>Admin</div>
+                            </Link>
+                            <hr
+                              style={{
+                                padding: '0',
+                                margin: '5px',
+                                color: 'var(--border)',
+                                opacity: '1',
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <></>
+                        )}
                         <Link to='/login' className='none nav_link' style={{ padding: '0%' }}>
                           <div style={{ padding: '5px 10% 5px 10%' }}>Logout</div>
                         </Link>
