@@ -204,7 +204,7 @@ type Coupon struct {
 	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id" swaggertype:"integer"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -225,9 +225,9 @@ type OrderDetail struct {
 }
 
 type OrderHistory struct {
-	ID         int32              `json:"id"`
+	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
-	ShopID     int32              `json:"shop_id"`
+	ShopID     int32              `json:"-"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`

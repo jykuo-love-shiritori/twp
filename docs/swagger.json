@@ -204,7 +204,7 @@
                 }
             },
             "patch": {
-                "description": "Edit global coupon.",
+                "description": "Edit any coupon.",
                 "consumes": [
                     "application/json"
                 ],
@@ -328,6 +328,7 @@
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1954,9 +1955,6 @@
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
                 },
-                "shop_id": {
-                    "type": "integer"
-                },
                 "start_date": {
                     "type": "string"
                 },
@@ -2014,9 +2012,6 @@
                 },
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
-                },
-                "shop_id": {
-                    "type": "integer"
                 },
                 "start_date": {
                     "type": "string"
@@ -2285,9 +2280,6 @@
                     "type": "integer"
                 },
                 "shipment": {
-                    "type": "integer"
-                },
-                "shop_id": {
                     "type": "integer"
                 },
                 "status": {

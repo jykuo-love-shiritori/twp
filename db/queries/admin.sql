@@ -13,36 +13,6 @@ ORDER BY "id"
 LIMIT $1
 OFFSET $2;
 
--- name: UserExists :one
-
-SELECT EXISTS( SELECT 1 FROM "user" WHERE "username" = $1 );
-
--- name: AddUser :exec
-
-WITH _ AS (
-        INSERT INTO
-            "user" (
-                "username",
-                "password",
-                "name",
-                "email",
-                "address",
-                "image_id",
-                "role",
-                "credit_card"
-            )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    )
-INSERT INTO
-    "shop" (
-        "seller_name",
-        "image_id",
-        "name",
-        "description",
-        "enabled"
-    )
-VALUES ($1, $6, '', '', FALSE);
-
 -- name: EnabledShop :exec
 
 UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;

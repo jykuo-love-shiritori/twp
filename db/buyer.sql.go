@@ -54,7 +54,7 @@ WHERE "user_id" = $1
 `
 
 type GetOrderHistoryRow struct {
-	ID         int32              `json:"id"`
+	ID         int32              `json:"id" param:"id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`

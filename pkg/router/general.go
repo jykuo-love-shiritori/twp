@@ -24,11 +24,10 @@ import (
 // @Router			/shop/{seller_name} [get]
 func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var shopInfo db.GetShopInfoRow
 		sellerName := c.Param("seller_name")
 		if sellerName == "" {
 			logger.Errorw("seller_name is empty")
-			return echo.NewHTTPError(http.StatusBadRequest)
+			return echo.NewHTTPError(http.StatusBadRequest, "seller_name is empty")
 		}
 		if _, err := pg.Queries.ShopExists(c.Request().Context(), sellerName); err != nil {
 			if err == pgx.ErrNoRows {
@@ -119,14 +118,12 @@ func searchShopProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/tag/{id} [get]
 func getTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id := c.Param("id")
-		idInt, err := strconv.ParseInt(id, 10, 32)
+		idInt, err := strconv.ParseInt(c.Param("id"), 10, 32)
 		if err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		idInt32 := int32(idInt)
-		result, err := pg.Queries.GetTagInfo(c.Request().Context(), idInt32)
+		result, err := pg.Queries.GetTagInfo(c.Request().Context(), int32(idInt))
 		if err != nil {
 			if err == pgx.ErrNoRows {
 				return echo.NewHTTPError(http.StatusNotFound, "Tag Not Found")

@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 
@@ -16,18 +18,22 @@ import (
 // @Tags			Admin, User
 // @Produce		json
 // @Param			offset	query		int	false	"Begin index"	default(0)
-// @Param			limit	query		int	false	"limit"			default(10)
+// @Param			limit	query		int	false	"limit"			default(10) maximum(20)
 // @Success		200		{array}		db.GetUsersRow
 // @Failure		400		{object}	echo.HTTPError
 // @Router			/admin/user [get]
 func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var q db.GetUsersParams
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		users, err := pg.Queries.GetUsers(c.Request().Context(), q)
+		if !q.Validate() {
+			logger.Errorw("invalid query parameter", "offset", q.Offset, "limit", q.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
+		users, err := pg.Queries.GetUsers(c.Request().Context(), db.GetUsersParams{Offset: q.Offset, Limit: q.Limit})
 		if err != nil {
 			logger.Errorw("failed to get users", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -49,7 +55,7 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := c.Param("username")
-		if username == "" {
+		if username == "" { // would not happen in future
 			logger.Errorw("username is empty")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -78,12 +84,16 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/admin/coupon [get]
 func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var q db.GetAnyCouponsParams
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		result, err := pg.Queries.GetAnyCoupons(c.Request().Context(), q)
+		if !q.Validate() {
+			logger.Errorw("invalid query parameter", "offset", q.Offset, "limit", q.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
+		result, err := pg.Queries.GetAnyCoupons(c.Request().Context(), db.GetAnyCouponsParams{Offset: q.Offset, Limit: q.Limit})
 		if err != nil {
 			logger.Errorw("failed to get coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -155,7 +165,7 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 }
 
 // @Summary		Admin Edit Coupon
-// @Description	Edit global coupon.
+// @Description	Edit any coupon.
 // @Tags			Admin, Coupon
 // @Accept			json
 // @Produce		json
@@ -211,6 +221,11 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+type dateParams struct {
+	StartDate pgtype.Timestamptz `query:"start_date"`
+	EndDate   pgtype.Timestamptz `query:"end_date"`
+}
+
 // @Summary		Admin Get Site Report
 // @Description	Get site report.
 // @Tags			Admin, Report
@@ -223,12 +238,12 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var report db.GetReportParams
-		if err := c.Bind(&report); err != nil {
-			logger.Errorw("failed to bind report", "error", err)
+		var dates dateParams
+		if err := c.Bind(&dates); err != nil {
+			logger.Errorw("failed to bind dates", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		result, err := pg.Queries.GetReport(c.Request().Context(), report)
+		result, err := pg.Queries.GetReport(c.Request().Context(), db.GetReportParams{CreatedAt: dates.StartDate, CreatedAt_2: dates.EndDate})
 		if err != nil {
 			logger.Errorw("failed to get report", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

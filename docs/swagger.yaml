@@ -38,8 +38,6 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
-      shop_id:
-        type: integer
       start_date:
         type: string
       type:
@@ -78,8 +76,6 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
-      shop_id:
-        type: integer
       start_date:
         type: string
       type:
@@ -257,8 +253,6 @@ definitions:
       id:
         type: integer
       shipment:
-        type: integer
-      shop_id:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
@@ -470,7 +464,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Edit global coupon.
+      description: Edit any coupon.
       parameters:
       - description: Coupon ID
         in: path
@@ -550,6 +544,7 @@ paths:
       - default: 10
         description: limit
         in: query
+        maximum: 20
         name: limit
         type: integer
       produces:

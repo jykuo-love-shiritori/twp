@@ -37,7 +37,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id" swaggertype:"integer"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -79,58 +79,6 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 		&i.ExpireDate,
 	)
 	return i, err
-}
-
-const addUser = `-- name: AddUser :exec
-
-WITH _ AS (
-        INSERT INTO
-            "user" (
-                "username",
-                "password",
-                "name",
-                "email",
-                "address",
-                "image_id",
-                "role",
-                "credit_card"
-            )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    )
-INSERT INTO
-    "shop" (
-        "seller_name",
-        "image_id",
-        "name",
-        "description",
-        "enabled"
-    )
-VALUES ($1, $6, '', '', FALSE)
-`
-
-type AddUserParams struct {
-	SellerName string      `json:"seller_name" param:"seller_name"`
-	Password   string      `json:"password"`
-	Name       string      `json:"name"`
-	Email      string      `json:"email"`
-	Address    string      `json:"address"`
-	ImageID    pgtype.UUID `json:"image_id"`
-	Role       RoleType    `json:"role"`
-	CreditCard []byte      `json:"credit_card"`
-}
-
-func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
-	_, err := q.db.Exec(ctx, addUser,
-		arg.SellerName,
-		arg.Password,
-		arg.Name,
-		arg.Email,
-		arg.Address,
-		arg.ImageID,
-		arg.Role,
-		arg.CreditCard,
-	)
-	return err
 }
 
 const couponExists = `-- name: CouponExists :one
@@ -508,16 +456,4 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 		return nil, err
 	}
 	return items, nil
-}
-
-const userExists = `-- name: UserExists :one
-
-SELECT EXISTS( SELECT 1 FROM "user" WHERE "username" = $1 )
-`
-
-func (q *Queries) UserExists(ctx context.Context, username string) (bool, error) {
-	row := q.db.QueryRow(ctx, userExists, username)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
 }

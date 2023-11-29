@@ -15,7 +15,7 @@ sql:
           go_struct_tag: param:"id"
         - column: coupon.id
           go_struct_tag: param:"id"
-        - column: order_histroy.id
+        - column: order_history.id
           go_struct_tag: param:"id"
         - column: product.id
           go_struct_tag: param:"id"
@@ -24,7 +24,9 @@ sql:
         - column: cart.cart_id
           go_struct_tag: param:"seller_name"
         - column: coupon.shop_id
-          go_struct_tag: swaggertype:"integer"
+          go_struct_tag: json:"-"
+        - column: order_history.shop_id
+          go_struct_tag: json:"-"
         - column: coupon.start_date
           go_struct_tag: swaggertype:"string"
         - column: coupon.expire_date

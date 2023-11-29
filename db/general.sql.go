@@ -90,7 +90,7 @@ OFFSET $3
 `
 
 type GetShopCouponsParams struct {
-	ShopID pgtype.Int4 `json:"shop_id" swaggertype:"integer"`
+	ShopID pgtype.Int4 `json:"-"`
 	Limit  int32       `json:"limit"`
 	Offset int32       `json:"offset"`
 }

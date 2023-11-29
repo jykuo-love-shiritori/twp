@@ -4,11 +4,8 @@ import (
 	"regexp"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
-
-type Failure struct {
-	Msg string `json:"message"`
-}
 
 type QueryParams struct {
 	Offset int32 `query:"offset"` // the start index of the query
@@ -17,6 +14,13 @@ type QueryParams struct {
 
 func NewQueryParams(offset int32, limit int32) QueryParams {
 	return QueryParams{Offset: offset, Limit: limit}
+}
+
+func (q *QueryParams) Validate() bool {
+	if q.Offset < 0 || q.Limit < 0 || q.Limit > constants.QUERY_LIMIT {
+		return false
+	}
+	return true
 }
 
 type Cart struct {

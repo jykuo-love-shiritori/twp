@@ -210,7 +210,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Edit global coupon.",
+                "description": "Edit any coupon.",
                 "consumes": [
                     "application/json"
                 ],
@@ -334,6 +334,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1960,9 +1961,6 @@ const docTemplate = `{
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
                 },
-                "shop_id": {
-                    "type": "integer"
-                },
                 "start_date": {
                     "type": "string"
                 },
@@ -2020,9 +2018,6 @@ const docTemplate = `{
                 },
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
-                },
-                "shop_id": {
-                    "type": "integer"
                 },
                 "start_date": {
                     "type": "string"
@@ -2291,9 +2286,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "shipment": {
-                    "type": "integer"
-                },
-                "shop_id": {
                     "type": "integer"
                 },
                 "status": {
