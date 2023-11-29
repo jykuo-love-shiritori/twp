@@ -25,7 +25,7 @@ const Seller = () => {
 
             <SellerButtons />
           </Col>
-          <Col xs={12} md={9} ld={10}>
+          <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
             <Outlet />
           </Col>
         </Row>
