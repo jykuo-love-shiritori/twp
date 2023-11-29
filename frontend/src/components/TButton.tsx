@@ -1,6 +1,7 @@
 import '@components/style.css';
 import '@style/global.css';
 
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 interface Props {
@@ -9,19 +10,19 @@ interface Props {
 }
 
 const TButton = ({ text, url }: Props) => {
-  const button = <div className='button pointer center'>{text}</div>;
+  const button = <Button className='button pointer center'>{text}</Button>;
 
   const urlButton = (
-    <div style={{ width: '100%' }}>
-      <div className='button pointer'>
-        <Link to={url} className='none' style={{ color: 'white' }}>
-          <div className='center'>{text}</div>
-        </Link>
-      </div>
-    </div>
+    <Link to={url} style={{ color: 'white', width: '100%' }}>
+      <Button className='none button pointer center'>{text}</Button>
+    </Link>
   );
 
-  return <div className='center'>{url ? urlButton : button}</div>;
+  return (
+    <div className='center' style={{ width: '100%' }}>
+      {url ? urlButton : button}
+    </div>
+  );
 };
 
 export default TButton;

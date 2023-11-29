@@ -1,5 +1,6 @@
 import { faFile, faMoneyBill, faTruck, faBox } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 
 import CartItem from '@components/CartItem';
 import NotFound from '@components/NotFound';
@@ -10,11 +11,10 @@ import goodsData from '@pages/discover/goodsData.json';
 import historyData from '@pages/cart/boughtData.json';
 
 const HistoryEach = () => {
-  // get the id from router
-  const id = window.location.href.slice(-1);
+  // get the id from router & find the record if the id matches
+  const params = useParams();
+  const record = historyData.find((item) => item.recordID.toString() === params.history_id);
 
-  // find the record if the id matches
-  const record = historyData.find((item) => item.recordID.toString() === id);
   let Total = 0;
 
   if (record != undefined) {
@@ -56,8 +56,10 @@ const HistoryEach = () => {
 
         <UserItem img_path='../../../images/person.png' name='Tom Johnathan' />
 
-        {record?.items.map((data) => {
-          return <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} />;
+        {record?.items.map((data, index) => {
+          return (
+            <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} key={index} />
+          );
         })}
 
         <Row className='light'>

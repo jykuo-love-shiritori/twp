@@ -4,18 +4,18 @@ import HistoryItem from '@components/HistoryItem';
 
 import historyData from '@pages/cart/boughtData.json';
 
-const History = () => {
+const SellerShipment = () => {
   return (
     <div>
-      <div className='title'>Order history</div>
+      <div className='title'>All Shipments</div>
       <hr className='hr' />
       <br />
 
       <Row>
-        {historyData.map((item) => {
+        {historyData.map((item, index) => {
           return (
-            <Col xs={12}>
-              <HistoryItem id={item.recordID} />
+            <Col xs={12} key={index}>
+              <HistoryItem id={item.recordID} user='seller' />
             </Col>
           );
         })}
@@ -24,4 +24,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default SellerShipment;

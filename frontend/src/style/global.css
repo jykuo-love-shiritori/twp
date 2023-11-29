@@ -18,6 +18,10 @@ body {
   background-color: var(--bg);
 }
 
+textarea {
+  height: 150px;
+}
+
 .body_down {
   padding-top: 60px;
 }
@@ -78,6 +82,13 @@ p {
   justify-content: flex-start;
 }
 
+.wrap_login {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 .disappear_desktop {
   display: block;
 }
@@ -119,7 +130,7 @@ p {
   opacity: 1;
 }
 
-.title {
+.title_color {
   color: var(--title);
 }
 
@@ -165,5 +176,9 @@ p {
 
   .body_down {
     padding-top: 30px;
+  }
+
+  .flex-wrapper {
+    min-height: 50vh;
   }
 }

@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	_ "github.com/jykuo-love-shiritori/twp/docs"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
@@ -39,9 +41,19 @@ func RegisterDocs(e *echo.Echo) {
 func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api := e.Group("/api")
 
-	api.GET("/ping", func(c echo.Context) error { return c.JSON(http.StatusOK, map[string]string{"message": "pong"}) })
+	api.GET("/ping", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
+	}, auth.IsRole(db, logger, constants.ADMIN))
 
-	api.POST("/logout", logout(db, logger))
+	api.GET("/delay", func(c echo.Context) error {
+		time.Sleep(1 * time.Second)
+		return c.JSON(http.StatusOK, map[string]string{"message": "delay"})
+	})
+
+	api.POST("/signup", auth.Signup(db, logger))
+
+	api.Any("/oauth/authorize", auth.Authorize(db, logger))
+	api.POST("/oauth/token", auth.Token(db, logger))
 
 	// admin
 	api.GET("/admin/user", adminGetUser(db, logger))

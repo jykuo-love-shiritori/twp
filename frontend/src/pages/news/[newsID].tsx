@@ -5,6 +5,7 @@ import { Col, Row } from 'react-bootstrap';
 import NotFound from '@components/NotFound';
 
 import newsData from '@pages/home/newsData.json';
+import { useParams } from 'react-router-dom';
 
 interface Props {
   id: number | null;
@@ -16,17 +17,14 @@ interface Props {
 }
 
 const EachNews = () => {
-  const id = window.location.href.slice(-1);
-  console.log(id);
+  const params = useParams();
+
   const data: Props = { id: null, imgUrl: '', title: '', date: '', subTitle: '', content: '' };
-  const foundNews = newsData.find((news) => news.id.toString() === id);
+  const foundNews = newsData.find((news) => news.id.toString() === params.news_id);
 
   if (foundNews) {
     Object.assign(data, foundNews);
-  }
-  const isNewsExist = !!foundNews;
 
-  if (isNewsExist) {
     return (
       <div style={{ padding: '10% 10% 0% 10%' }}>
         <div className='news_bg flex-wrapper'>
