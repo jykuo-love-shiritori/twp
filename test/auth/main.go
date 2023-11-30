@@ -14,9 +14,10 @@ func main() {
 	conf := &oauth2.Config{
 		ClientID: "twp",
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://localhost:8080/api/oauth/authorize",
+			AuthURL:  "http://localhost:5173/authorize",
 			TokenURL: "http://localhost:8080/api/oauth/token",
 		},
+		RedirectURL: "http://localhost:5173/callback",
 	}
 
 	verifier := oauth2.GenerateVerifier()

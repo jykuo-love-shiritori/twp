@@ -9,7 +9,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
-	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -31,17 +30,18 @@ func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse data")
 		}
 
-		mu.RLock()
-		challenge := codeChallengePairs[params.Code]
-		mu.RUnlock()
+		mu.Lock()
+		user := codeChallengePairs[params.Code]
+		delete(codeChallengePairs, params.Code)
+		mu.Unlock()
 
-		if !verifyCodeChallenge(params.CodeVerifier, challenge) {
+		if !verifyCodeChallenge(params.CodeVerifier, user) {
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
 		claims := &jwtCustomClaims{
-			"someone", // TODO: remove hard-coded value
-			constants.ADMIN,
+			user.Username,
+			user.Role,
 			jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			},
@@ -60,15 +60,15 @@ func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-func verifyCodeChallenge(verifier string, challenge challenge) bool {
-	switch challenge.challengeMethod {
+func verifyCodeChallenge(verifier string, challenge challengeUser) bool {
+	switch challenge.ChallengeMethod {
 	case s256:
 		sha := sha256.Sum256([]byte(verifier))
 		hash := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
-		return challenge.challengeString == hash
+		return challenge.CodeChallenge == hash
 
 	case plain:
-		return challenge.challengeString == verifier
+		return challenge.CodeChallenge == verifier
 
 	default:
 		return false

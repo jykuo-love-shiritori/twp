@@ -57,16 +57,29 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 	return err
 }
 
-const findUserPassword = `-- name: FindUserPassword :one
+const findUserInfoAndPassword = `-- name: FindUserInfoAndPassword :one
 
-SELECT "password" FROM "user" WHERE "username" = $1 OR "email" = $1
+SELECT
+    "username",
+    "role",
+    "password"
+FROM "user"
+WHERE
+    "username" = $1
+    OR "email" = $1
 `
 
-func (q *Queries) FindUserPassword(ctx context.Context, username string) (string, error) {
-	row := q.db.QueryRow(ctx, findUserPassword, username)
-	var password string
-	err := row.Scan(&password)
-	return password, err
+type FindUserInfoAndPasswordRow struct {
+	Username string   `json:"username"`
+	Role     RoleType `json:"role"`
+	Password string   `json:"password"`
+}
+
+func (q *Queries) FindUserInfoAndPassword(ctx context.Context, username string) (FindUserInfoAndPasswordRow, error) {
+	row := q.db.QueryRow(ctx, findUserInfoAndPassword, username)
+	var i FindUserInfoAndPasswordRow
+	err := row.Scan(&i.Username, &i.Role, &i.Password)
+	return i, err
 }
 
 const userExists = `-- name: UserExists :one

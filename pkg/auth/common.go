@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/db"
 )
 
 type codeChallengeMethod string
@@ -20,7 +20,7 @@ const (
 )
 
 type jwtCustomClaims struct {
-	Username string         `json:"username"`
-	Role     constants.Role `json:"role"`
+	Username string      `json:"username"`
+	Role     db.RoleType `json:"role"`
 	jwt.RegisteredClaims
 }

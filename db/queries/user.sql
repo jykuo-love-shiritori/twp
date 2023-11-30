@@ -34,6 +34,13 @@ SELECT EXISTS (
             OR "email" = $2
     );
 
--- name: FindUserPassword :one
+-- name: FindUserInfoAndPassword :one
 
-SELECT "password" FROM "user" WHERE "username" = $1 OR "email" = $1;
+SELECT
+    "username",
+    "role",
+    "password"
+FROM "user"
+WHERE
+    "username" = $1
+    OR "email" = $1;
