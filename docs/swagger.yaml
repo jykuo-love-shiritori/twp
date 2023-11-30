@@ -51,6 +51,8 @@ definitions:
         type: number
       expire_date:
         type: string
+      id:
+        type: integer
       name:
         type: string
       scope:
@@ -68,6 +70,8 @@ definitions:
         type: number
       expire_date:
         type: string
+      id:
+        type: integer
       name:
         type: string
       scope:
@@ -95,21 +99,6 @@ definitions:
     - CouponTypePercentage
     - CouponTypeFixed
     - CouponTypeShipping
-  db.EditCouponParams:
-    properties:
-      description:
-        type: string
-      discount:
-        type: number
-      expire_date:
-        type: string
-      name:
-        type: string
-      start_date:
-        type: string
-      type:
-        $ref: '#/definitions/db.CouponType'
-    type: object
   db.EditCouponRow:
     properties:
       description:
@@ -118,6 +107,8 @@ definitions:
         type: number
       expire_date:
         type: string
+      id:
+        type: integer
       name:
         type: string
       scope:
@@ -135,6 +126,8 @@ definitions:
         type: number
       expire_date:
         type: string
+      id:
+        type: integer
       name:
         type: string
       scope:
@@ -189,6 +182,8 @@ definitions:
         type: number
       expire_date:
         type: string
+      id:
+        type: integer
       name:
         type: string
       scope:
@@ -292,6 +287,21 @@ definitions:
         type: string
       valid:
         type: boolean
+    type: object
+  router.PrettierCoupon:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      end_date:
+        type: string
+      name:
+        type: string
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
 externalDocs:
   description: OpenAPI
@@ -450,7 +460,7 @@ paths:
         name: coupon
         required: true
         schema:
-          $ref: '#/definitions/db.EditCouponParams'
+          $ref: '#/definitions/router.PrettierCoupon'
       produces:
       - application/json
       responses:

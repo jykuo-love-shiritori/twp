@@ -159,13 +159,22 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+type PrettierCoupon struct { // for swagger
+	Type        db.CouponType `json:"type"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Discount    float32       `json:"discount"`
+	StartDate   string        `json:"start_date"`
+	ExpireDate  string        `json:"end_date"`
+}
+
 // @Summary		Admin Edit Coupon
 // @Description	Edit any coupon.
 // @Tags			Admin, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			id		path		int					true	"Coupon ID"
-// @Param			coupon	body		db.EditCouponParams	true	"Coupon"
+// @Param			id		path		int				true	"Coupon ID"
+// @Param			coupon	body		PrettierCoupon	true	"Coupon"
 // @Success		200		{object}	db.EditCouponRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
@@ -220,16 +229,17 @@ type dateParams struct {
 }
 
 // TODO
-// @Summary		Admin Get Site Report
-// @Description	Get site report.
-// @Tags			Admin, Report
-// @Produce		json
-// @Param			start_date	query		string	true	"Start date"
-// @Param			end_date	query		string	true	"End date"
-// @Success		200			{string}	string "TODO"
-// @Failure		400			{object}	echo.HTTPError
-// @Failure		500			{object}	echo.HTTPError
-// @Router			/admin/report [get]
+//
+//	@Summary		Admin Get Site Report
+//	@Description	Get site report.
+//	@Tags			Admin, Report
+//	@Produce		json
+//	@Param			start_date	query		string	true	"Start date"
+//	@Param			end_date	query		string	true	"End date"
+//	@Success		200			{string}	string	"TODO"
+//	@Failure		400			{object}	echo.HTTPError
+//	@Failure		500			{object}	echo.HTTPError
+//	@Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var _ dateParams // keep for future

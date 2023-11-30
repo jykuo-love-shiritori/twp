@@ -201,7 +201,7 @@ type CartProduct struct {
 }
 
 type Coupon struct {
-	ID          int32              `json:"-" param:"id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"-"`

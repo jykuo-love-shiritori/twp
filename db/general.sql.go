@@ -94,7 +94,7 @@ type GetShopCouponsParams struct {
 }
 
 type GetShopCouponsRow struct {
-	ID          int32              `json:"-" param:"id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`

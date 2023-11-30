@@ -236,7 +236,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.EditCouponParams"
+                            "$ref": "#/definitions/router.PrettierCoupon"
                         }
                     }
                 ],
@@ -1996,6 +1996,9 @@ const docTemplate = `{
                 "expire_date": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -2021,6 +2024,9 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2060,29 +2066,6 @@ const docTemplate = `{
                 "CouponTypeShipping"
             ]
         },
-        "db.EditCouponParams": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.EditCouponRow": {
             "type": "object",
             "properties": {
@@ -2094,6 +2077,9 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2120,6 +2106,9 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2203,6 +2192,9 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2353,6 +2345,29 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "router.PrettierCoupon": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         }

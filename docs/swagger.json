@@ -230,7 +230,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.EditCouponParams"
+                            "$ref": "#/definitions/router.PrettierCoupon"
                         }
                     }
                 ],
@@ -1990,6 +1990,9 @@
                 "expire_date": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -2015,6 +2018,9 @@
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2054,29 +2060,6 @@
                 "CouponTypeShipping"
             ]
         },
-        "db.EditCouponParams": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.EditCouponRow": {
             "type": "object",
             "properties": {
@@ -2088,6 +2071,9 @@
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2114,6 +2100,9 @@
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2197,6 +2186,9 @@
                 },
                 "expire_date": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2347,6 +2339,29 @@
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "router.PrettierCoupon": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         }
