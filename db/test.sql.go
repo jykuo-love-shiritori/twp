@@ -573,7 +573,7 @@ INSERT INTO
 `
 
 type TestInsertUserParams struct {
-	ID         int32           `json:"-"`
+	ID         int32           `json:"id" param:"id"`
 	Username   string          `json:"username"`
 	Password   string          `json:"password"`
 	Name       string          `json:"name"`

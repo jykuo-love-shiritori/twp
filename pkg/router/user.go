@@ -6,6 +6,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // @Summary		User Get Info
@@ -77,6 +78,11 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+type updatePasswordParams struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 // @Summary		User Edit Password
 // @Description	Change user password
 // @Tags			User
@@ -91,19 +97,31 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var param db.UserUpdatePasswordParams
+		var param updatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
-
 		}
-		param.Username = username
-		orders, err := pg.Queries.UserUpdatePassword(c.Request().Context(), param)
+		currentPassword, err := pg.Queries.UserGetPassword(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		return c.JSON(http.StatusOK, orders)
+		if bcrypt.CompareHashAndPassword([]byte(currentPassword), []byte(param.CurrentPassword)) != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid password")
+		}
+
+		hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(param.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		userInfo, err := pg.Queries.UserUpdatePassword(c.Request().Context(), db.UserUpdatePasswordParams{Username: username, NewPassword: string(hashNewPassword)})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, userInfo)
 	}
 }
 

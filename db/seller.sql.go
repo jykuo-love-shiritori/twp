@@ -14,7 +14,7 @@ import (
 const haveTagName = `-- name: HaveTagName :one
 
 SELECT EXISTS (
-        SELECT t.id, shop_id, t.name, s.id, seller_name, image_id, s.name, description, enabled
+        SELECT 1
         FROM "tag" t
             LEFT JOIN "shop" s ON "shop_id" = s.id
         WHERE

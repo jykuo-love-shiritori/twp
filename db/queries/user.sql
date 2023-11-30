@@ -25,14 +25,16 @@ RETURNING
     "image_id",
     "enabled";
 
+-- name: UserGetPassword :one
+
+SELECT "password" FROM "user" WHERE "username" = $1;
+
 -- name: UserUpdatePassword :one
 
 UPDATE "user"
 SET
     "password" = sqlc.arg(new_password)
-WHERE
-    "username" = $1
-    AND "password" = sqlc.arg(current_password)
+WHERE "username" = $1
 RETURNING
     "id",
     "name",

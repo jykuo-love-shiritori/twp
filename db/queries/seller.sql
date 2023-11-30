@@ -36,7 +36,7 @@ LIMIT $3;
 -- name: HaveTagName :one
 
 SELECT EXISTS (
-        SELECT *
+        SELECT 1
         FROM "tag" t
             LEFT JOIN "shop" s ON "shop_id" = s.id
         WHERE

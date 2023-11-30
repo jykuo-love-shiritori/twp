@@ -104,7 +104,7 @@ WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	ID      int32       `json:"-"`
+	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
@@ -122,6 +122,18 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 		&i.Enabled,
 	)
 	return i, err
+}
+
+const userGetPassword = `-- name: UserGetPassword :one
+
+SELECT "password" FROM "user" WHERE "username" = $1
+`
+
+func (q *Queries) UserGetPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRow(ctx, userGetPassword, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
 }
 
 const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
@@ -170,7 +182,7 @@ type UserUpdateInfoParams struct {
 }
 
 type UserUpdateInfoRow struct {
-	ID      int32       `json:"-"`
+	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
@@ -201,9 +213,7 @@ const userUpdatePassword = `-- name: UserUpdatePassword :one
 UPDATE "user"
 SET
     "password" = $2
-WHERE
-    "username" = $1
-    AND "password" = $3
+WHERE "username" = $1
 RETURNING
     "id",
     "name",
@@ -214,13 +224,12 @@ RETURNING
 `
 
 type UserUpdatePasswordParams struct {
-	Username        string `json:"username"`
-	NewPassword     string `json:"new_password"`
-	CurrentPassword string `json:"current_password"`
+	Username    string `json:"username"`
+	NewPassword string `json:"new_password"`
 }
 
 type UserUpdatePasswordRow struct {
-	ID      int32       `json:"-"`
+	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
@@ -229,7 +238,7 @@ type UserUpdatePasswordRow struct {
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
-	row := q.db.QueryRow(ctx, userUpdatePassword, arg.Username, arg.NewPassword, arg.CurrentPassword)
+	row := q.db.QueryRow(ctx, userUpdatePassword, arg.Username, arg.NewPassword)
 	var i UserUpdatePasswordRow
 	err := row.Scan(
 		&i.ID,
