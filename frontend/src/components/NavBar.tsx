@@ -30,7 +30,7 @@ const NavBar = () => {
 
   return (
     <div className='navbar_twp'>
-      <Navbar expand='lg' style={{ padding: '0px 8% 0px 8%' }}>
+      <Navbar expand='xl' style={{ padding: '0px 8% 0px 8%' }}>
         <Row style={{ width: '100%' }}>
           <Col xs={2} className='center'>
             <NavbarBrand href='/' className='disappear_desktop'>
@@ -178,7 +178,7 @@ const NavBar = () => {
         </Row>
       </Navbar>
 
-      <div className='disappear_phone'>
+      <div className='disappear_phone disappear_tablet'>
         <hr style={{ color: 'white', opacity: '0.5', margin: '5px' }} />
 
         <Row className='center' style={{ padding: '0px 8% 0px 8%' }}>

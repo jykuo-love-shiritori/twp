@@ -144,7 +144,7 @@ p {
 }
 
 /* effect on desktop */
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 1200px) {
   .before_img {
     min-height: 100vh;
     flex-direction: column;
@@ -157,7 +157,7 @@ p {
 }
 
 /* effect on iPad */
-@media only screen and (min-width: 768px) and (max-width: 1023px) {
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
   .disappear_tablet {
     display: none;
   }
