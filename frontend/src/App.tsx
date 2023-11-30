@@ -5,6 +5,8 @@ import Home from '@pages/home';
 import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
+import Coupons from '@pages/coupon';
+import EachCoupon from '@pages/coupon/[couponID]';
 import Cart from '@pages/cart';
 import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
@@ -25,10 +27,15 @@ import NewCard from '@pages/user/buyer/security/NewCard';
 import UserViewShop from '@pages/user/shop';
 import Products from '@pages/user/seller/allProducts';
 import NewGoods from '@pages/user/seller/allProducts/NewGoods';
+import ManageSellerCoupons from '@pages/user/seller/allCoupons';
+import EachSellerCoupon from '@pages/user/seller/allCoupons/[sellerCouponID]';
+import NewSellerCoupon from '@pages/user/seller/allCoupons/newCoupon';
 import Authorize from '@pages/user/authorize';
+
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
+import SellerCoupons from '@pages/user/shop/SellerCoupons';
 
 function App() {
   return (
@@ -45,6 +52,8 @@ function App() {
             <Route path=':news_id' element={<EachNews />} />
           </Route>
           <Route path='/discover' element={<Discover />} />
+          <Route path='/coupons' element={<Coupons />} />
+          <Route path='/coupons/:coupon_id' element={<EachCoupon />} />
           <Route path='/user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />
@@ -61,7 +70,7 @@ function App() {
           <Route path='/user/seller' element={<Seller />}>
             <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
-            <Route path='/user/seller/manageCoupons' element={<NotFound />} />
+            <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />
             <Route path='/user/seller/orders' element={<SellerShipment />} />
             <Route path='/user/seller/reports' element={<NotFound />} />
           </Route>
@@ -71,10 +80,15 @@ function App() {
             <Route path=':goods_id' element={<EachSellerGoods />} />
           </Route>
 
+          <Route path='/user/seller/manageCoupons'>
+            <Route path='new' element={<NewSellerCoupon />} />
+            <Route path=':coupon_id' element={<EachSellerCoupon />} />
+          </Route>
+
           <Route path='/sellerID' element={<UserViewShop />}>
             <Route index element={<Shop />} />
             <Route path='/sellerID/shop' element={<Shop />} />
-            <Route path='/sellerID/coupons' element={<NotFound />} />
+            <Route path='/sellerID/coupons' element={<SellerCoupons />} />
           </Route>
 
           <Route path='sellerID/shop'>
