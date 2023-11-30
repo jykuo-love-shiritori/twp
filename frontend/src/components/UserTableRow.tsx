@@ -16,11 +16,9 @@ type UserTableRowProps = {
 const UserTableRow = ({ data }: UserTableRowProps) => {
   //delete checkbox
   const ColStyleOn = {
-    fontSize: '16px',
     padding: '1% 1% 1% 1%',
   };
   const ColStyleOff = {
-    fontSize: '16px',
     padding: '1% 1% 1% 1%',
     color: 'var(--layout)',
     textDecoration: 'line-through',
@@ -38,7 +36,7 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
     return (
       <>
         <hr />
-        <Row style={{ margin: '5px' }}>
+        <Row style={{ margin: '5px', fontSize: '20px' }}>
           <Col xs={4} md={4} className={'center'} style={currentStyle.style}>
             <img src={data.iconUrl} className='user_img' />
           </Col>
@@ -75,18 +73,18 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
 
   const UserTableRowBig = () => {
     return (
-      <Row style={{ padding: '0 0 0 0' }}>
+      <Row style={{ padding: '0 0 0 0', fontSize: '24px' }}>
         <Col md={1} className={'center'} style={currentStyle.style}>
           <img src={data.iconUrl} className='user_img' />
         </Col>
         <Col md={3} className={'left center_vertical'} style={currentStyle.style}>
-          <h4>{data.name}</h4>
+          {data.name}
         </Col>
         <Col md={5} className={'left center_vertical'} style={currentStyle.style}>
-          <h4>{data.email}</h4>
+          {data.email}
         </Col>
         <Col md={2} className={'left center_vertical'} style={currentStyle.style}>
-          <h4>{data.createDate}</h4>
+          {data.createDate}
         </Col>
         <Col md={1} className={'center center_vertical'} style={currentStyle.style}>
           <FontAwesomeIcon

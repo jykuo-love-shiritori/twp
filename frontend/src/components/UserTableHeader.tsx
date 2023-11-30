@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 const UserTableHeader = () => {
   return (
     <div className='disappear_tablet disappear_phone'>
-      <Row className='user_table_header' style={{ fontSize: '20px' }}>
+      <Row className='user_table_header'>
         <Col md={1} xs={2} style={{ textAlign: 'center' }}>
           Icon
         </Col>

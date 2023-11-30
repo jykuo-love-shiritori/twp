@@ -24,14 +24,14 @@ const ManageUser = () => {
         ))}
       </div>
       <div className='center' style={{ display: 'flex', flexDirection: 'row' }}>
-        <Row style={{ width: '100%' }}>
+        <Row style={{ width: '100%', margin: '2% 0 2% 0 ' }}>
           {/* pagination */}
-          <Col className='center' xl={6} md={12} xs={12} style={{ margin: '5px 0 0 0 ' }}>
+          <Col className='center' xl={6} xs={12}>
             <Pagination currentPageInit={1} totalPage={10} />
           </Col>
-
+          <Col className='disappear_desktop' xs={12} style={{ height: '1vh' }} />
           {/* comfirm buttom */}
-          <Col className='center' xl={6} md={12} xs={12} style={{ margin: '5px 0 5px 0' }}>
+          <Col className='center' xl={6} xs={12}>
             <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
           </Col>
         </Row>

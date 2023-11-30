@@ -330,10 +330,9 @@
 
 /* [item in page] manageUser */
 .user_table_header {
+  font-size: 24px;
   Col {
-    font-size: 16px;
     padding: 1% 1% 0 1%;
-    font-weight: 700;
   }
 }
 
