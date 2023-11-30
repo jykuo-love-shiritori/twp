@@ -76,7 +76,7 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller get available tag
 // @Description	Get all available tags for shop.
 // @Tags			Seller, Shop, Tag
-// @Param			name	body	string	true	"search tagname start with"	minlength(1)
+// @Param			name	body	string	true	"search tag name start with"	minlength(1)
 // @Produce		json
 // @success		200	{array}		db.SellerSearchTagRow
 // @Failure		400	{object}	echo.HTTPError
@@ -165,14 +165,14 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var requsetParam searchParams
-		if err := c.Bind(&requsetParam); err != nil {
+		var requestParam searchParams
+		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
 
-		param := db.SellerGetCouponParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
+		param := db.SellerGetCouponParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
 		coupons, err := pg.Queries.SellerGetCoupon(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -226,7 +226,7 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Param			type		body	string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
 // @Param			name		body	string	true	"name of coupon"
 // @Param			description	body	string	true	"description of coupon"
-// @Param			discount	body	number	false	"discount perscent"
+// @Param			discount	body	number	false	"discount"
 // @Param			start_date	body	time	true	"start date"
 // @Param			expire_date	body	time	true	"expire date"
 // @Accept			json
@@ -294,7 +294,7 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			type		body		string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
 // @Param			name		body		string	true	"name of coupon"
 // @Param			description	body		string	true	"description of coupon"
-// @Param			discount	body		number	false	"discount perscent"
+// @Param			discount	body		number	false	"discount"
 // @Param			start_date	body		time	true	"start date"
 // @Param			expire_date	body		time	true	"expire date"
 // @success		200			{object}	db.SellerUpdateCouponInfoRow
@@ -406,13 +406,13 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var username string = "user1"
 
-		var requsetParam searchParams
-		if err := c.Bind(&requsetParam); err != nil {
+		var requestParam searchParams
+		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param := db.SellerGetOrderParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
+		param := db.SellerGetOrderParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
 
 		orders, err := pg.Queries.SellerGetOrder(c.Request().Context(), param)
 		if err != nil {
@@ -482,7 +482,7 @@ func sellerUpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerF
 		param.SellerName = username
 
 		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
-		// paid > shipped > delivered > (canelled || finished)
+		// paid > shipped > delivered > (cancelled || finished)
 		if !((param.CurrentStatus == "paid" && param.SetStatus == "shipped") || (param.CurrentStatus == "shipped" && param.SetStatus == "delivered")) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -577,13 +577,13 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var requsetParam searchParams
-		if err := c.Bind(&requsetParam); err != nil {
+		var requestParam searchParams
+		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param := db.SellerProductListParams{SellerName: username, Limit: min(max(requsetParam.Limit, 3), 20), Offset: requsetParam.Offset}
+		param := db.SellerProductListParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
 		products, err := pg.Queries.SellerProductList(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
