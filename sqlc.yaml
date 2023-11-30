@@ -6,19 +6,32 @@ sql:
     gen:
       go: 
         emit_json_tags: true
+        emit_empty_slices: true
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
         overrides:
         - column: user.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: coupon.id
-          go_struct_tag: params:"id"
-        - column: order_histroy.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
+        - column: order_history.id
+          go_struct_tag: param:"id"
         - column: product.id
-          go_struct_tag: params:"id"
+          go_struct_tag: param:"id"
         - column: shop.seller_name
-          go_struct_tag: params:"seller_name"
+          go_struct_tag: param:"seller_name"
         - column: cart.cart_id
-          go_struct_tag: params:"seller_name"
+          go_struct_tag: param:"id"
+        - column: coupon.shop_id
+          go_struct_tag: json:"-"
+        - column: order_history.shop_id
+          go_struct_tag: json:"-"
+        - column: order_history.created_at
+          go_struct_tag: json:"-"
+        - column: coupon.start_date
+          go_struct_tag: swaggertype:"string"
+        - column: coupon.expire_date
+          go_struct_tag: swaggertype:"string"
+        - column: coupon.discount 
+          go_struct_tag: swaggertype:"number" 
