@@ -7,17 +7,20 @@ interface Props {
 }
 
 const Pagination = ({ currentPageInit = 1, totalPage, itemCount = 10 }: Props) => {
+  // TODO: change to useSearchParams, pass in change function
   const [currentPage, setCurrentPage] = useState(currentPageInit);
 
   const onPrevious = () => {
     if (currentPage - 1 > 0) {
       setCurrentPage(currentPage - 1);
+      // TODO
       console.log('offset: ' + (currentPage - 2) * itemCount);
     }
   };
   const onNext = () => {
     if (currentPage + 1 <= totalPage) {
       setCurrentPage(currentPage + 1);
+      // TODO
       console.log('offset: ' + currentPage * itemCount);
     }
   };
@@ -26,6 +29,7 @@ const Pagination = ({ currentPageInit = 1, totalPage, itemCount = 10 }: Props) =
     const inputPage = parseInt(e.target.value);
     if (inputPage > 0 && inputPage <= totalPage) {
       setCurrentPage(inputPage);
+      // TODO
       console.log('offset: ' + (inputPage - 1) * itemCount);
     }
   };
