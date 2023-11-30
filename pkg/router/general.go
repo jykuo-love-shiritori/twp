@@ -82,7 +82,8 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to check shop exists", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), db.GetShopCouponsParams{Offset: q.Offset, Limit: q.Limit, ShopID: pgtype.Int4{Int32: shop_id}})
+		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(),
+			db.GetShopCouponsParams{Offset: q.Offset, Limit: q.Limit, ShopID: pgtype.Int4{Int32: shop_id, Valid: true}})
 		if err != nil {
 			logger.Errorw("failed to get shop coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

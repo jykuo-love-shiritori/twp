@@ -164,7 +164,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/echo.HTTPError"
                         }
                     }
                 }

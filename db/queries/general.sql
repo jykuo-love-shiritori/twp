@@ -30,7 +30,9 @@ SELECT
     "start_date",
     "expire_date"
 FROM "coupon"
-WHERE "shop_id" = $1
+WHERE
+    "shop_id" = $1
+    OR "scope" = 'global'
 ORDER BY "id" ASC
 LIMIT $2
 OFFSET $3;

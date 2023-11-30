@@ -429,7 +429,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/echo.HTTPError'
       summary: Admin Get Coupon Detail
       tags:
       - Admin
