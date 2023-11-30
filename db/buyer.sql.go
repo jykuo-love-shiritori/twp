@@ -13,16 +13,24 @@ import (
 
 const getCart = `-- name: GetCart :many
 
-SELECT "id", "shop_id" FROM "cart" WHERE "user_id" = $1
+SELECT C."id", S."seller_name"
+FROM
+    "cart" AS C,
+    "user" AS U,
+    "shop" AS S
+WHERE
+    U."username" = $1
+    AND U."id" = C."user_id"
+    AND C."shop_id" = S."id"
 `
 
 type GetCartRow struct {
-	ID     int32 `json:"id"`
-	ShopID int32 `json:"shop_id"`
+	ID         int32  `json:"id"`
+	SellerName string `json:"seller_name" param:"seller_name"`
 }
 
-func (q *Queries) GetCart(ctx context.Context, userID int32) ([]GetCartRow, error) {
-	rows, err := q.db.Query(ctx, getCart, userID)
+func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, error) {
+	rows, err := q.db.Query(ctx, getCart, username)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +38,7 @@ func (q *Queries) GetCart(ctx context.Context, userID int32) ([]GetCartRow, erro
 	items := []GetCartRow{}
 	for rows.Next() {
 		var i GetCartRow
-		if err := rows.Scan(&i.ID, &i.ShopID); err != nil {
+		if err := rows.Scan(&i.ID, &i.SellerName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -44,14 +52,27 @@ func (q *Queries) GetCart(ctx context.Context, userID int32) ([]GetCartRow, erro
 const getOrderHistory = `-- name: GetOrderHistory :many
 
 SELECT
-    "id",
+    O."id",
     "shipment",
     "total_price",
     "status",
     "created_at"
-FROM "order_history"
-WHERE "user_id" = $1
+FROM
+    "order_history" AS O,
+    "user" AS U
+WHERE
+    U."username" = $1
+    AND U."id" = O."user_id"
+ORDER BY "created_at" ASC
+OFFSET $2
+LIMIT $3
 `
+
+type GetOrderHistoryParams struct {
+	Username string `json:"username"`
+	Offset   int32  `json:"offset"`
+	Limit    int32  `json:"limit"`
+}
 
 type GetOrderHistoryRow struct {
 	ID         int32              `json:"id" param:"id"`
@@ -61,8 +82,8 @@ type GetOrderHistoryRow struct {
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
-func (q *Queries) GetOrderHistory(ctx context.Context, userID int32) ([]GetOrderHistoryRow, error) {
-	rows, err := q.db.Query(ctx, getOrderHistory, userID)
+func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {
+	rows, err := q.db.Query(ctx, getOrderHistory, arg.Username, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

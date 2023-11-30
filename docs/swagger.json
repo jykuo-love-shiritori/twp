@@ -356,7 +356,7 @@
             }
         },
         "/admin/user/{username}": {
-            "patch": {
+            "delete": {
                 "description": "Disable user.",
                 "produces": [
                     "application/json"
@@ -1708,10 +1708,28 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.GetTagInfoRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -1975,9 +1993,6 @@
                 "expire_date": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -2003,9 +2018,6 @@
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2057,9 +2069,6 @@
                 "expire_date": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -2082,9 +2091,6 @@
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2111,9 +2117,6 @@
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2166,9 +2169,6 @@
                 "description": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
                 "exp_date": {
                     "$ref": "#/definitions/pgtype.Timestamptz"
                 },
@@ -2189,9 +2189,6 @@
                 },
                 "stock": {
                     "type": "integer"
-                },
-                "version": {
-                    "type": "integer"
                 }
             }
         },
@@ -2206,9 +2203,6 @@
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2237,6 +2231,17 @@
                     "type": "string"
                 },
                 "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.GetTagInfoRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

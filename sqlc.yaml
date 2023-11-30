@@ -25,6 +25,8 @@ sql:
           go_struct_tag: param:"seller_name"
         - column: coupon.shop_id
           go_struct_tag: json:"-"
+        - column: coupon.id
+          go_struct_tag: json:"-"
         - column: order_history.shop_id
           go_struct_tag: json:"-"
         - column: coupon.start_date

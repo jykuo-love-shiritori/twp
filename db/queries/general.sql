@@ -6,7 +6,9 @@ SELECT
     "name",
     "description"
 FROM "shop"
-WHERE "seller_name" = $1;
+WHERE
+    "seller_name" = $1
+    AND "enabled" = TRUE;
 
 -- name: ShopExists :one
 
@@ -29,7 +31,7 @@ SELECT
     "expire_date"
 FROM "coupon"
 WHERE "shop_id" = $1
-ORDER BY "id"
+ORDER BY "id" ASC
 LIMIT $2
 OFFSET $3;
 
@@ -41,17 +43,17 @@ SELECT "id", "name" FROM "tag" WHERE "id" = $1;
 
 SELECT
     "id",
-    "version",
     "name",
     "description",
     "price",
     "image_id",
     "exp_date",
     "stock",
-    "sales",
-    "enabled"
+    "sales"
 FROM "product"
-WHERE "id" = $1;
+WHERE
+    "id" = $1
+    AND "enabled" = TRUE;
 
 -- name: GetSellerNameByShopID :one
 

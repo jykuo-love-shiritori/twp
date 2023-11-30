@@ -15,22 +15,21 @@ const getProductInfo = `-- name: GetProductInfo :one
 
 SELECT
     "id",
-    "version",
     "name",
     "description",
     "price",
     "image_id",
     "exp_date",
     "stock",
-    "sales",
-    "enabled"
+    "sales"
 FROM "product"
-WHERE "id" = $1
+WHERE
+    "id" = $1
+    AND "enabled" = TRUE
 `
 
 type GetProductInfoRow struct {
 	ID          int32              `json:"id" param:"id"`
-	Version     int32              `json:"version"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price"`
@@ -38,7 +37,6 @@ type GetProductInfoRow struct {
 	ExpDate     pgtype.Timestamptz `json:"exp_date"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
-	Enabled     bool               `json:"enabled"`
 }
 
 func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoRow, error) {
@@ -46,7 +44,6 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 	var i GetProductInfoRow
 	err := row.Scan(
 		&i.ID,
-		&i.Version,
 		&i.Name,
 		&i.Description,
 		&i.Price,
@@ -54,7 +51,6 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.ExpDate,
 		&i.Stock,
 		&i.Sales,
-		&i.Enabled,
 	)
 	return i, err
 }
@@ -84,7 +80,7 @@ SELECT
     "expire_date"
 FROM "coupon"
 WHERE "shop_id" = $1
-ORDER BY "id"
+ORDER BY "id" ASC
 LIMIT $2
 OFFSET $3
 `
@@ -96,7 +92,7 @@ type GetShopCouponsParams struct {
 }
 
 type GetShopCouponsRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"-" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -143,7 +139,9 @@ SELECT
     "name",
     "description"
 FROM "shop"
-WHERE "seller_name" = $1
+WHERE
+    "seller_name" = $1
+    AND "enabled" = TRUE
 `
 
 type GetShopInfoRow struct {

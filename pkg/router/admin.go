@@ -2,7 +2,6 @@ package router
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -18,7 +17,7 @@ import (
 // @Tags			Admin, User
 // @Produce		json
 // @Param			offset	query		int	false	"Begin index"	default(0)
-// @Param			limit	query		int	false	"limit"			default(10) maximum(20)
+// @Param			limit	query		int	false	"limit"			default(10)	maximum(20)
 // @Success		200		{array}		db.GetUsersRow
 // @Failure		400		{object}	echo.HTTPError
 // @Router			/admin/user [get]
@@ -29,7 +28,7 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if !q.Validate() {
+		if q.Validate() != nil {
 			logger.Errorw("invalid query parameter", "offset", q.Offset, "limit", q.Limit)
 			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
 		}
@@ -51,7 +50,7 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		404			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
-// @Router			/admin/user/{username} [patch]
+// @Router			/admin/user/{username} [delete]
 func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := c.Param("username")
@@ -59,14 +58,12 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("username is empty")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		id, err := pg.Queries.GetUserIDByUsername(c.Request().Context(), username)
-		if err != nil {
-			logger.Errorw("failed to get user id", "error", err)
-			return echo.NewHTTPError(http.StatusNotFound, "User not found")
-		}
-		if err := pg.Queries.DisableUser(c.Request().Context(), id); err != nil {
+		if execRows, err := pg.Queries.DisableUser(c.Request().Context(), username); err != nil {
 			logger.Errorw("failed to disable user", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to disable user")
+		} else if execRows == 0 {
+			logger.Infow("user not found", "username", username)
+			return echo.NewHTTPError(http.StatusNotFound, "User not found")
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
@@ -89,7 +86,7 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if !q.Validate() {
+		if q.Validate() != nil {
 			logger.Errorw("invalid query parameter", "offset", q.Offset, "limit", q.Limit)
 			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
 		}
@@ -114,21 +111,19 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/admin/coupon/{id} [get]
 func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id := c.Param("id")
-		idInt, err := strconv.ParseInt(id, 10, 32)
-		if err != nil {
+		var id int32
+		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		idInt32 := int32(idInt)
-		if exist, err := pg.Queries.CouponExists(c.Request().Context(), idInt32); err != nil {
+		if exist, err := pg.Queries.CouponExists(c.Request().Context(), id); err != nil {
 			logger.Errorw("failed to check coupon exist", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else if !exist {
 			logger.Infow("coupon not found", "id", id)
 			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
-		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), idInt32); err != nil {
+		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), id); err != nil {
 			logger.Errorw("failed to get coupon detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else {
@@ -202,30 +197,29 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/admin/coupon/{id} [delete]
 func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id := c.Param("id")
-		idInt, err := strconv.ParseInt(id, 10, 32)
-		if err != nil {
+		var id int32
+		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		idInt32 := int32(idInt)
-		if err := c.Bind(&id); err != nil {
-			logger.Errorw("failed to bind id", "error", err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-		}
-		if err := pg.Queries.DeleteCoupon(c.Request().Context(), idInt32); err != nil {
+		if execRows, err := pg.Queries.DeleteCoupon(c.Request().Context(), id); err != nil {
 			logger.Errorw("failed to delete coupon", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if execRows == 0 {
+			logger.Infow("coupon not found", "id", id)
+			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }
 
+// For further implementation
 type dateParams struct {
 	StartDate pgtype.Timestamptz `query:"start_date"`
 	EndDate   pgtype.Timestamptz `query:"end_date"`
 }
 
+// TODO
 // @Summary		Admin Get Site Report
 // @Description	Get site report.
 // @Tags			Admin, Report
@@ -238,16 +232,7 @@ type dateParams struct {
 // @Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var dates dateParams
-		if err := c.Bind(&dates); err != nil {
-			logger.Errorw("failed to bind dates", "error", err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-		}
-		result, err := pg.Queries.GetReport(c.Request().Context(), db.GetReportParams{CreatedAt: dates.StartDate, CreatedAt_2: dates.EndDate})
-		if err != nil {
-			logger.Errorw("failed to get report", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		return c.JSON(http.StatusOK, result)
+		var _ dateParams // keep for future
+		return echo.NewHTTPError(http.StatusNotImplemented)
 	}
 }

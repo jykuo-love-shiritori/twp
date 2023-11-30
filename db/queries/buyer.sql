@@ -1,17 +1,32 @@
 -- name: GetOrderHistory :many
 
 SELECT
-    "id",
+    O."id",
     "shipment",
     "total_price",
     "status",
     "created_at"
-FROM "order_history"
-WHERE "user_id" = $1;
+FROM
+    "order_history" AS O,
+    "user" AS U
+WHERE
+    U."username" = $1
+    AND U."id" = O."user_id"
+ORDER BY "created_at" ASC
+OFFSET $2
+LIMIT $3;
 
 -- name: GetCart :many
 
-SELECT "id", "shop_id" FROM "cart" WHERE "user_id" = $1;
+SELECT C."id", S."seller_name"
+FROM
+    "cart" AS C,
+    "user" AS U,
+    "shop" AS S
+WHERE
+    U."username" = $1
+    AND U."id" = C."user_id"
+    AND C."shop_id" = S."id";
 
 -- name: GetProductInCart :many
 

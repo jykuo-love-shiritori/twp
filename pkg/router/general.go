@@ -2,11 +2,11 @@ package router
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -65,10 +65,14 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("seller_name is empty")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		var q db.GetShopCouponsParams
+		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := q.Validate(); err != nil {
+			logger.Errorw("failed to validate query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
 		}
 		shop_id, err := pg.Queries.ShopExists(c.Request().Context(), seller_name)
 		if err != nil {
@@ -78,8 +82,7 @@ func getShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to check shop exists", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		q.ShopID = pgtype.Int4{Int32: shop_id, Valid: true}
-		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), q)
+		coupons, err := pg.Queries.GetShopCoupons(c.Request().Context(), db.GetShopCouponsParams{Offset: q.Offset, Limit: q.Limit, ShopID: pgtype.Int4{Int32: shop_id}})
 		if err != nil {
 			logger.Errorw("failed to get shop coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -112,18 +115,20 @@ func searchShopProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Tag
 // @Accept			json
 // @Produce		json
-// @Param			id	path	int	true	"Tag ID"
-// @Success		200
-// @Failure		401
+// @Param			id	path		int	true	"Tag ID"
+// @Success		200	{object}	db.GetTagInfoRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/tag/{id} [get]
 func getTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idInt, err := strconv.ParseInt(c.Param("id"), 10, 32)
-		if err != nil {
+		var id int32
+		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		result, err := pg.Queries.GetTagInfo(c.Request().Context(), int32(idInt))
+		result, err := pg.Queries.GetTagInfo(c.Request().Context(), id)
 		if err != nil {
 			if err == pgx.ErrNoRows {
 				return echo.NewHTTPError(http.StatusNotFound, "Tag Not Found")
@@ -236,14 +241,12 @@ func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/product/{id} [get]
 func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id := c.Param("id")
-		idInt, err := strconv.ParseInt(id, 10, 32)
-		if err != nil {
+		var id int32
+		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		idInt32 := int32(idInt)
-		result, err := pg.Queries.GetProductInfo(c.Request().Context(), idInt32)
+		result, err := pg.Queries.GetProductInfo(c.Request().Context(), id)
 		if err != nil {
 			if err == pgx.ErrNoRows {
 				return echo.NewHTTPError(http.StatusNotFound, "Product Not Found")

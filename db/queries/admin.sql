@@ -9,21 +9,21 @@ SELECT
     "credit_card",
     "enabled"
 FROM "user"
-ORDER BY "id"
+ORDER BY "id" ASC
 LIMIT $1
 OFFSET $2;
 
--- name: EnabledShop :exec
+-- name: EnabledShop :execrows
 
 UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
 
--- name: DisableUser :exec
+-- name: DisableUser :execrows
 
 WITH disabled_user AS (
-        UPDATE "user" AS u
+        UPDATE "user"
         SET "enabled" = FALSE
         WHERE
-            u."id" = $1 RETURNING "username"
+            "username" = $1 RETURNING "username"
     ),
     disabled_shop AS (
         UPDATE "shop"
@@ -44,7 +44,7 @@ WHERE "shop_id" = (
 
 -- there are some sql 🪄 happening here
 
--- name: DisableShop :exec
+-- name: DisableShop :execrows
 
 WITH disable_shop AS (
         UPDATE "shop" AS s
@@ -59,7 +59,7 @@ WHERE p."shop_id" = (
         FROM disable_shop
     );
 
--- name: DisableProductsFromShop :exec
+-- name: DisableProductsFromShop :execrows
 
 UPDATE "product" AS p SET p."enabled" = FALSE WHERE p."shop_id" = $1;
 
@@ -69,7 +69,7 @@ SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 );
 
 -- name: GetAnyCoupons :many
 
-SELECT * FROM "coupon" ORDER BY "id" LIMIT $1 OFFSET $2;
+SELECT * FROM "coupon" ORDER BY "id" ASC LIMIT $1 OFFSET $2;
 
 -- name: GetCouponDetail :one
 
@@ -109,7 +109,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
 
 -- i don't feel right about this
 
--- name: EditCoupon :one
+-- name: EditCoupon :execrows
 
 UPDATE "coupon"
 SET
@@ -129,7 +129,7 @@ WHERE
     "start_date",
     "expire_date";
 
--- name: DeleteCoupon :exec
+-- name: DeleteCoupon :execrows
 
 WITH _ AS (
         DELETE FROM
@@ -139,13 +139,7 @@ WITH _ AS (
 DELETE FROM "coupon"
 WHERE "id" = $1;
 
--- name: GetReport :many
-
-SELECT *
-FROM "order_history"
-WHERE
-    "created_at" >= $1
-    AND "created_at" <= $2;
+-- TODO name: GetReport :many
 
 -- name: GetUserIDByUsername :one
 

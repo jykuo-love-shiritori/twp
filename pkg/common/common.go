@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -16,11 +17,11 @@ func NewQueryParams(offset int32, limit int32) QueryParams {
 	return QueryParams{Offset: offset, Limit: limit}
 }
 
-func (q *QueryParams) Validate() bool {
+func (q *QueryParams) Validate() error {
 	if q.Offset < 0 || q.Limit < 0 || q.Limit > constants.QUERY_LIMIT {
-		return false
+		return errors.New("invalid query parameter")
 	}
-	return true
+	return nil
 }
 
 type Cart struct {

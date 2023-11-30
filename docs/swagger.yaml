@@ -51,8 +51,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       scope:
@@ -70,8 +68,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       scope:
@@ -107,8 +103,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       start_date:
@@ -124,8 +118,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       scope:
@@ -143,8 +135,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       scope:
@@ -178,8 +168,6 @@ definitions:
     properties:
       description:
         type: string
-      enabled:
-        type: boolean
       exp_date:
         $ref: '#/definitions/pgtype.Timestamptz'
       id:
@@ -194,8 +182,6 @@ definitions:
         type: integer
       stock:
         type: integer
-      version:
-        type: integer
     type: object
   db.GetShopCouponsRow:
     properties:
@@ -205,8 +191,6 @@ definitions:
         type: number
       expire_date:
         type: string
-      id:
-        type: integer
       name:
         type: string
       scope:
@@ -225,6 +209,13 @@ definitions:
       name:
         type: string
       seller_name:
+        type: string
+    type: object
+  db.GetTagInfoRow:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   db.GetUsersRow:
@@ -565,7 +556,7 @@ paths:
       - Admin
       - User
   /admin/user/{username}:
-    patch:
+    delete:
       description: Disable user.
       parameters:
       - description: Username
@@ -1478,8 +1469,20 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.GetTagInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get Tag Info
       tags:
       - Tag

@@ -362,7 +362,7 @@ const docTemplate = `{
             }
         },
         "/admin/user/{username}": {
-            "patch": {
+            "delete": {
                 "description": "Disable user.",
                 "produces": [
                     "application/json"
@@ -1714,10 +1714,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.GetTagInfoRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -1981,9 +1999,6 @@ const docTemplate = `{
                 "expire_date": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -2009,9 +2024,6 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2063,9 +2075,6 @@ const docTemplate = `{
                 "expire_date": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -2088,9 +2097,6 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2117,9 +2123,6 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2172,9 +2175,6 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
                 "exp_date": {
                     "$ref": "#/definitions/pgtype.Timestamptz"
                 },
@@ -2195,9 +2195,6 @@ const docTemplate = `{
                 },
                 "stock": {
                     "type": "integer"
-                },
-                "version": {
-                    "type": "integer"
                 }
             }
         },
@@ -2212,9 +2209,6 @@ const docTemplate = `{
                 },
                 "expire_date": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2243,6 +2237,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.GetTagInfoRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
