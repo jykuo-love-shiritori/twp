@@ -107,7 +107,7 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success		200	{object}	db.GetCouponDetailRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
-// @Failure		500	{string}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/admin/coupon/{id} [get]
 func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -226,7 +226,7 @@ type dateParams struct {
 // @Produce		json
 // @Param			start_date	query		string	true	"Start date"
 // @Param			end_date	query		string	true	"End date"
-// @Success		200			{array}		db.OrderHistory
+// @Success		200			{string}	string "TODO"
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/admin/report [get]

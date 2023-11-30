@@ -291,12 +291,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "TODO",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.OrderHistory"
-                            }
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -2141,9 +2138,6 @@ const docTemplate = `{
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -2278,29 +2272,6 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
-                }
-            }
-        },
-        "db.OrderHistory": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "shipment": {
-                    "type": "integer"
-                },
-                "status": {
-                    "$ref": "#/definitions/db.OrderStatus"
-                },
-                "total_price": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },

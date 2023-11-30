@@ -146,8 +146,6 @@ definitions:
     type: object
   db.GetOrderHistoryRow:
     properties:
-      created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
       id:
         type: integer
       shipment:
@@ -236,21 +234,6 @@ definitions:
         $ref: '#/definitions/db.RoleType'
       username:
         type: string
-    type: object
-  db.OrderHistory:
-    properties:
-      created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      id:
-        type: integer
-      shipment:
-        type: integer
-      status:
-        $ref: '#/definitions/db.OrderStatus'
-      total_price:
-        type: integer
-      user_id:
-        type: integer
     type: object
   db.OrderStatus:
     enum:
@@ -505,11 +488,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: TODO
           schema:
-            items:
-              $ref: '#/definitions/db.OrderHistory'
-            type: array
+            type: string
         "400":
           description: Bad Request
           schema:
