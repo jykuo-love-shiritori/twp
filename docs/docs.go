@@ -857,7 +857,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "description": "discount perscent",
+                        "description": "discount",
                         "name": "discount",
                         "in": "body",
                         "schema": {
@@ -1052,7 +1052,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "description": "discount perscent",
+                        "description": "discount",
                         "name": "discount",
                         "in": "body",
                         "schema": {
@@ -2087,7 +2087,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "minLength": 1,
-                        "description": "search tagname start with",
+                        "description": "search tag name start with",
                         "name": "name",
                         "in": "body",
                         "required": true,

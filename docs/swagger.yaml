@@ -927,7 +927,7 @@ paths:
         required: true
         schema:
           type: string
-      - description: discount perscent
+      - description: discount
         in: body
         name: discount
         schema:
@@ -1059,7 +1059,7 @@ paths:
         required: true
         schema:
           type: string
-      - description: discount perscent
+      - description: discount
         in: body
         name: discount
         schema:
@@ -1762,7 +1762,7 @@ paths:
     get:
       description: Get all available tags for shop.
       parameters:
-      - description: search tagname start with
+      - description: search tag name start with
         in: body
         minLength: 1
         name: name

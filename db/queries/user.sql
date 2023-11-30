@@ -1,7 +1,6 @@
 -- name: UserGetInfo :one
 
 SELECT
-    "id",
     "name",
     "email",
     "image_id",
@@ -19,7 +18,6 @@ SET
     "image_id" = COALESCE($5, "image_id")
 WHERE "username" = $1
 RETURNING
-    "id",
     "name",
     "email",
     "image_id",
@@ -36,7 +34,6 @@ SET
     "password" = sqlc.arg(new_password)
 WHERE "username" = $1
 RETURNING
-    "id",
     "name",
     "email",
     "address",

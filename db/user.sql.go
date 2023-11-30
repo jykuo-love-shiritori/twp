@@ -94,7 +94,6 @@ func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.
 const userGetInfo = `-- name: UserGetInfo :one
 
 SELECT
-    "id",
     "name",
     "email",
     "image_id",
@@ -104,7 +103,6 @@ WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
@@ -115,7 +113,6 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 	row := q.db.QueryRow(ctx, userGetInfo, username)
 	var i UserGetInfoRow
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Email,
 		&i.ImageID,
@@ -166,7 +163,6 @@ SET
     "image_id" = COALESCE($5, "image_id")
 WHERE "username" = $1
 RETURNING
-    "id",
     "name",
     "email",
     "image_id",
@@ -182,7 +178,6 @@ type UserUpdateInfoParams struct {
 }
 
 type UserUpdateInfoRow struct {
-	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
@@ -199,7 +194,6 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 	)
 	var i UserUpdateInfoRow
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Email,
 		&i.ImageID,
@@ -215,7 +209,6 @@ SET
     "password" = $2
 WHERE "username" = $1
 RETURNING
-    "id",
     "name",
     "email",
     "address",
@@ -229,7 +222,6 @@ type UserUpdatePasswordParams struct {
 }
 
 type UserUpdatePasswordRow struct {
-	ID      int32       `json:"id" param:"id"`
 	Name    string      `json:"name"`
 	Email   string      `json:"email"`
 	Address string      `json:"address"`
@@ -241,7 +233,6 @@ func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePassword
 	row := q.db.QueryRow(ctx, userUpdatePassword, arg.Username, arg.NewPassword)
 	var i UserUpdatePasswordRow
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Email,
 		&i.Address,
