@@ -1,5 +1,6 @@
 package constants
 
 const (
-	SWAGGER_PATH string = "/swagger"
+	SWAGGER_PATH  = "/swagger"
+	API_BASE_PATH = "/api"
 )

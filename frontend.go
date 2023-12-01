@@ -11,7 +11,15 @@ import (
 func RegisterFrontend(e *echo.Echo) {
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: func(c echo.Context) bool {
-			return strings.HasPrefix(c.Request().URL.Path, constants.SWAGGER_PATH)
+			if strings.HasPrefix(c.Request().URL.Path, constants.SWAGGER_PATH) {
+				return true
+			}
+
+			if strings.HasPrefix(c.Request().URL.Path, constants.API_BASE_PATH) {
+				return true
+			}
+
+			return false
 		},
 		Root:  "frontend/dist",
 		HTML5: true,

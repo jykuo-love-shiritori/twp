@@ -17,7 +17,7 @@ const PasswordItem = ({ text, value, setValue }: Props) => {
         <input
           type='password'
           placeholder={text}
-          className='inputBox'
+          className='input_box'
           value={value ? value : ''}
           onChange={setValue ? (e) => setValue(e.target.value) : undefined}
         />

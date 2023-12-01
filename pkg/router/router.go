@@ -14,25 +14,25 @@ import (
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
-// @title           twp API
-// @version         0.o
-// @description     twp server api.
-// @termsOfService  http://swagger.io/terms/
+//	@title			twp API
+//	@version		0.o
+//	@description	twp server api.
+//	@termsOfService	http://swagger.io/terms/
 
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
 
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
-// @BasePath  /api
+//	@host		localhost:8080
+//	@BasePath	/api
 
-// @securityDefinitions.basic  BasicAuth
+//	@securityDefinitions.basic	BasicAuth
 
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func RegisterDocs(e *echo.Echo) {
 	docs := e.Group(constants.SWAGGER_PATH)
 	docs.GET("/*", echoSwagger.WrapHandler)
@@ -57,7 +57,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 
 	// admin
 	api.GET("/admin/user", adminGetUser(pg, logger))
-	api.DELETE("/admin/user/:id", adminDeleteUser(pg, logger))
+	api.DELETE("/admin/user/:username", adminDisableUser(pg, logger))
 
 	api.GET("/admin/coupon", adminGetCoupon(pg, logger))
 	api.GET("/admin/coupon/:id", adminGetCouponDetail(pg, logger))
@@ -78,9 +78,9 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/user/security/credit_card", userAddCreditCard(pg, logger))
 
 	// general
-	api.GET("/shop/:id", getShopInfo(pg, logger)) // user
-	api.GET("/shop/:id/coupon", getShopCoupon(pg, logger))
-	api.GET("/shop/:id/search", searchShopProduct(pg, logger))
+	api.GET("/shop/:seller_name", getShopInfo(pg, logger)) // user
+	api.GET("/shop/:seller_name/coupon", getShopCoupon(pg, logger))
+	api.GET("/shop/:seller_name/search", searchShopProduct(pg, logger))
 
 	api.GET("/tag/:id", getTagInfo(pg, logger))
 
