@@ -23,13 +23,9 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
     color: 'var(--layout)',
     textDecoration: 'line-through',
   };
-  const [currentStyle, setCurrentStyle] = useState({ state: true, style: ColStyleOn });
+  const [isEnable, setIsEnable] = useState(true);
   const toggleIsDelete = () => {
-    setCurrentStyle(
-      currentStyle.state
-        ? { state: false, style: ColStyleOff }
-        : { state: true, style: ColStyleOn },
-    );
+    setIsEnable(!isEnable);
   };
 
   const UserTableRowSmall = () => {
@@ -37,12 +33,17 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
       <>
         <hr />
         <Row style={{ margin: '5px', fontSize: '20px' }}>
-          <Col xs={4} md={4} className={'center'} style={currentStyle.style}>
+          <Col xs={4} md={4} className={'center'} style={isEnable ? ColStyleOn : ColStyleOff}>
             <img src={data.iconUrl} className='user_img' />
           </Col>
-          <Col xs={7} md={7} className={'left center_vertical'} style={currentStyle.style}>
+          <Col
+            xs={7}
+            md={7}
+            className={'left center_vertical'}
+            style={isEnable ? ColStyleOn : ColStyleOff}
+          >
             <Row>
-              <p style={currentStyle.style}>
+              <p style={isEnable ? ColStyleOn : ColStyleOff}>
                 {'name: ' + data.name} <br />
                 {'email: ' + data.email} <br />
                 {'created: ' + data.createDate}
@@ -55,7 +56,7 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
               className='center center_vertical'
               style={{
                 height: '100%',
-                ...currentStyle.style,
+                ...(isEnable ? ColStyleOn : ColStyleOff),
               }}
             >
               <FontAwesomeIcon
@@ -74,19 +75,23 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
   const UserTableRowBig = () => {
     return (
       <Row style={{ padding: '0 0 0 0', fontSize: '24px' }}>
-        <Col md={1} className={'center'} style={currentStyle.style}>
+        <Col md={1} className={'center'} style={isEnable ? ColStyleOn : ColStyleOff}>
           <img src={data.iconUrl} className='user_img' />
         </Col>
-        <Col md={3} className={'left center_vertical'} style={currentStyle.style}>
+        <Col md={3} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
           {data.name}
         </Col>
-        <Col md={5} className={'left center_vertical'} style={currentStyle.style}>
+        <Col md={5} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
           {data.email}
         </Col>
-        <Col md={2} className={'left center_vertical'} style={currentStyle.style}>
+        <Col md={2} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
           {data.createDate}
         </Col>
-        <Col md={1} className={'center center_vertical'} style={currentStyle.style}>
+        <Col
+          md={1}
+          className={'center center_vertical'}
+          style={isEnable ? ColStyleOn : ColStyleOff}
+        >
           <FontAwesomeIcon icon={faTrash} onClick={toggleIsDelete} style={{ cursor: 'pointer' }} />
         </Col>
       </Row>
