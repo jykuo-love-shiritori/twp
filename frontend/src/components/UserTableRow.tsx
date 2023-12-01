@@ -87,12 +87,7 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
           {data.createDate}
         </Col>
         <Col md={1} className={'center center_vertical'} style={currentStyle.style}>
-          <FontAwesomeIcon
-            icon={faTrash}
-            size='2x'
-            onClick={toggleIsDelete}
-            style={{ cursor: 'pointer' }}
-          />
+          <FontAwesomeIcon icon={faTrash} onClick={toggleIsDelete} style={{ cursor: 'pointer' }} />
         </Col>
       </Row>
     );

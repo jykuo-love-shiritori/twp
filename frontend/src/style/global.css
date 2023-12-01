@@ -72,7 +72,11 @@ p {
 .right {
   display: flex;
   justify-content: right;
-  align-items: center;
+}
+
+.left {
+  display: flex;
+  justify-content: left;
 }
 
 .flex-wrapper {
