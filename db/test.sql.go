@@ -125,8 +125,7 @@ const testInsertCart = `-- name: TestInsertCart :one
 
 INSERT INTO
     "cart" ("id", "user_id", "shop_id")
-VALUES ($1, $2, $3)
-RETURNING id, user_id, shop_id
+VALUES ($1, $2, $3) RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
@@ -146,8 +145,7 @@ const testInsertCartCoupon = `-- name: TestInsertCartCoupon :one
 
 INSERT INTO
     "cart_coupon" ("cart_id", "coupon_id")
-VALUES ($1, $2)
-RETURNING cart_id, coupon_id
+VALUES ($1, $2) RETURNING cart_id, coupon_id
 `
 
 type TestInsertCartCouponParams struct {
@@ -170,8 +168,7 @@ INSERT INTO
         "product_id",
         "quantity"
     )
-VALUES ($1, $2, $3)
-RETURNING cart_id, product_id, quantity
+VALUES ($1, $2, $3) RETURNING cart_id, product_id, quantity
 `
 
 type TestInsertCartProductParams struct {
@@ -193,6 +190,7 @@ INSERT INTO
     "coupon" (
         "id",
         "type",
+        "scope",
         "shop_id",
         "name",
         "description",
@@ -200,17 +198,17 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, type, shop_id, name, description, discount, start_date, expire_date
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
 `
 
 type TestInsertCouponParams struct {
 	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
-	ShopID      int32              `json:"shop_id"`
+	Scope       CouponScope        `json:"scope"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
 	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
@@ -219,6 +217,7 @@ func (q *Queries) TestInsertCoupon(ctx context.Context, arg TestInsertCouponPara
 	row := q.db.QueryRow(ctx, testInsertCoupon,
 		arg.ID,
 		arg.Type,
+		arg.Scope,
 		arg.ShopID,
 		arg.Name,
 		arg.Description,
@@ -230,6 +229,7 @@ func (q *Queries) TestInsertCoupon(ctx context.Context, arg TestInsertCouponPara
 	err := row.Scan(
 		&i.ID,
 		&i.Type,
+		&i.Scope,
 		&i.ShopID,
 		&i.Name,
 		&i.Description,
@@ -244,8 +244,7 @@ const testInsertCouponTag = `-- name: TestInsertCouponTag :one
 
 INSERT INTO
     "coupon_tag" ("tag_id", "coupon_id")
-VALUES ($1, $2)
-RETURNING coupon_id, tag_id
+VALUES ($1, $2) RETURNING coupon_id, tag_id
 `
 
 type TestInsertCouponTagParams struct {
@@ -269,8 +268,7 @@ INSERT INTO
         "product_version",
         "quantity"
     )
-VALUES ($1, $2, $3, $4)
-RETURNING order_id, product_id, product_version, quantity
+VALUES ($1, $2, $3, $4) RETURNING order_id, product_id, product_version, quantity
 `
 
 type TestInsertOrderDetailParams struct {
@@ -308,14 +306,13 @@ INSERT INTO
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
 	ID         int32       `json:"id" param:"id"`
 	UserID     int32       `json:"user_id"`
-	ShopID     int32       `json:"shop_id"`
+	ShopID     int32       `json:"-"`
 	Shipment   int32       `json:"shipment"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
@@ -373,14 +370,13 @@ VALUES (
         $9,
         $10,
         $11
-    )
-RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+    ) RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type TestInsertProductParams struct {
 	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
-	ShopID      int32              `json:"shop_id"`
+	ShopID      int32              `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
@@ -434,8 +430,7 @@ INSERT INTO
         "price",
         "image_id"
     )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, version, name, description, price, image_id
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, version, name, description, price, image_id
 `
 
 type TestInsertProductArchiveParams struct {
@@ -472,8 +467,7 @@ const testInsertProductTag = `-- name: TestInsertProductTag :one
 
 INSERT INTO
     "product_tag" ("tag_id", "product_id")
-VALUES ($1, $2)
-RETURNING tag_id, product_id
+VALUES ($1, $2) RETURNING tag_id, product_id
 `
 
 type TestInsertProductTagParams struct {
@@ -499,8 +493,7 @@ INSERT INTO
         "description",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, seller_name, image_id, name, description, enabled
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_name, image_id, name, description, enabled
 `
 
 type TestInsertShopParams struct {
@@ -537,8 +530,7 @@ const testInsertTag = `-- name: TestInsertTag :one
 
 INSERT INTO
     "tag" ("id", "shop_id", "name")
-VALUES ($1, $2, $3)
-RETURNING id, shop_id, name
+VALUES ($1, $2, $3) RETURNING id, shop_id, name
 `
 
 type TestInsertTagParams struct {

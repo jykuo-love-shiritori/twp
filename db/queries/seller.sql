@@ -16,8 +16,9 @@ SET
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "enabled" = COALESCE($5, "enabled")
-WHERE
-    "seller_name" = $1 RETURNING "seller_name",
+WHERE "seller_name" = $1
+RETURNING
+    "seller_name",
     "image_id",
     "name",
     "enabled";
@@ -56,14 +57,15 @@ VALUES ( (
                 AND s."enabled" = true
         ),
         $2
-    ) RETURNING "id",
-    "name";
+    )
+RETURNING "id", "name";
 
 -- name: SellerGetCoupon :many
 
 SELECT
     c."id",
     c."type",
+    c."scope",
     c."name",
     c."discount",
     c."expire_date"
@@ -77,8 +79,8 @@ OFFSET $3;
 -- name: SellerGetCouponDetail :one
 
 SELECT
-    c."id",
     c."type",
+    c."scope",
     c."name",
     c."discount",
     c."expire_date"
@@ -93,6 +95,7 @@ WHERE
 INSERT INTO
     "coupon" (
         "type",
+        "scope",
         "shop_id",
         "name",
         "description",
@@ -101,7 +104,7 @@ INSERT INTO
         "expire_date"
     )
 VALUES (
-        $2, (
+        $2, 'shop', (
             SELECT s."id"
             FROM "shop" s
             WHERE
@@ -113,8 +116,11 @@ VALUES (
         $5,
         $6,
         $7
-    ) RETURNING "id",
+    )
+RETURNING
+    "id",
     "type",
+    "scope",
     "name",
     "discount",
     "expire_date";
@@ -135,8 +141,11 @@ WHERE c."id" = $2 AND "shop_id" = (
         WHERE
             s."seller_name" = $1
             AND s."enabled" = true
-    ) RETURNING c."id",
+    )
+RETURNING
+    c."id",
     c."type",
+    c."scope",
     c."name",
     c."discount",
     c."expire_date";
@@ -212,7 +221,9 @@ WHERE "shop_id" = (
             AND s."enabled" = true
     )
     AND oh."id" = $2
-    AND oh."status" = sqlc.arg(current_status) RETURNING oh."id",
+    AND oh."status" = sqlc.arg(current_status)
+RETURNING
+    oh."id",
     oh."shipment",
     oh."total_price",
     oh."status",
@@ -225,7 +236,6 @@ WHERE "shop_id" = (
 -- name: SellerGetProductDetail :one
 
 SELECT
-    p."id",
     p."name",
     p."image_id",
     p."price",
@@ -286,7 +296,9 @@ VALUES (
         NOW(),
         $7,
         $8
-    ) RETURNING "id",
+    )
+RETURNING
+    "id",
     "name",
     "description",
     "price",
@@ -316,7 +328,9 @@ WHERE "shop_id" = (
             s."seller_name" = $1
             AND s."enabled" = true
     )
-    AND p."id" = $2 RETURNING "id",
+    AND p."id" = $2
+RETURNING
+    "id",
     "name",
     "description",
     "price",
@@ -340,10 +354,11 @@ WHERE "shop_id" = (
 
 -- name: SellerGetProductTag :many
 
-SELECT pt.*
+SELECT pt."tag_id", t."name"
 FROM "product_tag" pt
     JOIN "product" p ON p."id" = pt."product_id"
     JOIN "shop" s ON s."id" = p."shop_id"
+    JOIN "tag" t ON t."id" = pt."tag_id"
 WHERE
     s."seller_name" = $1
     AND "product_id" = $2
@@ -351,10 +366,11 @@ WHERE
 
 -- name: SellerGetCouponTag :many
 
-SELECT ct.*
+SELECT ct."tag_id", t."name"
 FROM "coupon_tag" ct
     JOIN "coupon" c ON c."id" = ct."coupon_id"
     JOIN "shop" s ON s."id" = c."shop_id"
+    JOIN "tag" t ON t."id" = ct."tag_id"
 WHERE
     s."seller_name" = $1
     AND "coupon_id" = $2;
@@ -380,7 +396,8 @@ WHERE EXISTS (
         WHERE
             s."seller_name" = $1
             AND p."id" = $3
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: SellerDeleteProductTag :execrows
 
@@ -419,7 +436,8 @@ WHERE EXISTS (
             s."seller_name" = $1
             AND s."enabled" = true
             AND c."id" = $3
-    ) RETURNING *;
+    )
+RETURNING *;
 
 -- name: SellerDeleteCouponTag :execrows
 

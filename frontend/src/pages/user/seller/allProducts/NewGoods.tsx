@@ -21,6 +21,19 @@ const EmptyGoods = () => {
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>([]);
   const [modification, setModification] = useState<boolean[]>([]);
+  const [file, setFile] = useState<string | null>(null);
+  const [name, setName] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+  const [quantity, setQuality] = useState<string>('');
+  const [introduction, setIntroduction] = useState<string>('');
+  const [BBD, setBBD] = useState<string>('');
+
+  const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const uploadedFile = e.target.files[0];
+      setFile(URL.createObjectURL(uploadedFile));
+    }
+  };
 
   const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 229) return;
@@ -60,26 +73,59 @@ const EmptyGoods = () => {
           <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div
               style={{
-                backgroundColor: 'black',
-                padding: '30% 3% 5% 3%',
+                position: 'relative',
+                width: '100%',
+                height: '100%',
                 borderRadius: '0 0 30px 0',
               }}
             >
-              <div className='center'>
-                <FontAwesomeIcon icon={faFileUpload} size='6x' />
+              <div
+                className='center'
+                style={{ backgroundColor: 'black', borderRadius: '0 0 30px 0' }}
+              >
+                {file ? (
+                  <div>
+                    <img
+                      src={file}
+                      alt='File preview'
+                      style={{ width: '100%', height: '100%', borderRadius: '0 0 30px 0' }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ padding: '30% 5% 30% 5%' }}>
+                    <FontAwesomeIcon icon={faFileUpload} size='6x' />
+                  </div>
+                )}
               </div>
               <br />
-              <Row>
+              <Row
+                style={{
+                  position: 'absolute',
+                  zIndex: '1',
+                  right: '0px',
+                  bottom: '40px',
+                }}
+              >
                 <Col xs={9}></Col>
                 <Col xs={3}>
                   <form method='post' encType='multipart/form-data'>
-                    <label htmlFor='file' className='custom-file-upload'>
+                    <label
+                      htmlFor='file'
+                      className='custom-file-upload'
+                      style={{ minWidth: '40px' }}
+                    >
                       <div className='button pointer center' style={{ padding: '10px' }}>
                         <FontAwesomeIcon icon={faPen} className='white_word' />
                       </div>
                     </label>
 
-                    <input id='file' name='file' type='file' style={{ display: 'none' }} />
+                    <input
+                      id='file'
+                      name='file'
+                      type='file'
+                      style={{ display: 'none' }}
+                      onChange={uploadFile}
+                    />
                   </form>
                 </Col>
               </Row>
@@ -115,7 +161,7 @@ const EmptyGoods = () => {
                         onClick={() => changeModification(index)}
                       />
                     </Col>
-                    <Col xs={10}>
+                    <Col xs={8} lg={10}>
                       {modification[index] ? (
                         <input
                           type='text'
@@ -132,7 +178,7 @@ const EmptyGoods = () => {
                           }}
                         />
                       ) : (
-                        <span>{currentTag}</span>
+                        <span style={{ wordBreak: 'break-all' }}>{currentTag}</span>
                       )}
                     </Col>
                   </Row>
@@ -147,11 +193,21 @@ const EmptyGoods = () => {
         </Col>
         <Col xs={12} md={7}>
           <div style={{ padding: '7% 0% 7% 0%' }}>
-            <InfoItem text='Product Name' isMore={false} />
-            <InfoItem text='Product Price' isMore={false} />
-            <InfoItem text='Product Quality' isMore={false} />
-            <InfoItem text='Product Introduction' isMore={true} />
-            <InfoItem text='Best Before Date' isMore={true} />
+            <InfoItem text='Product Name' isMore={false} value={name} setValue={setName} />
+            <InfoItem text='Product Price' isMore={false} value={price} setValue={setPrice} />
+            <InfoItem
+              text='Product Quantity'
+              isMore={false}
+              value={quantity}
+              setValue={setQuality}
+            />
+            <InfoItem
+              text='Product Introduction'
+              isMore={true}
+              value={introduction}
+              setValue={setIntroduction}
+            />
+            <InfoItem text='Best Before Date' isMore={true} value={BBD} setValue={setBBD} />
           </div>
         </Col>
       </Row>

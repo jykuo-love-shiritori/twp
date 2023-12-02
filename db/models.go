@@ -12,6 +12,48 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type CouponScope string
+
+const (
+	CouponScopeGlobal CouponScope = "global"
+	CouponScopeShop   CouponScope = "shop"
+)
+
+func (e *CouponScope) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CouponScope(s)
+	case string:
+		*e = CouponScope(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CouponScope: %T", src)
+	}
+	return nil
+}
+
+type NullCouponScope struct {
+	CouponScope CouponScope `json:"coupon_scope"`
+	Valid       bool        `json:"valid"` // Valid is true if CouponScope is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCouponScope) Scan(value interface{}) error {
+	if value == nil {
+		ns.CouponScope, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CouponScope.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCouponScope) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CouponScope), nil
+}
+
 type CouponType string
 
 const (
@@ -162,10 +204,11 @@ type CartProduct struct {
 type Coupon struct {
 	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
-	ShopID      int32              `json:"shop_id"`
+	Scope       CouponScope        `json:"scope"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"string"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
 	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
@@ -185,17 +228,17 @@ type OrderDetail struct {
 type OrderHistory struct {
 	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
-	ShopID     int32              `json:"shop_id"`
+	ShopID     int32              `json:"-"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
 }
 
 type Product struct {
 	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
-	ShopID      int32              `json:"shop_id"`
+	ShopID      int32              `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`

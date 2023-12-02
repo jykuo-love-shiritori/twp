@@ -1,18 +1,18 @@
-CREATE TYPE
-    "order_status" AS ENUM (
-        'paid',
-        'shipped',
-        'delivered',
-        'cancelled',
-        'finished'
-    );
+CREATE TYPE "order_status" AS ENUM (
+    'paid',
+    'shipped',
+    'delivered',
+    'cancelled',
+    'finished'
+);
 
-CREATE TYPE
-    "coupon_type" AS ENUM (
-        'percentage',
-        'fixed',
-        'shipping'
-    );
+CREATE TYPE "coupon_type" AS ENUM (
+    'percentage',
+    'fixed',
+    'shipping'
+);
+
+CREATE TYPE "coupon_scope" AS ENUM ('global', 'shop');
 
 CREATE TYPE "role_type" AS ENUM ('admin', 'customer');
 
@@ -95,7 +95,8 @@ CREATE TABLE
     "coupon" (
         "id" SERIAL PRIMARY KEY,
         "type" coupon_type NOT NULL,
-        "shop_id" INT NOT NULL,
+        "scope" coupon_scope NOT NULL,
+        "shop_id" INT,
         "name" TEXT NOT NULL,
         "description" TEXT NOT NULL,
         "discount" DECIMAL(5, 2) NOT NULL,
@@ -114,7 +115,7 @@ CREATE TABLE
         "image_id" UUID NOT NULL,
         "role" role_type NOT NULL,
         "credit_card" JSONB NOT NULL,
-        "enabled" BOOL NOT NULL
+        "enabled" BOOLEAN NOT NULL DEFAULT TRUE -- if user deleted, set enabled to false
     );
 
 CREATE TABLE

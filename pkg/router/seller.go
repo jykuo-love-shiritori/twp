@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -14,11 +15,11 @@ type orderDetail struct {
 }
 type productDetail struct {
 	ProductInfo db.SellerGetProductDetailRow `json:"product_info"`
-	Tags        []db.ProductTag              `json:"tags"`
+	Tags        []db.SellerGetProductTagRow  `json:"tags"`
 }
 type couponDetail struct {
 	CouponInfo db.SellerGetCouponDetailRow `json:"coupon_info"`
-	Tags       []db.CouponTag              `json:"tags"`
+	Tags       []db.SellerGetCouponTagRow  `json:"tags"`
 }
 
 // @Summary		Seller get shop info
@@ -94,7 +95,7 @@ func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		if param.Name == "" || hasRegexSpecialChars(param.Name) {
+		if param.Name == "" || common.HasRegexSpecialChars(param.Name) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
@@ -130,7 +131,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		if param.Name == "" || hasRegexSpecialChars(param.Name) {
+		if param.Name == "" || common.HasRegexSpecialChars(param.Name) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
@@ -165,14 +166,18 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var requestParam searchParams
+		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
+		if requestParam.Validate() != nil {
+			logger.Errorw("invalid query parameter", "offset", requestParam.Offset, "limit", requestParam.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
 
-		param := db.SellerGetCouponParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
+		param := db.SellerGetCouponParams{SellerName: username, Limit: requestParam.Limit, Offset: requestParam.Offset}
 		coupons, err := pg.Queries.SellerGetCoupon(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
@@ -406,13 +411,17 @@ func sellerGetOrder(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		var username string = "user1"
 
-		var requestParam searchParams
+		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param := db.SellerGetOrderParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
+		if requestParam.Validate() != nil {
+			logger.Errorw("invalid query parameter", "offset", requestParam.Offset, "limit", requestParam.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
+		param := db.SellerGetOrderParams{SellerName: username, Limit: requestParam.Limit, Offset: requestParam.Offset}
 
 		orders, err := pg.Queries.SellerGetOrder(c.Request().Context(), param)
 		if err != nil {
@@ -577,13 +586,17 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var requestParam searchParams
+		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
-
 		}
-		param := db.SellerProductListParams{SellerName: username, Limit: min(max(requestParam.Limit, 3), 20), Offset: requestParam.Offset}
+		if requestParam.Validate() != nil {
+			logger.Errorw("invalid query parameter", "offset", requestParam.Offset, "limit", requestParam.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
+		logger.Info(requestParam)
+		param := db.SellerProductListParams{SellerName: username, Limit: requestParam.Limit, Offset: requestParam.Offset}
 		products, err := pg.Queries.SellerProductList(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
