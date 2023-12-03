@@ -21,7 +21,7 @@ const ManageSellerCoupons = () => {
         <Row style={tableStyle}>
           {couponsData.map((data, index) => {
             return (
-              <Col xs={6} md={4} key={index} style={{ padding: '10px' }}>
+              <Col xs={6} md={4} key={index} style={{ padding: '2%' }}>
                 <CouponItem data={data} />
               </Col>
             );
