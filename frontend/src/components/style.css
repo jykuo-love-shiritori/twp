@@ -435,6 +435,7 @@
   text-decoration: underline;
 }
 
+/* [item in page] edit coupon pages*/
 .coupon_date_picker {
   .react-datepicker-wrapper {
     width: 100%;
