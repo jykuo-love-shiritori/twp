@@ -403,6 +403,7 @@
   font-weight: 900;
 }
 
+/* [item in page] coupon item */
 .coupon_modal {
   .modal-dialog {
     min-width: 50vw;
@@ -419,4 +420,17 @@
     border-bottom: #ffffff7f solid 1px;
     color: var(--button_light);
   }
+}
+
+/* [item in page] all coupon */
+.more_button {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--title);
+  cursor: pointer;
+  user-select: none;
+}
+.more_button:hover {
+  transition: all 0.3s ease-in-out;
+  text-decoration: underline;
 }

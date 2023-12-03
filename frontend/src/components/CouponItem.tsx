@@ -78,13 +78,13 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
         </Modal.Header>
         <Modal.Body>
           <Row>
-            <Col xs={3} md={2} className='center' style={{ paddingTop: '4%' }}>
+            <Col xs={3} md={2} className='center'>
               <img src='../../images/person.png' className='user_img' />
             </Col>
-            <Col xs={4} md={6} className='center_vertical left' style={{ padding: '4% 0 0 0' }}>
+            <Col xs={4} md={6} className='center_vertical left'>
               Name
             </Col>
-            <Col xs={5} md={4} style={{ padding: '4% 0 0 0' }}>
+            <Col xs={5} md={4}>
               <TButton text='ViewShop' url={''} />
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
