@@ -402,3 +402,21 @@
   font-size: 20px;
   font-weight: 900;
 }
+
+.coupon_modal {
+  .modal-dialog {
+    min-width: 50vw;
+  }
+  .modal-content {
+    padding: 0 8% 8% 8%;
+    background-color: var(--bg);
+    box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+    border: var(--border) solid 2px;
+    color: white;
+  }
+  .modal-header {
+    border-bottom: #ffffff7f solid 1px;
+    color: var(--button_light);
+  }
+}
