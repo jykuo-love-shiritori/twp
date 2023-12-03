@@ -58,7 +58,7 @@ const NewSellerCoupon = () => {
   };
 
   const changeDate = (date: Date) => {
-    setDate(date.toISOString().split('T')[0].replace(/-/g, '/'));
+    setDate(date.toISOString().split('T')[0].slice(5).replace(/-/g, '/'));
   };
 
   return (
@@ -74,6 +74,7 @@ const NewSellerCoupon = () => {
                   policy: policy,
                   date: date,
                   tags: tagContainer.map((tag) => ({ name: tag })),
+                  introduction: introduction,
                 }}
               />
             </div>

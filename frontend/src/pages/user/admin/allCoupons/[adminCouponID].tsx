@@ -88,7 +88,7 @@ const EachAdminCoupon = () => {
   };
 
   const changeDate = (date: Date) => {
-    setDate(date.toISOString().split('T')[0].replace(/-/g, '/'));
+    setDate(date.toISOString().split('T')[0].slice(5).replace(/-/g, '/'));
   };
 
   return (
@@ -97,7 +97,16 @@ const EachAdminCoupon = () => {
         <Col xs={12} md={5} className='goods_bgW'>
           <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div style={{ padding: '15% 10%' }}>
-              <CouponItem data={data} />
+              <CouponItem
+                data={{
+                  id: null,
+                  name: name,
+                  policy: policy,
+                  date: date,
+                  tags: tagContainer.map((tag) => ({ name: tag })),
+                  introduction: introduction,
+                }}
+              />
             </div>
             <span className='dark'>add more tags</span>
 
