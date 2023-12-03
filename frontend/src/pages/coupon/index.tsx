@@ -12,13 +12,28 @@ const Coupons = () => {
               {data.owner}
             </Col>
             <hr style={{ border: '1px solid white', borderRadius: '5px', opacity: '.5' }} />
-            {data.coupons.map((data, index) => {
-              return (
-                <Col xs={6} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                  <CouponItem data={data} />
-                </Col>
-              );
-            })}
+            <div className='disappear_phone'>
+              <Row>
+                {data.coupons.map((data, index) => {
+                  return (
+                    <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
+                      <CouponItem data={data} />
+                    </Col>
+                  );
+                })}
+              </Row>
+            </div>
+            <div className='disappear_desktop disappear_tablet'>
+              <Row>
+                {data.coupons.map((data, index) => {
+                  return (
+                    <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
+                      <CouponItem data={data} />
+                    </Col>
+                  );
+                })}
+              </Row>
+            </div>
             <Col xs={12} className='right'>
               <div className='more_button'>{'more >'}</div>
             </Col>

@@ -13,6 +13,7 @@ interface CouponItemProps {
     name: string;
     policy: string;
     date: string;
+    introduction: string;
     tags: { name: string }[];
   };
 }
@@ -27,28 +28,30 @@ const couponStyle = {
 
 const PreCouponItem = ({ data }: CouponItemProps) => {
   return (
-    <Row style={{ height: '100%', padding: '2% 0' }}>
-      <Col xs={8} md={9} xl={8} className='center'>
-        <div>
-          <div className='center' style={{ fontSize: '16px', fontWeight: '700', color: 'white' }}>
-            {data.name}
+    <div style={{ height: '100%', padding: '2% 0' }}>
+      <Row>
+        <Col xs={9} md={9} xl={8} className='center'>
+          <div>
+            <div className='center' style={{ fontSize: '20px', fontWeight: '700', color: 'white' }}>
+              {data.name}
+            </div>
+            <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
+              {data.policy}
+            </div>
           </div>
-          <div className='center' style={{ fontSize: '12px', fontWeight: '500', color: 'white' }}>
-            {data.policy}
+        </Col>
+        <Col xs={3} md={3} xl={4} className='center' style={{ borderLeft: '2px dashed #AAAAAA' }}>
+          <div>
+            <div className='center' style={{ fontSize: '20px', fontWeight: '500', color: 'white' }}>
+              exp
+            </div>
+            <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
+              {data.date}
+            </div>
           </div>
-        </div>
-      </Col>
-      <Col xs={4} md={3} xl={4} className='center' style={{ borderLeft: '2px dashed #AAAAAA' }}>
-        <div>
-          <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-            exp
-          </div>
-          <div className='center' style={{ fontSize: '12px', fontWeight: '500', color: 'white' }}>
-            {data.date}
-          </div>
-        </div>
-      </Col>
-    </Row>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
@@ -89,15 +92,12 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
               <TButton text='ViewShop' url={''} />
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
-              <div style={{ ...couponStyle, minWidth: '50%' }}>
-                <PreCouponItem data={data} />
+              <div style={{ minWidth: '50%' }}>
+                <CouponItem data={data} />
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
-              <p>
-                Gather your loved ones and enjoy a 30% discount on your entire bill when you order
-                dessert for four or more. It's the perfect excuse for a dessert night out.
-              </p>
+              <p>{data.introduction}</p>
             </Col>
             <Col xs={12} style={{ fontSize: '20px', color: '#ffffff7f' }}>
               Expire at: {data.date}

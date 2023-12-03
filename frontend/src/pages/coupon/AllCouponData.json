@@ -7,6 +7,7 @@
         "name": "Coupon 1",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -25,6 +26,7 @@
         "name": "Coupon 2",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -42,6 +44,7 @@
         "name": "Coupon 1",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -54,6 +57,7 @@
         "name": "Coupon 2",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -66,6 +70,7 @@
         "name": "Coupon 3",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -78,6 +83,7 @@
         "name": "Coupon 4",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -95,6 +101,7 @@
         "name": "Coupon 1",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -107,6 +114,7 @@
         "name": "Coupon 2",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
@@ -119,6 +127,7 @@
         "name": "Coupon 3",
         "policy": "Save 20%",
         "date": "10/10",
+        "introduction": "This is a coupon",
         "tags": [
           { "name": "tag1 test" },
           { "name": "tag2" },
