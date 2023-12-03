@@ -25,28 +25,27 @@ const NavBar = () => {
     border: 'none',
   };
 
+  // TODO: read user auth later
+  const isAdmin = true;
+
   return (
     <div className='navbar_twp'>
-      <Navbar expand='lg' style={{ padding: '0px 8% 0px 8%' }}>
+      <Navbar expand='xl' style={{ padding: '0px 8% 0px 8%' }}>
         <Row style={{ width: '100%' }}>
           <Col xs={2} className='center'>
             <NavbarBrand href='/' className='disappear_desktop'>
-              <img
-                src='/images/logo.png'
-                alt='logo'
-                style={{ width: '35px', backgroundColor: 'blue' }}
-              />
+              <img src='/images/logo.png' alt='logo' style={{ width: '35px' }} />
             </NavbarBrand>
           </Col>
           <Col xs={8} className='center'>
-            <Nav>
+            <Nav style={{ width: '100%' }}>
               <div className='disappear_desktop'>
                 <SearchBar />
               </div>
             </Nav>
           </Col>
 
-          <Col xs={2} md={12}>
+          <Col xs={2} ld={12} className='center'>
             <Navbar.Toggle aria-controls='seller-nav' />
           </Col>
           <Col xs={12} md={12}>
@@ -146,6 +145,23 @@ const NavBar = () => {
                             opacity: '1',
                           }}
                         />
+                        {isAdmin ? (
+                          <>
+                            <Link to='/admin' className='nav_link none' style={{ padding: '0%' }}>
+                              <div style={{ padding: '5px 10% 5px 10%' }}>Admin</div>
+                            </Link>
+                            <hr
+                              style={{
+                                padding: '0',
+                                margin: '5px',
+                                color: 'var(--border)',
+                                opacity: '1',
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <></>
+                        )}
                         <Link to='/login' className='none nav_link' style={{ padding: '0%' }}>
                           <div style={{ padding: '5px 10% 5px 10%' }}>Logout</div>
                         </Link>
@@ -166,7 +182,7 @@ const NavBar = () => {
         </Row>
       </Navbar>
 
-      <div className='disappear_phone'>
+      <div className='disappear_phone disappear_tablet'>
         <hr style={{ color: 'white', opacity: '0.5', margin: '5px' }} />
 
         <Row className='center' style={{ padding: '0px 8% 0px 8%' }}>

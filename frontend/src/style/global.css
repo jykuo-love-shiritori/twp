@@ -72,7 +72,11 @@ p {
 .right {
   display: flex;
   justify-content: right;
-  align-items: center;
+}
+
+.left {
+  display: flex;
+  justify-content: left;
 }
 
 .flex-wrapper {
@@ -143,8 +147,8 @@ p {
   color: var(--button_dark);
 }
 
-/* effect on desktop*/
-@media (min-width: 600px) {
+/* effect on desktop */
+@media only screen and (min-width: 1200px) {
   .before_img {
     min-height: 100vh;
     flex-direction: column;
@@ -156,8 +160,15 @@ p {
   }
 }
 
+/* effect on iPad */
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
+  .disappear_tablet {
+    display: none;
+  }
+}
+
 /* effect on phone */
-@media (max-width: 920px) {
+@media only screen and (max-width: 767px) {
   .user_bg {
     padding-top: 10%;
   }

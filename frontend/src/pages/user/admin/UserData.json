@@ -1,0 +1,23 @@
+[
+  {
+    "iconUrl": "../../images/person.png",
+    "name": "User1",
+    "email": "imAEmail@email.com",
+    "createDate": "2077-2-29",
+    "isAdmin": true
+  },
+  {
+    "iconUrl": "../../images/person.png",
+    "name": "User2",
+    "email": "imAEmail@email.com",
+    "createDate": "2077-2-29",
+    "isAdmin": true
+  },
+  {
+    "iconUrl": "../../images/person.png",
+    "name": "User3",
+    "email": "imAEmail@email.com",
+    "createDate": "2077-2-29",
+    "isAdmin": true
+  }
+]
