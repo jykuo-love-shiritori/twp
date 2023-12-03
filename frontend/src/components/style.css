@@ -331,7 +331,7 @@
 /* [item in page] manageUser */
 .user_table_header {
   font-size: 24px;
-  Col {
+  :is(Col) {
     padding: 1% 1% 0 1%;
   }
 }
@@ -433,4 +433,21 @@
 .more_button:hover {
   transition: all 0.3s ease-in-out;
   text-decoration: underline;
+}
+
+.coupon_date_picker {
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+  .react-datepicker__input-container {
+    width: 100%;
+  }
+  .react-datepicker__input-container input {
+    width: 100%;
+    border-radius: 20px;
+    border: var(--border) solid 1px;
+    background-color: var(--button_dark);
+    color: white;
+    padding: 5px 10px 5px 20px;
+  }
 }

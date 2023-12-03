@@ -4,11 +4,12 @@ import { Col, Modal, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import TButton from './TButton';
 
 interface CouponItemProps {
   data: {
-    id: number;
+    id: number | null;
     name: string;
     policy: string;
     date: string;
@@ -73,7 +74,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
       <Modal show={show} onHide={handleClose} centered className='coupon_modal'>
         <Modal.Header>
           <div className='right' style={{ width: '100%' }}>
-            <FontAwesomeIcon icon={faCircleXmark} size='2x' onClick={handleClose} />
+            <FontAwesomeIcon icon={faCircleXmark as IconProp} size='2x' onClick={handleClose} />
           </div>
         </Modal.Header>
         <Modal.Body>

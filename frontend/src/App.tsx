@@ -17,8 +17,8 @@ import History from '@pages/user/buyer/history';
 import Admin from '@pages/user/admin/index';
 import ManageUser from '@components/ManageUser';
 import ManageAdminCoupons from '@pages/user/admin/allCoupons';
-import NewAdminCoupons from '@pages/user/admin/allCoupons/newCoupon';
-import EachAdminCoupons from '@pages/user/admin/allCoupons/[adminCouponID]';
+import NewAdminCoupon from '@pages/user/admin/allCoupons/newCoupon';
+import EachAdminCoupon from '@pages/user/admin/allCoupons/[adminCouponID]';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
 import APItest from '@components/APItest';
@@ -114,8 +114,8 @@ function App() {
           </Route>
 
           <Route path='/admin/manageCoupons'>
-            <Route path='new' element={<NewAdminCoupons />} />
-            <Route path=':coupon_id' element={<EachAdminCoupons />} />
+            <Route path='new' element={<NewAdminCoupon />} />
+            <Route path=':coupon_id' element={<EachAdminCoupon />} />
           </Route>
 
           <Route path='/search?' element={<SearchNotFound />} />

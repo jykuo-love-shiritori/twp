@@ -1,4 +1,4 @@
-const NewAdminCoupons = () => {
+const NewAdminCoupon = () => {
   return (
     <div>
       <h1>NewAdminCoupons</h1>
@@ -6,4 +6,4 @@ const NewAdminCoupons = () => {
   );
 };
 
-export default NewAdminCoupons;
+export default NewAdminCoupon;

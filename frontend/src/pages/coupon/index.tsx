@@ -7,7 +7,7 @@ const Coupons = () => {
     <div style={{ padding: '6% 8% 0 8%' }}>
       {AllCouponData.map((data, index) => {
         return (
-          <Row style={{ paddingBottom: '4%' }}>
+          <Row key={index} style={{ paddingBottom: '4%' }}>
             <Col className='title' style={{ padding: '0 0 1% 1%' }}>
               {data.owner}
             </Col>
