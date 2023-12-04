@@ -49,23 +49,80 @@ func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, e
 	return items, nil
 }
 
+const getOrderDetail = `-- name: GetOrderDetail :many
+
+SELECT
+    O."product_id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id",
+    O."quantity"
+FROM
+    "order_detail" AS O,
+    "product_archive" AS P
+WHERE
+    O."order_id" = $1
+    AND O."product_id" = P."id"
+    AND O."product_version" = P."version"
+`
+
+type GetOrderDetailRow struct {
+	ProductID   int32          `json:"product_id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       pgtype.Numeric `json:"price"`
+	ImageID     pgtype.UUID    `json:"image_id"`
+	Quantity    int32          `json:"quantity"`
+}
+
+func (q *Queries) GetOrderDetail(ctx context.Context, orderID int32) ([]GetOrderDetailRow, error) {
+	rows, err := q.db.Query(ctx, getOrderDetail, orderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetOrderDetailRow{}
+	for rows.Next() {
+		var i GetOrderDetailRow
+		if err := rows.Scan(
+			&i.ProductID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrderHistory = `-- name: GetOrderHistory :many
 
 SELECT
     O."id",
+    s."name",
+    s."image_id",
     "shipment",
     "total_price",
     "status",
     "created_at"
 FROM
     "order_history" AS O,
-    "user" AS U
+    "user" AS U,
+    "shop" AS S
 WHERE
     U."username" = $1
     AND U."id" = O."user_id"
-ORDER BY "created_at" ASC
-OFFSET $2
-LIMIT $3
+    AND O."shop_id" = S."id"
+
+ORDER BY "created_at" ASC OFFSET $2 LIMIT $3
 `
 
 type GetOrderHistoryParams struct {
@@ -76,6 +133,8 @@ type GetOrderHistoryParams struct {
 
 type GetOrderHistoryRow struct {
 	ID         int32              `json:"id" param:"id"`
+	Name       string             `json:"name"`
+	ImageID    pgtype.UUID        `json:"image_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
@@ -93,6 +152,8 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 		var i GetOrderHistoryRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Name,
+			&i.ImageID,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
