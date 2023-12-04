@@ -6,12 +6,12 @@ import { Col, Form, Row } from 'react-bootstrap';
 
 const SellerInfo = () => {
   //TODO: read the initial value
-  const [visiblity, setVisiblity] = useState<boolean>(true);
+  const [visibility, setVisibility] = useState<boolean>(true);
   const [shopName, setshopName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
-  const handleVisiblity = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVisiblity(e.target.checked);
+  const handleVisibility = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVisibility(e.target.checked);
   };
 
   return (
@@ -27,10 +27,10 @@ const SellerInfo = () => {
             type='checkbox'
             id='visiblity_checkbox'
             label=''
-            value={visiblity ? 1 : 0}
-            onChange={handleVisiblity}
+            value={visibility ? 1 : 0}
+            onChange={handleVisibility}
           />
-          {visiblity ? 'Your shop is visible to everyone.' : 'Your shop is hidden from everyone.'}
+          {visibility ? 'Your shop is visible to everyone.' : 'Your shop is hidden from everyone.'}
         </Col>
       </Row>
       <InfoItem text='Shop Name' isMore={false} value={shopName} setValue={setshopName} />
