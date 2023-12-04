@@ -36,6 +36,7 @@ const EmptyGoods = () => {
   };
 
   const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // this addressed the magic number: https://github.com/facebook/react/issues/14512
     if (event.keyCode === 229) return;
 
     if (event.key === 'Enter') {
