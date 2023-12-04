@@ -112,7 +112,7 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var id int32
-		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
+		if err := echo.PathParamsBinder(c).Int32("id", &id).BindError(); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -207,7 +207,7 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var id int32
-		if err := echo.QueryParamsBinder(c).Int32("id", &id); err != nil {
+		if err := echo.PathParamsBinder(c).Int32("id", &id).BindError(); err != nil {
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}

@@ -138,7 +138,7 @@ type GetOrderHistoryRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
 func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {
@@ -167,6 +167,55 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const getOrderInfo = `-- name: GetOrderInfo :one
+
+SELECT
+    O."id",
+    s."name",
+    s."image_id",
+    "shipment",
+    "total_price",
+    "status",
+    "created_at"
+FROM
+    "order_history" AS O,
+    "user" AS U,
+    "shop" AS S
+WHERE
+    U."username" = $2
+    AND O."id" = $1
+`
+
+type GetOrderInfoParams struct {
+	ID       int32  `json:"id" param:"id"`
+	Username string `json:"username"`
+}
+
+type GetOrderInfoRow struct {
+	ID         int32              `json:"id" param:"id"`
+	Name       string             `json:"name"`
+	ImageID    pgtype.UUID        `json:"image_id"`
+	Shipment   int32              `json:"shipment"`
+	TotalPrice int32              `json:"total_price"`
+	Status     OrderStatus        `json:"status"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
+func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (GetOrderInfoRow, error) {
+	row := q.db.QueryRow(ctx, getOrderInfo, arg.ID, arg.Username)
+	var i GetOrderInfoRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ImageID,
+		&i.Shipment,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getProductInCart = `-- name: GetProductInCart :many

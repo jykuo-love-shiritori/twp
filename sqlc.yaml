@@ -27,8 +27,6 @@ sql:
           go_struct_tag: json:"-"
         - column: order_history.shop_id
           go_struct_tag: json:"-"
-        - column: order_history.created_at
-          go_struct_tag: json:"-"
         - column: coupon.start_date
           go_struct_tag: swaggertype:"string"
         - column: coupon.expire_date

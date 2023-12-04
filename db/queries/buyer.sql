@@ -19,7 +19,7 @@ WHERE
 
 ORDER BY "created_at" ASC OFFSET $2 LIMIT $3;
 
--- GetOrderInfo :one
+-- name: GetOrderInfo :one
 
 SELECT
     O."id",
@@ -33,7 +33,9 @@ FROM
     "order_history" AS O,
     "user" AS U,
     "shop" AS S
-WHERE O."id" = $1;
+WHERE
+    U."username" = $2
+    AND O."id" = $1;
 
 -- name: GetOrderDetail :many
 

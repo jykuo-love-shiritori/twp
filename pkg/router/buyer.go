@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
@@ -40,6 +41,11 @@ func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
+type OrderDetail struct {
+	Info    db.GetOrderInfoRow     `json:"info"`
+	Details []db.GetOrderDetailRow `json:"details"`
+}
+
 // @Summary		Buyer Get Order Detail
 // @Description	Get specific order detail
 // @Tags			Buyer, Order
@@ -50,8 +56,27 @@ func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Router			/buyer/order/{id} [get]
 func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "🫠"
+		var orderID int32
+		var orderDetail OrderDetail
+		var err error
+		if echo.PathParamsBinder(c).Int32("id", &orderID).BindError() != nil {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		orderDetail.Info, err = pg.Queries.GetOrderInfo(c.Request().Context(), db.GetOrderInfoParams{Username: username, ID: orderID})
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return echo.NewHTTPError(http.StatusBadRequest)
+			}
+			logger.Errorw("failed to get order info", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID)
+		if err != nil {
+			logger.Errorw("failed to get order detail", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, orderDetail)
 	}
 }
 
