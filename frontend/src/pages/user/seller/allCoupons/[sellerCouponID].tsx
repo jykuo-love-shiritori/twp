@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import TButton from '@components/TButton';
 import InfoItem from '@components/InfoItem';
-import CouponItem from '@components/CouponItem';
+import CouponItemTemplate from '@components/CouponItemTemplate';
 import couponData from '@pages/coupon/couponData.json';
 
 interface Props {
@@ -97,7 +97,7 @@ const EachSellerCoupon = () => {
         <Col xs={12} md={5} className='goods_bgW'>
           <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div style={{ padding: '15% 10%' }}>
-              <CouponItem
+              <CouponItemTemplate
                 data={{
                   id: null,
                   name: name,

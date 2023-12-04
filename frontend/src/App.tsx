@@ -6,7 +6,6 @@ import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
 import Coupons from '@pages/coupon';
-import EachCoupon from '@pages/coupon/[couponID]';
 import Cart from '@pages/cart';
 import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
@@ -58,7 +57,6 @@ function App() {
           </Route>
           <Route path='/discover' element={<Discover />} />
           <Route path='/coupons' element={<Coupons />} />
-          <Route path='/coupons/:coupon_id' element={<EachCoupon />} />
           <Route path='/user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />

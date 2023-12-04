@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import CouponItemTemplate from './CouponItemTemplate';
 import TButton from './TButton';
 
 interface CouponItemProps {
@@ -18,48 +19,11 @@ interface CouponItemProps {
   };
 }
 
-const couponStyle = {
-  backgroundColor: 'var(--button_dark)',
-  boxShadow: '3px 5px 10px 0px rgba(0, 0, 0, 0.25)',
-  borderRadius: '30px',
-  padding: '5%',
-  border: 'var(--border) solid 2px',
-};
-
-const PreCouponItem = ({ data }: CouponItemProps) => {
-  return (
-    <div style={{ height: '100%', padding: '2% 0' }}>
-      <Row>
-        <Col xs={9} md={9} xl={8} className='center'>
-          <div>
-            <div className='center' style={{ fontSize: '20px', fontWeight: '700', color: 'white' }}>
-              {data.name}
-            </div>
-            <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.policy}
-            </div>
-          </div>
-        </Col>
-        <Col xs={3} md={3} xl={4} className='center' style={{ borderLeft: '2px dashed #AAAAAA' }}>
-          <div>
-            <div className='center' style={{ fontSize: '20px', fontWeight: '500', color: 'white' }}>
-              exp
-            </div>
-            <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.date}
-            </div>
-          </div>
-        </Col>
-      </Row>
-    </div>
-  );
-};
-
 const LinkCouponItem = ({ data }: CouponItemProps) => {
   return (
     <Link className='none' to={`${window.location.pathname}/${data.id}`}>
-      <div style={{ ...couponStyle, cursor: 'pointer' }}>
-        <PreCouponItem data={data} />
+      <div style={{ cursor: 'pointer' }}>
+        <CouponItemTemplate data={data} />
       </div>
     </Link>
   );
@@ -71,8 +35,8 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
   const handleClose = () => setShow(false);
   return (
     <>
-      <div style={{ ...couponStyle, cursor: 'pointer' }} onClick={handleShow}>
-        <PreCouponItem data={data} />
+      <div style={{ cursor: 'pointer' }} onClick={handleShow}>
+        <CouponItemTemplate data={data} />
       </div>
       <Modal show={show} onHide={handleClose} centered className='coupon_modal'>
         <Modal.Header>
