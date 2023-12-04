@@ -11,6 +11,65 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addCouponToCart = `-- name: AddCouponToCart :one
+
+
+WITH insert_coupon AS (
+        INSERT INTO
+            "cart_coupon" ("cart_id", "coupon_id")
+        SELECT
+            C."id",
+            CO."id"
+        FROM
+            "cart" AS C,
+            "user" AS U,
+            "coupon" AS CO
+        WHERE
+            U."username" = $1
+            AND C."user_id" = U."id"
+            AND C."id" = $3
+            AND CO."shop_id" = C."shop_id"
+            AND NOW() BETWEEN CO."start_date"
+            AND CO."expire_date"
+            AND NOT EXISTS (
+                SELECT 1
+                FROM
+                    "cart_coupon" AS CC
+                WHERE
+                    CC."cart_id" = C."id"
+                    AND CC."coupon_id" = $2
+            )
+            AND CO."id" = $2
+    )
+SELECT co.id, co.type, co.scope, co.shop_id, co.name, co.description, co.discount, co.start_date, co.expire_date
+FROM "coupon" AS CO
+WHERE CO."id" = $2
+`
+
+type AddCouponToCartParams struct {
+	Username string `json:"username"`
+	ID       int32  `json:"id" param:"coupon_id"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+// returning the number of products in any cart for US-SC-2 in SRS ⬆️
+func (q *Queries) AddCouponToCart(ctx context.Context, arg AddCouponToCartParams) (Coupon, error) {
+	row := q.db.QueryRow(ctx, addCouponToCart, arg.Username, arg.ID, arg.CartID)
+	var i Coupon
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.ShopID,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
+}
+
 const addProductToCart = `-- name: AddProductToCart :one
 
 
@@ -67,7 +126,7 @@ WITH valid_product AS (
             ) RETURNING 1
     ) -- if the product already exists in the cart, update the quantity ⬆️
 INSERT INTO
-    -- insert into the cart that have given product ⬇️
+    -- insert into the cart that have no given product ⬇️
     "cart_product" (
         "cart_id",
         "product_id",
@@ -98,10 +157,10 @@ WHERE NOT EXISTS (
 type AddProductToCartParams struct {
 	Username string `json:"username"`
 	Quantity int32  `json:"quantity"`
-	ID       int32  `json:"id" param:"id"`
+	ID       int32  `json:"id" param:"product_id"`
 }
 
-// i hope this works ☠️
+// if there are no products left in the cart, delete the cart ⬆️
 func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int64, error) {
 	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.Quantity, arg.ID)
 	var count int64
@@ -116,8 +175,8 @@ WITH valid_cart AS (
         FROM "cart" C
             JOIN "user" u ON u."id" = C."user_id"
         WHERE
-            u."username" = $3
-            AND C."id" = $1
+            u."username" = $2
+            AND C."id" = $3
     ),
     deleted_products AS (
         DELETE FROM
@@ -127,7 +186,7 @@ WITH valid_cart AS (
                 FROM
                     valid_cart
             )
-            AND CP."product_id" = $2 RETURNING 1
+            AND CP."product_id" = $1 RETURNING 1
     ),
     remaining_products AS (
         SELECT COUNT(*) AS count
@@ -138,20 +197,20 @@ WITH valid_cart AS (
             )
     )
 DELETE FROM "cart" AS 🛒
-WHERE 🛒."id" = $1 AND (
+WHERE 🛒."id" = $3 AND (
         SELECT count
         FROM remaining_products
     ) = 0
 `
 
 type DeleteProductInCartParams struct {
-	ID        int32  `json:"id"`
 	ProductID int32  `json:"product_id"`
 	Username  string `json:"username"`
+	CartID    int32  `json:"cart_id" param:"cart_id"`
 }
 
 func (q *Queries) DeleteProductInCart(ctx context.Context, arg DeleteProductInCartParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProductInCart, arg.ID, arg.ProductID, arg.Username)
+	result, err := q.db.Exec(ctx, deleteProductInCart, arg.ProductID, arg.Username, arg.CartID)
 	if err != nil {
 		return 0, err
 	}
@@ -176,7 +235,7 @@ WHERE
 `
 
 type GetCartRow struct {
-	ID         int32       `json:"id"`
+	ID         int32       `json:"id" param:"cart_id"`
 	SellerName string      `json:"seller_name" param:"seller_name"`
 	ImageID    pgtype.UUID `json:"image_id"`
 	Name       string      `json:"name"`
@@ -205,6 +264,27 @@ func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, e
 		return nil, err
 	}
 	return items, nil
+}
+
+const getCartTotalPrice = `-- name: GetCartTotalPrice :one
+
+SELECT
+    SUM(P."price" * CP."quantity") AS "total_price"
+FROM
+    "cart_product" AS CP,
+    "product" AS P,
+    "cart" AS C
+WHERE
+    C."id" = CP."cart_id"
+    AND CP."product_id" = P."id"
+    AND C."id" = $1
+`
+
+func (q *Queries) GetCartTotalPrice(ctx context.Context, id int32) (int64, error) {
+	row := q.db.QueryRow(ctx, getCartTotalPrice, id)
+	var total_price int64
+	err := row.Scan(&total_price)
+	return total_price, err
 }
 
 const getOrderDetail = `-- name: GetOrderDetail :many

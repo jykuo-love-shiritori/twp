@@ -1,6 +1,7 @@
 package router
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -145,7 +146,7 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 			if rows, err := pg.Queries.DeleteProductInCart(c.Request().Context(),
 				db.DeleteProductInCartParams{
 					Username:  username,
-					ID:        param.CartID,
+					CartID:    param.CartID,
 					ProductID: param.ProductID,
 				}); err != nil {
 				logger.Errorw("failed to delete product in cart", "error", err)
@@ -173,6 +174,7 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Produce		json
 // @Param			cart_id		path	int	true	"Cart ID"
 // @Param			product_id	path	int	true	"Product ID"
+// @Param			quantity	body	int	true	"Quantity"
 // @Success		200 {integer} int "product quantity in cart"
 // @Failure		400 {object} echo.HTTPError
 // @Failure		500 {object} echo.HTTPError
@@ -199,6 +201,15 @@ func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
+func GetShipmentFee(price int32) int32 { // heuristically
+	return int32(math.Log(0.01 * float64(price)))
+}
+
+type couponPreview struct {
+	Name     string `json:"name"`
+	Discount int32  `json:"discount"`
+}
+
 // @Summary		Buyer Add Coupon To Cart
 // @Description	Add coupon to cart
 // @Tags			Buyer, Cart, Coupon
@@ -206,13 +217,45 @@ func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Produce		json
 // @Param			cart_id		path	int	true	"Cart ID"
 // @Param			coupon_id	path	int	true	"Coupon ID"
-// @Success		200
-// @Failure		401
+// @Success		200 {object} couponPreview
+// @Failure		400 {object} echo.HTTPError
+// @Failure		500 {object} echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [post]
 func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "🧑🏿‍⚖️"
+		var param db.AddCouponToCartParams
+		param.Username = username
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind coupon in cart", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		result, err := pg.Queries.AddCouponToCart(c.Request().Context(), param)
+		if err != nil {
+			logger.Errorw("failed to add coupon to cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		total_price, err := pg.Queries.GetCartTotalPrice(c.Request().Context(), param.CartID)
+		if err != nil {
+			logger.Errorw("failed to get cart total price", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		var preview couponPreview
+		preview.Name = result.Name
+		discount, err := result.Discount.Float64Value()
+		if err != nil {
+			logger.Errorw("failed to get discount", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		switch result.Type {
+		case db.CouponTypePercentage:
+			preview.Discount = int32(total_price) * (int32(discount.Float64)) / 100
+		case db.CouponTypeFixed:
+			preview.Discount = int32(discount.Float64)
+		case db.CouponTypeShipping:
+			preview.Discount = int32(GetShipmentFee(int32(total_price)))
+		}
+		return c.JSON(http.StatusOK, preview)
 	}
 }
 
@@ -223,13 +266,26 @@ func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Produce		json
 // @Param			cart_id		path	int	true	"Cart ID"
 // @Param			product_id	path	int	true	"Product ID"
-// @Success		200
-// @Failure		401
+// @Success		200 {string} string constants.SUCCESS
+// @Failure		400 {object} echo.HTTPError
+// @Failure		500 {object} echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/product/{product_id} [delete]
 func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "👷🏿"
+		var param db.DeleteProductInCartParams
+		param.Username = username
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if rows, err := pg.Queries.DeleteProductInCart(c.Request().Context(), param); err != nil {
+			logger.Errorw("failed to delete product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if rows == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }
 

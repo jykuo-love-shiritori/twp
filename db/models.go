@@ -184,7 +184,7 @@ func (ns NullRoleType) Value() (driver.Value, error) {
 }
 
 type Cart struct {
-	ID     int32 `json:"id"`
+	ID     int32 `json:"id" param:"cart_id"`
 	UserID int32 `json:"user_id"`
 	ShopID int32 `json:"shop_id"`
 }
@@ -201,7 +201,7 @@ type CartProduct struct {
 }
 
 type Coupon struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"-"`
@@ -236,7 +236,7 @@ type OrderHistory struct {
 }
 
 type Product struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `json:"name"`

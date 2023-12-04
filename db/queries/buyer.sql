@@ -118,8 +118,8 @@ WITH valid_cart AS (
         FROM "cart" C
             JOIN "user" u ON u."id" = C."user_id"
         WHERE
-            u."username" = $3
-            AND C."id" = $1
+            u."username" = $2
+            AND C."id" = @cart_id
     ),
     deleted_products AS (
         DELETE FROM
@@ -129,7 +129,7 @@ WITH valid_cart AS (
                 FROM
                     valid_cart
             )
-            AND CP."product_id" = $2 RETURNING 1
+            AND CP."product_id" = $1 RETURNING 1
     ),
     remaining_products AS (
         SELECT COUNT(*) AS count
@@ -140,12 +140,12 @@ WITH valid_cart AS (
             )
     )
 DELETE FROM "cart" AS 🛒
-WHERE 🛒."id" = $1 AND (
+WHERE 🛒."id" = @cart_id AND (
         SELECT count
         FROM remaining_products
     ) = 0;
 
--- i hope this works ☠️
+-- if there are no products left in the cart, delete the cart ⬆️
 
 -- name: AddProductToCart :one
 
@@ -230,3 +230,49 @@ WHERE NOT EXISTS (
     );
 
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
+
+-- name: AddCouponToCart :one
+
+WITH insert_coupon AS (
+        INSERT INTO
+            "cart_coupon" ("cart_id", "coupon_id")
+        SELECT
+            C."id",
+            CO."id"
+        FROM
+            "cart" AS C,
+            "user" AS U,
+            "coupon" AS CO
+        WHERE
+            U."username" = $1
+            AND C."user_id" = U."id"
+            AND C."id" = @Cart_id
+            AND CO."shop_id" = C."shop_id"
+            AND NOW() BETWEEN CO."start_date"
+            AND CO."expire_date"
+            AND NOT EXISTS (
+                SELECT 1
+                FROM
+                    "cart_coupon" AS CC
+                WHERE
+                    CC."cart_id" = C."id"
+                    AND CC."coupon_id" = $2
+            )
+            AND CO."id" = $2
+    )
+SELECT CO.*
+FROM "coupon" AS CO
+WHERE CO."id" = $2;
+
+-- name: GetCartTotalPrice :one
+
+SELECT
+    SUM(P."price" * CP."quantity") AS "total_price"
+FROM
+    "cart_product" AS CP,
+    "product" AS P,
+    "cart" AS C
+WHERE
+    C."id" = CP."cart_id"
+    AND CP."product_id" = P."id"
+    AND C."id" = $1;
