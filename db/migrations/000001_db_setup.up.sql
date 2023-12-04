@@ -12,9 +12,9 @@ CREATE TYPE "coupon_type" AS ENUM (
     'shipping'
 );
 
-CREATE TYPE "coupon_scope" AS ENUM ( 'global', 'shop' );
+CREATE TYPE "coupon_scope" AS ENUM ('global', 'shop');
 
-CREATE TYPE "role_type" AS ENUM ( 'admin', 'customer' );
+CREATE TYPE "role_type" AS ENUM ('admin', 'customer');
 
 CREATE TABLE
     "cart" (
@@ -35,6 +35,8 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "user_id" INT NOT NULL,
         "shop_id" INT NOT NULL,
+        "image_id" UUID NOT NULL,
+        -- fot thumbnail
         "shipment" INT NOT NULL,
         "total_price" INT NOT NULL,
         "status" order_status NOT NULL,

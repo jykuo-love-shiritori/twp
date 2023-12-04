@@ -423,7 +423,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/common.Cart"
+                                "$ref": "#/definitions/router.Cart"
                             }
                         }
                     },
@@ -691,7 +691,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -773,10 +776,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.OrderDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -1944,20 +1959,6 @@ const docTemplate = `{
         "big.Int": {
             "type": "object"
         },
-        "common.Cart": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetProductInCartRow"
-                    }
-                },
-                "seller_name": {
-                    "type": "string"
-                }
-            }
-        },
         "db.AddCouponParams": {
             "type": "object",
             "properties": {
@@ -2124,11 +2125,75 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetOrderDetailRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "shop_image_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "thumbnail_id": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetOrderInfoRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "shipment": {
                     "type": "integer"
@@ -2345,6 +2410,34 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "router.Cart": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductInCartRow"
+                    }
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "router.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetOrderDetailRow"
+                    }
+                },
+                "info": {
+                    "$ref": "#/definitions/db.GetOrderInfoRow"
                 }
             }
         },

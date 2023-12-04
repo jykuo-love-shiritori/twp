@@ -228,10 +228,11 @@ type OrderHistory struct {
 	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
 	ShopID     int32              `json:"-"`
+	ImageID    pgtype.UUID        `json:"image_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 type Product struct {
@@ -254,7 +255,7 @@ type ProductArchive struct {
 	Version     int32          `json:"version"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
-	Price       pgtype.Numeric `json:"price"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
 	ImageID     pgtype.UUID    `json:"image_id"`
 }
 

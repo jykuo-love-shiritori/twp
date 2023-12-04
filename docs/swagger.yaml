@@ -17,15 +17,6 @@ definitions:
     type: object
   big.Int:
     type: object
-  common.Cart:
-    properties:
-      products:
-        items:
-          $ref: '#/definitions/db.GetProductInCartRow'
-        type: array
-      seller_name:
-        type: string
-    type: object
   db.AddCouponParams:
     properties:
       description:
@@ -137,10 +128,52 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  db.GetOrderDetailRow:
+    properties:
+      description:
+        type: string
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
   db.GetOrderHistoryRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
+      name:
+        type: string
+      shipment:
+        type: integer
+      shop_image_id:
+        type: string
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      thumbnail_id:
+        type: string
+      total_price:
+        type: integer
+    type: object
+  db.GetOrderInfoRow:
+    properties:
+      created_at:
+        type: string
+      discount:
+        type: integer
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
       shipment:
         type: integer
       status:
@@ -287,6 +320,24 @@ definitions:
         type: string
       valid:
         type: boolean
+    type: object
+  router.Cart:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/db.GetProductInCartRow'
+        type: array
+      seller_name:
+        type: string
+    type: object
+  router.OrderDetail:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/db.GetOrderDetailRow'
+        type: array
+      info:
+        $ref: '#/definitions/db.GetOrderInfoRow'
     type: object
   router.PrettierCoupon:
     properties:
@@ -588,7 +639,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/common.Cart'
+              $ref: '#/definitions/router.Cart'
             type: array
         "400":
           description: Bad Request
@@ -745,6 +796,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            type: string
         "401":
           description: Unauthorized
       summary: Buyer Edit Product In Cart
@@ -826,8 +879,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.OrderDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Get Order Detail
       tags:
       - Buyer

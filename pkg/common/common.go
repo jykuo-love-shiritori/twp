@@ -4,7 +4,6 @@ import (
 	"errors"
 	"regexp"
 
-	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
@@ -22,11 +21,6 @@ func (q *QueryParams) Validate() error {
 		return errors.New("invalid query parameter")
 	}
 	return nil
-}
-
-type Cart struct {
-	Seller_name string
-	Products    []db.GetProductInCartRow
 }
 
 func HasSpecialChars(input string) bool {

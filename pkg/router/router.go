@@ -97,11 +97,11 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.GET("/buyer/order", buyerGetOrderHistory(db, logger))
 	api.GET("/buyer/order/:id", buyerGetOrderDetail(db, logger))
 
-	api.GET("/buyer/cart", buyerGetCart(db, logger)) // include product and coupon
-	api.POST("/buyer/cart/:cart_id/product/:product_id", buyerAddProductToCart(db, logger))
+	api.GET("/buyer/cart", buyerGetCart(db, logger))
+	api.POST("/buyer/cart/product/:id", buyerAddProductToCart(db, logger)) // since the cart might not exist yet
 	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart(db, logger))
 	api.PATCH("buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart(db, logger))
-	api.DELETE("/buyer/:cart_id/product/:product_id", buyerDeleteProductFromCart(db, logger))
+	api.DELETE("/buyer/:cart_id/product/:product_id", buyerDeleteProductFromCart(db, logger)) // this is simply edit quantity to 0
 	api.DELETE("/buyer/cart/:cart_id/coupon/:coupon_id", buyerDeleteCouponFromCart(db, logger))
 
 	api.GET("/buyer/cart/:cart_id/checkout", buyerGetCheckout(db, logger))

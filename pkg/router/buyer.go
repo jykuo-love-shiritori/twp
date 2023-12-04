@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -50,9 +51,10 @@ type OrderDetail struct {
 // @Description	Get specific order detail
 // @Tags			Buyer, Order
 // @Produce		json
-// @Param			id	path	int	true	"Order ID"
-// @Success		200
-// @Failure		401
+// @Param			id	path		int	true	"Order ID"
+// @Success		200	{object}	OrderDetail
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/order/{id} [get]
 func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -63,16 +65,14 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		if echo.PathParamsBinder(c).Int32("id", &orderID).BindError() != nil {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		orderDetail.Info, err = pg.Queries.GetOrderInfo(c.Request().Context(), db.GetOrderInfoParams{Username: username, ID: orderID})
-		if err != nil {
+		if orderDetail.Info, err = pg.Queries.GetOrderInfo(c.Request().Context(), db.GetOrderInfoParams{Username: username, OrderID: orderID}); err != nil {
 			if err == pgx.ErrNoRows {
 				return echo.NewHTTPError(http.StatusBadRequest)
 			}
 			logger.Errorw("failed to get order info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID)
-		if err != nil {
+		if orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID); err != nil {
 			logger.Errorw("failed to get order detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
@@ -80,11 +80,16 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 	}
 }
 
+type Cart struct {
+	Seller_name string
+	Products    []db.GetProductInCartRow
+}
+
 // @Summary		Buyer Get Cart
 // @Description	Get all Carts of the user
 // @Tags			Buyer, Cart
 // @Produce		json
-// @Success		200	{array}		common.Cart
+// @Success		200	{array}		Cart
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/cart [get]
@@ -96,9 +101,9 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		var result []common.Cart
+		var result []Cart
 		for _, cartInfo := range carts {
-			var cart common.Cart
+			var cart Cart
 			products, err := pg.Queries.GetProductInCart(c.Request().Context(), cartInfo.ID)
 			if err != nil {
 				logger.Errorw("failed to get product in cart", "error", err)
@@ -113,19 +118,51 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 }
 
 // @Summary		Buyer Edit Product In Cart
-// @Description	Edit product quantity in cart
+// @Description	Edit product quantity in cart (The product must be in the cart)
 // @Tags			Buyer, Cart
 // @Accept			json
 // @Produce		json
 // @Param			cart_id		path	int	true	"Cart ID"
 // @Param			product_id	path	int	true	"Product ID"
-// @Success		200
-// @Failure		401
+// @Success		200 {string} string constants.SUCCESS
+// @Failure		400 {object} echo.HTTPError
+// @Failure		500 {object} echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/product/{product_id} [patch]
 func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "👷🏿"
+		var param db.UpdateProductInCartParams
+		param.Username = username
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if param.Quantity < 0 {
+			logger.Errorw("invalid quantity", "quantity", param.Quantity)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if param.Quantity == 0 {
+			if rows, err := pg.Queries.DeleteProductInCart(c.Request().Context(),
+				db.DeleteProductInCartParams{
+					Username:  username,
+					ID:        param.CartID,
+					ProductID: param.ProductID,
+				}); err != nil {
+				logger.Errorw("failed to delete product in cart", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			} else if rows == 0 {
+				return echo.NewHTTPError(http.StatusBadRequest)
+			}
+			return c.JSON(http.StatusOK, constants.SUCCESS)
+		}
+		if _, err := pg.Queries.UpdateProductInCart(c.Request().Context(), param); err != nil {
+			if err == pgx.ErrNoRows {
+				return echo.NewHTTPError(http.StatusBadRequest)
+			}
+			logger.Errorw("failed to update product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }
 
@@ -136,13 +173,29 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Produce		json
 // @Param			cart_id		path	int	true	"Cart ID"
 // @Param			product_id	path	int	true	"Product ID"
-// @Success		200
-// @Failure		401
-// @Router			/buyer/cart/{cart_id}/product/{product_id} [post]
+// @Success		200 {integer} int "product quantity in cart"
+// @Failure		400 {object} echo.HTTPError
+// @Failure		500 {object} echo.HTTPError
+// @Router			/buyer/cart/product/{id} [post]
 func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		username := "🧑🏿‍⚕️"
+		var param db.AddProductToCartParams
+		param.Username = username
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if param.Quantity <= 0 {
+			logger.Errorw("invalid quantity", "quantity", param.Quantity)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		cnt, err := pg.Queries.AddProductToCart(c.Request().Context(), param)
+		if err != nil {
+			logger.Errorw("failed to add product to cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, cnt)
 	}
 }
 
