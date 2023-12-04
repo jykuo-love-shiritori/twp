@@ -76,8 +76,8 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
                       style={{
                         backgroundColor: 'var(--button_light)',
                         borderRadius: '30px',
-                        padding: '2% 4% 2% 4%',
-                        margin: '2% 2% 2% 0',
+                        padding: '1% 4% 1% 4%',
+                        margin: '1% 2% 1% 0',
                       }}
                     >
                       {tag.name}
