@@ -38,7 +38,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"-"`
+	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -261,7 +261,19 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, er
 
 const getAnyCoupons = `-- name: GetAnyCoupons :many
 
-SELECT id, type, scope, shop_id, name, description, discount, start_date, expire_date FROM "coupon" ORDER BY "id" ASC LIMIT $1 OFFSET $2
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+ORDER BY "id" ASC
+LIMIT $1
+OFFSET $2
 `
 
 type GetAnyCouponsParams struct {
@@ -269,20 +281,30 @@ type GetAnyCouponsParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetAnyCoupons(ctx context.Context, arg GetAnyCouponsParams) ([]Coupon, error) {
+type GetAnyCouponsRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetAnyCoupons(ctx context.Context, arg GetAnyCouponsParams) ([]GetAnyCouponsRow, error) {
 	rows, err := q.db.Query(ctx, getAnyCoupons, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Coupon{}
+	items := []GetAnyCouponsRow{}
 	for rows.Next() {
-		var i Coupon
+		var i GetAnyCouponsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Type,
 			&i.Scope,
-			&i.ShopID,
 			&i.Name,
 			&i.Description,
 			&i.Discount,

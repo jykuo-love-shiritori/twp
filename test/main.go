@@ -22,7 +22,7 @@ func main() {
 	defer pg.Close()
 
 	TestInsertData(pg)
-	// TestDeleteData(pg)
+	TestDeleteData(pg)
 }
 
 type testTable struct {

@@ -34,8 +34,6 @@ sql:
           - column: cart.cart_id
             go_struct_tag: param:"id"
 
-          - column: cart.cart_id
-            go_struct_tag: swaggertype:"string"
           - column: coupon.discount
             go_struct_tag: swaggertype:"number"
           - column: coupon.start_date
@@ -65,11 +63,11 @@ sql:
           - column: user.image_id
             go_struct_tag: swaggertype:"string"
 
-          - column: coupon.shop_id
-            go_struct_tag: json:"-"
-          - column: product.shop_id
-            go_struct_tag: json:"-"
-          - column: order_history.shop_id
-            go_struct_tag: json:"-"
+          # - column: coupon.shop_id
+          #   go_struct_tag: json:"-"
+          # - column: product.shop_id
+          #   go_struct_tag: json:"-"
+          # - column: order_history.shop_id
+          #   go_struct_tag: json:"-"
           - column: order_history.created_at
             go_struct_tag: json:"-"
