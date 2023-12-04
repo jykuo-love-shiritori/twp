@@ -40,7 +40,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
       </div>
       <Modal show={show} onHide={handleClose} centered className='coupon_modal'>
         <Modal.Header>
-          <div className='right' style={{ width: '100%' }}>
+          <div className='right' style={{ width: '100%', cursor: 'pointer' }}>
             <FontAwesomeIcon icon={faCircleXmark as IconProp} size='2x' onClick={handleClose} />
           </div>
         </Modal.Header>
@@ -57,7 +57,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>
-                <CouponItem data={data} />
+                <CouponItemTemplate data={data} />
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
