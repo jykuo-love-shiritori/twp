@@ -1,5 +1,7 @@
-import { useState, FormEventHandler } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useContext } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AuthContext } from '../../components/AuthProvider';
 
 interface Token {
   access_token: string;
@@ -7,14 +9,22 @@ interface Token {
 
 const Callback = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const [code, setCode] = useState(searchParams.get('code') ?? ''); // TODO proper error handling
-  const [verifier, setVerifier] = useState('');
+  // TODO proper error handling
+  const code = searchParams.get('code') ?? '';
+
+  const state = localStorage.getItem('state') ?? '';
+  const verifier = localStorage.getItem('verifier') ?? '';
+
+  const { setToken } = useContext(AuthContext);
 
   const tokenUrl = '/api/oauth/token';
 
-  const getToken: FormEventHandler = async (e) => {
-    e.preventDefault();
+  const getToken = async () => {
+    if (searchParams.get('state') !== state) {
+      return;
+    }
 
     const resp = await fetch(tokenUrl, {
       headers: {
@@ -29,33 +39,25 @@ const Callback = () => {
     });
 
     const token = (await resp.json()) as Token;
-    console.log(token.access_token);
+    setToken(token.access_token);
+
+    navigate('/');
+
+    return token;
   };
 
-  return (
-    <>
-      <form onSubmit={getToken}>
-        <label htmlFor='code' style={{ color: 'white' }}>
-          Code
-        </label>
-        <br></br>
-        <input type='text' id='code' value={code} onChange={(e) => setCode(e.target.value)} />
-        <br></br>
-        <label htmlFor='verifier' style={{ color: 'white' }}>
-          Verifier
-        </label>
-        <br></br>
-        <input
-          type='text'
-          id='verifier'
-          value={verifier}
-          onChange={(e) => setVerifier(e.target.value)}
-        />
-        <br></br>
-        <button type='submit'>Submit</button>
-      </form>
-    </>
-  );
+  const { isPending, error } = useQuery({
+    queryKey: ['token'],
+    queryFn: getToken,
+  });
+
+  if (isPending) {
+    return <>Loading</>;
+  }
+
+  if (error) {
+    return <>error</>;
+  }
 };
 
 export default Callback;

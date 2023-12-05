@@ -21,8 +21,6 @@ const Authorize = () => {
     body['email'] = email;
     body['password'] = password;
 
-    console.log(body);
-
     const resp = await fetch(authUrl, {
       headers: {
         Accept: 'application/json',

@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link, createSearchParams, useNavigate } from 'react-router-dom';
+import { Link, createSearchParams } from 'react-router-dom';
 
 import Footer from '@components/Footer';
 
@@ -27,28 +27,29 @@ const generateChallenge = async (verifier: string) => {
 };
 
 const Login = () => {
-  const navigate = useNavigate();
-
-  const authUrl = '/authorize';
+  const authUrl = 'http://localhost:5173/authorize';
 
   const login = async () => {
     const state = randomString(8);
     const verifier = generateVerifier();
     const challenge = await generateChallenge(verifier);
 
+    localStorage.setItem('state', state);
+    localStorage.setItem('verifier', verifier);
+
     const searchParams = createSearchParams({
       client_id: 'twp',
       code_challenge: challenge,
       code_challenge_method: 'S256',
-      redirect_uri: `${location.host}/callback`,
+      redirect_uri: `${location.origin}/callback`,
       response_type: 'code',
       state: state,
     });
 
-    navigate({
-      pathname: authUrl,
-      search: searchParams.toString(),
-    });
+    const url = new URL(authUrl);
+    url.search = searchParams.toString();
+
+    window.location.href = url.toString();
   };
 
   return (

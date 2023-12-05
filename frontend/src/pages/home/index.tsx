@@ -10,8 +10,12 @@ import GoodsItem from '@components/GoodsItem';
 
 import newsData from '@pages/home/newsData.json';
 import goodsData from '@pages/discover/goodsData.json';
+import { useContext } from 'react';
+import { AuthContext } from '@components/AuthProvider';
 
 const Home = () => {
+  const { token } = useContext(AuthContext);
+  console.log(token);
   return (
     <div>
       <div className='home'>
