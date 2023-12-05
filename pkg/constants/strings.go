@@ -1,5 +1,6 @@
 package constants
 
 const (
-	SUCCESS = "🎉success🎉"
+	SUCCESS    = "🎉success🎉"
+	BUCKETNAME = "files"
 )

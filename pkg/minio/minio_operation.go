@@ -30,6 +30,7 @@ func init() {
 	// log.Printf("Endpoint: %s", endpoint)
 	// log.Printf("AccessKeyID: %s", accessKey)
 	// log.Printf("SecretAccessKey: %s", secretKey)
+
 	// Initialize minio client object.
 	var err error
 	MC, err = minio.New(endpoint, &minio.Options{
@@ -74,18 +75,17 @@ func PutFile(ctx context.Context, logger *zap.SugaredLogger, file *multipart.Fil
 
 	return pgtype.UUID{Bytes: id, Valid: true}, nil
 }
-func GeneratePresignedURL(ctx context.Context, logger *zap.SugaredLogger, id string) (string, error) {
+func GeneratePresignedURL(ctx context.Context, id string) (string, error) {
 	reqParams := make(url.Values)
 	presignedURL, err := MC.PresignedGetObject(ctx, constants.BUCKETNAME, id, time.Second*24*60*60, reqParams)
 	if err != nil {
-		logger.Error(err)
 		return "", err
 	}
 	return presignedURL.String(), nil
 }
 
 func GetFileURL(c echo.Context, logger *zap.SugaredLogger, id uuid.UUID) string {
-	url, err := GeneratePresignedURL(c.Request().Context(), logger, id.String())
+	url, err := GeneratePresignedURL(c.Request().Context(), id.String())
 	if err != nil {
 		logger.Error(err)
 		return ""
