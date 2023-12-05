@@ -41,7 +41,7 @@ const CreditCard = () => {
                   ...{data.last_four_code}
                 </div>
               </div>
-              <TButton text='delete' url='' />
+              <TButton text='delete' />
             </Col>
           );
         })}

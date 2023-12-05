@@ -53,7 +53,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
               Name
             </Col>
             <Col xs={5} md={4}>
-              <TButton text='ViewShop' url={''} />
+              <TButton text='ViewShop' />
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>

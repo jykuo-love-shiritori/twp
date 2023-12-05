@@ -239,8 +239,8 @@ const EachSellerGoods = () => {
             </Row>
 
             <div style={{ height: '50px' }} />
-            <TButton text='Delete Product' url='' />
-            <TButton text='Confirm Changes' url='' />
+            <TButton text='Delete Product' />
+            <TButton text='Confirm Changes' />
           </div>
         </Col>
         <Col xs={12} md={7}>

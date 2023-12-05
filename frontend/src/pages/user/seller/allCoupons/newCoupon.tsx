@@ -135,8 +135,8 @@ const NewSellerCoupon = () => {
             </Row>
 
             <div style={{ height: '50px' }} />
-            <TButton text='Delete Coupon' url='' />
-            <TButton text='Confirm Changes' url='' />
+            <TButton text='Delete Coupon' />
+            <TButton text='Confirm Changes' />
           </div>
         </Col>
         <Col xs={12} md={7}>
