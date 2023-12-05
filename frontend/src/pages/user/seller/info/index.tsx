@@ -20,7 +20,7 @@ const SellerInfo = () => {
       <hr className='hr' />
       <Row style={{ margin: '2% 0% 2% 0% ' }}>
         <Col xs={12} md={4} className='center_vertical'>
-          Visiblity
+          Visibility
         </Col>
         <Col className='left'>
           <Form.Check
