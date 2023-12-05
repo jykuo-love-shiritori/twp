@@ -1,9 +1,56 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, createSearchParams, useNavigate } from 'react-router-dom';
 
 import Footer from '@components/Footer';
 
+const randomString = (length: number) => {
+  const array = new Uint32Array(length);
+  window.crypto.getRandomValues(array);
+  return btoa(array.join('')) //
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+const generateVerifier = () => {
+  return randomString(4);
+};
+
+const generateChallenge = async (verifier: string) => {
+  const encoder = new TextEncoder();
+  const digest = await window.crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+  const array = Array.from(new Uint8Array(digest));
+  return btoa(String.fromCharCode.apply(null, array)) //
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
 const Login = () => {
+  const navigate = useNavigate();
+
+  const authUrl = '/authorize';
+
+  const login = async () => {
+    const state = randomString(8);
+    const verifier = generateVerifier();
+    const challenge = await generateChallenge(verifier);
+
+    const searchParams = createSearchParams({
+      client_id: 'twp',
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      redirect_uri: `${location.host}/callback`,
+      response_type: 'code',
+      state: state,
+    });
+
+    navigate({
+      pathname: authUrl,
+      search: searchParams.toString(),
+    });
+  };
+
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
@@ -30,11 +77,9 @@ const Login = () => {
               </Col>
 
               <Col xs={12}>
-                <Link to={'/authorize'}>
-                  <Button className='before_button white'>
-                    <div className='center white_word pointer'>Log in</div>
-                  </Button>
-                </Link>
+                <Button onClick={login} className='before_button white'>
+                  <div className='center white_word pointer'>Log in</div>
+                </Button>
 
                 <div className='center' style={{ fontSize: '12px' }}></div>
                 <br />
