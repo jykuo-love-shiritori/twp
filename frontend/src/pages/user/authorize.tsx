@@ -1,20 +1,20 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, FormEventHandler } from 'react';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
 
 const Authorize = () => {
+  const [searchParams] = useSearchParams();
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  const [searchParams] = useSearchParams();
-
   const authUrl = '/api/oauth/authorize';
 
-  const submitForm: React.FormEventHandler = async (e) => {
+  const submitForm: FormEventHandler = async (e) => {
     e.preventDefault();
 
     const body = Object.fromEntries([...searchParams.entries()]);

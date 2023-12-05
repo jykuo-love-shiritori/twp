@@ -31,6 +31,7 @@ import Authorize from '@pages/user/authorize';
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
+import Callback from '@pages/user/callback';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/authorize' element={<Authorize />} />
         <Route path='/signup' element={<Signup />} />
+        <Route path='/callback' element={<Callback />} />
 
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />

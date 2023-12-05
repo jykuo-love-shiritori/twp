@@ -70,10 +70,10 @@ func Authorize(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		mu.Lock()
 		codeChallengePairs[code] = challengeUser{
-			params.CodeChallenge,
-			params.CodeChallengeMethod,
-			result.Username,
-			result.Role,
+			CodeChallenge:   params.CodeChallenge,
+			ChallengeMethod: params.CodeChallengeMethod,
+			Username:        result.Username,
+			Role:            result.Role,
 		}
 		mu.Unlock()
 

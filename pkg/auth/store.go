@@ -17,5 +17,5 @@ type challengeUser struct {
 // could usee Redis to create zero side effects
 var (
 	mu                 sync.RWMutex             = sync.RWMutex{}
-	codeChallengePairs map[string]challengeUser = map[string]challengeUser{}
+	codeChallengePairs map[string]challengeUser = make(map[string]challengeUser)
 )

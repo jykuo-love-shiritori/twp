@@ -22,6 +22,8 @@ func main() {
 
 	verifier := oauth2.GenerateVerifier()
 
+	fmt.Println(verifier)
+
 	url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 	fmt.Printf("Visit the URL for the auth dialog: %v", url)
 

@@ -3,8 +3,10 @@ package auth
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -18,7 +20,6 @@ type tokenParams struct {
 	Code         string `form:"code" json:"code"`
 	CodeVerifier string `form:"code_verifier" json:"code_verifier"`
 	GrantType    string `form:"grant_type" json:"grant_type"`
-	RedirectUri  string `form:"redirect_uri" json:"redirect_uri"`
 }
 
 func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -30,12 +31,18 @@ func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse data")
 		}
 
+		fmt.Printf("%+v\n", params)
+		code := strings.TrimSpace(params.Code)
+		verifier := strings.TrimSpace(params.CodeVerifier)
+
 		mu.Lock()
-		user := codeChallengePairs[params.Code]
-		delete(codeChallengePairs, params.Code)
+		user, found := codeChallengePairs[code]
+		// delete(codeChallengePairs, params.Code)
 		mu.Unlock()
 
-		if !verifyCodeChallenge(params.CodeVerifier, user) {
+		fmt.Println(found)
+
+		if !verifyCodeChallenge(verifier, user) {
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
@@ -65,6 +72,8 @@ func verifyCodeChallenge(verifier string, challenge challengeUser) bool {
 	case s256:
 		sha := sha256.Sum256([]byte(verifier))
 		hash := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(sha[:])
+		fmt.Println(hash)
+		fmt.Println(challenge.CodeChallenge)
 		return challenge.CodeChallenge == hash
 
 	case plain:
