@@ -268,9 +268,9 @@ type Shop struct {
 	ID          int32       `json:"id"`
 	SellerName  string      `json:"seller_name" param:"seller_name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	Name        string      `form:"name" json:"name"`
+	Description string      `form:"description" json:"description"`
+	Enabled     bool        `form:"enabled" json:"enabled"`
 }
 
 type Tag struct {

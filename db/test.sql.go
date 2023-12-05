@@ -499,10 +499,10 @@ VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_name, image_id, name, descr
 type TestInsertShopParams struct {
 	ID          int32       `json:"id"`
 	SellerName  string      `json:"seller_name" param:"seller_name"`
-	Name        string      `json:"name"`
+	Name        string      `form:"name" json:"name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	Description string      `form:"description" json:"description"`
+	Enabled     bool        `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) (Shop, error) {

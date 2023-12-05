@@ -34,6 +34,13 @@ sql:
           - column: cart.cart_id
             go_struct_tag: param:"id"
 
+          - column: shop.name
+            go_struct_tag: form:"name"
+          - column: shop.description
+            go_struct_tag: form:"description"
+          - column: shop.enabled
+            go_struct_tag: form:"enabled"
+
           - column: coupon.discount
             go_struct_tag: swaggertype:"number"
           - column: coupon.start_date

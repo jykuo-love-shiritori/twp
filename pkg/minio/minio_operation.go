@@ -88,7 +88,8 @@ func GetFileURL(c echo.Context, logger *zap.SugaredLogger, id uuid.UUID) string 
 	url, err := GeneratePresignedURL(c.Request().Context(), id.String())
 	if err != nil {
 		logger.Error(err)
-		return ""
+		//default image if can find image by uuid
+		return "https://imgur.com/UniMfif.png"
 	}
 	return url
 }

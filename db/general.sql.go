@@ -149,8 +149,8 @@ WHERE
 type GetShopInfoRow struct {
 	SellerName  string      `json:"seller_name" param:"seller_name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
+	Name        string      `form:"name" json:"name"`
+	Description string      `form:"description" json:"description"`
 }
 
 func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopInfoRow, error) {

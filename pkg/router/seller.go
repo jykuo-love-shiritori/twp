@@ -5,6 +5,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -21,12 +22,18 @@ type couponDetail struct {
 	CouponInfo db.SellerGetCouponDetailRow `json:"coupon_info"`
 	Tags       []db.SellerGetCouponTagRow  `json:"tags"`
 }
+type SellerInfo struct {
+	Name        string `json:"name"`
+	Image       string `json:"image"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+}
 
 // @Summary		Seller get shop info
 // @Description	Get shop info, includes user picture, name, description.
 // @Tags			Seller, Shop
 // @Produce		json
-// @success		200	{object}	db.SellerGetInfoRow
+// @success		200	{object}	SellerInfo
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [get]
@@ -38,7 +45,15 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		return c.JSON(http.StatusOK, shopInfo)
+		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		result := SellerInfo{
+			Name:        shopInfo.Name,
+			Image:       imageUrl,
+			Description: shopInfo.Description,
+			Enabled:     shopInfo.Enabled,
+		}
+
+		return c.JSON(http.StatusOK, result)
 
 	}
 }
@@ -46,10 +61,12 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller edit shop info
 // @Description	Edit shop name, description, visibility.
 // @Tags			Seller, Shop
-// @Param			image_id	body	string	true	"update image UUID"
-// @Param			name		body	string	true	"update shop name"	minlength(6)
-// @Param			description	body	string	true	"update description"
-// @Param			enabled		body	bool	true	"update enabled status"
+// @Accept			mpfd
+// @Param			image_id	formData	string	true	"update image UUID"
+// @Param			name		formData	string	true	"update shop name"	minlength(6)
+// @Param			image		formData	file	true	"image file"
+// @Param			description	formData	string	true	"update description"
+// @Param			enabled		formData	bool	true	"update enabled status"
 // @Produce		json
 // @success		200	{object}	db.SellerUpdateInfoRow
 // @Failure		400	{object}	echo.HTTPError
@@ -64,13 +81,30 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		fileHeader, err := c.FormFile("image")
+		if err != nil {
+			return err
+		}
+		ImageID, err := minio.PutFile(c.Request().Context(), logger, fileHeader)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 		param.SellerName = username
+		param.ImageID = ImageID
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		return c.JSON(http.StatusOK, shopInfo)
+		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		result := SellerInfo{
+			Name:        shopInfo.Name,
+			Image:       imageUrl,
+			Description: shopInfo.Description,
+			Enabled:     shopInfo.Enabled,
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 

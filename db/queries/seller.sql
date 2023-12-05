@@ -1,7 +1,7 @@
 -- name: SellerGetInfo :one
 
 SELECT
-    "seller_name",
+    "name",
     "image_id",
     "description",
     "enabled"
@@ -18,9 +18,9 @@ SET
     "enabled" = COALESCE($5, "enabled")
 WHERE "seller_name" = $1
 RETURNING
-    "seller_name",
-    "image_id",
     "name",
+    "image_id",
+    "description",
     "enabled";
 
 -- name: SellerSearchTag :many

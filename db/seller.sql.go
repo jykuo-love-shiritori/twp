@@ -291,7 +291,7 @@ func (q *Queries) SellerGetCouponTag(ctx context.Context, arg SellerGetCouponTag
 const sellerGetInfo = `-- name: SellerGetInfo :one
 
 SELECT
-    "seller_name",
+    "name",
     "image_id",
     "description",
     "enabled"
@@ -300,17 +300,17 @@ WHERE "seller_name" = $1
 `
 
 type SellerGetInfoRow struct {
-	SellerName  string      `json:"seller_name" param:"seller_name"`
+	Name        string      `form:"name" json:"name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	Description string      `form:"description" json:"description"`
+	Enabled     bool        `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerGetInfoRow, error) {
 	row := q.db.QueryRow(ctx, sellerGetInfo, sellerName)
 	var i SellerGetInfoRow
 	err := row.Scan(
-		&i.SellerName,
+		&i.Name,
 		&i.ImageID,
 		&i.Description,
 		&i.Enabled,
@@ -481,6 +481,7 @@ const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
 
 
 
+
 SELECT
     p."name",
     p."image_id",
@@ -509,6 +510,7 @@ type SellerGetProductDetailRow struct {
 	Enabled bool           `json:"enabled"`
 }
 
+// TODO
 // SellerGetReport :many
 // SellerGetReportDetail :many
 func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProductDetailParams) (SellerGetProductDetailRow, error) {
@@ -1032,25 +1034,25 @@ SET
     "enabled" = COALESCE($5, "enabled")
 WHERE "seller_name" = $1
 RETURNING
-    "seller_name",
-    "image_id",
     "name",
+    "image_id",
+    "description",
     "enabled"
 `
 
 type SellerUpdateInfoParams struct {
 	SellerName  string      `json:"seller_name" param:"seller_name"`
 	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	Name        string      `form:"name" json:"name"`
+	Description string      `form:"description" json:"description"`
+	Enabled     bool        `form:"enabled" json:"enabled"`
 }
 
 type SellerUpdateInfoRow struct {
-	SellerName string      `json:"seller_name" param:"seller_name"`
-	ImageID    pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name       string      `json:"name"`
-	Enabled    bool        `json:"enabled"`
+	Name        string      `form:"name" json:"name"`
+	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Description string      `form:"description" json:"description"`
+	Enabled     bool        `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoParams) (SellerUpdateInfoRow, error) {
@@ -1063,9 +1065,9 @@ func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoPara
 	)
 	var i SellerUpdateInfoRow
 	err := row.Scan(
-		&i.SellerName,
-		&i.ImageID,
 		&i.Name,
+		&i.ImageID,
+		&i.Description,
 		&i.Enabled,
 	)
 	return i, err
