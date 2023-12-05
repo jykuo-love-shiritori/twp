@@ -1,9 +1,9 @@
 CREATE TYPE "order_status" AS ENUM (
-    'pending',
     'paid',
     'shipped',
     'delivered',
-    'cancelled'
+    'cancelled',
+    'finished'
 );
 
 CREATE TYPE "coupon_type" AS ENUM (

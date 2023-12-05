@@ -32,7 +32,7 @@ type GetProductInfoRow struct {
 	ID          int32              `json:"id" param:"product_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     pgtype.UUID        `json:"image_id"`
 	ExpDate     pgtype.Timestamptz `json:"exp_date"`
 	Stock       int32              `json:"stock"`

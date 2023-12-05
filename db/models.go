@@ -99,11 +99,11 @@ func (ns NullCouponType) Value() (driver.Value, error) {
 type OrderStatus string
 
 const (
-	OrderStatusPending   OrderStatus = "pending"
 	OrderStatusPaid      OrderStatus = "paid"
 	OrderStatusShipped   OrderStatus = "shipped"
 	OrderStatusDelivered OrderStatus = "delivered"
 	OrderStatusCancelled OrderStatus = "cancelled"
+	OrderStatusFinished  OrderStatus = "finished"
 )
 
 func (e *OrderStatus) Scan(src interface{}) error {
@@ -241,7 +241,7 @@ type Product struct {
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     pgtype.UUID        `json:"image_id"`
 	ExpDate     pgtype.Timestamptz `json:"exp_date"`
 	EditDate    pgtype.Timestamptz `json:"edit_date"`

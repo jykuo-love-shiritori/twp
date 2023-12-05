@@ -15,8 +15,6 @@ definitions:
         example: john
         type: string
     type: object
-  big.Int:
-    type: object
   db.AddCouponParams:
     properties:
       description:
@@ -181,14 +179,16 @@ definitions:
       total_price:
         type: integer
     type: object
-  db.GetProductInCartRow:
+  db.GetProductFromCartRow:
     properties:
+      enabled:
+        type: boolean
       image_id:
         type: string
       name:
         type: string
       price:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: number
       product_id:
         type: integer
       quantity:
@@ -207,7 +207,7 @@ definitions:
       name:
         type: string
       price:
-        $ref: '#/definitions/pgtype.Numeric'
+        type: number
       sales:
         type: integer
       stock:
@@ -271,18 +271,18 @@ definitions:
     type: object
   db.OrderStatus:
     enum:
-    - pending
     - paid
     - shipped
     - delivered
     - cancelled
+    - finished
     type: string
     x-enum-varnames:
-    - OrderStatusPending
     - OrderStatusPaid
     - OrderStatusShipped
     - OrderStatusDelivered
     - OrderStatusCancelled
+    - OrderStatusFinished
   db.RoleType:
     enum:
     - admin
@@ -305,19 +305,6 @@ definitions:
     - Infinity
     - Finite
     - NegativeInfinity
-  pgtype.Numeric:
-    properties:
-      exp:
-        type: integer
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      int:
-        $ref: '#/definitions/big.Int'
-      naN:
-        type: boolean
-      valid:
-        type: boolean
-    type: object
   pgtype.Timestamptz:
     properties:
       infinityModifier:
@@ -331,7 +318,7 @@ definitions:
     properties:
       products:
         items:
-          $ref: '#/definitions/db.GetProductInCartRow'
+          $ref: '#/definitions/db.GetProductFromCartRow'
         type: array
       seller_name:
         type: string
@@ -360,12 +347,37 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  router.couponPreview:
+  router.checkout:
     properties:
+      coupons:
+        items:
+          $ref: '#/definitions/router.couponDiscount'
+        type: array
+      shipment:
+        type: integer
+      subtotal:
+        type: integer
+      total:
+        type: integer
+      total_discount:
+        type: integer
+    type: object
+  router.couponDiscount:
+    properties:
+      description:
+        type: string
       discount:
+        type: number
+      discount_value:
+        type: integer
+      id:
         type: integer
       name:
         type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
 externalDocs:
   description: OpenAPI
@@ -680,8 +692,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.checkout'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Get Checkout
       tags:
       - Buyer
@@ -701,8 +721,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Checkout
       tags:
       - Buyer
@@ -711,7 +739,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete coupon from cart
+      description: Delete coupon In cart
       parameters:
       - description: Cart ID
         in: path
@@ -728,9 +756,17 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Delete Coupon From Cart
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Delete Coupon In Cart
       tags:
       - Buyer
       - Cart
@@ -756,7 +792,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.couponPreview'
+            type: string
         "400":
           description: Bad Request
           schema:
@@ -820,6 +856,12 @@ paths:
         name: product_id
         required: true
         type: integer
+      - description: Quantity
+        in: body
+        name: quantity
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:

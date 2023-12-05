@@ -525,10 +525,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.checkout"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             },
@@ -556,10 +568,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -599,7 +623,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponPreview"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -617,7 +641,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete coupon from cart",
+                "description": "Delete coupon In cart",
                 "consumes": [
                     "application/json"
                 ],
@@ -629,7 +653,7 @@ const docTemplate = `{
                     "Cart",
                     "Coupon"
                 ],
-                "summary": "Buyer Delete Coupon From Cart",
+                "summary": "Buyer Delete Coupon In Cart",
                 "parameters": [
                     {
                         "type": "integer",
@@ -648,10 +672,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -734,6 +770,15 @@ const docTemplate = `{
                         "name": "product_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Quantity",
+                        "name": "quantity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -2012,9 +2057,6 @@ const docTemplate = `{
                 }
             }
         },
-        "big.Int": {
-            "type": "object"
-        },
         "db.AddCouponParams": {
             "type": "object",
             "properties": {
@@ -2262,9 +2304,12 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetProductInCartRow": {
+        "db.GetProductFromCartRow": {
             "type": "object",
             "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
                 "image_id": {
                     "type": "string"
                 },
@@ -2272,7 +2317,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "$ref": "#/definitions/pgtype.Numeric"
+                    "type": "number"
                 },
                 "product_id": {
                     "type": "integer"
@@ -2301,7 +2346,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "$ref": "#/definitions/pgtype.Numeric"
+                    "type": "number"
                 },
                 "sales": {
                     "type": "integer"
@@ -2400,18 +2445,18 @@ const docTemplate = `{
         "db.OrderStatus": {
             "type": "string",
             "enum": [
-                "pending",
                 "paid",
                 "shipped",
                 "delivered",
-                "cancelled"
+                "cancelled",
+                "finished"
             ],
             "x-enum-varnames": [
-                "OrderStatusPending",
                 "OrderStatusPaid",
                 "OrderStatusShipped",
                 "OrderStatusDelivered",
-                "OrderStatusCancelled"
+                "OrderStatusCancelled",
+                "OrderStatusFinished"
             ]
         },
         "db.RoleType": {
@@ -2444,26 +2489,6 @@ const docTemplate = `{
                 "NegativeInfinity"
             ]
         },
-        "pgtype.Numeric": {
-            "type": "object",
-            "properties": {
-                "exp": {
-                    "type": "integer"
-                },
-                "infinityModifier": {
-                    "$ref": "#/definitions/pgtype.InfinityModifier"
-                },
-                "int": {
-                    "$ref": "#/definitions/big.Int"
-                },
-                "naN": {
-                    "type": "boolean"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
         "pgtype.Timestamptz": {
             "type": "object",
             "properties": {
@@ -2484,7 +2509,7 @@ const docTemplate = `{
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.GetProductInCartRow"
+                        "$ref": "#/definitions/db.GetProductFromCartRow"
                     }
                 },
                 "seller_name": {
@@ -2529,14 +2554,52 @@ const docTemplate = `{
                 }
             }
         },
-        "router.couponPreview": {
+        "router.checkout": {
             "type": "object",
             "properties": {
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/router.couponDiscount"
+                    }
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router.couponDiscount": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "discount": {
+                    "type": "number"
+                },
+                "discount_value": {
+                    "type": "integer"
+                },
+                "id": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         }

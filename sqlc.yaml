@@ -21,6 +21,8 @@ sql:
           go_struct_tag: param:"id"
         - column: product.id
           go_struct_tag: param:"id" param:"product_id"
+        - column: product.price
+          go_struct_tag: swaggertype:"number"
         - column: shop.seller_name
           go_struct_tag: param:"seller_name"
         - column: cart.cart_id

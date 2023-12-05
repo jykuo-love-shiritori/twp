@@ -85,14 +85,15 @@ WHERE
     AND U."id" = C."user_id"
     AND C."shop_id" = S."id";
 
--- name: GetProductInCart :many
+-- name: GetProductFromCart :many
 
 SELECT
     "product_id",
     "name",
     "image_id",
     "price",
-    "quantity"
+    "quantity",
+    "enabled"
 FROM
     "cart_product" AS C,
     "product" AS P
@@ -100,7 +101,7 @@ WHERE
     "cart_id" = $1
     AND C."product_id" = P."id";
 
--- name: UpdateProductInCart :one
+-- name: UpdateProductFromCart :one
 
 UPDATE "cart_product"
 SET "quantity" = $3
@@ -111,7 +112,7 @@ WHERE
     AND "cart_id" = $1
     AND "product_id" = $2 RETURNING "quantity";
 
--- name: DeleteProductInCart :execrows
+-- name: DeleteProductFromCart :execrows
 
 WITH valid_cart AS (
         SELECT C."id"
@@ -139,13 +140,12 @@ WITH valid_cart AS (
                 FROM valid_cart
             )
     )
+-- if there are no products left in the cart, delete the cart ↙️
 DELETE FROM "cart" AS 🛒
 WHERE 🛒."id" = @cart_id AND (
         SELECT count
         FROM remaining_products
     ) = 0;
-
--- if there are no products left in the cart, delete the cart ⬆️
 
 -- name: AddProductToCart :one
 
@@ -231,48 +231,172 @@ WHERE NOT EXISTS (
 
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
 
--- name: AddCouponToCart :one
+-- name: AddCouponToCart :execrows
 
-WITH insert_coupon AS (
-        INSERT INTO
-            "cart_coupon" ("cart_id", "coupon_id")
-        SELECT
-            C."id",
-            CO."id"
-        FROM
-            "cart" AS C,
-            "user" AS U,
-            "coupon" AS CO
-        WHERE
-            U."username" = $1
-            AND C."user_id" = U."id"
-            AND C."id" = @Cart_id
+INSERT INTO
+    "cart_coupon" ("cart_id", "coupon_id")
+SELECT C."id", CO."id"
+FROM
+    "cart" AS C,
+    "user" AS U,
+    "coupon" AS CO
+WHERE
+    U."username" = $1
+    AND C."user_id" = U."id"
+    AND C."id" = @Cart_id
+    AND (
+        CO."scope" = 'global'
+        OR (
+            CO."scope" = 'shop'
             AND CO."shop_id" = C."shop_id"
-            AND NOW() BETWEEN CO."start_date"
-            AND CO."expire_date"
-            AND NOT EXISTS (
-                SELECT 1
-                FROM
-                    "cart_coupon" AS CC
-                WHERE
-                    CC."cart_id" = C."id"
-                    AND CC."coupon_id" = $2
-            )
-            AND CO."id" = $2
+        )
     )
-SELECT CO.*
-FROM "coupon" AS CO
-WHERE CO."id" = $2;
+    AND NOW() BETWEEN CO."start_date"
+    AND CO."expire_date"
+    AND NOT EXISTS (
+        SELECT 1
+        FROM
+            "cart_coupon" AS CC
+        WHERE
+            CC."cart_id" = C."id"
+            AND CC."coupon_id" = $2
+    )
+    AND CO."id" = $2;
 
--- name: GetCartTotalPrice :one
+-- name: GetCartSubtotal :one
 
 SELECT
-    SUM(P."price" * CP."quantity") AS "total_price"
+    SUM(P."price" * CP."quantity") AS "subtotal"
 FROM
     "cart_product" AS CP,
     "product" AS P,
-    "cart" AS C
+    "cart" AS C,
+    "user" AS U
 WHERE
     C."id" = CP."cart_id"
     AND CP."product_id" = P."id"
-    AND C."id" = $1;
+    AND C."id" = @cart_id
+    AND C."user_id" = U."id"
+    AND NOT EXISTS (
+        SELECT 1
+        FROM "product" AS P
+        WHERE
+            P."id" = CP."product_id"
+            AND P."enabled" = FALSE
+    );
+
+-- name: DeleteCouponFromCart :execrows
+
+DELETE FROM
+    "cart_coupon" AS CC USING "cart" AS C,
+    "user" AS U
+WHERE
+    U."username" = $1
+    AND C."user_id" = U."id"
+    AND C."id" = CC."cart_id"
+    AND C."id" = @cart_id
+    AND CC."coupon_id" = $2;
+
+-- name: GetCouponsFromCart :many
+
+WITH delete_expire_coupons AS (
+        DELETE FROM
+            "cart_coupon" AS CC USING "coupon" AS CO,
+            "cart" AS C,
+            "user" AS U
+        WHERE
+            U."username" = $1
+            AND C."user_id" = U."id"
+            AND C."id" = CC."cart_id"
+            AND C."id" = @cart_id
+            AND CC."coupon_id" = CO."id"
+            AND NOW() > CO."expire_date"
+    )
+SELECT
+    CO."id",
+    CO."name",
+    CO."type",
+    CO."scope",
+    CO."description",
+    CO."discount"
+FROM
+    "cart_coupon" AS CC,
+    "coupon" AS CO,
+    "cart" AS C,
+    "user" AS U
+WHERE
+    U."username" = $1
+    AND C."user_id" = U."id"
+    AND C."id" = CC."cart_id"
+    AND C."id" = @cart_id
+    AND CC."coupon_id" = CO."id";
+
+-- name: Checkout :exec
+
+WITH insert_order AS (
+        INSERT INTO
+            "order_history" (
+                "user_id",
+                "shop_id",
+                "image_id",
+                "shipment",
+                "total_price",
+                "status"
+            )
+        SELECT
+            U."id",
+            S."id",
+            T."image_id",
+            $2,
+            $3,
+            'paid'
+        FROM
+            "user" AS U,
+            "shop" AS S,
+            "cart" AS C, (
+                SELECT
+                    "image_id"
+                FROM
+                    "product"
+                WHERE "id" = (
+                        SELECT
+                            "product_id"
+                        FROM
+                            "cart_product"
+                    )
+                ORDER BY
+                    "price" DESC
+                LIMIT
+                    1 -- the most expensive product's image_id will be used as the thumbnail ↙️
+            ) AS T
+        WHERE
+            U."username" = $1
+            AND U."id" = C."user_id"
+            AND C."id" = @cart_id
+            AND S."id" = C."shop_id" RETURNING "id"
+    )
+INSERT INTO
+    "order_detail" (
+        "order_id",
+        "product_id",
+        "product_version",
+        "quantity"
+    )
+SELECT (
+        SELECT "id"
+        FROM
+            insert_order
+    ),
+    CP."product_id",
+    P."version",
+    CP."quantity"
+FROM
+    "cart_product" AS CP,
+    "product" AS P,
+    "cart" AS C,
+    "user" AS U
+WHERE
+    C."id" = CP."cart_id"
+    AND CP."product_id" = P."id"
+    AND C."id" = @cart_id
+    AND C."user_id" = U."id";
