@@ -4,34 +4,70 @@ sql:
     queries: "db/queries"
     schema: "db/migrations"
     gen:
-      go: 
+      go:
         emit_json_tags: true
         emit_empty_slices: true
         package: "db"
         out: "db"
         sql_package: "pgx/v5"
         overrides:
-        - column: user.id
-          go_struct_tag: param:"id"
-        - column: coupon.id
-          go_struct_tag: param:"id"
-        - column: order_history.id
-          go_struct_tag: param:"id"
-        - column: product.id
-          go_struct_tag: param:"id"
-        - column: shop.seller_name
-          go_struct_tag: param:"seller_name"
-        - column: cart.cart_id
-          go_struct_tag: param:"id"
-        - column: coupon.shop_id
-          go_struct_tag: json:"-"
-        - column: order_history.shop_id
-          go_struct_tag: json:"-"
-        - column: order_history.created_at
-          go_struct_tag: json:"-"
-        - column: coupon.start_date
-          go_struct_tag: swaggertype:"string"
-        - column: coupon.expire_date
-          go_struct_tag: swaggertype:"string"
-        - column: coupon.discount 
-          go_struct_tag: swaggertype:"number" 
+          - column: "user.credit_card"
+            go_type:
+              type: "json.RawMessage"
+
+          - column: user.id
+            go_struct_tag: param:"id"
+          - column: coupon.id
+            go_struct_tag: param:"id"
+          - column: coupon_tag.coupon_id
+            go_struct_tag: param:"id"
+          - column: order_history.id
+            go_struct_tag: param:"id"
+          - column: order_detail.order_id
+            go_struct_tag: param:"id"
+          - column: product.id
+            go_struct_tag: param:"id"
+          - column: product_tag.product_id
+            go_struct_tag: param:"id"
+          - column: shop.seller_name
+            go_struct_tag: param:"seller_name"
+          - column: cart.cart_id
+            go_struct_tag: param:"id"
+
+          - column: coupon.discount
+            go_struct_tag: swaggertype:"number"
+          - column: coupon.start_date
+            go_struct_tag: swaggertype:"string"
+          - column: coupon.expire_date
+            go_struct_tag: swaggertype:"string"
+          - column: order_history.create_at
+            go_struct_tag: swaggertype:"string"
+          - column: product.price
+            go_struct_tag: swaggertype:"number"
+          - column: product.image_id
+            go_struct_tag: swaggertype:"string"
+          - column: product.expire_date
+            go_struct_tag: swaggertype:"string"
+          - column: product.edit_date
+            go_struct_tag: swaggertype:"string"
+          - column: product_archive.price
+            go_struct_tag: swaggertype:"number"
+          - column: product_archive.image_id
+            go_struct_tag: swaggertype:"string"
+          - column: product_archive.image_id
+            go_struct_tag: swaggertype:"string"
+          - column: order_history.created_at
+            go_struct_tag: swaggertype:"string"
+          - column: shop.image_id
+            go_struct_tag: swaggertype:"string"
+          - column: user.image_id
+            go_struct_tag: swaggertype:"string"
+
+          # - column: coupon.shop_id
+          #   go_struct_tag: json:"-"
+          # - column: product.shop_id
+          #   go_struct_tag: json:"-"
+          # - column: order_history.shop_id
+          #   go_struct_tag: json:"-"
+          - column: order_history.created_at
+            go_struct_tag: json:"-"
