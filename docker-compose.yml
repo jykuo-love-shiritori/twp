@@ -50,9 +50,23 @@ services:
           "CMD-SHELL",
           "curl -f http://localhost:${MINIO_CONSOLE_PORT}/minio/health/live || exit 1"
         ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
+
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    environment:
+      - .env
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+       /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME};
+       /usr/bin/mc anonymous set upload myminio/${MINIO_BUCKET_NAME};
+       /usr/bin/mc anonymous set download myminio/${MINIO_BUCKET_NAME};
+       /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET_NAME};
+      exit 0;"
 
 volumes:
   postgres-data:
