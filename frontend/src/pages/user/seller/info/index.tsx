@@ -33,7 +33,7 @@ const SellerInfo = () => {
           {visibility ? 'Your shop is visible to everyone.' : 'Your shop is hidden from everyone.'}
         </Col>
       </Row>
-      <InfoItem text='Shop Name' isMore={false} value={shopName} setValue={setshopName} />
+      <InfoItem text='Shop Name' isMore={false} value={shopName} setValue={setShopName} />
       <InfoItem
         text='Shop Description'
         isMore={true}
