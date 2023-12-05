@@ -21,9 +21,11 @@ const TButton = ({ text, url, onClick }: Props) => {
   }
 
   return (
-    <Button className='none button pointer center' onClick={handleClick}>
-      {text}
-    </Button>
+    <div className='center none' style={{ width: '100%' }}>
+      <Button className='none button pointer center' onClick={handleClick}>
+        {text}
+      </Button>
+    </div>
   );
 };
 

@@ -63,7 +63,7 @@ const NewAdminCoupon = () => {
   };
 
   return (
-    <div style={{ padding: '55px 12% 0 12%' }}>
+    <div style={{ padding: '65px 12% 0 12%' }}>
       <Row>
         <Col xs={12} md={5} className='goods_bgW'>
           <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>

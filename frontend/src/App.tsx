@@ -71,6 +71,7 @@ function App() {
           </Route>
 
           <Route path='/user/seller' element={<Seller />}>
+            <Route index element={<NotFound />} />
             <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
             <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />

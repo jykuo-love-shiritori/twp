@@ -8,7 +8,7 @@ const ManageAdminCoupons = () => {
     <div>
       <Row>
         {/* display title for desktop */}
-        <div className='disappear_phone disappear_tablet'>
+        <div className='disappear_phone disappear_tablet' style={{ paddingTop: '6%' }}>
           <Row>
             <Col xl={6} className='left'>
               <div className='title'>All Global Coupon</div>
