@@ -1267,17 +1267,18 @@ paths:
     get:
       description: Get all coupons for shop.
       parameters:
-      - description: limit
-        in: query
-        maximum: 20
-        minimum: 3
-        name: limit
-        required: true
-        type: integer
-      - description: offset page
+      - default: 0
+        description: offset page
         in: query
         minimum: 0
         name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        minimum: 20
+        name: limit
         required: true
         type: integer
       produces:
@@ -1650,17 +1651,18 @@ paths:
     get:
       description: Get all orders for shop.
       parameters:
-      - description: limit
-        in: query
-        maximum: 20
-        minimum: 3
-        name: limit
-        required: true
-        type: integer
-      - description: offset
+      - default: 0
+        description: offset
         in: query
         minimum: 0
         name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
         required: true
         type: integer
       produces:
@@ -1774,17 +1776,18 @@ paths:
       - application/json
       description: seller get product
       parameters:
-      - description: limit
-        in: query
-        maximum: 20
-        minimum: 3
-        name: limit
-        required: true
-        type: integer
-      - description: offset page
+      - default: 0
+        description: offset page
         in: query
         minimum: 0
         name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
         required: true
         type: integer
       produces:

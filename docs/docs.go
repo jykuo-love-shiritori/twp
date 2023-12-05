@@ -1009,19 +1009,20 @@ const docTemplate = `{
                 "summary": "Seller get shop coupon",
                 "parameters": [
                     {
-                        "maximum": 20,
-                        "minimum": 3,
+                        "minimum": 0,
                         "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
+                        "default": 0,
+                        "description": "offset page",
+                        "name": "offset",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "minimum": 0,
+                        "minimum": 20,
                         "type": "integer",
-                        "description": "offset page",
-                        "name": "offset",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
                         "in": "query",
                         "required": true
                     }
@@ -1574,19 +1575,20 @@ const docTemplate = `{
                 "summary": "Seller get order",
                 "parameters": [
                     {
-                        "maximum": 20,
-                        "minimum": 3,
+                        "minimum": 0,
                         "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
+                        "default": 0,
+                        "description": "offset",
+                        "name": "offset",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "minimum": 0,
+                        "maximum": 20,
                         "type": "integer",
-                        "description": "offset",
-                        "name": "offset",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
                         "in": "query",
                         "required": true
                     }
@@ -1752,19 +1754,20 @@ const docTemplate = `{
                 "summary": "Seller get product",
                 "parameters": [
                     {
-                        "maximum": 20,
-                        "minimum": 3,
+                        "minimum": 0,
                         "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
+                        "default": 0,
+                        "description": "offset page",
+                        "name": "offset",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "minimum": 0,
+                        "maximum": 20,
                         "type": "integer",
-                        "description": "offset page",
-                        "name": "offset",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
                         "in": "query",
                         "required": true
                     }

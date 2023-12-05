@@ -155,8 +155,8 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller get shop coupon
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			limit	query	int	true	"limit"			minimum(3)	maximum(20)
-// @Param			offset	query	int	true	"offset page"	minimum(0)
+// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
+// @Param			limit	query	int	true	"limit"			default(10) minimum(20)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -399,8 +399,8 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Summary		Seller get order
 // @Description	Get all orders for shop.
 // @Tags			Seller, Shop, Order
-// @Param			limit	query	int	true	"limit"		minimum(3)maximum(20)
-// @Param			offset	query	int	true	"offset"	minimum(0)
+// @Param			offset	query	int	true	"offset"	default(0) minimum(0)
+// @Param			limit	query	int	true	"limit"		default(10)	maximum(20)
 // @Produce		json
 // @Success		200	{array}		db.SellerGetOrderRow
 // @Failure		400	{object}	echo.HTTPError
@@ -574,8 +574,8 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Summary		Seller get product
 // @Description	seller get product
 // @Tags			Seller, Shop, Product
-// @Param			limit	query	int	true	"limit"			minimum(3)maximum(20)
-// @Param			offset	query	int	true	"offset page"	minimum(0)
+// @Param			offset	query	int	true	"offset page"	default(0) minimum(0)
+// @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
 // @Accept			json
 // @Produce		json
 // @Success		200	{array}		db.SellerProductListRow
