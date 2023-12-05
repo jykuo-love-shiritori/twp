@@ -31,6 +31,10 @@ import Authorize from '@pages/user/authorize';
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
+import AdminReport from '@pages/user/admin/allReports';
+import AdminReportEach from '@pages/user/admin/allReports/[adminReportID]';
+import SellerReport from '@pages/user/seller/allReports';
+import SellerReportEach from '@pages/user/seller/allReports/[sellerReportID]';
 
 function App() {
   return (
@@ -60,12 +64,13 @@ function App() {
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
 
+          {/* seller-parts =============================================== */}
           <Route path='/user/seller' element={<Seller />}>
             <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
             <Route path='/user/seller/manageCoupons' element={<NotFound />} />
             <Route path='/user/seller/orders' element={<SellerShipment />} />
-            <Route path='/user/seller/reports' element={<NotFound />} />
+            <Route path='/user/seller/reports' element={<SellerReport />} />
           </Route>
 
           <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
@@ -87,15 +92,25 @@ function App() {
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
 
+          <Route path='/user/seller/reports'>
+            <Route path=':report_id' element={<SellerReportEach />} />
+          </Route>
+
           <Route path='/buyer/cart' element={<Cart />} />
 
+          {/* admin-parts ================================================ */}
           <Route path='/admin' element={<Admin />}>
             <Route index element={<ManageUser />} />
             <Route path='/admin/manageUser' element={<ManageUser />} />
             {/* <Route path='/admin/manageCoupons' element={<ManageCoupon />} /> */}
-            {/* <Route path='/admin/report' element={<AdminReport />} /> */}
+            <Route path='/admin/reports' element={<AdminReport />} />
           </Route>
 
+          <Route path='/admin/reports'>
+            <Route path=':report_id' element={<AdminReportEach />} />
+          </Route>
+
+          {/* global-parts ================================================ */}
           <Route path='/search?' element={<SearchNotFound />} />
 
           <Route path='*' element={<NotFound />} />

@@ -1,0 +1,106 @@
+[
+  {
+    "year": 2023,
+    "month": 3,
+    "sellers": [
+      {
+        "id": 1,
+        "name": "john",
+        "imgUrl": "/images/person.png",
+        "amount": 10223301
+      },
+      {
+        "id": 4,
+        "name": "tom",
+        "imgUrl": "/images/head.png",
+        "amount": 987373
+      },
+      {
+        "id": 6,
+        "name": "alice",
+        "imgUrl": "/images/news1.jpg",
+        "amount": 876698
+      }
+    ],
+    "total_amount": 18223301,
+    "id": 4
+  },
+  {
+    "year": 2023,
+    "month": 2,
+    "sellers": [
+      {
+        "id": 4,
+        "name": "tom",
+        "imgUrl": "/images/head.png",
+        "amount": 987373
+      },
+      {
+        "id": 1,
+        "name": "john",
+        "imgUrl": "/images/person.png",
+        "amount": 10223301
+      },
+      {
+        "id": 6,
+        "name": "alice",
+        "imgUrl": "/images/news1.jpg",
+        "amount": 876698
+      }
+    ],
+    "total_amount": 18223301,
+    "id": 3
+  },
+  {
+    "year": 2023,
+    "month": 1,
+    "sellers": [
+      {
+        "id": 6,
+        "name": "alice",
+        "imgUrl": "/images/news1.jpg",
+        "amount": 876698
+      },
+      {
+        "id": 4,
+        "name": "tom",
+        "imgUrl": "/images/head.png",
+        "amount": 987373
+      },
+      {
+        "id": 1,
+        "name": "john",
+        "imgUrl": "/images/person.png",
+        "amount": 10223301
+      }
+    ],
+    "total_amount": 18223301,
+    "id": 2
+  },
+  {
+    "year": 2022,
+    "month": 12,
+    "sellers": [
+      {
+        "id": 4,
+        "name": "tom",
+        "imgUrl": "/images/head.png",
+        "amount": 987373
+      },
+      {
+        "id": 6,
+        "name": "alice",
+        "imgUrl": "/images/news1.jpg",
+        "amount": 876698
+      },
+      {
+        "id": 1,
+        "name": "john",
+        "imgUrl": "/images/person.png",
+        "amount": 10223301
+      }
+    ],
+    "total_amount": 18223301,
+    "id": 1
+  }
+]
