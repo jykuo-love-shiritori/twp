@@ -43,7 +43,7 @@
 /* [item in page] home */
 .home {
   padding-top: 60px;
-  background: url('/images/home_bg.png') fixed;
+  background: url('@assets/images/home_bg.png') fixed;
 }
 
 /* [item in page] search button on navbar */
@@ -288,7 +288,7 @@
 
 /* [item in page] users info page */
 .user_bg {
-  background: url('/images/user_bg.png') fixed;
+  background: url('@assets/images/user_bg.png') fixed;
   width: 100%;
   height: 300px;
 }

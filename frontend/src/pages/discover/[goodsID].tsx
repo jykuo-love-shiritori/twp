@@ -123,7 +123,7 @@ const EachGoods = () => {
               <hr className='hr' />
               <Row>
                 <Col xs={6} className='center'>
-                  <UserItem img_path='/images/person.png' name='Tom Johnathan' />
+                  <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
                 </Col>
                 <Col xs={6}>
                   <TButton text='View Shop' url='' />

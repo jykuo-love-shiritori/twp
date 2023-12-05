@@ -2,7 +2,7 @@
   {
     "recordID": 3,
     "seller": "Joyce Anderson",
-    "seller_img": "../../images/person.png",
+    "seller_img": "/placeholder/person.png",
     "items": [
       {
         "item_id": 7,
@@ -39,7 +39,7 @@
   {
     "recordID": 2,
     "seller": "Tom Jonathan",
-    "seller_img": "../../images/head.png",
+    "seller_img": "/placeholder/head.png",
     "items": [
       {
         "item_id": 4,
@@ -64,7 +64,7 @@
   {
     "recordID": 1,
     "seller": "Annie Swift",
-    "seller_img": "../../images/news1.jpg",
+    "seller_img": "/placeholder/head.png",
     "items": [
       {
         "item_id": 2,

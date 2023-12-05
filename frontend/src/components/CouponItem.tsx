@@ -47,7 +47,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
         <Modal.Body>
           <Row>
             <Col xs={3} md={2} className='center'>
-              <img src='../../images/person.png' className='user_img' />
+              <img src='/placeholder/person.png' className='user_img' />
             </Col>
             <Col xs={4} md={6} className='center_vertical left'>
               Name
