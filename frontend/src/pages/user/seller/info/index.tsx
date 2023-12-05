@@ -7,7 +7,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 const SellerInfo = () => {
   //TODO: read the initial value
   const [visibility, setVisibility] = useState<boolean>(true);
-  const [shopName, setshopName] = useState<string>('');
+  const [shopName, setShopName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
   const handleVisibility = (e: React.ChangeEvent<HTMLInputElement>) => {
