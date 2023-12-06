@@ -28,20 +28,16 @@ const tagStyle = {
   width: '100%',
 };
 
-const EachAdminCoupon = () => {
-  //TODO: get the init value
-  // const params = useParams();
-  // const id = params.coupon_id;
-
+const EachSellerCoupon = () => {
   // react-hook-form things
-  const { register, control, handleSubmit, watch } = useForm<IFormInput>({
+  const { register, control, handleSubmit, watch, setValue } = useForm<IFormInput>({
     defaultValues: {
-      type: 'percentage',
-      name: 'Coupon',
-      description: 'this is description',
+      type: '',
+      name: '',
+      description: '',
       discount: 0,
-      start_date: '2000-1-1',
-      expire_date: '2000-1-1',
+      start_date: '',
+      expire_date: '',
       tags: [],
     },
   });
@@ -74,6 +70,35 @@ const EachAdminCoupon = () => {
     remove(index);
   };
 
+  //TODO: get the init value
+  // const params = useParams();
+  // const id = params.coupon_id;
+  const initData: IFormInput = {
+    type: 'percentage',
+    name: 'Coupon',
+    description: 'this is description',
+    discount: 0,
+    start_date: '2000-01-01',
+    expire_date: '2000-01-01',
+    tags: [],
+  };
+  const setInitField = (data: IFormInput) => {
+    //set the field into the initial data
+    setValue('type', data.type);
+    setValue('name', data.name);
+    setValue('description', data.description);
+    setValue('discount', data.discount);
+    setValue('start_date', data.start_date);
+    setValue('expire_date', data.expire_date);
+    setValue('tags', data.tags);
+  };
+  // TODO: this is just prevent the inf loop, will remove latter
+  const [isInit, setIsInit] = useState(false);
+  if (!isInit) {
+    setInitField(initData);
+    setIsInit(true);
+  }
+
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
       <form onSubmit={handleSubmit(OnFormOutput)}>
@@ -88,7 +113,7 @@ const EachAdminCoupon = () => {
                     id: null,
                     name: watchAllFields.name,
                     policy: watchAllFields.discount.toString(),
-                    date: watchAllFields.expire_date,
+                    date: watchAllFields.expire_date.slice(5).replace('-', '/'),
                     tags: [],
                     introduction: '',
                   }}
@@ -111,7 +136,7 @@ const EachAdminCoupon = () => {
               {fields.map((field, index) => (
                 <div key={field.id} style={tagStyle}>
                   <Row style={{ width: '100%' }} className='center'>
-                    <Col xs={1} className='center'>
+                    <Col xs={2} className='right'>
                       <FontAwesomeIcon
                         icon={faTrash}
                         className='white_word pointer'
@@ -190,4 +215,4 @@ const EachAdminCoupon = () => {
   );
 };
 
-export default EachAdminCoupon;
+export default EachSellerCoupon;

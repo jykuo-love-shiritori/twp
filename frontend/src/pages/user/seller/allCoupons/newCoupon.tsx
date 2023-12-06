@@ -40,8 +40,8 @@ const NewSellerCoupon = () => {
       name: 'Coupon',
       description: 'this is description',
       discount: 0,
-      start_date: '2000-1-1',
-      expire_date: '2000-1-1',
+      start_date: '2000-01-01',
+      expire_date: '2000-01-01',
       tags: [],
     },
   });
@@ -111,7 +111,7 @@ const NewSellerCoupon = () => {
               {fields.map((field, index) => (
                 <div key={field.id} style={tagStyle}>
                   <Row style={{ width: '100%' }} className='center'>
-                    <Col xs={1} className='center'>
+                    <Col xs={2} className='right'>
                       <FontAwesomeIcon
                         icon={faTrash}
                         className='white_word pointer'
