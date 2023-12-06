@@ -136,11 +136,12 @@ INSERT INTO
         "id",
         "user_id",
         "shop_id",
+        "image_id",
         "shipment",
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 
 -- name: TestInsertOrderDetail :one
 

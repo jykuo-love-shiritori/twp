@@ -481,6 +481,7 @@ const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
 
 
 
+
 SELECT
     p."name",
     p."image_id",
@@ -509,6 +510,7 @@ type SellerGetProductDetailRow struct {
 	Enabled bool           `json:"enabled"`
 }
 
+// TODO
 // SellerGetReport :many
 // SellerGetReportDetail :many
 func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProductDetailParams) (SellerGetProductDetailRow, error) {
