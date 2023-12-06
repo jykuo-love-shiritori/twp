@@ -51,7 +51,32 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.Coupon:
+  db.CouponScope:
+    enum:
+    - global
+    - shop
+    type: string
+    x-enum-varnames:
+    - CouponScopeGlobal
+    - CouponScopeShop
+  db.CouponTag:
+    properties:
+      coupon_id:
+        type: integer
+      tag_id:
+        type: integer
+    type: object
+  db.CouponType:
+    enum:
+    - percentage
+    - fixed
+    - shipping
+    type: string
+    x-enum-varnames:
+    - CouponTypePercentage
+    - CouponTypeFixed
+    - CouponTypeShipping
+  db.EditCouponRow:
     properties:
       description:
         type: string
@@ -70,25 +95,7 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.CouponScope:
-    enum:
-    - global
-    - shop
-    type: string
-    x-enum-varnames:
-    - CouponScopeGlobal
-    - CouponScopeShop
-  db.CouponType:
-    enum:
-    - percentage
-    - fixed
-    - shipping
-    type: string
-    x-enum-varnames:
-    - CouponTypePercentage
-    - CouponTypeFixed
-    - CouponTypeShipping
-  db.EditCouponRow:
+  db.GetAnyCouponsRow:
     properties:
       description:
         type: string
@@ -143,8 +150,6 @@ definitions:
     type: object
   db.GetOrderHistoryRow:
     properties:
-      created_at:
-        type: string
       id:
         type: integer
       name:
@@ -162,8 +167,6 @@ definitions:
     type: object
   db.GetOrderInfoRow:
     properties:
-      created_at:
-        type: string
       discount:
         type: integer
       id:
@@ -198,8 +201,8 @@ definitions:
     properties:
       description:
         type: string
-      exp_date:
-        $ref: '#/definitions/pgtype.Timestamptz'
+      expire_date:
+        type: string
       id:
         type: integer
       image_id:
@@ -283,6 +286,13 @@ definitions:
     - OrderStatusDelivered
     - OrderStatusCancelled
     - OrderStatusFinished
+  db.ProductTag:
+    properties:
+      product_id:
+        type: integer
+      tag_id:
+        type: integer
+    type: object
   db.RoleType:
     enum:
     - admin
@@ -291,25 +301,287 @@ definitions:
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeCustomer
+  db.SellerGetCouponDetailRow:
+    properties:
+      discount:
+        type: number
+      expire_date:
+        type: string
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.SellerGetCouponRow:
+    properties:
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.SellerGetCouponTagRow:
+    properties:
+      name:
+        type: string
+      tag_id:
+        type: integer
+    type: object
+  db.SellerGetInfoRow:
+    properties:
+      description:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      seller_name:
+        type: string
+    type: object
+  db.SellerGetOrderDetailRow:
+    properties:
+      description:
+        $ref: '#/definitions/pgtype.Text'
+      id:
+        $ref: '#/definitions/pgtype.Int4'
+      image_id:
+        type: string
+      name:
+        $ref: '#/definitions/pgtype.Text'
+      price:
+        type: number
+      quantity:
+        type: integer
+      version:
+        $ref: '#/definitions/pgtype.Int4'
+    type: object
+  db.SellerGetOrderHistoryRow:
+    properties:
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+    type: object
+  db.SellerGetOrderRow:
+    properties:
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+    type: object
+  db.SellerGetProductDetailRow:
+    properties:
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  db.SellerGetProductTagRow:
+    properties:
+      name:
+        type: string
+      tag_id:
+        type: integer
+    type: object
+  db.SellerInsertCouponRow:
+    properties:
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.SellerInsertProductRow:
+    properties:
+      description:
+        type: string
+      edit_date:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  db.SellerInsertTagRow:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  db.SellerProductListRow:
+    properties:
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  db.SellerSearchTagRow:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  db.SellerUpdateCouponInfoRow:
+    properties:
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.SellerUpdateInfoRow:
+    properties:
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+      seller_name:
+        type: string
+    type: object
+  db.SellerUpdateOrderStatusRow:
+    properties:
+      id:
+        type: integer
+      shipment:
+        type: integer
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      total_price:
+        type: integer
+    type: object
+  db.SellerUpdateProductInfoRow:
+    properties:
+      description:
+        type: string
+      edit_date:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  db.UserGetInfoRow:
+    properties:
+      email:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
+  db.UserUpdateInfoRow:
+    properties:
+      email:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
+  db.UserUpdatePasswordRow:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
   echo.HTTPError:
     properties:
       message: {}
     type: object
-  pgtype.InfinityModifier:
-    enum:
-    - 1
-    - 0
-    - -1
-    type: integer
-    x-enum-varnames:
-    - Infinity
-    - Finite
-    - NegativeInfinity
-  pgtype.Timestamptz:
+  pgtype.Int4:
     properties:
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      time:
+      int32:
+        type: integer
+      valid:
+        type: boolean
+    type: object
+  pgtype.Text:
+    properties:
+      string:
         type: string
       valid:
         type: boolean
@@ -362,6 +634,15 @@ definitions:
       total_discount:
         type: integer
     type: object
+  router.couponDetail:
+    properties:
+      coupon_info:
+        $ref: '#/definitions/db.SellerGetCouponDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.SellerGetCouponTagRow'
+        type: array
+    type: object
   router.couponDiscount:
     properties:
       description:
@@ -378,6 +659,24 @@ definitions:
         $ref: '#/definitions/db.CouponScope'
       type:
         $ref: '#/definitions/db.CouponType'
+    type: object
+  router.orderDetail:
+    properties:
+      order_info:
+        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
+      products:
+        items:
+          $ref: '#/definitions/db.SellerGetOrderDetailRow'
+        type: array
+    type: object
+  router.productDetail:
+    properties:
+      product_info:
+        $ref: '#/definitions/db.SellerGetProductDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.SellerGetProductTagRow'
+        type: array
     type: object
 externalDocs:
   description: OpenAPI
@@ -417,7 +716,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.Coupon'
+              $ref: '#/definitions/db.GetAnyCouponsRow'
             type: array
         "400":
           description: Bad Request
@@ -1126,64 +1425,41 @@ paths:
       tags:
       - Search
       - Shop
-  /seller:
-    get:
-      description: Get shop info, includes user picture, name, description.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller get shop info
-      tags:
-      - Seller
-      - Shop
-    patch:
-      description: Edit shop name, description, visibility.
-      parameters:
-      - description: name search by q
-        format: email
-        in: query
-        name: image_id
-        type: string
-      - description: name search by q
-        format: email
-        in: query
-        name: name
-        type: string
-      - description: name search by q
-        format: email
-        in: query
-        name: Description
-        type: string
-      - description: name search by q
-        format: email
-        in: query
-        name: enable
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller edit shop info
-      tags:
-      - Seller
-      - Shop
   /seller/coupon:
     get:
       description: Get all coupons for shop.
+      parameters:
+      - default: 0
+        description: offset page
+        in: query
+        minimum: 0
+        name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        minimum: 20
+        name: limit
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.SellerGetCouponRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get shop coupon
       tags:
       - Seller
@@ -1193,13 +1469,61 @@ paths:
       consumes:
       - application/json
       description: Add coupon for shop.
+      parameters:
+      - description: Coupon type
+        in: body
+        name: type
+        required: true
+        schema:
+          enum:
+          - '''percentage'''
+          - '''fixed'''
+          - '''shipping'''
+          type: string
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of coupon
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: discount
+        in: body
+        name: discount
+        schema:
+          type: number
+      - description: start date
+        in: body
+        name: start_date
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.SellerInsertCouponRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add coupon
       tags:
       - Seller
@@ -1210,13 +1534,31 @@ paths:
       consumes:
       - application/json
       description: Delete coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-        "401":
-          description: Unauthorized
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller delete coupon
       tags:
       - Seller
@@ -1235,8 +1577,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.couponDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get coupon detail
       tags:
       - Seller
@@ -1252,29 +1602,299 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Coupon type
+        in: body
+        name: type
+        required: true
+        schema:
+          enum:
+          - '''percentage'''
+          - '''fixed'''
+          - '''shipping'''
+          type: string
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of coupon
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: discount
+        in: body
+        name: discount
+        schema:
+          type: number
+      - description: start date
+        in: body
+        name: start_date
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller edit coupon
       tags:
       - Seller
       - Shop
       - Coupon
-  /seller/order:
-    get:
-      description: Get all orders for shop.
+  /seller/coupon/{id}/tag:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete coupon tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+      - Tag
+    post:
+      consumes:
+      - application/json
+      description: Add tag on coupon
+      parameters:
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.CouponTag'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller add coupon tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+      - Tag
+  /seller/info:
+    get:
+      description: Get shop info, includes user picture, name, description.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerGetInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get shop info
+      tags:
+      - Seller
+      - Shop
+    patch:
+      description: Edit shop name, description, visibility.
+      parameters:
+      - description: update image UUID
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: update shop name
+        in: body
+        minLength: 6
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: update description
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: update enabled status
+        in: body
+        name: enabled
+        required: true
+        schema:
+          type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerUpdateInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller edit shop info
+      tags:
+      - Seller
+      - Shop
+  /seller/order:
+    get:
+      description: Get all orders for shop.
+      parameters:
+      - default: 0
+        description: offset
+        in: query
+        minimum: 0
+        name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.SellerGetOrderRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get order
+      tags:
+      - Seller
+      - Shop
+      - Order
+    patch:
+      description: seller update orders status.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: order status
+        in: body
+        name: current_status
+        required: true
+        schema:
+          enum:
+          - '''pending'''
+          - '''paid'''
+          - '''shipped'''
+          - '''delivered'''
+          - '''cancelled'''
+          type: string
+      - description: order status
+        in: body
+        name: set_status
+        required: true
+        schema:
+          enum:
+          - '''pending'''
+          - '''paid'''
+          - '''shipped'''
+          - '''delivered'''
+          - '''cancelled'''
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerUpdateOrderStatusRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller update order status
       tags:
       - Seller
       - Shop
@@ -1293,25 +1913,128 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.orderDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get order detail
       tags:
       - Seller
       - Shop
       - Order
   /seller/product:
-    post:
+    get:
       consumes:
       - application/json
-      description: Add product for shop.
+      description: seller get product
+      parameters:
+      - default: 0
+        description: offset page
+        in: query
+        minimum: 0
+        name: offset
+        required: true
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.SellerProductListRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
+      tags:
+      - Seller
+      - Shop
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Add product for shop.
+      parameters:
+      - description: name of product
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of product
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: price
+        in: body
+        name: price
+        schema:
+          type: number
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
+      - description: stock
+        in: body
+        name: stock
+        required: true
+        schema:
+          type: integer
+      - description: enabled
+        in: body
+        name: enabled
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerInsertProductRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add product
       tags:
       - Seller
@@ -1324,7 +2047,41 @@ paths:
       description: Delete product for shop.
       parameters:
       - description: Product ID
-        in: query
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete product
+      tags:
+      - Seller
+      - Shop
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: path
         name: id
         required: true
         type: integer
@@ -1333,9 +2090,17 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller delete product
+          schema:
+            $ref: '#/definitions/router.productDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
       tags:
       - Seller
       - Shop
@@ -1346,22 +2111,149 @@ paths:
       description: Edit product for shop.
       parameters:
       - description: Product ID
-        in: query
+        in: path
         name: id
         required: true
         type: integer
+      - description: name of product
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of product
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: price
+        in: body
+        name: price
+        schema:
+          type: number
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
+      - description: stock
+        in: body
+        name: stock
+        required: true
+        schema:
+          type: integer
+      - description: enabled
+        in: body
+        name: enabled
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.SellerUpdateProductInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller edit product
       tags:
       - Seller
       - Shop
       - Product
+  /seller/product/{id}/tag:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete product tag
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    post:
+      consumes:
+      - application/json
+      description: Add tag on product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: add tag id
+        in: body
+        name: tag_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.ProductTag'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller add product tag
+      tags:
+      - Seller
+      - Shop
+      - Product
+      - Tag
   /seller/product/{id}/upload:
     post:
       consumes:
@@ -1436,13 +2328,31 @@ paths:
   /seller/tag:
     get:
       description: Get all available tags for shop.
+      parameters:
+      - description: search tag name start with
+        in: body
+        minLength: 1
+        name: name
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.SellerSearchTagRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get available tag
       tags:
       - Seller
@@ -1452,13 +2362,33 @@ paths:
       consumes:
       - application/json
       description: Add tag for shop.
+      parameters:
+      - description: insert tag
+        in: body
+        minLength: 1
+        name: name
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.SellerInsertTagRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller add tag
       tags:
       - Seller
@@ -1630,21 +2560,6 @@ paths:
       summary: Get Tag Info
       tags:
       - Tag
-  /user:
-    get:
-      consumes:
-      - application/json
-      description: Get user information
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Get Info
-      tags:
-      - User
   /user/avatar:
     post:
       consumes:
@@ -1668,34 +2583,64 @@ paths:
       summary: User Upload Avatar
       tags:
       - User
-  /user/edit:
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.UserGetInfoRow'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Get Info
+      tags:
+      - User
     patch:
       consumes:
       - application/json
       description: Edit user information
+      parameters:
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: user address
+        in: body
+        name: address
+        required: true
+        schema:
+          type: string
+      - description: image id
+        in: body
+        name: image_id
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.UserUpdateInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Edit Info
-      tags:
-      - User
-  /user/password:
-    post:
-      consumes:
-      - application/json
-      description: Change user password
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Edit Password
       tags:
       - User
   /user/security/credit_card:
@@ -1708,47 +2653,86 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              type: integer
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Get Credit Card
       tags:
       - CreditCard
-  /user/security/credit_card/add:
-    post:
-      consumes:
-      - application/json
-      description: Add a new credit card for the user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Add Credit Card
-      tags:
-      - CreditCard
-  /user/security/credit_card/delete:
-    delete:
+    patch:
       consumes:
       - application/json
       description: Delete a credit card by its ID
       parameters:
-      - description: Credit Card ID
-        in: query
-        name: id
+      - description: Credit Card
+        in: body
+        name: credit_card
         required: true
-        type: integer
+        schema:
+          items:
+            type: integer
+          type: array
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              type: integer
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: User Delete Credit Card
       tags:
       - CreditCard
+  /user/security/password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: current password
+        in: body
+        name: current_password
+        required: true
+        schema:
+          type: string
+      - description: new password
+        in: body
+        name: new_password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.UserUpdatePasswordRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Edit Password
+      tags:
+      - User
 securityDefinitions:
   BasicAuth:
     type: basic

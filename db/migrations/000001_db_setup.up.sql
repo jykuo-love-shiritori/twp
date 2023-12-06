@@ -20,14 +20,16 @@ CREATE TABLE
     "cart" (
         "id" SERIAL PRIMARY KEY,
         "user_id" INT NOT NULL,
-        "shop_id" INT NOT NULL
+        "shop_id" INT NOT NULL,
+        CONSTRAINT unique_shop_user UNIQUE ("shop_id", "user_id")
     );
 
 CREATE TABLE
     "cart_product" (
         "cart_id" INT NOT NULL,
         "product_id" INT NOT NULL,
-        "quantity" INT NOT NULL
+        "quantity" INT NOT NULL,
+        CONSTRAINT unique_cart_product UNIQUE ("cart_id", "product_id")
     );
 
 CREATE TABLE
@@ -59,7 +61,8 @@ CREATE TABLE
 CREATE TABLE
     "cart_coupon" (
         "cart_id" INT NOT NULL,
-        "coupon_id" INT NOT NULL
+        "coupon_id" INT NOT NULL,
+        CONSTRAINT unique_cart_coupon UNIQUE ("cart_id", "coupon_id")
     );
 
 CREATE TABLE
@@ -71,11 +74,11 @@ CREATE TABLE
         "description" TEXT NOT NULL,
         "price" DECIMAL(10, 2) NOT NULL,
         "image_id" UUID NOT NULL,
-        "exp_date" TIMESTAMPTZ NOT NULL,
+        "expire_date" TIMESTAMPTZ NOT NULL,
         "edit_date" TIMESTAMPTZ NOT NULL,
         -- to limit the edit frequency
         "stock" INT NOT NULL,
-        "sales" INT NOT NULL,
+        "sales" INT NOT NULL DEFAULT 0,
         "enabled" BOOLEAN NOT NULL DEFAULT TRUE
     );
 
@@ -131,36 +134,31 @@ CREATE TABLE
     "tag" (
         "id" SERIAL PRIMARY KEY,
         "shop_id" INT NOT NULL,
-        "name" TEXT NOT NULL
+        "name" TEXT NOT NULL,
+        CONSTRAINT unique_name_shop UNIQUE ("shop_id", "name")
     );
 
 CREATE TABLE
     "product_tag" (
         "tag_id" INT NOT NULL,
-        "product_id" INT NOT NULL
+        "product_id" INT NOT NULL,
+        CONSTRAINT unique_tag_product UNIQUE ("tag_id", "product_id")
     );
 
 CREATE TABLE
     "coupon_tag" (
         "coupon_id" INT NOT NULL,
-        "tag_id" INT NOT NULL
+        "tag_id" INT NOT NULL,
+        CONSTRAINT unique_tag_coupon UNIQUE ("tag_id", "coupon_id")
     );
-
-ALTER TABLE "cart_product"
-ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id");
-
-ALTER TABLE "cart_coupon"
-ADD
-    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id");
-
-ALTER TABLE "product"
-ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
 ALTER TABLE "shop"
 ADD
     FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
+
+ALTER TABLE "product"
+ADD
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
 ALTER TABLE "coupon"
 ADD
@@ -168,23 +166,47 @@ ADD
 
 ALTER TABLE "tag"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "product_tag"
 ADD
-    FOREIGN KEY ("product_id") REFERENCES "product" ("id");
+    FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "product_tag"
+ADD
+    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "coupon_tag"
 ADD
-    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id");
+    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "coupon_tag"
+ADD
+    FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
 ADD
-    FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+    FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
 ADD
-    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_product"
+ADD
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_product"
+ADD
+    FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_coupon"
+ADD
+    FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "cart_coupon"
+ADD
+    FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "order_detail"
 ADD

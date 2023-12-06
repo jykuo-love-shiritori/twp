@@ -38,7 +38,7 @@ const Home = () => {
             if (data.id < 5) {
               return (
                 <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
+                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
                 </Col>
               );
             }
@@ -52,7 +52,7 @@ const Home = () => {
             if (data.id < 9 && data.id > 4) {
               return (
                 <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={true} />
+                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
                 </Col>
               );
             }

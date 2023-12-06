@@ -22,8 +22,7 @@ func (q *QueryParams) Validate() error {
 	}
 	return nil
 }
-
-func HasSpecialChars(input string) bool {
+func HasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)

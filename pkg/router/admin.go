@@ -75,7 +75,7 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce		json
 // @param			offset	query		int	false	"Begin index"	default(0)
 // @param			limit	query		int	false	"limit"			default(10)
-// @Success		200		{array}		db.Coupon
+// @Success		200		{array}		db.GetAnyCouponsRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/coupon [get]

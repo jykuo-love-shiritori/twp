@@ -49,7 +49,7 @@ SELECT
     "description",
     "price",
     "image_id",
-    "exp_date",
+    "expire_date",
     "stock",
     "sales"
 FROM "product"
