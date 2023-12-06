@@ -67,7 +67,6 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			Password: hash,
 			Name:     params.Name,
 			Email:    params.Email,
-			ImageID:  "00000000-0000-0000-0000-000000000000",
 		})
 		if err != nil {
 			logger.Error(err)
