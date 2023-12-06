@@ -1,13 +1,17 @@
 import { Row, Col } from 'react-bootstrap';
 
-interface CouponItemTemplateProps {
+interface CouponItemTemplate {
   data: {
-    id: number | null;
+    id: number;
+    type: string; // 'percentage', 'fixed', 'shipping'
     name: string;
-    policy: string;
-    date: string;
-    introduction: string;
-    tags: { name: string }[];
+    description: string;
+    discount: number;
+    start_date: string;
+    expire_date: string;
+    tags: {
+      name: string;
+    }[];
   };
 }
 
@@ -19,7 +23,7 @@ const couponStyle = {
   border: 'var(--border) solid 2px',
 };
 
-const CouponItemTemplate = ({ data }: CouponItemTemplateProps) => {
+const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
   return (
     <div style={{ ...couponStyle }}>
       <Row style={{ height: '100%', padding: '2% 0' }}>
@@ -29,7 +33,7 @@ const CouponItemTemplate = ({ data }: CouponItemTemplateProps) => {
               {data.name}
             </div>
             <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.policy}
+              {data.type === 'percentage' ? `Save ${data.discount}%` : `Save ${data.discount}฿`}
             </div>
           </div>
         </Col>
@@ -39,7 +43,7 @@ const CouponItemTemplate = ({ data }: CouponItemTemplateProps) => {
               exp
             </div>
             <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.date}
+              {data.expire_date.slice(5).replace('-', '/')}
             </div>
           </div>
         </Col>

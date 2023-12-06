@@ -7,7 +7,8 @@ import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
 
-interface IFormInput {
+interface CouponProps {
+  id: number;
   type: string; // 'percentage', 'fixed', 'shipping'
   name: string;
   description: string;
@@ -30,8 +31,9 @@ const tagStyle = {
 
 const EachSellerCoupon = () => {
   // react-hook-form things
-  const { register, control, handleSubmit, watch, setValue } = useForm<IFormInput>({
+  const { register, control, handleSubmit, watch, setValue } = useForm<CouponProps>({
     defaultValues: {
+      id: 0,
       type: '',
       name: '',
       description: '',
@@ -45,11 +47,23 @@ const EachSellerCoupon = () => {
     control,
     name: 'tags',
   });
-  const OnFormOutput: SubmitHandler<IFormInput> = (data) => {
+  const OnFormOutput: SubmitHandler<CouponProps> = (data) => {
     console.log(data);
     return data;
   };
   const watchAllFields = watch();
+  const getAllFields = (): CouponProps => {
+    return {
+      id: watchAllFields.id,
+      type: watchAllFields.type,
+      name: watchAllFields.name,
+      description: watchAllFields.description,
+      discount: watchAllFields.discount,
+      start_date: watchAllFields.start_date,
+      expire_date: watchAllFields.expire_date,
+      tags: watchAllFields.tags,
+    };
+  };
 
   // tags
   const [tag, setTag] = useState('');
@@ -73,7 +87,8 @@ const EachSellerCoupon = () => {
   //TODO: get the init value
   // const params = useParams();
   // const id = params.coupon_id;
-  const initData: IFormInput = {
+  const initData: CouponProps = {
+    id: 0,
     type: 'percentage',
     name: 'Coupon',
     description: 'this is description',
@@ -82,7 +97,7 @@ const EachSellerCoupon = () => {
     expire_date: '2000-01-01',
     tags: [],
   };
-  const setInitField = (data: IFormInput) => {
+  const setInitField = (data: CouponProps) => {
     //set the field into the initial data
     setValue('type', data.type);
     setValue('name', data.name);
@@ -108,16 +123,7 @@ const EachSellerCoupon = () => {
             <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
               {/* sample display */}
               <div style={{ padding: '15% 10%' }}>
-                <CouponItemTemplate
-                  data={{
-                    id: null,
-                    name: watchAllFields.name,
-                    policy: watchAllFields.discount.toString(),
-                    date: watchAllFields.expire_date.slice(5).replace('-', '/'),
-                    tags: [],
-                    introduction: '',
-                  }}
-                />
+                <CouponItemTemplate data={getAllFields()} />
               </div>
               <span className='dark'>add more tags</span>
 

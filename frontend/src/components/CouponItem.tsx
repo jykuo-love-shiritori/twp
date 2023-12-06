@@ -8,18 +8,22 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import CouponItemTemplate from './CouponItemTemplate';
 import TButton from './TButton';
 
-interface CouponItemProps {
+interface WrapCouponProps {
   data: {
-    id: number | null;
+    id: number;
+    type: string; // 'percentage', 'fixed', 'shipping'
     name: string;
-    policy: string;
-    date: string;
-    introduction: string;
-    tags: { name: string }[];
+    description: string;
+    discount: number;
+    start_date: string;
+    expire_date: string;
+    tags: {
+      name: string;
+    }[];
   };
 }
 
-const LinkCouponItem = ({ data }: CouponItemProps) => {
+const LinkCouponItem = ({ data }: WrapCouponProps) => {
   return (
     <Link className='none' to={`${window.location.pathname}/${data.id}`}>
       <div style={{ cursor: 'pointer' }}>
@@ -29,7 +33,7 @@ const LinkCouponItem = ({ data }: CouponItemProps) => {
   );
 };
 
-const ModalCouponItem = ({ data }: CouponItemProps) => {
+const ModalCouponItem = ({ data }: WrapCouponProps) => {
   const [show, setShow] = useState(false);
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
@@ -61,10 +65,26 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
-              <p>{data.introduction}</p>
+              <p>{data.description}</p>
             </Col>
             <Col xs={12} style={{ fontSize: '20px', color: '#ffffff7f' }}>
-              Expire at: {data.date}
+              Valid Period
+            </Col>
+            <Col xs={12} style={{ fontSize: '16px' }}>
+              <Row>
+                <Col xs='auto' style={{ paddingRight: '0', fontWeight: '500', color: '#ffffff7f' }}>
+                  From
+                </Col>
+                <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
+                  {data.start_date}
+                </Col>
+                <Col xs='auto' style={{ paddingRight: '0', fontWeight: '500', color: '#ffffff7f' }}>
+                  to
+                </Col>
+                <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
+                  {data.expire_date}
+                </Col>
+              </Row>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
               <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -93,7 +113,7 @@ const ModalCouponItem = ({ data }: CouponItemProps) => {
   );
 };
 
-const CouponItem = ({ data }: CouponItemProps) => {
+const CouponItem = ({ data }: WrapCouponProps) => {
   // TODO: path.include 'seller/' change to 'seller' once implemented number [sellerID] on path
   return (
     <>
