@@ -11,8 +11,6 @@ services:
     depends_on:
       - postgres
       - minio
-
-  # TODO: add golang-migrate script
   postgres:
     image: postgres:16
     env_file:
@@ -27,6 +25,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./db/migrations:/migrations
+    command: -path=/migrations -database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up
 
   # TODO: add minio bucket automatic setup script
   minio:
