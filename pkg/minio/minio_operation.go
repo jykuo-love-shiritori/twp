@@ -20,7 +20,7 @@ import (
 
 var MC *minio.Client
 
-func init() {
+func NewMINIO() {
 
 	endpoint := os.Getenv("MINIO_HOST") + ":" + os.Getenv("MINIO_API_PORT")
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
@@ -33,13 +33,15 @@ func init() {
 		Secure: false,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
-
+	if err = CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func CheckBuckets(ctx context.Context, bucketName string) error {
-	err := MC.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: "sa-east-1"})
+	err := MC.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: "ap-northeast-1"})
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
 		exists, errBucketExists := MC.BucketExists(ctx, bucketName)

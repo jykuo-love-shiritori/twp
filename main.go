@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -30,9 +29,7 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	if err = minio.CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
-		log.Fatalln(err)
-	}
+	minio.NewMINIO()
 
 	RegisterFrontend(e)
 
