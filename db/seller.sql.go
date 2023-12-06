@@ -401,10 +401,10 @@ type SellerGetOrderDetailParams struct {
 type SellerGetOrderDetailRow struct {
 	ID          pgtype.Int4    `json:"id"`
 	Version     pgtype.Int4    `json:"version"`
-	Name        pgtype.Text    `json:"name"`
-	Description pgtype.Text    `json:"description"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -503,7 +503,7 @@ type SellerGetProductDetailParams struct {
 
 type SellerGetProductDetailRow struct {
 	Name    string         `json:"name"`
-	ImageID string         `json:"image_id" swaggertype:"string"`
+	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
 	Stock   int32          `json:"stock"`
@@ -735,7 +735,7 @@ type SellerInsertProductParams struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Enabled     bool               `json:"enabled"`
@@ -746,7 +746,7 @@ type SellerInsertProductRow struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
@@ -877,7 +877,7 @@ type SellerProductListParams struct {
 type SellerProductListRow struct {
 	ID      int32          `json:"id" param:"product_id"`
 	Name    string         `json:"name"`
-	ImageID string         `json:"image_id" swaggertype:"string"`
+	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
 	Stock   int32          `json:"stock"`
@@ -1167,7 +1167,7 @@ type SellerUpdateProductInfoParams struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Enabled     bool               `json:"enabled"`
 	Stock       int32              `json:"stock"`
@@ -1178,7 +1178,7 @@ type SellerUpdateProductInfoRow struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`

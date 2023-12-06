@@ -3096,6 +3096,9 @@
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3333,7 +3336,7 @@
             "type": "object",
             "properties": {
                 "description": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
@@ -3342,7 +3345,7 @@
                     "type": "string"
                 },
                 "name": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "price": {
                     "type": "number"
@@ -3358,6 +3361,9 @@
         "db.SellerGetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3375,6 +3381,9 @@
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3520,6 +3529,9 @@
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3664,17 +3676,6 @@
                 },
                 "naN": {
                     "type": "boolean"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Text": {
-            "type": "object",
-            "properties": {
-                "string": {
-                    "type": "string"
                 },
                 "valid": {
                     "type": "boolean"

@@ -3102,6 +3102,9 @@ const docTemplate = `{
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3339,7 +3342,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
@@ -3348,7 +3351,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "price": {
                     "type": "number"
@@ -3364,6 +3367,9 @@ const docTemplate = `{
         "db.SellerGetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3381,6 +3387,9 @@ const docTemplate = `{
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3526,6 +3535,9 @@ const docTemplate = `{
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3670,17 +3682,6 @@ const docTemplate = `{
                 },
                 "naN": {
                     "type": "boolean"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Text": {
-            "type": "object",
-            "properties": {
-                "string": {
-                    "type": "string"
                 },
                 "valid": {
                     "type": "boolean"

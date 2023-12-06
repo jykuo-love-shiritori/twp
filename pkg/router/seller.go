@@ -58,7 +58,7 @@ type AddCouponParams struct {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [get]
-func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		shopInfo, err := pg.Queries.SellerGetInfo(c.Request().Context(), username)
@@ -66,7 +66,7 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		imageUrl := mc.GetFileURL(c, logger, shopInfo.ImageID)
 		result := SellerInfo{
 			Name:        shopInfo.Name,
 			Image:       imageUrl,
@@ -93,7 +93,7 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [patch]
-func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -106,7 +106,7 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		ImageID, err := minio.PutFile(c.Request().Context(), logger, fileHeader)
+		ImageID, err := mc.PutFile(c.Request().Context(), logger, fileHeader)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -118,7 +118,7 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		imageUrl := mc.GetFileURL(c, logger, shopInfo.ImageID)
 		result := SellerInfo{
 			Name:        shopInfo.Name,
 			Image:       imageUrl,
@@ -612,7 +612,7 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/product/{id} [get]
-func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -638,7 +638,7 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 		}
 		result.ProductInfo = productInfo{
 			Name:    product.Name,
-			Image:   minio.GetFileURL(c, logger, product.ImageID.Bytes),
+			Image:   mc.GetFileURL(c, logger, product.ImageID),
 			Price:   product.Price,
 			Sales:   product.Sales,
 			Stock:   product.Stock,
@@ -659,7 +659,7 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/product [get]
-func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -683,7 +683,7 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		for _, product := range productsRow {
 			result = append(result, productInfo{
 				Name:    product.Name,
-				Image:   minio.GetFileURL(c, logger, product.ImageID.Bytes),
+				Image:   mc.GetFileURL(c, logger, product.ImageID),
 				Price:   product.Price,
 				Sales:   product.Sales,
 				Stock:   product.Stock,

@@ -29,11 +29,11 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	minio.NewMINIO()
 
 	RegisterFrontend(e)
 
-	router.RegisterApi(e, db, logger.Sugar())
+	mc := minio.NewMINIO()
+	router.RegisterApi(e, db, mc, logger.Sugar())
 
 	if os.Getenv("TWP_ENV") == constants.DEV.String() {
 		router.RegisterDocs(e)
