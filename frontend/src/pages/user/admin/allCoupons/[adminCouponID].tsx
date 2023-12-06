@@ -158,7 +158,7 @@ const EachAdminCoupon = () => {
               {/* delete, comfirm button */}
               <div style={{ height: '50px' }} />
               <TButton text='Delete Coupon' />
-              <TButton text='Confirm Changes' onClick={handleSubmit(OnFormOutput)} />
+              <TButton text='Confirm Changes' action={handleSubmit(OnFormOutput)} />
             </div>
           </Col>
 

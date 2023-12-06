@@ -15,7 +15,7 @@ const ManageSellerCoupons = () => {
             </Col>
             <Col xl={3} />
             <Col xl={3} className='right'>
-              <TButton text='New Coupon' url='/user/seller/manageCoupons/new' />
+              <TButton text='New Coupon' action='/user/seller/manageCoupons/new' />
             </Col>
           </Row>
         </div>
@@ -26,7 +26,7 @@ const ManageSellerCoupons = () => {
               <div className='title'>All Global Coupon</div>
             </Col>
             <Col md={4} className='right'>
-              <TButton text='New Coupon' url='/user/seller/manageCoupons/new' />
+              <TButton text='New Coupon' action='/user/seller/manageCoupons/new' />
             </Col>
           </Row>
         </div>
@@ -38,7 +38,7 @@ const ManageSellerCoupons = () => {
             </Col>
             <Col />
             <Col xs={6} className='center' style={{ padding: '0 0 2% 0' }}>
-              <TButton text='New Coupon' url='/user/seller/manageCoupons/new' />
+              <TButton text='New Coupon' action='/user/seller/manageCoupons/new' />
             </Col>
             <Col />
           </Row>

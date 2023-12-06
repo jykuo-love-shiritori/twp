@@ -5,18 +5,18 @@ import { Button } from 'react-bootstrap';
 
 interface Props {
   text: string;
-  url?: string;
-  onClick?: () => void;
+  action?: string | (() => void);
 }
 
-const TButton = ({ text, url, onClick }: Props) => {
+const TButton = ({ text, action }: Props) => {
   const navigate = useNavigate();
 
   function handleClick() {
-    if (url) {
-      navigate(url);
-    } else if (onClick) {
-      onClick();
+    if (typeof action === 'string') {
+      navigate(action);
+    }
+    if (typeof action === 'function') {
+      action();
     }
   }
 

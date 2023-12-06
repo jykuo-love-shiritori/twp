@@ -70,7 +70,7 @@ const Home = () => {
         </Row>
 
         <div style={{ padding: '3% 0% 3% 0%' }}>
-          <TButton text='Explore more' url='/discover' />
+          <TButton text='Explore more' action='/discover' />
         </div>
       </div>
     </div>
