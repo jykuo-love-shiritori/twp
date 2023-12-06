@@ -75,7 +75,7 @@ SELECT
     C."id",
     S."seller_name",
     S."image_id",
-    S."name"
+    S."name" AS "shop_name"
 FROM
     "cart" AS C,
     "user" AS U,

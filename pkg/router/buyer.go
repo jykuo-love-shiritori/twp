@@ -82,8 +82,8 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 }
 
 type Cart struct {
-	Seller_name string
-	Products    []db.GetProductFromCartRow
+	CartInfo db.GetCartRow
+	Products []db.GetProductFromCartRow
 }
 
 // @Summary		Buyer Get Cart
@@ -110,7 +110,7 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				logger.Errorw("failed to get product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			cart.Seller_name = cartInfo.SellerName
+			cart.CartInfo = cartInfo
 			cart.Products = products
 			result = append(result, cart)
 		}

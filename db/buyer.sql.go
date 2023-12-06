@@ -327,7 +327,7 @@ SELECT
     C."id",
     S."seller_name",
     S."image_id",
-    S."name"
+    S."name" AS "shop_name"
 FROM
     "cart" AS C,
     "user" AS U,
@@ -341,8 +341,8 @@ WHERE
 type GetCartRow struct {
 	ID         int32       `json:"id" param:"cart_id"`
 	SellerName string      `json:"seller_name" param:"seller_name"`
-	ImageID    pgtype.UUID `json:"image_id"`
-	Name       string      `json:"name"`
+	ImageID    pgtype.UUID `json:"image_id" swaggertype:"string"`
+	ShopName   string      `json:"shop_name"`
 }
 
 func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, error) {
@@ -358,7 +358,7 @@ func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, e
 			&i.ID,
 			&i.SellerName,
 			&i.ImageID,
-			&i.Name,
+			&i.ShopName,
 		); err != nil {
 			return nil, err
 		}
@@ -499,7 +499,7 @@ type GetOrderDetailRow struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID    `json:"image_id"`
+	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -562,12 +562,12 @@ type GetOrderHistoryParams struct {
 type GetOrderHistoryRow struct {
 	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
-	ShopImageID pgtype.UUID        `json:"shop_image_id"`
+	ShopImageID pgtype.UUID        `json:"shop_image_id" swaggertype:"string"`
 	ThumbnailID pgtype.UUID        `json:"thumbnail_id"`
 	Shipment    int32              `json:"shipment"`
 	TotalPrice  int32              `json:"total_price"`
 	Status      OrderStatus        `json:"status"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	CreatedAt   pgtype.Timestamptz `json:"-" swaggertype:"string"`
 }
 
 func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {
@@ -633,18 +633,18 @@ WHERE
 `
 
 type GetOrderInfoParams struct {
-	OrderID  int32  `json:"order_id"`
+	OrderID  int32  `json:"order_id" param:"id"`
 	Username string `json:"username"`
 }
 
 type GetOrderInfoRow struct {
 	ID         int32              `json:"id" param:"id"`
 	Name       string             `json:"name"`
-	ImageID    pgtype.UUID        `json:"image_id"`
+	ImageID    pgtype.UUID        `json:"image_id" swaggertype:"string"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
 	Discount   int32              `json:"discount"`
 }
 
@@ -684,7 +684,7 @@ WHERE
 type GetProductFromCartRow struct {
 	ProductID int32          `json:"product_id"`
 	Name      string         `json:"name"`
-	ImageID   pgtype.UUID    `json:"image_id"`
+	ImageID   pgtype.UUID    `json:"image_id" swaggertype:"string"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
 	Quantity  int32          `json:"quantity"`
 	Enabled   bool           `json:"enabled"`

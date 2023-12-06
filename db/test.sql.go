@@ -129,7 +129,7 @@ VALUES ($1, $2, $3) RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
-	ID     int32 `json:"id"`
+	ID     int32 `json:"id" param:"cart_id"`
 	UserID int32 `json:"user_id"`
 	ShopID int32 `json:"shop_id"`
 }
@@ -202,10 +202,10 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, type, scope, shop_id, 
 `
 
 type TestInsertCouponParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -306,13 +306,13 @@ INSERT INTO
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, shop_id, image_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
 	ID         int32       `json:"id" param:"id"`
 	UserID     int32       `json:"user_id"`
-	ShopID     int32       `json:"shop_id"`
+	ShopID     int32       `json:"-"`
 	Shipment   int32       `json:"shipment"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
@@ -332,6 +332,7 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		&i.ID,
 		&i.UserID,
 		&i.ShopID,
+		&i.ImageID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -374,9 +375,9 @@ VALUES (
 `
 
 type TestInsertProductParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
-	ShopID      int32              `json:"shop_id"`
+	ShopID      int32              `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`

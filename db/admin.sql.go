@@ -38,7 +38,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id"`
+	ShopID      pgtype.Int4        `json:"-"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -282,7 +282,7 @@ type GetAnyCouponsParams struct {
 }
 
 type GetAnyCouponsRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`

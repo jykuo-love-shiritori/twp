@@ -114,6 +114,17 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  db.GetCartRow:
+    properties:
+      id:
+        type: integer
+      image_id:
+        type: string
+      seller_name:
+        type: string
+      shop_name:
+        type: string
+    type: object
   db.GetCouponDetailRow:
     properties:
       description:
@@ -588,12 +599,12 @@ definitions:
     type: object
   router.Cart:
     properties:
+      cartInfo:
+        $ref: '#/definitions/db.GetCartRow'
       products:
         items:
           $ref: '#/definitions/db.GetProductFromCartRow'
         type: array
-      seller_name:
-        type: string
     type: object
   router.OrderDetail:
     properties:

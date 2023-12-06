@@ -3216,6 +3216,23 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetCartRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.GetCouponDetailRow": {
             "type": "object",
             "properties": {
@@ -3939,14 +3956,14 @@ const docTemplate = `{
         "router.Cart": {
             "type": "object",
             "properties": {
+                "cartInfo": {
+                    "$ref": "#/definitions/db.GetCartRow"
+                },
                 "products": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.GetProductFromCartRow"
                     }
-                },
-                "seller_name": {
-                    "type": "string"
                 }
             }
         },
