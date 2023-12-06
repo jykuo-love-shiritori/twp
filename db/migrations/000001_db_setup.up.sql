@@ -63,7 +63,7 @@ CREATE TABLE "product" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "price" DECIMAL(10, 2) NOT NULL,
-    "image_id" TEXT,
+    "image_id" TEXT NOT NULL,
     "expire_date" TIMESTAMPTZ NOT NULL,
     "edit_date" TIMESTAMPTZ NOT NULL,
     -- to limit the edit frequency
