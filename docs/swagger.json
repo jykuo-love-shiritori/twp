@@ -3143,6 +3143,9 @@
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3422,6 +3425,9 @@
         "db.SellerGetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3439,6 +3445,9 @@
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3633,6 +3642,9 @@
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

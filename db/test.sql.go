@@ -384,7 +384,7 @@ type TestInsertProductParams struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -443,7 +443,7 @@ type TestInsertProductArchiveParams struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 }
 
 func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertProductArchiveParams) (ProductArchive, error) {

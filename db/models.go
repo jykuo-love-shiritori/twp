@@ -243,7 +243,7 @@ type Product struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
@@ -257,7 +257,7 @@ type ProductArchive struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 }
 
 type ProductTag struct {

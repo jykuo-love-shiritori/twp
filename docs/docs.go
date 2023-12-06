@@ -3149,6 +3149,9 @@ const docTemplate = `{
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3428,6 +3431,9 @@ const docTemplate = `{
         "db.SellerGetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3445,6 +3451,9 @@ const docTemplate = `{
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3639,6 +3648,9 @@ const docTemplate = `{
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
