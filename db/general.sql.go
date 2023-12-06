@@ -12,9 +12,7 @@ import (
 )
 
 const getProductInfo = `-- name: GetProductInfo :one
-
-SELECT
-    "id",
+SELECT "id",
     "name",
     "description",
     "price",
@@ -23,8 +21,7 @@ SELECT
     "stock",
     "sales"
 FROM "product"
-WHERE
-    "id" = $1
+WHERE "id" = $1
     AND "enabled" = TRUE
 `
 
@@ -56,8 +53,9 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 }
 
 const getSellerNameByShopID = `-- name: GetSellerNameByShopID :one
-
-SELECT "seller_name" FROM "shop" WHERE "id" = $1
+SELECT "seller_name"
+FROM "shop"
+WHERE "id" = $1
 `
 
 func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, error) {
@@ -68,9 +66,7 @@ func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, 
 }
 
 const getShopCoupons = `-- name: GetShopCoupons :many
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -79,12 +75,10 @@ SELECT
     "start_date",
     "expire_date"
 FROM "coupon"
-WHERE
-    "shop_id" = $1
+WHERE "shop_id" = $1
     OR "scope" = 'global'
 ORDER BY "id" ASC
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type GetShopCouponsParams struct {
@@ -134,15 +128,12 @@ func (q *Queries) GetShopCoupons(ctx context.Context, arg GetShopCouponsParams) 
 }
 
 const getShopInfo = `-- name: GetShopInfo :one
-
-SELECT
-    "seller_name",
+SELECT "seller_name",
     "image_id",
     "name",
     "description"
 FROM "shop"
-WHERE
-    "seller_name" = $1
+WHERE "seller_name" = $1
     AND "enabled" = TRUE
 `
 
@@ -166,8 +157,10 @@ func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopIn
 }
 
 const getTagInfo = `-- name: GetTagInfo :one
-
-SELECT "id", "name" FROM "tag" WHERE "id" = $1
+SELECT "id",
+    "name"
+FROM "tag"
+WHERE "id" = $1
 `
 
 type GetTagInfoRow struct {
@@ -183,11 +176,9 @@ func (q *Queries) GetTagInfo(ctx context.Context, id int32) (GetTagInfoRow, erro
 }
 
 const shopExists = `-- name: ShopExists :one
-
 SELECT "id"
 FROM "shop" AS s
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND s."enabled" = TRUE
 `
 

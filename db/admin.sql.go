@@ -13,9 +13,7 @@ import (
 )
 
 const addCoupon = `-- name: AddCoupon :one
-
-INSERT INTO
-    "coupon" (
+INSERT INTO "coupon" (
         "type",
         "scope",
         "shop_id",
@@ -25,7 +23,8 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING "id",
     "type",
     "scope",
     "name",
@@ -83,14 +82,8 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 }
 
 const addCouponTags = `-- name: AddCouponTags :execrows
-
-INSERT INTO
-    "coupon_tag" ("coupon_id", "tag_id")
-VALUES (
-        $1,
-        $2
-    ) ON CONFLICT ("coupon_id", "tag_id")
-DO NOTHING
+INSERT INTO "coupon_tag"("coupon_id", "tag_id")
+VALUES ($1, $2::int []) ON CONFLICT ("coupon_id", "tag_id") DO NOTHING
 `
 
 type AddCouponTagsParams struct {
@@ -107,8 +100,11 @@ func (q *Queries) AddCouponTags(ctx context.Context, arg AddCouponTagsParams) (i
 }
 
 const couponExists = `-- name: CouponExists :one
-
-SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 )
+SELECT EXISTS (
+        SELECT 1
+        FROM "coupon"
+        WHERE "id" = $1
+    )
 `
 
 func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
@@ -119,12 +115,10 @@ func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
 }
 
 const deleteCoupon = `-- name: DeleteCoupon :execrows
-
 WITH _ AS (
-        DELETE FROM
-            "cart_coupon"
-        WHERE "coupon_id" = $1
-    )
+    DELETE FROM "cart_coupon"
+    WHERE "coupon_id" = $1
+)
 DELETE FROM "coupon"
 WHERE "id" = $1
 `
@@ -138,8 +132,9 @@ func (q *Queries) DeleteCoupon(ctx context.Context, id int32) (int64, error) {
 }
 
 const disableProductsFromShop = `-- name: DisableProductsFromShop :execrows
-
-UPDATE "product" AS p SET p."enabled" = FALSE WHERE p."shop_id" = $1
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = $1
 `
 
 func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (int64, error) {
@@ -151,23 +146,20 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (in
 }
 
 const disableShop = `-- name: DisableShop :execrows
-
-
 WITH disable_shop AS (
-        UPDATE "shop" AS s
-        SET s."enabled" = FALSE
-        WHERE
-            s."seller_name" = $1 RETURNING s."id"
-    )
+    UPDATE "shop" AS s
+    SET s."enabled" = FALSE
+    WHERE s."seller_name" = $1
+    RETURNING s."id"
+)
 UPDATE "product" AS p
 SET p."enabled" = FALSE
-WHERE p."shop_id" = (
+WHERE p."shop_id" =(
         SELECT "id"
         FROM disable_shop
     )
 `
 
-// there are some sql 🪄 happening here
 func (q *Queries) DisableShop(ctx context.Context, sellerName string) (int64, error) {
 	result, err := q.db.Exec(ctx, disableShop, sellerName)
 	if err != nil {
@@ -177,26 +169,24 @@ func (q *Queries) DisableShop(ctx context.Context, sellerName string) (int64, er
 }
 
 const disableUser = `-- name: DisableUser :execrows
-
 WITH disabled_user AS (
-        UPDATE "user"
-        SET "enabled" = FALSE
-        WHERE
-            "username" = $1 RETURNING "username"
-    ),
-    disabled_shop AS (
-        UPDATE "shop"
-        SET "enabled" = FALSE
-        WHERE "seller_name" = (
-                SELECT
-                    "username"
-                FROM
-                    disabled_user
-            ) RETURNING "id"
-    )
+    UPDATE "user"
+    SET "enabled" = FALSE
+    WHERE "username" = $1
+    RETURNING "username"
+),
+disabled_shop AS (
+    UPDATE "shop"
+    SET "enabled" = FALSE
+    WHERE "seller_name" =(
+            SELECT "username"
+            FROM disabled_user
+        )
+    RETURNING "id"
+)
 UPDATE "product"
 SET "enabled" = FALSE
-WHERE "shop_id" = (
+WHERE "shop_id" =(
         SELECT "id"
         FROM disabled_shop
     )
@@ -211,17 +201,15 @@ func (q *Queries) DisableUser(ctx context.Context, username string) (int64, erro
 }
 
 const editCoupon = `-- name: EditCoupon :execrows
-
 UPDATE "coupon"
-SET
-    "type" = COALESCE($2, "type"),
+SET "type" = COALESCE($2, "type"),
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE
-    "id" = $1 RETURNING "id",
+WHERE "id" = $1
+RETURNING "id",
     "type",
     "scope",
     "name",
@@ -269,8 +257,9 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (int64, 
 }
 
 const enabledShop = `-- name: EnabledShop :execrows
-
-UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1
+UPDATE "shop" AS s
+SET s."enabled" = TRUE
+WHERE s."seller_name" = $1
 `
 
 func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, error) {
@@ -282,9 +271,7 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, er
 }
 
 const getAnyCoupons = `-- name: GetAnyCoupons :many
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -294,8 +281,7 @@ SELECT
     "expire_date"
 FROM "coupon"
 ORDER BY "id" ASC
-LIMIT $1
-OFFSET $2
+LIMIT $1 OFFSET $2
 `
 
 type GetAnyCouponsParams struct {
@@ -344,9 +330,7 @@ func (q *Queries) GetAnyCoupons(ctx context.Context, arg GetAnyCouponsParams) ([
 }
 
 const getCouponDetail = `-- name: GetCouponDetail :one
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -386,8 +370,9 @@ func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetai
 }
 
 const getShopIDBySellerName = `-- name: GetShopIDBySellerName :one
-
-SELECT "id" FROM "shop" WHERE "seller_name" = $1
+SELECT "id"
+FROM "shop"
+WHERE "seller_name" = $1
 `
 
 func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) (int32, error) {
@@ -398,9 +383,9 @@ func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) 
 }
 
 const getUserIDByUsername = `-- name: GetUserIDByUsername :one
-
-
-SELECT "id" FROM "user" WHERE "username" = $1
+SELECT "id"
+FROM "user"
+WHERE "username" = $1
 `
 
 // TODO name: GetReport :many
@@ -412,9 +397,7 @@ func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (int
 }
 
 const getUsers = `-- name: GetUsers :many
-
-SELECT
-    "username",
+SELECT "username",
     "name",
     "email",
     "address",
@@ -423,8 +406,7 @@ SELECT
     "enabled"
 FROM "user"
 ORDER BY "id" ASC
-LIMIT $1
-OFFSET $2
+LIMIT $1 OFFSET $2
 `
 
 type GetUsersParams struct {
@@ -471,14 +453,11 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 }
 
 const validateTags = `-- name: ValidateTags :one
-
-SELECT EXISTS(
+SELECT EXISTS (
         SELECT 1
-        FROM
-            "tag" AS T,
+        FROM "tag" AS T,
             "coupon" AS C
-        WHERE
-            T."id" = ANY($1)
+        WHERE T."id" = ANY($1::int [])
             AND C."id" = $2
             AND T."shop_id" != C."shop_id"
     )

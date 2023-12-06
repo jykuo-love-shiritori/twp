@@ -1,27 +1,20 @@
 -- name: GetShopInfo :one
-
-SELECT
-    "seller_name",
+SELECT "seller_name",
     "image_id",
     "name",
     "description"
 FROM "shop"
-WHERE
-    "seller_name" = $1
+WHERE "seller_name" = $1
     AND "enabled" = TRUE;
 
 -- name: ShopExists :one
-
 SELECT "id"
 FROM "shop" AS s
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND s."enabled" = TRUE;
 
 -- name: GetShopCoupons :many
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -30,21 +23,19 @@ SELECT
     "start_date",
     "expire_date"
 FROM "coupon"
-WHERE
-    "shop_id" = $1
+WHERE "shop_id" = $1
     OR "scope" = 'global'
 ORDER BY "id" ASC
-LIMIT $2
-OFFSET $3;
+LIMIT $2 OFFSET $3;
 
 -- name: GetTagInfo :one
-
-SELECT "id", "name" FROM "tag" WHERE "id" = $1;
+SELECT "id",
+    "name"
+FROM "tag"
+WHERE "id" = $1;
 
 -- name: GetProductInfo :one
-
-SELECT
-    "id",
+SELECT "id",
     "name",
     "description",
     "price",
@@ -53,10 +44,10 @@ SELECT
     "stock",
     "sales"
 FROM "product"
-WHERE
-    "id" = $1
+WHERE "id" = $1
     AND "enabled" = TRUE;
 
 -- name: GetSellerNameByShopID :one
-
-SELECT "seller_name" FROM "shop" WHERE "id" = $1;
+SELECT "seller_name"
+FROM "shop"
+WHERE "id" = $1;

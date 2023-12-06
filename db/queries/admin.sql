@@ -1,7 +1,5 @@
 -- name: GetUsers :many
-
-SELECT
-    "username",
+SELECT "username",
     "name",
     "email",
     "address",
@@ -10,67 +8,64 @@ SELECT
     "enabled"
 FROM "user"
 ORDER BY "id" ASC
-LIMIT $1
-OFFSET $2;
+LIMIT $1 OFFSET $2;
 
 -- name: EnabledShop :execrows
-
-UPDATE "shop" AS s SET s."enabled" = TRUE WHERE s."seller_name" = $1;
+UPDATE "shop" AS s
+SET s."enabled" = TRUE
+WHERE s."seller_name" = $1;
 
 -- name: DisableUser :execrows
-
 WITH disabled_user AS (
-        UPDATE "user"
-        SET "enabled" = FALSE
-        WHERE
-            "username" = $1 RETURNING "username"
-    ),
-    disabled_shop AS (
-        UPDATE "shop"
-        SET "enabled" = FALSE
-        WHERE "seller_name" = (
-                SELECT
-                    "username"
-                FROM
-                    disabled_user
-            ) RETURNING "id"
-    )
+    UPDATE "user"
+    SET "enabled" = FALSE
+    WHERE "username" = $1
+    RETURNING "username"
+),
+disabled_shop AS (
+    UPDATE "shop"
+    SET "enabled" = FALSE
+    WHERE "seller_name" =(
+            SELECT "username"
+            FROM disabled_user
+        )
+    RETURNING "id"
+)
 UPDATE "product"
 SET "enabled" = FALSE
-WHERE "shop_id" = (
+WHERE "shop_id" =(
         SELECT "id"
         FROM disabled_shop
     );
 
--- there are some sql 🪄 happening here
-
 -- name: DisableShop :execrows
-
 WITH disable_shop AS (
-        UPDATE "shop" AS s
-        SET s."enabled" = FALSE
-        WHERE
-            s."seller_name" = $1 RETURNING s."id"
-    )
+    UPDATE "shop" AS s
+    SET s."enabled" = FALSE
+    WHERE s."seller_name" = $1
+    RETURNING s."id"
+)
 UPDATE "product" AS p
 SET p."enabled" = FALSE
-WHERE p."shop_id" = (
+WHERE p."shop_id" =(
         SELECT "id"
         FROM disable_shop
     );
 
 -- name: DisableProductsFromShop :execrows
-
-UPDATE "product" AS p SET p."enabled" = FALSE WHERE p."shop_id" = $1;
+UPDATE "product" AS p
+SET p."enabled" = FALSE
+WHERE p."shop_id" = $1;
 
 -- name: CouponExists :one
-
-SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 );
+SELECT EXISTS (
+        SELECT 1
+        FROM "coupon"
+        WHERE "id" = $1
+    );
 
 -- name: GetAnyCoupons :many
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -80,13 +75,10 @@ SELECT
     "expire_date"
 FROM "coupon"
 ORDER BY "id" ASC
-LIMIT $1
-OFFSET $2;
+LIMIT $1 OFFSET $2;
 
 -- name: GetCouponDetail :one
-
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -98,9 +90,7 @@ FROM "coupon"
 WHERE "id" = $1;
 
 -- name: AddCoupon :one
-
-INSERT INTO
-    "coupon" (
+INSERT INTO "coupon" (
         "type",
         "scope",
         "shop_id",
@@ -110,7 +100,8 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING "id",
     "type",
     "scope",
     "name",
@@ -120,40 +111,29 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
     "expire_date";
 
 -- name: ValidateTags :one
-
-SELECT EXISTS(
+SELECT EXISTS (
         SELECT 1
-        FROM
-            "tag" AS T,
+        FROM "tag" AS T,
             "coupon" AS C
-        WHERE
-            T."id" = ANY(sqlc.slice(Tag_id))
+        WHERE T."id" = ANY(@tag_id::int [])
             AND C."id" = @coupon_id
             AND T."shop_id" != C."shop_id"
     );
 
 -- name: AddCouponTags :execrows
-
-INSERT INTO
-    "coupon_tag" ("coupon_id", "tag_id")
-VALUES (
-        @coupon_id,
-        sqlc.slice(tag_id)
-    ) ON CONFLICT ("coupon_id", "tag_id")
-DO NOTHING;
+INSERT INTO "coupon_tag"("coupon_id", "tag_id")
+VALUES (@coupon_id, @tag_id::int []) ON CONFLICT ("coupon_id", "tag_id") DO NOTHING;
 
 -- name: EditCoupon :execrows
-
 UPDATE "coupon"
-SET
-    "type" = COALESCE($2, "type"),
+SET "type" = COALESCE($2, "type"),
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE
-    "id" = $1 RETURNING "id",
+WHERE "id" = $1
+RETURNING "id",
     "type",
     "scope",
     "name",
@@ -163,21 +143,20 @@ WHERE
     "expire_date";
 
 -- name: DeleteCoupon :execrows
-
 WITH _ AS (
-        DELETE FROM
-            "cart_coupon"
-        WHERE "coupon_id" = $1
-    )
+    DELETE FROM "cart_coupon"
+    WHERE "coupon_id" = $1
+)
 DELETE FROM "coupon"
 WHERE "id" = $1;
 
 -- TODO name: GetReport :many
-
 -- name: GetUserIDByUsername :one
-
-SELECT "id" FROM "user" WHERE "username" = $1;
+SELECT "id"
+FROM "user"
+WHERE "username" = $1;
 
 -- name: GetShopIDBySellerName :one
-
-SELECT "id" FROM "shop" WHERE "seller_name" = $1;
+SELECT "id"
+FROM "shop"
+WHERE "seller_name" = $1;
