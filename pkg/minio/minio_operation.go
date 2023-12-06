@@ -62,7 +62,7 @@ func PutFile(ctx context.Context, logger *zap.SugaredLogger, file *multipart.Fil
 	}
 
 	id := uuid.New()
-	info, err := MC.PutObject(ctx, constants.BUCKETNAME, id.String(), object, file_size, minio.PutObjectOptions{ContentType: "multipart/form-data"})
+	info, err := MC.PutObject(ctx, constants.BUCKETNAME, id.String()+".png", object, file_size, minio.PutObjectOptions{ContentType: "multipart/form-data"})
 	if err != nil {
 		logger.Error(err)
 		return pgtype.UUID{}, err
@@ -85,7 +85,7 @@ func GeneratePresignedURL(ctx context.Context, id string) (string, error) {
 }
 
 func GetFileURL(c echo.Context, logger *zap.SugaredLogger, id uuid.UUID) string {
-	url, err := GeneratePresignedURL(c.Request().Context(), id.String())
+	url, err := GeneratePresignedURL(c.Request().Context(), id.String()+".png")
 	if err != nil {
 		logger.Error(err)
 		//default image if can find image by uuid

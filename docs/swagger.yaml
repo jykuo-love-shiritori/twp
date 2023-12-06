@@ -15,6 +15,8 @@ definitions:
         example: john
         type: string
     type: object
+  big.Int:
+    type: object
   common.Cart:
     properties:
       products:
@@ -301,17 +303,6 @@ definitions:
       tag_id:
         type: integer
     type: object
-  db.SellerGetInfoRow:
-    properties:
-      description:
-        type: string
-      enabled:
-        type: boolean
-      image_id:
-        type: string
-      seller_name:
-        type: string
-    type: object
   db.SellerGetOrderDetailRow:
     properties:
       description:
@@ -349,21 +340,6 @@ definitions:
       status:
         $ref: '#/definitions/db.OrderStatus'
       total_price:
-        type: integer
-    type: object
-  db.SellerGetProductDetailRow:
-    properties:
-      enabled:
-        type: boolean
-      image_id:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-      sales:
-        type: integer
-      stock:
         type: integer
     type: object
   db.SellerGetProductTagRow:
@@ -416,23 +392,6 @@ definitions:
       name:
         type: string
     type: object
-  db.SellerProductListRow:
-    properties:
-      enabled:
-        type: boolean
-      id:
-        type: integer
-      image_id:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-      sales:
-        type: integer
-      stock:
-        type: integer
-    type: object
   db.SellerSearchTagRow:
     properties:
       id:
@@ -457,13 +416,13 @@ definitions:
     type: object
   db.SellerUpdateInfoRow:
     properties:
+      description:
+        type: string
       enabled:
         type: boolean
       image_id:
         type: string
       name:
-        type: string
-      seller_name:
         type: string
     type: object
   db.SellerUpdateOrderStatusRow:
@@ -537,10 +496,33 @@ definitions:
     properties:
       message: {}
     type: object
+  pgtype.InfinityModifier:
+    enum:
+    - 1
+    - 0
+    - -1
+    type: integer
+    x-enum-varnames:
+    - Infinity
+    - Finite
+    - NegativeInfinity
   pgtype.Int4:
     properties:
       int32:
         type: integer
+      valid:
+        type: boolean
+    type: object
+  pgtype.Numeric:
+    properties:
+      exp:
+        type: integer
+      infinityModifier:
+        $ref: '#/definitions/pgtype.InfinityModifier'
+      int:
+        $ref: '#/definitions/big.Int'
+      naN:
+        type: boolean
       valid:
         type: boolean
     type: object
@@ -566,6 +548,17 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  router.SellerInfo:
+    properties:
+      description:
+        type: string
+      enabled:
+        type: boolean
+      image:
+        type: string
+      name:
+        type: string
+    type: object
   router.couponDetail:
     properties:
       coupon_info:
@@ -587,11 +580,26 @@ definitions:
   router.productDetail:
     properties:
       product_info:
-        $ref: '#/definitions/db.SellerGetProductDetailRow'
+        $ref: '#/definitions/router.productInfo'
       tags:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
         type: array
+    type: object
+  router.productInfo:
+    properties:
+      enabled:
+        type: boolean
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        $ref: '#/definitions/pgtype.Numeric'
+      sales:
+        type: integer
+      stock:
+        type: integer
     type: object
 externalDocs:
   description: OpenAPI
@@ -1304,8 +1312,6 @@ paths:
       - Shop
       - Coupon
     post:
-      consumes:
-      - application/json
       description: Add coupon for shop.
       parameters:
       - description: Coupon type
@@ -1347,6 +1353,14 @@ paths:
         required: true
         schema:
           type: string
+      - description: init tags
+        in: body
+        name: tags
+        required: true
+        schema:
+          items:
+            type: integer
+          type: array
       produces:
       - application/json
       responses:
@@ -1587,7 +1601,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerGetInfoRow'
+            $ref: '#/definitions/router.SellerInfo'
         "400":
           description: Bad Request
           schema:
@@ -1601,33 +1615,36 @@ paths:
       - Seller
       - Shop
     patch:
+      consumes:
+      - multipart/form-data
       description: Edit shop name, description, visibility.
       parameters:
       - description: update image UUID
-        in: body
+        in: formData
         name: image_id
         required: true
-        schema:
-          type: string
+        type: string
       - description: update shop name
-        in: body
+        in: formData
         minLength: 6
         name: name
         required: true
-        schema:
-          type: string
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
       - description: update description
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: update enabled status
-        in: body
+        in: formData
         name: enabled
         required: true
-        schema:
-          type: boolean
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1797,7 +1814,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.SellerProductListRow'
+              $ref: '#/definitions/router.productInfo'
             type: array
         "400":
           description: Bad Request
@@ -1814,50 +1831,39 @@ paths:
       - Product
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Add product for shop.
       parameters:
       - description: name of product
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: description of product
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: price
-        in: body
+        in: formData
         name: price
-        schema:
-          type: number
+        type: number
       - description: image id
-        in: body
-        name: image_id
+        in: formData
+        name: image
         required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
+        type: string
       - description: stock
-        in: body
+        in: formData
         name: stock
         required: true
-        schema:
-          type: integer
-      - description: enabled
-        in: body
-        name: enabled
-        required: true
-        schema:
-          type: string
+        type: integer
+      - in: formData
+        name: coupon_id
+        type: integer
+      - in: formData
+        name: tag_id
+        type: integer
       produces:
       - application/json
       responses:
@@ -2092,36 +2098,6 @@ paths:
       - Shop
       - Product
       - Tag
-  /seller/product/{id}/upload:
-    post:
-      consumes:
-      - image/png
-      - image/jpeg
-      - image/gif
-      description: Upload product image for shop.
-      parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: image to upload
-        in: formData
-        name: img
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller upload product image
-      tags:
-      - Seller
-      - Shop
-      - Product
   /seller/report:
     get:
       description: Get all available reports for shop.

@@ -37,6 +37,8 @@ CREATE TABLE
         "id" SERIAL PRIMARY KEY,
         "user_id" INT NOT NULL,
         "shop_id" INT NOT NULL,
+        "image_id" UUID NOT NULL,
+        -- fot thumbnail
         "shipment" INT NOT NULL,
         "total_price" INT NOT NULL,
         "status" order_status NOT NULL,

@@ -1053,9 +1053,6 @@ const docTemplate = `{
             },
             "post": {
                 "description": "Add coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1122,6 +1119,18 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "description": "init tags",
+                        "name": "tags",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
                         }
                     }
                 ],
@@ -1473,7 +1482,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerGetInfoRow"
+                            "$ref": "#/definitions/router.SellerInfo"
                         }
                     },
                     "400": {
@@ -1492,6 +1501,9 @@ const docTemplate = `{
             },
             "patch": {
                 "description": "Edit shop name, description, visibility.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1502,41 +1514,40 @@ const docTemplate = `{
                 "summary": "Seller edit shop info",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "update image UUID",
                         "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "minLength": 6,
+                        "type": "string",
                         "description": "update shop name",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "update description",
                         "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "boolean",
                         "description": "update enabled status",
                         "name": "enabled",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean"
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1778,7 +1789,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.SellerProductListRow"
+                                "$ref": "#/definitions/router.productInfo"
                             }
                         }
                     },
@@ -1799,7 +1810,7 @@ const docTemplate = `{
             "post": {
                 "description": "Add product for shop.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -1812,66 +1823,48 @@ const docTemplate = `{
                 "summary": "Seller add product",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "name of product",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "description of product",
                         "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
+                        "in": "formData"
                     },
                     {
+                        "type": "string",
                         "description": "image id",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     },
                     {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
+                        "type": "integer",
                         "description": "stock",
                         "name": "stock",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
-                        "description": "enabled",
-                        "name": "enabled",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "type": "integer",
+                        "name": "coupon_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "tag_id",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2209,49 +2202,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
-                    }
-                }
-            }
-        },
-        "/seller/product/{id}/upload": {
-            "post": {
-                "description": "Upload product image for shop.",
-                "consumes": [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product"
-                ],
-                "summary": "Seller upload product image",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "image to upload",
-                        "name": "img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
                     }
                 }
             }
@@ -2952,6 +2902,9 @@ const docTemplate = `{
                 }
             }
         },
+        "big.Int": {
+            "type": "object"
+        },
         "common.Cart": {
             "type": "object",
             "properties": {
@@ -3382,23 +3335,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.SellerGetInfoRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "seller_name": {
-                    "type": "string"
-                }
-            }
-        },
         "db.SellerGetOrderDetailRow": {
             "type": "object",
             "properties": {
@@ -3455,29 +3391,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/db.OrderStatus"
                 },
                 "total_price": {
-                    "type": "integer"
-                }
-            }
-        },
-        "db.SellerGetProductDetailRow": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "sales": {
-                    "type": "integer"
-                },
-                "stock": {
                     "type": "integer"
                 }
             }
@@ -3559,32 +3472,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.SellerProductListRow": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "sales": {
-                    "type": "integer"
-                },
-                "stock": {
-                    "type": "integer"
-                }
-            }
-        },
         "db.SellerSearchTagRow": {
             "type": "object",
             "properties": {
@@ -3622,6 +3509,9 @@ const docTemplate = `{
         "db.SellerUpdateInfoRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
@@ -3629,9 +3519,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "seller_name": {
                     "type": "string"
                 }
             }
@@ -3745,11 +3632,44 @@ const docTemplate = `{
                 "message": {}
             }
         },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
         "pgtype.Int4": {
             "type": "object",
             "properties": {
                 "int32": {
                     "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Numeric": {
+            "type": "object",
+            "properties": {
+                "exp": {
+                    "type": "integer"
+                },
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "int": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "naN": {
+                    "type": "boolean"
                 },
                 "valid": {
                     "type": "boolean"
@@ -3790,6 +3710,23 @@ const docTemplate = `{
                 }
             }
         },
+        "router.SellerInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "router.couponDetail": {
             "type": "object",
             "properties": {
@@ -3822,13 +3759,36 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "product_info": {
-                    "$ref": "#/definitions/db.SellerGetProductDetailRow"
+                    "$ref": "#/definitions/router.productInfo"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
                     }
+                }
+            }
+        },
+        "router.productInfo": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         }
