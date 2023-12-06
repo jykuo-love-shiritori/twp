@@ -222,6 +222,21 @@
     padding: 5px 10px 5px 20px;
     width: 100%;
     color: white;
+    &[type='number'] {
+      appearance: textfield;
+    }
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+    }
+    &[type='date'] {
+      appearance: none;
+    }
+    &::-webkit-calendar-picker-indicator {
+      background-image: url('@assets/images/calendar-regular.svg');
+      padding: 5px;
+      cursor: pointer;
+    }
   }
   :is(textarea) {
     border-radius: 20px;
@@ -232,13 +247,17 @@
     color: white;
   }
   :is(select) {
-    border-radius: 20px;
-    border: 1px solid var(--border);
     background: var(--button_dark);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     padding: 5px 10px 5px 20px;
     width: 100%;
     color: white;
     cursor: pointer;
+    appearance: none;
+    background-image: url('@assets/images/angle-down-solid.svg');
+    background-repeat: no-repeat;
+    background-position: calc(100% - 20px) calc(50% + 2px);
   }
 }
 
