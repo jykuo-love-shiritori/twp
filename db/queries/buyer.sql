@@ -15,6 +15,7 @@ WHERE U."username" = $1
     AND O."shop_id" = S."id"
 ORDER BY "created_at" ASC OFFSET $2
 LIMIT $3;
+
 -- name: GetOrderInfo :one
 SELECT O."id",
     s."name",
@@ -41,6 +42,7 @@ FROM "order_history" AS O,
     ) AS T
 WHERE U."username" = $2
     AND O."id" = $1;
+
 -- name: GetOrderDetail :many
 SELECT O."product_id",
     P."name",
@@ -53,6 +55,7 @@ FROM "order_detail" AS O,
 WHERE O."order_id" = $1
     AND O."product_id" = P."id"
     AND O."product_version" = P."version";
+
 -- name: GetCart :many
 SELECT C."id",
     S."seller_name",
@@ -64,6 +67,7 @@ FROM "cart" AS C,
 WHERE U."username" = $1
     AND U."id" = C."user_id"
     AND C."shop_id" = S."id";
+
 -- name: GetProductFromCart :many
 SELECT "product_id",
     "name",
@@ -75,6 +79,7 @@ FROM "cart_product" AS C,
     "product" AS P
 WHERE "cart_id" = $1
     AND C."product_id" = P."id";
+
 -- name: UpdateProductFromCart :one
 UPDATE "cart_product"
 SET "quantity" = $3
@@ -85,6 +90,7 @@ WHERE U."username" = $4
     AND "cart_id" = $1
     AND "product_id" = $2
 RETURNING "quantity";
+
 -- name: DeleteProductFromCart :execrows
 WITH valid_cart AS (
     SELECT C."id"
@@ -116,6 +122,36 @@ WHERE 🛒."id" = @cart_id
         SELECT count
         FROM remaining_products
     ) = 0;
+
+-- name: GetUsableCoupons :many
+SELECT C."id",
+    C."name",
+    "type",
+    "scope",
+    "description",
+    "discount",
+    "expire_date"
+FROM "coupon" AS C,
+    "cart" AS 🛒,
+    "user" AS U
+WHERE U."username" = $1
+    AND U."id" = 🛒."user_id"
+    AND 🛒."id" = @cart_id
+    AND (
+        C."scope" = 'global'
+        OR (
+            C."scope" = 'shop'
+            AND C."shop_id" = 🛒."shop_id"
+        )
+    )
+    AND NOW() BETWEEN C."start_date" AND C."expire_date"
+    AND NOT EXISTS (
+        SELECT 1
+        FROM "cart_coupon" AS CC
+        WHERE CC."cart_id" = 🛒."id"
+            AND CC."coupon_id" = C."id"
+    );
+
 -- name: AddProductToCart :one
 WITH valid_product AS (
     SELECT P."id",
@@ -183,6 +219,7 @@ RETURNING (
             AND U."id" = C."user_id"
             AND U."username" = $1
     );
+
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
 -- name: AddCouponToCart :execrows
 INSERT INTO "cart_coupon" ("cart_id", "coupon_id")
@@ -209,6 +246,7 @@ WHERE U."username" = $1
             AND CC."coupon_id" = $2
     )
     AND CO."id" = $2;
+
 -- name: GetCartSubtotal :one
 SELECT SUM(P."price" * CP."quantity") AS "subtotal"
 FROM "cart_product" AS CP,
@@ -225,6 +263,7 @@ WHERE C."id" = CP."cart_id"
         WHERE P."id" = CP."product_id"
             AND P."enabled" = FALSE
     );
+
 -- name: DeleteCouponFromCart :execrows
 DELETE FROM "cart_coupon" AS CC USING "cart" AS C,
     "user" AS U
@@ -233,6 +272,7 @@ WHERE U."username" = $1
     AND C."id" = CC."cart_id"
     AND C."id" = @cart_id
     AND CC."coupon_id" = $2;
+
 -- name: GetCouponsFromCart :many
 WITH delete_expire_coupons AS (
     DELETE FROM "cart_coupon" AS CC USING "coupon" AS CO,
@@ -260,6 +300,7 @@ WHERE U."username" = $1
     AND C."id" = CC."cart_id"
     AND C."id" = @cart_id
     AND CC."coupon_id" = CO."id";
+
 -- name: Checkout :exec
 WITH insert_order AS (
     INSERT INTO "order_history" (

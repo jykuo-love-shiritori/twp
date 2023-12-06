@@ -204,6 +204,35 @@ func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	}
 }
 
+// @Summary		Buyer Get coupon of cart/shop
+// @Description	Buyer get coupon of cart/shop
+// @Tags			Buyer, Cart, Coupon
+// @Accept			json
+// @Produce		json
+// @Param			cart_id		path		int		true	"Cart ID"
+// @Param			coupon_id	path		int		true	"Coupon ID"
+// @Success		200			{array}		db.GetUsableCouponsRow
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/buyer/cart/{cart_id}/coupon [get]
+func buyerGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		username := "🤡"
+		var param db.GetUsableCouponsParams
+		param.Username = username
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind coupon in cart", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		coupon, err := pg.Queries.GetUsableCoupons(c.Request().Context(), param)
+		if err != nil {
+			logger.Errorw("failed to get coupon", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, coupon)
+	}
+}
+
 // @Summary		Buyer Add Coupon To Cart
 // @Description	Add coupon to cart
 // @Tags			Buyer, Cart, Coupon

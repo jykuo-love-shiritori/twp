@@ -645,6 +645,79 @@ func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetPr
 	return items, nil
 }
 
+const getUsableCoupons = `-- name: GetUsableCoupons :many
+SELECT C."id",
+    C."name",
+    "type",
+    "scope",
+    "description",
+    "discount",
+    "expire_date"
+FROM "coupon" AS C,
+    "cart" AS 🛒,
+    "user" AS U
+WHERE U."username" = $1
+    AND U."id" = 🛒."user_id"
+    AND 🛒."id" = $2
+    AND (
+        C."scope" = 'global'
+        OR (
+            C."scope" = 'shop'
+            AND C."shop_id" = 🛒."shop_id"
+        )
+    )
+    AND NOW() BETWEEN C."start_date" AND C."expire_date"
+    AND NOT EXISTS (
+        SELECT 1
+        FROM "cart_coupon" AS CC
+        WHERE CC."cart_id" = 🛒."id"
+            AND CC."coupon_id" = C."id"
+    )
+`
+
+type GetUsableCouponsParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+type GetUsableCouponsRow struct {
+	ID          int32              `json:"id" param:"coupon_id"`
+	Name        string             `json:"name"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetUsableCoupons(ctx context.Context, arg GetUsableCouponsParams) ([]GetUsableCouponsRow, error) {
+	rows, err := q.db.Query(ctx, getUsableCoupons, arg.Username, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUsableCouponsRow{}
+	for rows.Next() {
+		var i GetUsableCouponsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Scope,
+			&i.Description,
+			&i.Discount,
+			&i.ExpireDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProductFromCart = `-- name: UpdateProductFromCart :one
 UPDATE "cart_product"
 SET "quantity" = $3
