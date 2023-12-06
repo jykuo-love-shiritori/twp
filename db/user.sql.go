@@ -8,8 +8,6 @@ package db
 import (
 	"context"
 	"encoding/json"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addUser = `-- name: AddUser :exec
@@ -38,11 +36,11 @@ VALUES (
 `
 
 type AddUserParams struct {
-	Username string      `json:"username"`
-	Password string      `json:"password"`
-	Name     string      `json:"name"`
-	Email    string      `json:"email"`
-	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	ImageID  string `json:"image_id" swaggertype:"string"`
 }
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
@@ -103,10 +101,10 @@ WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
@@ -170,18 +168,18 @@ RETURNING
 `
 
 type UserUpdateInfoParams struct {
-	Username string      `json:"username"`
-	Name     string      `json:"name"`
-	Email    string      `json:"email"`
-	Address  string      `json:"address"`
-	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	ImageID  string `json:"image_id" swaggertype:"string"`
 }
 
 type UserUpdateInfoRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
@@ -222,11 +220,11 @@ type UserUpdatePasswordParams struct {
 }
 
 type UserUpdatePasswordRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Address string `json:"address"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {

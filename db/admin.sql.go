@@ -38,7 +38,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"-"`
+	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -80,6 +80,30 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 		&i.ExpireDate,
 	)
 	return i, err
+}
+
+const addCouponTags = `-- name: AddCouponTags :execrows
+
+INSERT INTO
+    "coupon_tag" ("coupon_id", "tag_id")
+VALUES (
+        $1,
+        $2
+    ) ON CONFLICT ("coupon_id", "tag_id")
+DO NOTHING
+`
+
+type AddCouponTagsParams struct {
+	CouponID int32   `json:"coupon_id" param:"id"`
+	TagID    []int32 `json:"tag_id"`
+}
+
+func (q *Queries) AddCouponTags(ctx context.Context, arg AddCouponTagsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, addCouponTags, arg.CouponID, arg.TagID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const couponExists = `-- name: CouponExists :one
@@ -188,7 +212,6 @@ func (q *Queries) DisableUser(ctx context.Context, username string) (int64, erro
 
 const editCoupon = `-- name: EditCoupon :execrows
 
-
 UPDATE "coupon"
 SET
     "type" = COALESCE($2, "type"),
@@ -229,7 +252,6 @@ type EditCouponRow struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
-// i don't feel right about this
 func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (int64, error) {
 	result, err := q.db.Exec(ctx, editCoupon,
 		arg.ID,
@@ -446,4 +468,30 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 		return nil, err
 	}
 	return items, nil
+}
+
+const validateTags = `-- name: ValidateTags :one
+
+SELECT EXISTS(
+        SELECT 1
+        FROM
+            "tag" AS T,
+            "coupon" AS C
+        WHERE
+            T."id" = ANY($1)
+            AND C."id" = $2
+            AND T."shop_id" != C."shop_id"
+    )
+`
+
+type ValidateTagsParams struct {
+	TagID    []int32 `json:"tag_id"`
+	CouponID int32   `json:"coupon_id" param:"coupon_id"`
+}
+
+func (q *Queries) ValidateTags(ctx context.Context, arg ValidateTagsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, validateTags, arg.TagID, arg.CouponID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }

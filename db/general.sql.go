@@ -33,7 +33,7 @@ type GetProductInfoRow struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id" swaggertype:"string"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -88,7 +88,7 @@ OFFSET $3
 `
 
 type GetShopCouponsParams struct {
-	ShopID pgtype.Int4 `json:"-"`
+	ShopID pgtype.Int4 `json:"shop_id"`
 	Limit  int32       `json:"limit"`
 	Offset int32       `json:"offset"`
 }
@@ -147,10 +147,10 @@ WHERE
 `
 
 type GetShopInfoRow struct {
-	SellerName  string      `json:"seller_name" param:"seller_name"`
-	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
+	SellerName  string `json:"seller_name" param:"seller_name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopInfoRow, error) {

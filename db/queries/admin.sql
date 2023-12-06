@@ -119,7 +119,28 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING "id",
     "start_date",
     "expire_date";
 
--- i don't feel right about this
+-- name: ValidateTags :one
+
+SELECT EXISTS(
+        SELECT 1
+        FROM
+            "tag" AS T,
+            "coupon" AS C
+        WHERE
+            T."id" = ANY(sqlc.slice(Tag_id))
+            AND C."id" = @coupon_id
+            AND T."shop_id" != C."shop_id"
+    );
+
+-- name: AddCouponTags :execrows
+
+INSERT INTO
+    "coupon_tag" ("coupon_id", "tag_id")
+VALUES (
+        @coupon_id,
+        sqlc.slice(tag_id)
+    ) ON CONFLICT ("coupon_id", "tag_id")
+DO NOTHING;
 
 -- name: EditCoupon :execrows
 

@@ -132,6 +132,11 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
+type couponParam struct {
+	Tags []db.Tag           `json:"tags"`
+	Info db.AddCouponParams `json:"info"`
+}
+
 // @Summary		Admin Add Coupon
 // @Description	Add global coupon.
 // @Tags			Admin, Coupon
@@ -144,15 +149,32 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Router			/admin/coupon [post]
 func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var coupon db.AddCouponParams
+		var coupon couponParam
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		coupon.Scope = "global"
-		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
+		coupon.Info.Scope = "global"
+		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon.Info)
 		if err != nil {
 			logger.Errorw("failed to add coupon", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		var ctp db.AddCouponTagsParams
+		param := db.ValidateTagsParams{TagID: []int32{}, CouponID: result.ID}
+		for _, tag := range coupon.Tags {
+			param.TagID = append(param.TagID, tag.ID)
+			ctp.TagID = append(ctp.TagID, tag.ID)
+		}
+		if valid, err := pg.Queries.ValidateTags(c.Request().Context(), param); err != nil {
+			logger.Errorw("failed to validate tags", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if !valid {
+			logger.Errorw("invalid tags", "tags", coupon.Tags)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid tags")
+		}
+		if _, err := pg.Queries.AddCouponTags(c.Request().Context(), ctp); err != nil {
+			logger.Errorw("failed to add coupon tags", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
