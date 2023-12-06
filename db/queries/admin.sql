@@ -93,14 +93,13 @@ WHERE "id" = $1;
 INSERT INTO "coupon" (
         "type",
         "scope",
-        "shop_id",
         "name",
         "description",
         "discount",
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING "id",
     "type",
     "scope",
@@ -123,6 +122,14 @@ SELECT EXISTS (
 -- name: AddCouponTags :execrows
 INSERT INTO "coupon_tag"("coupon_id", "tag_id")
 VALUES (@coupon_id, @tag_id::int []) ON CONFLICT ("coupon_id", "tag_id") DO NOTHING;
+
+-- name: GetCouponTags :many
+SELECT "tag_id",
+    "name"
+FROM "coupon_tag" AS CT,
+    "tag" AS T
+WHERE CT."coupon_id" = $1
+    AND CT."tag_id" = T."id";
 
 -- name: EditCoupon :execrows
 UPDATE "coupon"

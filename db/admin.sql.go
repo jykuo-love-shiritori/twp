@@ -16,14 +16,13 @@ const addCoupon = `-- name: AddCoupon :one
 INSERT INTO "coupon" (
         "type",
         "scope",
-        "shop_id",
         "name",
         "description",
         "discount",
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING "id",
     "type",
     "scope",
@@ -37,7 +36,6 @@ RETURNING "id",
 type AddCouponParams struct {
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -60,7 +58,6 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 	row := q.db.QueryRow(ctx, addCoupon,
 		arg.Type,
 		arg.Scope,
-		arg.ShopID,
 		arg.Name,
 		arg.Description,
 		arg.Discount,
@@ -367,6 +364,40 @@ func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetai
 		&i.ExpireDate,
 	)
 	return i, err
+}
+
+const getCouponTags = `-- name: GetCouponTags :many
+SELECT "tag_id",
+    "name"
+FROM "coupon_tag" AS CT,
+    "tag" AS T
+WHERE CT."coupon_id" = $1
+    AND CT."tag_id" = T."id"
+`
+
+type GetCouponTagsRow struct {
+	TagID int32  `json:"tag_id"`
+	Name  string `json:"name"`
+}
+
+func (q *Queries) GetCouponTags(ctx context.Context, couponID int32) ([]GetCouponTagsRow, error) {
+	rows, err := q.db.Query(ctx, getCouponTags, couponID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCouponTagsRow{}
+	for rows.Next() {
+		var i GetCouponTagsRow
+		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getShopIDBySellerName = `-- name: GetShopIDBySellerName :one
