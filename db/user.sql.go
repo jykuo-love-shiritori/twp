@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -43,7 +44,7 @@ type AddUserParams struct {
 	Password string      `json:"password"`
 	Name     string      `json:"name"`
 	Email    string      `json:"email"`
-	ImageID  pgtype.UUID `json:"image_id"`
+	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
 }
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
@@ -103,4 +104,167 @@ func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, e
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const userGetCreditCard = `-- name: UserGetCreditCard :one
+
+SELECT "credit_card" FROM "user" WHERE "username" = $1
+`
+
+func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.RawMessage, error) {
+	row := q.db.QueryRow(ctx, userGetCreditCard, username)
+	var credit_card json.RawMessage
+	err := row.Scan(&credit_card)
+	return credit_card, err
+}
+
+const userGetInfo = `-- name: UserGetInfo :one
+
+SELECT
+    "name",
+    "email",
+    "image_id",
+    "enabled"
+FROM "user" u
+WHERE u."username" = $1
+`
+
+type UserGetInfoRow struct {
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
+	row := q.db.QueryRow(ctx, userGetInfo, username)
+	var i UserGetInfoRow
+	err := row.Scan(
+		&i.Name,
+		&i.Email,
+		&i.ImageID,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const userGetPassword = `-- name: UserGetPassword :one
+
+SELECT "password" FROM "user" WHERE "username" = $1
+`
+
+func (q *Queries) UserGetPassword(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRow(ctx, userGetPassword, username)
+	var password string
+	err := row.Scan(&password)
+	return password, err
+}
+
+const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
+
+UPDATE "user"
+SET "credit_card" = $2
+WHERE "username" = $1
+RETURNING "credit_card"
+`
+
+type UserUpdateCreditCardParams struct {
+	Username   string          `json:"username"`
+	CreditCard json.RawMessage `json:"credit_card"`
+}
+
+func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCreditCardParams) (json.RawMessage, error) {
+	row := q.db.QueryRow(ctx, userUpdateCreditCard, arg.Username, arg.CreditCard)
+	var credit_card json.RawMessage
+	err := row.Scan(&credit_card)
+	return credit_card, err
+}
+
+const userUpdateInfo = `-- name: UserUpdateInfo :one
+
+UPDATE "user"
+SET
+    "name" = COALESCE($2, "name"),
+    "email" = COALESCE($3, "email"),
+    "address" = COALESCE($4, "address"),
+    "image_id" = COALESCE($5, "image_id")
+WHERE "username" = $1
+RETURNING
+    "name",
+    "email",
+    "image_id",
+    "enabled"
+`
+
+type UserUpdateInfoParams struct {
+	Username string      `json:"username"`
+	Name     string      `json:"name"`
+	Email    string      `json:"email"`
+	Address  string      `json:"address"`
+	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+}
+
+type UserUpdateInfoRow struct {
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
+	row := q.db.QueryRow(ctx, userUpdateInfo,
+		arg.Username,
+		arg.Name,
+		arg.Email,
+		arg.Address,
+		arg.ImageID,
+	)
+	var i UserUpdateInfoRow
+	err := row.Scan(
+		&i.Name,
+		&i.Email,
+		&i.ImageID,
+		&i.Enabled,
+	)
+	return i, err
+}
+
+const userUpdatePassword = `-- name: UserUpdatePassword :one
+
+UPDATE "user"
+SET
+    "password" = $2
+WHERE "username" = $1
+RETURNING
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "enabled"
+`
+
+type UserUpdatePasswordParams struct {
+	Username    string `json:"username"`
+	NewPassword string `json:"new_password"`
+}
+
+type UserUpdatePasswordRow struct {
+	Name    string      `json:"name"`
+	Email   string      `json:"email"`
+	Address string      `json:"address"`
+	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Enabled bool        `json:"enabled"`
+}
+
+func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
+	row := q.db.QueryRow(ctx, userUpdatePassword, arg.Username, arg.NewPassword)
+	var i UserUpdatePasswordRow
+	err := row.Scan(
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.ImageID,
+		&i.Enabled,
+	)
+	return i, err
 }

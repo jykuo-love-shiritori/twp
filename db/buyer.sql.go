@@ -79,7 +79,7 @@ type GetOrderHistoryRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-"`
+	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
 }
 
 func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {

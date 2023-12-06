@@ -6,6 +6,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // @Summary		User Get Info
@@ -13,28 +14,51 @@ import (
 // @Tags			User
 // @Accept			json
 // @Produce		json
-// @Success		200
-// @Failure		401
-// @Router			/user [get]
+// @success		200	{object}	db.UserGetInfoRow
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/user/info [get]
 func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var username string = "user1"
+		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, user)
 	}
 }
 
 // @Summary		User Edit Info
 // @Description	Edit user information
 // @Tags			User
+// @Param			name		body	string	true	"name of coupon"
+// @Param			address		body	string	true	"user address"
+// @Param			image_id	body	string	true	"image id"
 // @Accept			json
 // @Produce		json
-// @Success		200
-// @Failure		401
-// @Router			/user/edit [patch]
+// @success		200	{object}	db.UserUpdateInfoRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/user/info [patch]
 func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var username string = "user1"
 
-		return c.NoContent(http.StatusOK)
+		var param db.UserUpdateInfoParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+
+		}
+		param.Username = username
+		info, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		return c.JSON(http.StatusOK, info)
 	}
 }
 
@@ -54,18 +78,50 @@ func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+type updatePasswordParams struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 // @Summary		User Edit Password
 // @Description	Change user password
 // @Tags			User
+// @Param			current_password	body	string	true	"current password"
+// @Param			new_password		body	string	true	"new password"
 // @Accept			json
 // @Produce		json
-// @Success		200
-// @Failure		401
-// @Router			/user/password [post]
+// @success		200	{object}	db.UserUpdatePasswordRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/user/security/password [post]
 func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var username string = "user1"
+		var param updatePasswordParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		currentPassword, err := pg.Queries.UserGetPassword(c.Request().Context(), username)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if bcrypt.CompareHashAndPassword([]byte(currentPassword), []byte(param.CurrentPassword)) != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid password")
+		}
 
-		return c.NoContent(http.StatusOK)
+		hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(param.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		userInfo, err := pg.Queries.UserUpdatePassword(c.Request().Context(), db.UserUpdatePasswordParams{Username: username, NewPassword: string(hashNewPassword)})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, userInfo)
 	}
 }
 
@@ -74,13 +130,19 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Success		200
-// @Failure		401
+// @Success		200	{object}	json.RawMessage
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/user/security/credit_card [get]
 func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var username string = "user1"
 
-		return c.NoContent(http.StatusOK)
+		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), username)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, credit_card)
 	}
 }
 
@@ -89,28 +151,26 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Param			id	query	int	true	"Credit Card ID"
-// @Success		200
-// @Failure		401
-// @Router			/user/security/credit_card/delete [delete]
-func userDeleteCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+// @Param			credit_card	body		json.RawMessage	true	"Credit Card"
+// @Success		200			{object}	json.RawMessage
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/user/security/credit_card [patch]
+func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		var username string = "user1"
+		var param db.UserUpdateCreditCardParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
 
-		return c.NoContent(http.StatusOK)
-	}
-}
-
-// @Summary		User Add Credit Card
-// @Description	Add a new credit card for the user
-// @Tags			CreditCard
-// @Accept			json
-// @Produce		json
-// @Success		200
-// @Failure		401
-// @Router			/user/security/credit_card/add [post]
-func userAddCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		}
+		param.Username = username
+		credit_cards, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, credit_cards)
 	}
 }

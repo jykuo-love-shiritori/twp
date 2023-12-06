@@ -74,8 +74,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/user/security/password", userEditPassword(pg, logger))
 
 	api.GET("/user/security/credit_card", userGetCreditCard(pg, logger))
-	api.DELETE("/user/security/credit_card", userDeleteCreditCard(pg, logger))
-	api.POST("/user/security/credit_card", userAddCreditCard(pg, logger))
+	api.PATCH("/user/security/credit_card", userUpdateCreditCard(pg, logger))
 
 	// general
 	api.GET("/shop/:seller_name", getShopInfo(pg, logger)) // user
@@ -108,8 +107,8 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(pg, logger))
 
 	// seller
-	api.GET("/seller", sellerGetShopInfo(pg, logger))
-	api.PATCH("/seller", sellerEditInfo(pg, logger))
+	api.GET("/seller/info", sellerGetShopInfo(pg, logger))
+	api.PATCH("/seller/info", sellerEditInfo(pg, logger))
 	api.GET("/seller/tag", sellerGetTag(pg, logger))  // search available tag
 	api.POST("/seller/tag", sellerAddTag(pg, logger)) // add tag for shop
 
@@ -118,16 +117,22 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/seller/coupon", sellerAddCoupon(pg, logger))
 	api.PATCH("/seller/coupon/:id", sellerEditCoupon(pg, logger))
 	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon(pg, logger))
+	api.POST("/seller/coupon/:id/tag", sellerAddCouponTag(pg, logger))
+	api.DELETE("/seller/coupon/:id/tag", sellerDeleteCouponTag(pg, logger))
 
 	api.GET("/seller/order", sellerGetOrder(pg, logger))
 	api.GET("/seller/order/:id", sellerGetOrderDetail(pg, logger))
+	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(pg, logger))
 
 	api.GET("/seller/report", sellerGetReport(pg, logger))
 	api.GET("/seller/report/:year/:month", sellerGetReportDetail(pg, logger))
 
+	api.GET("/seller/product", sellerListProduct(pg, logger))
 	api.POST("/seller/product", sellerAddProduct(pg, logger))
 	api.POST("/seller/product/:id/upload", sellerUploadProductImage(pg, logger))
+	api.GET("/seller/product/:id", sellerGetProductDetail(pg, logger))
 	api.PATCH("/seller/product/:id", sellerEditProduct(pg, logger))
+	api.POST("/seller/product/:id/tag", sellerAddProductTag(pg, logger))
+	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(pg, logger))
 	api.DELETE("/seller/product/:id", sellerDeleteProduct(pg, logger))
-
 }
