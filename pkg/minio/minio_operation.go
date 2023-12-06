@@ -2,7 +2,6 @@ package minio
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"mime/multipart"
 	"net/url"
@@ -23,13 +22,9 @@ var MC *minio.Client
 
 func init() {
 
-	endpoint := "localhost:" + os.Getenv("MINIO_API_PORT")
+	endpoint := os.Getenv("MINIO_HOST") + ":" + os.Getenv("MINIO_API_PORT")
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	secretKey := os.Getenv("MINIO_SECRET_KEY")
-
-	// log.Printf("Endpoint: %s", endpoint)
-	// log.Printf("AccessKeyID: %s", accessKey)
-	// log.Printf("SecretAccessKey: %s", secretKey)
 
 	// Initialize minio client object.
 	var err error
@@ -40,19 +35,22 @@ func init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	if err = CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
+		log.Fatalln(err)
+	}
 
-	log.Printf("%#v\n", MC) // minioClient is now setup
 }
 
-func CheckBuckets(ctx context.Context) error {
-	fmt.Println("checkout buckets")
-	buckets, err := MC.ListBuckets(ctx)
+func CheckBuckets(ctx context.Context, bucketName string) error {
+	err := MC.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: "sa-east-1"})
 	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	for _, bucket := range buckets {
-		fmt.Println(bucket)
+		// Check to see if we already own this bucket (which happens if you run this twice)
+		exists, errBucketExists := MC.BucketExists(ctx, bucketName)
+		if errBucketExists == nil && exists {
+			log.Printf("bucket '%s' already have\n", bucketName)
+		} else {
+			log.Fatalln(err)
+		}
 	}
 	return nil
 }
@@ -63,12 +61,15 @@ func PutFile(ctx context.Context, logger *zap.SugaredLogger, file *multipart.Fil
 	if err != nil {
 		return pgtype.UUID{}, err
 	}
-	defer object.Close()
 
 	id := uuid.New()
 	info, err := MC.PutObject(ctx, constants.BUCKETNAME, id.String(), object, file_size, minio.PutObjectOptions{ContentType: "multipart/form-data"})
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
+		return pgtype.UUID{}, err
+	}
+	if err := object.Close(); err != nil {
+		logger.Error(err)
 		return pgtype.UUID{}, err
 	}
 	logger.Info(info)
