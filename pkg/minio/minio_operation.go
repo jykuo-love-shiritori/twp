@@ -2,25 +2,25 @@ package minio
 
 import (
 	"context"
-	"log"
+	"errors"
 	"mime/multipart"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
-	"go.uber.org/zap"
 
-	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var MC *minio.Client
+type MC struct {
+	mcp        *minio.Client
+	BucketName string
+}
 
-func NewMINIO() {
+func NewMINIO() (*MC, error) {
 
 	endpoint := os.Getenv("MINIO_HOST") + ":" + os.Getenv("MINIO_API_PORT")
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
@@ -28,68 +28,62 @@ func NewMINIO() {
 
 	// Initialize minio client object.
 	var err error
-	MC, err = minio.New(endpoint, &minio.Options{
+	mcp, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: false,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	if err = CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
-		log.Fatal(err)
+	mc := &MC{mcp: mcp, BucketName: os.Getenv("MINIO_BUCKET_NAME")}
+
+	if err = mc.CheckBuckets(context.Background()); err != nil {
+		return nil, err
 	}
+	return mc, nil
 }
 
-func CheckBuckets(ctx context.Context, bucketName string) error {
-	err := MC.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: "ap-northeast-1"})
+func (mc MC) CheckBuckets(ctx context.Context) error {
+	err := mc.mcp.MakeBucket(ctx, mc.BucketName, minio.MakeBucketOptions{Region: "ap-northeast-1"})
+
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := MC.BucketExists(ctx, bucketName)
-		if errBucketExists == nil && exists {
-			log.Printf("bucket '%s' already have\n", bucketName)
-		} else {
-			log.Fatalln(err)
+		exists, errBucketExists := mc.mcp.BucketExists(ctx, mc.BucketName)
+		if errBucketExists != nil || !exists {
+			return errors.New("fail to check bucket exists")
 		}
 	}
 	return nil
 }
 
-func PutFile(ctx context.Context, logger *zap.SugaredLogger, file *multipart.FileHeader) (pgtype.UUID, error) {
-	file_size := file.Size
+func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader) (string, error) {
+
 	object, err := file.Open()
-	if err != nil {
-		return pgtype.UUID{}, err
-	}
-
-	id := uuid.New()
-	info, err := MC.PutObject(ctx, constants.BUCKETNAME, id.String(), object, file_size, minio.PutObjectOptions{ContentType: "multipart/form-data"})
-	if err != nil {
-		logger.Error(err)
-		return pgtype.UUID{}, err
-	}
-	if err := object.Close(); err != nil {
-		logger.Error(err)
-		return pgtype.UUID{}, err
-	}
-	logger.Info(info)
-
-	return pgtype.UUID{Bytes: id, Valid: true}, nil
-}
-func GeneratePresignedURL(ctx context.Context, id string) (string, error) {
-	reqParams := make(url.Values)
-	presignedURL, err := MC.PresignedGetObject(ctx, constants.BUCKETNAME, id, time.Second*24*60*60, reqParams)
 	if err != nil {
 		return "", err
 	}
-	return presignedURL.String(), nil
+	id := uuid.New()
+	fileSize := file.Size
+	parts := strings.Split(file.Filename, ".")
+	fileType := parts[len(parts)-1]
+	newFileName := id.String() + "." + fileType
+
+	info, err := mc.mcp.PutObject(ctx, mc.BucketName, newFileName, object, fileSize, minio.PutObjectOptions{ContentType: "multipart/form-data"})
+	if err != nil {
+		return info.Bucket, err
+	}
+	if err := object.Close(); err != nil {
+		return info.Bucket, err
+	}
+	return newFileName, nil
 }
 
-func GetFileURL(c echo.Context, logger *zap.SugaredLogger, id uuid.UUID) string {
-	url, err := GeneratePresignedURL(c.Request().Context(), id.String())
+func (mc MC) GetFileURL(ctx context.Context, id string) (string, error) {
+	reqParams := make(url.Values)
+	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, id, time.Second*24*60*60, reqParams)
 	if err != nil {
-		logger.Error(err)
 		//default image if can find image by uuid
-		return "https://imgur.com/UniMfif.png"
+		return "https://imgur.com/UniMfif.png", err
 	}
-	return url
+	return presignedURL.String(), nil
 }

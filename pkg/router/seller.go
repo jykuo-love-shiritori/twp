@@ -37,7 +37,7 @@ type SellerInfo struct {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [get]
-func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		shopInfo, err := pg.Queries.SellerGetInfo(c.Request().Context(), username)
@@ -45,7 +45,12 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		//wait update schema
+		imageUrl, err := mc.GetFileURL(c.Request().Context(), "id.png")
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 		result := SellerInfo{
 			Name:        shopInfo.Name,
 			Image:       imageUrl,
@@ -72,7 +77,7 @@ func sellerGetShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [patch]
-func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -85,19 +90,21 @@ func sellerEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		ImageID, err := minio.PutFile(c.Request().Context(), logger, fileHeader)
+		//wait update schema pr
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		param.SellerName = username
-		param.ImageID = ImageID
+		//wait update schema pr
+		param.ImageID = common.DefaultImageUuid
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		imageUrl := minio.GetFileURL(c, logger, shopInfo.ImageID.Bytes)
+		imageUrl, err := mc.GetFileURL(c.Request().Context(), ImageID)
 		result := SellerInfo{
 			Name:        shopInfo.Name,
 			Image:       imageUrl,

@@ -32,7 +32,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # TODO: add minio bucket automatic setup script
   minio:
     image: minio/minio
     env_file:
@@ -53,6 +52,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  minio-access-key:
+    image: minio/mc
+    depends_on:
+      - minio
+    environment:
+      - .env
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+        mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key "${MINIO_ACCESS_KEY}" --secret-key "${MINIO_SECRET_KEY}";
+      exit 0;"
 
 volumes:
   postgres-data:

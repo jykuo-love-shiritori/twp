@@ -12,6 +12,7 @@ import (
 	_ "github.com/jykuo-love-shiritori/twp/docs"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 )
 
 //	@title			twp API
@@ -38,7 +39,7 @@ func RegisterDocs(e *echo.Echo) {
 	docs.GET("/*", echoSwagger.WrapHandler)
 }
 
-func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
+func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogger) {
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c echo.Context) error {
@@ -107,8 +108,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(db, logger))
 
 	// seller
-	api.GET("/seller/info", sellerGetShopInfo(db, logger))
-	api.PATCH("/seller/info", sellerEditInfo(db, logger))
+	api.GET("/seller/info", sellerGetShopInfo(db, mc, logger))
+	api.PATCH("/seller/info", sellerEditInfo(db, mc, logger))
 	api.GET("/seller/tag", sellerGetTag(db, logger))  // search available tag
 	api.POST("/seller/tag", sellerAddTag(db, logger)) // add tag for shop
 
