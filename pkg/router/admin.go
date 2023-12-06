@@ -132,49 +132,27 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 	}
 }
 
-type couponParam struct {
-	Tags []db.Tag           `json:"tags"`
-	Info db.AddCouponParams `json:"info"`
-}
-
 // @Summary		Admin Add Coupon
 // @Description	Add global coupon.
 // @Tags			Admin, Coupon
 // @Accept			json
 // @Produce		json
 // @Param			coupon	body		db.AddCouponParams	true	"Coupon"
-// @Success		200		{object}	db.AddCouponRow
+// @Success		200		{object}	couponWithTag
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/coupon [post]
 func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var coupon couponParam
+		var coupon db.AddCouponParams
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		coupon.Info.Scope = "global"
-		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon.Info)
+		coupon.Scope = "global"
+		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
 		if err != nil {
 			logger.Errorw("failed to add coupon", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		var ctp db.AddCouponTagsParams
-		param := db.ValidateTagsParams{TagID: []int32{}, CouponID: result.ID}
-		for _, tag := range coupon.Tags {
-			param.TagID = append(param.TagID, tag.ID)
-			ctp.TagID = append(ctp.TagID, tag.ID)
-		}
-		if valid, err := pg.Queries.ValidateTags(c.Request().Context(), param); err != nil {
-			logger.Errorw("failed to validate tags", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid {
-			logger.Errorw("invalid tags", "tags", coupon.Tags)
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid tags")
-		}
-		if _, err := pg.Queries.AddCouponTags(c.Request().Context(), ctp); err != nil {
-			logger.Errorw("failed to add coupon tags", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
