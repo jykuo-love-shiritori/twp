@@ -14,11 +14,15 @@ sql:
           - column: "user.credit_card"
             go_type:
               type: "json.RawMessage"
-
+          - db_type: "uuid"
+            go_type:
+              type: "string"
+          - column: cart.id
+            go_struct_tag: param:"cart_id"
           - column: user.id
             go_struct_tag: param:"id"
           - column: coupon.id
-            go_struct_tag: param:"id"
+            go_struct_tag: param:"id" param:"coupon_id"
           - column: coupon_tag.coupon_id
             go_struct_tag: param:"id"
           - column: order_history.id
@@ -26,7 +30,8 @@ sql:
           - column: order_detail.order_id
             go_struct_tag: param:"id"
           - column: product.id
-            go_struct_tag: param:"id"
+            go_struct_tag: param:"id" param:"product_id"
+          - column: product.price
           - column: product_tag.product_id
             go_struct_tag: param:"id"
           - column: shop.seller_name
@@ -69,5 +74,5 @@ sql:
           #   go_struct_tag: json:"-"
           # - column: order_history.shop_id
           #   go_struct_tag: json:"-"
-          - column: order_history.created_at
-            go_struct_tag: json:"-"
+          # - column: order_history.created_at
+          #   go_struct_tag: json:"-"

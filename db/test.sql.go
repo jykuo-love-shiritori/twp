@@ -129,7 +129,7 @@ VALUES ($1, $2, $3) RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
-	ID     int32 `json:"id"`
+	ID     int32 `json:"id" param:"cart_id"`
 	UserID int32 `json:"user_id"`
 	ShopID int32 `json:"shop_id"`
 }
@@ -202,7 +202,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, type, scope, shop_id, 
 `
 
 type TestInsertCouponParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"shop_id"`
@@ -314,7 +314,7 @@ type TestInsertOrderHistoryParams struct {
 	ID         int32       `json:"id" param:"id"`
 	UserID     int32       `json:"user_id"`
 	ShopID     int32       `json:"shop_id"`
-	ImageID    pgtype.UUID `json:"image_id"`
+	ImageID    string      `json:"image_id"`
 	Shipment   int32       `json:"shipment"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
@@ -378,13 +378,13 @@ VALUES (
 `
 
 type TestInsertProductParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -443,7 +443,7 @@ type TestInsertProductArchiveParams struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id" swaggertype:"string"`
 }
 
 func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertProductArchiveParams) (ProductArchive, error) {
@@ -501,12 +501,12 @@ VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_name, image_id, name, descr
 `
 
 type TestInsertShopParams struct {
-	ID          int32       `json:"id"`
-	SellerName  string      `json:"seller_name" param:"seller_name"`
-	Name        string      `json:"name"`
-	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	ID          int32  `json:"id"`
+	SellerName  string `json:"seller_name" param:"seller_name"`
+	Name        string `json:"name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
 }
 
 func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) (Shop, error) {
@@ -575,7 +575,7 @@ type TestInsertUserParams struct {
 	Name       string          `json:"name"`
 	Email      string          `json:"email"`
 	Address    string          `json:"address"`
-	ImageID    pgtype.UUID     `json:"image_id" swaggertype:"string"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
 	Role       RoleType        `json:"role"`
 	CreditCard json.RawMessage `json:"credit_card"`
 	Enabled    bool            `json:"enabled"`
