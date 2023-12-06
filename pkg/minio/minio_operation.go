@@ -35,9 +35,6 @@ func init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if err = CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
-		log.Fatalln(err)
-	}
 
 }
 

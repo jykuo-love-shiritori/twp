@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"go.uber.org/zap"
 
@@ -27,6 +29,9 @@ func main() {
 	db, err := db.NewDB()
 	if err != nil {
 		e.Logger.Fatal(err)
+	}
+	if err = minio.CheckBuckets(context.Background(), os.Getenv("MINIO_BUCKET_NAME")); err != nil {
+		log.Fatalln(err)
 	}
 
 	RegisterFrontend(e)
