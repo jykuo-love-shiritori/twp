@@ -8,7 +8,7 @@ export type Context = {
 
 export const AuthContext = createContext<Context>({} as Context);
 
-const AuthProvider = () => {
+export const AuthProvider = () => {
   const [token, setToken] = useState('');
 
   return (
@@ -17,5 +17,3 @@ const AuthProvider = () => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthProvider;

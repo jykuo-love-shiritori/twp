@@ -41,7 +41,7 @@ const Callback = () => {
     const token = (await resp.json()) as Token;
     setToken(token.access_token);
 
-    navigate('/');
+    navigate('/', { replace: true });
 
     return token;
   };
