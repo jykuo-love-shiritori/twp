@@ -11,10 +11,8 @@ services:
     depends_on:
       - postgres
       - minio
-
-  # TODO: add golang-migrate script
   postgres:
-    image: postgres
+    image: postgres:16
     env_file:
       - .env
     ports:
@@ -32,8 +30,18 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./db/migrations:/migrations
+    command: -path=/migrations -database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up
+
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio:RELEASE.2023-12-02T10-51-33Z
     env_file:
       - .env
     ports:
@@ -53,16 +61,13 @@ services:
       timeout: 5s
       retries: 5
 
-  minio-access-key:
+  minio-set-access-key:
     image: minio/mc
     depends_on:
       - minio
     environment:
       - .env
-    entrypoint: >
-      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
-        mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key "${MINIO_ACCESS_KEY}" --secret-key "${MINIO_SECRET_KEY}";
-      exit 0;"
+    command: /bin/sh -c " /usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key "${MINIO_ACCESS_KEY}" --secret-key "${MINIO_SECRET_KEY}"; exit 0;"
 
 volumes:
   postgres-data:
