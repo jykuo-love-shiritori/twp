@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.1.0
+	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/swaggo/echo-swagger v1.4.1
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect

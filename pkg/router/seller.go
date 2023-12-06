@@ -105,6 +105,10 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		imageUrl, err := mc.GetFileURL(c.Request().Context(), ImageID)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 		result := SellerInfo{
 			Name:        shopInfo.Name,
 			Image:       imageUrl,
