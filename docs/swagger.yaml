@@ -317,13 +317,13 @@ definitions:
   db.SellerGetOrderDetailRow:
     properties:
       description:
-        $ref: '#/definitions/pgtype.Text'
+        type: string
       id:
         $ref: '#/definitions/pgtype.Int4'
       image_id:
         type: string
       name:
-        $ref: '#/definitions/pgtype.Text'
+        type: string
       price:
         type: number
       quantity:
@@ -549,13 +549,6 @@ definitions:
     properties:
       int32:
         type: integer
-      valid:
-        type: boolean
-    type: object
-  pgtype.Text:
-    properties:
-      string:
-        type: string
       valid:
         type: boolean
     type: object
