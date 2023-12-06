@@ -104,6 +104,7 @@ CREATE TABLE "user" (
     "image_id" TEXT,
     "role" role_type NOT NULL,
     "credit_card" JSONB NOT NULL,
+    "refresh_token" TEXT NULL,
     "enabled" BOOLEAN NOT NULL DEFAULT TRUE -- if user deleted, set enabled to false
 );
 
