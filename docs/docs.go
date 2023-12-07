@@ -3688,7 +3688,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
@@ -3697,7 +3697,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "price": {
                     "type": "number"
@@ -4044,17 +4044,6 @@ const docTemplate = `{
             "properties": {
                 "int32": {
                     "type": "integer"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Text": {
-            "type": "object",
-            "properties": {
-                "string": {
-                    "type": "string"
                 },
                 "valid": {
                     "type": "boolean"

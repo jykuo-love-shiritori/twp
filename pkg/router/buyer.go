@@ -223,8 +223,8 @@ type couponV2 struct {
 // @Tags			Buyer, Cart, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			cart_id		path		int		true	"Cart ID"
-// @Param			coupon_id	path		int		true	"Coupon ID"
+// @Param			cart_id		path		int	true	"Cart ID"
+// @Param			coupon_id	path		int	true	"Coupon ID"
 // @Success		200			{array}		db.GetUsableCouponsRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError

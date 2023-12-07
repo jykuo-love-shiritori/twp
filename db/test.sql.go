@@ -377,7 +377,7 @@ type TestInsertProductParams struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -435,7 +435,7 @@ type TestInsertProductArchiveParams struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 }
 
 func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertProductArchiveParams) (ProductArchive, error) {
@@ -550,23 +550,25 @@ INSERT INTO "user" (
         "image_id",
         "role",
         "credit_card",
+        "refresh_token",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled
 `
 
 type TestInsertUserParams struct {
-	ID         int32           `json:"id" param:"id"`
-	Username   string          `json:"username"`
-	Password   string          `json:"password"`
-	Name       string          `json:"name"`
-	Email      string          `json:"email"`
-	Address    string          `json:"address"`
-	ImageID    string          `json:"image_id" swaggertype:"string"`
-	Role       RoleType        `json:"role"`
-	CreditCard json.RawMessage `json:"credit_card"`
-	Enabled    bool            `json:"enabled"`
+	ID           int32           `json:"id" param:"id"`
+	Username     string          `json:"username"`
+	Password     string          `json:"password"`
+	Name         string          `json:"name"`
+	Email        string          `json:"email"`
+	Address      string          `json:"address"`
+	ImageID      string          `json:"image_id" swaggertype:"string"`
+	Role         RoleType        `json:"role"`
+	CreditCard   json.RawMessage `json:"credit_card"`
+	RefreshToken string          `json:"refresh_token"`
+	Enabled      bool            `json:"enabled"`
 }
 
 func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
@@ -580,6 +582,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		arg.ImageID,
 		arg.Role,
 		arg.CreditCard,
+		arg.RefreshToken,
 		arg.Enabled,
 	)
 	var i User
@@ -593,6 +596,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
+		&i.RefreshToken,
 		&i.Enabled,
 	)
 	return i, err

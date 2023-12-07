@@ -473,7 +473,7 @@ type GetOrderDetailRow struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -645,7 +645,7 @@ WHERE "cart_id" = $1
 type GetProductFromCartRow struct {
 	ProductID int32          `json:"product_id"`
 	Name      string         `json:"name"`
-	ImageID   string         `json:"image_id" swaggertype:"string"`
+	ImageID   string         `json:"image_id"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
 	Quantity  int32          `json:"quantity"`
 	Enabled   bool           `json:"enabled"`

@@ -243,7 +243,7 @@ type Product struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
@@ -257,7 +257,7 @@ type ProductArchive struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 }
 
 type ProductTag struct {
@@ -281,14 +281,15 @@ type Tag struct {
 }
 
 type User struct {
-	ID         int32           `json:"id" param:"id"`
-	Username   string          `json:"username"`
-	Password   string          `json:"password"`
-	Name       string          `json:"name"`
-	Email      string          `json:"email"`
-	Address    string          `json:"address"`
-	ImageID    string          `json:"image_id" swaggertype:"string"`
-	Role       RoleType        `json:"role"`
-	CreditCard json.RawMessage `json:"credit_card"`
-	Enabled    bool            `json:"enabled"`
+	ID           int32           `json:"id" param:"id"`
+	Username     string          `json:"username"`
+	Password     string          `json:"password"`
+	Name         string          `json:"name"`
+	Email        string          `json:"email"`
+	Address      string          `json:"address"`
+	ImageID      string          `json:"image_id" swaggertype:"string"`
+	Role         RoleType        `json:"role"`
+	CreditCard   json.RawMessage `json:"credit_card"`
+	RefreshToken string          `json:"refresh_token"`
+	Enabled      bool            `json:"enabled"`
 }
