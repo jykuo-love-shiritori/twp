@@ -21,7 +21,7 @@ const News = ({ id, imgUrl, title }: Props) => {
         </span>
       </div>
 
-      <TButton text='more' url={`/news/${id}`} />
+      <TButton text='more' action={`/news/${id}`} />
       <br />
     </div>
   );

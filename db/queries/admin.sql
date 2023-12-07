@@ -69,7 +69,19 @@ SELECT EXISTS( SELECT 1 FROM "coupon" WHERE "id" = $1 );
 
 -- name: GetAnyCoupons :many
 
-SELECT * FROM "coupon" ORDER BY "id" ASC LIMIT $1 OFFSET $2;
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+ORDER BY "id" ASC
+LIMIT $1
+OFFSET $2;
 
 -- name: GetCouponDetail :one
 

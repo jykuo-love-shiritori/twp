@@ -14,7 +14,7 @@ const Products = () => {
         </Col>
         <Col sm={12} md={4}>
           <div style={{ padding: '20px 0 0 0' }}>
-            <TButton text='Add New Item' url='/user/seller/manageProducts/new' />
+            <TButton text='Add New Item' action='/user/seller/manageProducts/new' />
           </div>
         </Col>
       </Row>

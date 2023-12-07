@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -99,11 +100,11 @@ func (ns NullCouponType) Value() (driver.Value, error) {
 type OrderStatus string
 
 const (
-	OrderStatusPending   OrderStatus = "pending"
 	OrderStatusPaid      OrderStatus = "paid"
 	OrderStatusShipped   OrderStatus = "shipped"
 	OrderStatusDelivered OrderStatus = "delivered"
 	OrderStatusCancelled OrderStatus = "cancelled"
+	OrderStatusFinished  OrderStatus = "finished"
 )
 
 func (e *OrderStatus) Scan(src interface{}) error {
@@ -204,7 +205,7 @@ type Coupon struct {
 	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
-	ShopID      pgtype.Int4        `json:"-"`
+	ShopID      pgtype.Int4        `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
@@ -213,12 +214,12 @@ type Coupon struct {
 }
 
 type CouponTag struct {
-	CouponID int32 `json:"coupon_id"`
+	CouponID int32 `json:"coupon_id" param:"id"`
 	TagID    int32 `json:"tag_id"`
 }
 
 type OrderDetail struct {
-	OrderID        int32 `json:"order_id"`
+	OrderID        int32 `json:"order_id" param:"id"`
 	ProductID      int32 `json:"product_id"`
 	ProductVersion int32 `json:"product_version"`
 	Quantity       int32 `json:"quantity"`
@@ -227,11 +228,11 @@ type OrderDetail struct {
 type OrderHistory struct {
 	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
-	ShopID     int32              `json:"-"`
+	ShopID     int32              `json:"shop_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-"`
+	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
 }
 
 type Product struct {
@@ -240,10 +241,10 @@ type Product struct {
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
-	Price       pgtype.Numeric     `json:"price"`
-	ImageID     pgtype.UUID        `json:"image_id"`
-	ExpDate     pgtype.Timestamptz `json:"exp_date"`
-	EditDate    pgtype.Timestamptz `json:"edit_date"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
 	Enabled     bool               `json:"enabled"`
@@ -254,19 +255,19 @@ type ProductArchive struct {
 	Version     int32          `json:"version"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
-	Price       pgtype.Numeric `json:"price"`
-	ImageID     pgtype.UUID    `json:"image_id"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
 }
 
 type ProductTag struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 }
 
 type Shop struct {
 	ID          int32       `json:"id"`
 	SellerName  string      `json:"seller_name" param:"seller_name"`
-	ImageID     pgtype.UUID `json:"image_id"`
+	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Enabled     bool        `json:"enabled"`
@@ -279,14 +280,14 @@ type Tag struct {
 }
 
 type User struct {
-	ID         int32       `json:"id" param:"id"`
-	Username   string      `json:"username"`
-	Password   string      `json:"password"`
-	Name       string      `json:"name"`
-	Email      string      `json:"email"`
-	Address    string      `json:"address"`
-	ImageID    pgtype.UUID `json:"image_id"`
-	Role       RoleType    `json:"role"`
-	CreditCard []byte      `json:"credit_card"`
-	Enabled    bool        `json:"enabled"`
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `json:"name"`
+	Email      string          `json:"email"`
+	Address    string          `json:"address"`
+	ImageID    pgtype.UUID     `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
 }
