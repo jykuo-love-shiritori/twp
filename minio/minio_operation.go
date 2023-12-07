@@ -2,7 +2,6 @@ package minio
 
 import (
 	"context"
-	"errors"
 	"mime/multipart"
 	"net/url"
 	"os"
@@ -38,23 +37,7 @@ func NewMINIO() (*MC, error) {
 	}
 	mc := &MC{mcp: mcp, BucketName: os.Getenv("MINIO_BUCKET_NAME")}
 
-	if err = mc.CheckBucket(context.Background()); err != nil {
-		return nil, err
-	}
 	return mc, nil
-}
-
-func (mc MC) CheckBucket(ctx context.Context) error {
-	err := mc.mcp.MakeBucket(ctx, mc.BucketName, minio.MakeBucketOptions{Region: "ap-northeast-1"})
-
-	if err != nil {
-		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := mc.mcp.BucketExists(ctx, mc.BucketName)
-		if errBucketExists != nil || !exists {
-			return errors.New("fail to check bucket exists")
-		}
-	}
-	return nil
 }
 
 func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader) (string, error) {

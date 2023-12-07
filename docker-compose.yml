@@ -65,9 +65,11 @@ services:
     image: minio/mc
     depends_on:
       - minio
-    environment:
+    env_file:
       - .env
-    command: /bin/sh -c " /usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key "${MINIO_ACCESS_KEY}" --secret-key "${MINIO_SECRET_KEY}"; exit 0;"
+    entrypoint: >
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; /usr/bin/mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY};
+       /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME}; "
 
 volumes:
   postgres-data:

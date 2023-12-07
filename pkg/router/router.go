@@ -10,9 +10,9 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	_ "github.com/jykuo-love-shiritori/twp/docs"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
-	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 )
 
 //	@title			twp API

@@ -6,9 +6,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
-	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )

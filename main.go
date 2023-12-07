@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
-	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"go.uber.org/zap"
 
