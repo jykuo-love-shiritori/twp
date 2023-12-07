@@ -122,7 +122,7 @@ const EachSellerGoods = () => {
     <div style={{ padding: '55px 12% 0 12%' }}>
       <Row>
         <Col xs={12} md={5} className='goods_bgW'>
-          <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
+          <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div
               style={{
                 position: 'relative',

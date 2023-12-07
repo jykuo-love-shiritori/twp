@@ -14,7 +14,7 @@ const SellerReport = () => {
         </Col>
         <Col sm={12} md={4}>
           <div style={{ padding: '20px 0 0 0' }}>
-            <TButton text='Generate Report' url='/user/seller/reports/new' />
+            <TButton text='Generate Report' action='/user/seller/reports/new' />
           </div>
         </Col>
       </Row>

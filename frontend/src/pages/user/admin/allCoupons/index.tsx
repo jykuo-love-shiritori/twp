@@ -44,7 +44,7 @@ const ManageAdminCoupons = () => {
           </Row>
         </div>
 
-        <hr />
+        <hr className='hr' />
         <Row>
           <div className='disappear_phone'>
             <Row>

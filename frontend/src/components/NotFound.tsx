@@ -1,4 +1,3 @@
-import '@components/style.css';
 import '@style/global.css';
 
 const NotFound = () => {

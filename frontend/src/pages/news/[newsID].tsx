@@ -9,7 +9,7 @@ import newsData from '@pages/home/newsData.json';
 
 interface Props {
   id: number;
-  imgUrl: string;
+  newUrl: string;
   title: string;
   date: string;
   subTitle: string;
@@ -37,10 +37,10 @@ const EachNews = () => {
   if (data) {
     return (
       <div style={{ padding: '10% 10% 0% 10%' }}>
-        <div className='flex-wrapper' style={NewsBgStyle}>
+        <div className='flex_wrapper' style={NewsBgStyle}>
           <Row>
             <Col xs={12} md={4} className='center_horizontal'>
-              <img src={data.imgUrl} style={NewsPicStyle} />
+              <img src={data.newUrl} style={NewsPicStyle} />
             </Col>
             <Col xs={12} md={8}>
               <h4 className='inpage_title'>{data.title}</h4> <br />

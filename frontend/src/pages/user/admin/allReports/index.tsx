@@ -7,14 +7,14 @@ import adminReportData from '@pages/user/admin/adminReportData.json';
 
 const AdminReport = () => {
   return (
-    <div>
+    <div style={{ paddingTop: '6%' }}>
       <Row>
         <Col sm={12} md={8}>
           <div className='title'>All Reports</div>
         </Col>
         <Col sm={12} md={4}>
           <div style={{ padding: '20px 0 0 0' }}>
-            <TButton text='Generate Report' url='/admin/reports/new' />
+            <TButton text='Generate Report' action='/admin/reports/new' />
           </div>
         </Col>
       </Row>

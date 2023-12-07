@@ -20,7 +20,7 @@ const UserTableHeader = () => {
           Delete
         </Col>
       </Row>
-      <hr />
+      <hr className='hr' />
     </div>
   );
 };

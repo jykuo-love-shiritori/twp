@@ -47,7 +47,7 @@ const SellerItem = ({ id }: Input) => {
 
         {/* url is empty because each user's user shop page is different and defining data is tough 
             i want to wait for getting data from backend then deal with it */}
-        <TButton text='View Shop' url='' />
+        <TButton text='View Shop' />
       </div>
     );
   }

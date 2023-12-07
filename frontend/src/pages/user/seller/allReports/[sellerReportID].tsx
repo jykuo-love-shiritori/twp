@@ -44,7 +44,7 @@ const SellerReportEach = () => {
   if (data) {
     return (
       <div style={{ padding: '10% 10% 0% 10%' }}>
-        <div className='flex-wrapper' style={reportPageStyle}>
+        <div className='flex_wrapper' style={reportPageStyle}>
           <h1 className='title_color' style={{ paddingBottom: '30px' }}>
             <b>
               {data.year} / {data.month} Finical Report

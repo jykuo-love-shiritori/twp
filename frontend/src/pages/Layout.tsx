@@ -19,7 +19,7 @@ const Layout = () => {
       <div style={{ position: 'relative', zIndex: '10' }}>
         <NavBar />
       </div>
-      <div className='body_down bg flex-wrapper' style={{ position: 'relative', zIndex: '1' }}>
+      <div className='body_down bg flex_wrapper' style={{ position: 'relative', zIndex: '1' }}>
         <Outlet />
       </div>
       <div style={{ position: 'relative', zIndex: '10' }}>

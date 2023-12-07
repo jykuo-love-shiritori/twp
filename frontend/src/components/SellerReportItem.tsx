@@ -69,7 +69,7 @@ const SellerReportItem = ({ year, month }: Input) => {
             {Months[data.month - 1]}
           </div>
         </div>
-        <TButton text='more' url={`/user/seller/reports/${data.id}`} />
+        <TButton text='more' action={`/user/seller/reports/${data.id}`} />
       </div>
     );
   }

@@ -7,7 +7,7 @@ import userData from '@pages/user/buyer/buyerInfo.json';
 
 const User = () => {
   return (
-    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex-wrapper'>
+    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex_wrapper'>
       <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
         <div className='user_bg center' />
       </Col>

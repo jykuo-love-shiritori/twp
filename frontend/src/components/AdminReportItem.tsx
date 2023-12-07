@@ -69,7 +69,7 @@ const AdminReportItem = ({ year, month }: Input) => {
             {Months[data.month - 1]}
           </div>
         </div>
-        <TButton text='more' url={`/admin/reports/${data.id}`} />
+        <TButton text='more' action={`/admin/reports/${data.id}`} />
       </div>
     );
   }

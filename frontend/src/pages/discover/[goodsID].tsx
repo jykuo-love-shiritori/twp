@@ -74,7 +74,7 @@ const EachGoods = () => {
       <div style={{ padding: '55px 12% 0 12%' }}>
         <Row>
           <Col xs={12} md={5} style={LeftBgStyle}>
-            <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
+            <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
               <img src={data.imgUrl} style={{ borderRadius: '0 0 30px 0' }} />
 
               <Row xs='auto'>
