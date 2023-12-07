@@ -47,7 +47,7 @@ type AddCouponParams struct {
 }
 
 type AddCouponRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -209,7 +209,7 @@ WHERE
 `
 
 type EditCouponParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
@@ -219,7 +219,7 @@ type EditCouponParams struct {
 }
 
 type EditCouponRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -282,7 +282,7 @@ type GetAnyCouponsParams struct {
 }
 
 type GetAnyCouponsRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -337,7 +337,7 @@ WHERE "id" = $1
 `
 
 type GetCouponDetailRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
