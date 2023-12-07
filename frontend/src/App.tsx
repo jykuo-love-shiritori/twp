@@ -5,6 +5,7 @@ import Home from '@pages/home';
 import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
+import Coupons from '@pages/coupon';
 import Cart from '@pages/cart';
 import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
@@ -14,6 +15,9 @@ import Info from '@pages/user/buyer/info';
 import History from '@pages/user/buyer/history';
 import Admin from '@pages/user/admin/index';
 import ManageUser from '@components/ManageUser';
+import ManageAdminCoupons from '@pages/user/admin/allCoupons';
+import NewAdminCoupon from '@pages/user/admin/allCoupons/newCoupon';
+import EachAdminCoupon from '@pages/user/admin/allCoupons/[adminCouponID]';
 import NotFound from '@components/NotFound';
 import SearchNotFound from '@components/SearchNotFound';
 import APItest from '@components/APItest';
@@ -27,7 +31,11 @@ import NewCard from '@pages/user/buyer/security/NewCard';
 import UserViewShop from '@pages/user/shop';
 import Products from '@pages/user/seller/allProducts';
 import NewGoods from '@pages/user/seller/allProducts/NewGoods';
+import ManageSellerCoupons from '@pages/user/seller/allCoupons';
+import EachSellerCoupon from '@pages/user/seller/allCoupons/[sellerCouponID]';
+import NewSellerCoupon from '@pages/user/seller/allCoupons/newCoupon';
 import Authorize from '@pages/user/authorize';
+
 import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
@@ -35,6 +43,8 @@ import AdminReport from '@pages/user/admin/allReports';
 import AdminReportEach from '@pages/user/admin/allReports/[adminReportID]';
 import SellerReport from '@pages/user/seller/allReports';
 import SellerReportEach from '@pages/user/seller/allReports/[sellerReportID]';
+
+import SellerCoupons from '@pages/user/shop/SellerCoupons';
 
 function App() {
   return (
@@ -51,6 +61,7 @@ function App() {
             <Route path=':news_id' element={<EachNews />} />
           </Route>
           <Route path='/discover' element={<Discover />} />
+          <Route path='/coupons' element={<Coupons />} />
           <Route path='/user' element={<User />}>
             <Route index element={<Info />} />
             <Route path='/user/info' element={<Info />} />
@@ -66,9 +77,10 @@ function App() {
 
           {/* seller-parts =============================================== */}
           <Route path='/user/seller' element={<Seller />}>
+            <Route index element={<NotFound />} />
             <Route path='/user/seller/info' element={<NotFound />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
-            <Route path='/user/seller/manageCoupons' element={<NotFound />} />
+            <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />
             <Route path='/user/seller/orders' element={<SellerShipment />} />
             <Route path='/user/seller/reports' element={<SellerReport />} />
           </Route>
@@ -78,10 +90,15 @@ function App() {
             <Route path=':goods_id' element={<EachSellerGoods />} />
           </Route>
 
+          <Route path='/user/seller/manageCoupons'>
+            <Route path='new' element={<NewSellerCoupon />} />
+            <Route path=':coupon_id' element={<EachSellerCoupon />} />
+          </Route>
+
           <Route path='/sellerID' element={<UserViewShop />}>
             <Route index element={<Shop />} />
             <Route path='/sellerID/shop' element={<Shop />} />
-            <Route path='/sellerID/coupons' element={<NotFound />} />
+            <Route path='/sellerID/coupons' element={<SellerCoupons />} />
           </Route>
 
           <Route path='sellerID/shop'>
@@ -102,7 +119,6 @@ function App() {
           <Route path='/admin' element={<Admin />}>
             <Route index element={<ManageUser />} />
             <Route path='/admin/manageUser' element={<ManageUser />} />
-            {/* <Route path='/admin/manageCoupons' element={<ManageCoupon />} /> */}
             <Route path='/admin/reports' element={<AdminReport />} />
           </Route>
 
@@ -110,15 +126,22 @@ function App() {
             <Route path=':report_id' element={<AdminReportEach />} />
           </Route>
 
-          {/* global-parts ================================================ */}
-          <Route path='/search?' element={<SearchNotFound />} />
+          <Route path='/admin/manageCoupons' element={<ManageAdminCoupons />} />
+          <Route path='/admin/report' element={<AdminReport />} />
 
-          <Route path='*' element={<NotFound />} />
-          <Route path='/forbidden' element={<Forbidden />} />
-          <Route path='/unauthorized' element={<Unauthorized />} />
-
-          <Route path='/APItest' element={<APItest />} />
+          <Route path='/admin/manageCoupons'>
+            <Route path='new' element={<NewAdminCoupon />} />
+            <Route path=':coupon_id' element={<EachAdminCoupon />} />
+          </Route>
         </Route>
+
+        <Route path='/search?' element={<SearchNotFound />} />
+
+        <Route path='*' element={<NotFound />} />
+        <Route path='/forbidden' element={<Forbidden />} />
+        <Route path='/unauthorized' element={<Unauthorized />} />
+
+        <Route path='/APItest' element={<APItest />} />
       </Routes>
     </BrowserRouter>
   );

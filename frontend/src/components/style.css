@@ -30,7 +30,7 @@
 /* [item in page] home */
 .home {
   padding-top: 60px;
-  background: url('/images/home_bg.png') fixed;
+  background: url('@assets/images/home_bg.png') fixed;
 }
 
 /* [item in page] search button on navbar */
@@ -158,6 +158,53 @@
   color: white;
 }
 
+.form_item_wrapper {
+  :is(input) {
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--button_dark);
+    padding: 5px 10px 5px 20px;
+    width: 100%;
+    color: white;
+    &[type='number'] {
+      appearance: textfield;
+    }
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+    }
+    &[type='date'] {
+      appearance: none;
+    }
+    &::-webkit-calendar-picker-indicator {
+      background-image: url('@assets/images/calendar-regular.svg');
+      padding: 5px;
+      cursor: pointer;
+    }
+  }
+  :is(textarea) {
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--button_dark);
+    padding: 5px 10px 5px 20px;
+    width: 100%;
+    color: white;
+  }
+  :is(select) {
+    background: var(--button_dark);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 10px 5px 20px;
+    width: 100%;
+    color: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('@assets/images/angle-down-solid.svg');
+    background-repeat: no-repeat;
+    background-position: calc(100% - 20px) calc(50% + 2px);
+  }
+}
+
 /* [component] history item component */
 .history_container {
   margin: 3% 0% 3% 0%;
@@ -220,7 +267,7 @@
 
 /* [item in page] users info page */
 .user_bg {
-  background: url('/images/user_bg.png') fixed;
+  background: url('@assets/images/user_bg.png') fixed;
   width: 100%;
   height: 300px;
 }
@@ -252,7 +299,7 @@
 /* [item in page] manageUser */
 .user_table_header {
   font-size: 24px;
-  Col {
+  :is(Col) {
     padding: 1% 1% 0 1%;
   }
 }
@@ -322,4 +369,36 @@
   color: var(--button_light);
   font-size: 20px;
   font-weight: 900;
+}
+
+/* [item in page] coupon item */
+.coupon_modal {
+  .modal-dialog {
+    min-width: 50vw;
+  }
+  .modal-content {
+    padding: 0 8% 8% 8%;
+    background-color: var(--bg);
+    box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.25);
+    border-radius: 30px;
+    border: var(--border) solid 2px;
+    color: white;
+  }
+  .modal-header {
+    border-bottom: #ffffff7f solid 1px;
+    color: var(--button_light);
+  }
+}
+
+/* [item in page] all coupon */
+.more_button {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--title);
+  cursor: pointer;
+  user-select: none;
+}
+.more_button:hover {
+  transition: all 0.3s ease-in-out;
+  text-decoration: underline;
 }

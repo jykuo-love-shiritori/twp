@@ -94,7 +94,7 @@ const EachGoods = () => {
                   <span style={{ color: 'black' }}>{data.quantity} available</span>
                   <hr style={{ opacity: '1' }} />
                   <QuantityBar />
-                  <TButton text='Add to cart' url='' />
+                  <TButton text='Add to cart' />
                 </div>
               ) : (
                 <h6 style={{ color: '#ED7E6D' }}>
@@ -127,10 +127,10 @@ const EachGoods = () => {
               <hr className='hr' />
               <Row>
                 <Col xs={6} className='center'>
-                  <UserItem img_path='/images/person.png' name='Tom Johnathan' />
+                  <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
                 </Col>
                 <Col xs={6}>
-                  <TButton text='View Shop' url='' />
+                  <TButton text='View Shop' />
                 </Col>
               </Row>
             </div>

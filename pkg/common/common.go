@@ -13,6 +13,11 @@ type QueryParams struct {
 	Limit  int32 `query:"limit"`  // the number of the query
 }
 
+type Cart struct {
+	Seller_name string
+	Products    []db.GetProductInCartRow
+}
+
 func NewQueryParams(offset int32, limit int32) QueryParams {
 	return QueryParams{Offset: offset, Limit: limit}
 }
@@ -23,13 +28,7 @@ func (q *QueryParams) Validate() error {
 	}
 	return nil
 }
-
-type Cart struct {
-	Seller_name string
-	Products    []db.GetProductInCartRow
-}
-
-func HasSpecialChars(input string) bool {
+func HasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)

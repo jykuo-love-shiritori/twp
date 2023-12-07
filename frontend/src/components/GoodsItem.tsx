@@ -18,6 +18,7 @@ const GoodsItem = ({ id, name, imgUrl }: Props) => {
     border: '1px solid var(--button_border, #34977f)',
     background: 'var(--button_dark, #135142)',
   };
+
   return (
     <div style={GoodsItemStyle}>
       <img src={imgUrl} style={{ borderRadius: '0 0 30px 0', width: '100%' }} />
@@ -27,7 +28,7 @@ const GoodsItem = ({ id, name, imgUrl }: Props) => {
         </p>
       </div>
 
-      <TButton text='more' url={`/sellerID/shop/${id}`} />
+      <TButton text='more' action={`/sellerID/shop/${id}`} />
     </div>
   );
 };

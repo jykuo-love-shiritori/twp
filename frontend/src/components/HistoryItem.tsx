@@ -57,7 +57,7 @@ const HistoryItem = ({ id, user }: { id: number; user: string }) => {
           <Col xs={12} md={2} className='right'>
             <TButton
               text='Detail'
-              url={
+              action={
                 user === 'buyer'
                   ? `/user/buyer/order/${record.recordID}`
                   : `/user/seller/order/${record.recordID}`

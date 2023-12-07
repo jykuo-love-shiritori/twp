@@ -15,7 +15,7 @@ const Info = () => {
       <InfoItem text='Name' isMore={false} value={name} setValue={setName} />
       <InfoItem text='Email Address' isMore={false} value={email} setValue={setEmail} />
       <InfoItem text='Address' isMore={true} value={address} setValue={setAddress} />
-      <TButton text='Save' url='' />
+      <TButton text='Save' />
     </div>
   );
 };
