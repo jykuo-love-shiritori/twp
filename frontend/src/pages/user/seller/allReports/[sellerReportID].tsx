@@ -19,7 +19,7 @@ interface Props {
   year: number;
   month: number;
   goods: Goods[];
-  total_amount: number;
+  totalAmount: number;
   id: number;
 }
 
@@ -74,7 +74,7 @@ const SellerReportEach = () => {
               </h4>
             </Col>
             <Col xs={12} className='center_vertical'>
-              TWD $ {data.total_amount}
+              TWD $ {data.totalAmount}
             </Col>
           </Row>
         </div>

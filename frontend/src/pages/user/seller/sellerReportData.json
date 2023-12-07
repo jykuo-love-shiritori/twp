@@ -22,7 +22,7 @@
         "amount": 876698
       }
     ],
-    "total_amount": 18223301,
+    "totalAmount": 18223301,
     "id": 4
   },
   {
@@ -48,7 +48,7 @@
         "amount": 876698
       }
     ],
-    "total_amount": 18223301,
+    "totalAmount": 18223301,
     "id": 3
   },
   {
@@ -74,7 +74,7 @@
         "amount": 876698
       }
     ],
-    "total_amount": 18223301,
+    "totalAmount": 18223301,
     "id": 2
   },
   {
@@ -100,7 +100,7 @@
         "amount": 987373
       }
     ],
-    "total_amount": 18223301,
+    "totalAmount": 18223301,
     "id": 1
   }
 ]

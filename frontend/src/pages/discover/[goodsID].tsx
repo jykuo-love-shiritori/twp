@@ -38,6 +38,11 @@ const EachGoods = () => {
     margin: '10px 0 0px 5px',
   };
 
+  const LeftBgStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+  };
+
   const params = useParams();
   const id = params.goods_id;
 
@@ -68,11 +73,10 @@ const EachGoods = () => {
     return (
       <div style={{ padding: '55px 12% 0 12%' }}>
         <Row>
-          <Col xs={12} md={5} className='goods_bgW'>
+          <Col xs={12} md={5} style={LeftBgStyle}>
             <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
               <img src={data.imgUrl} style={{ borderRadius: '0 0 30px 0' }} />
 
-              {/* tags, price and quantity */}
               <Row xs='auto'>
                 {data.tags.map((currentTag, index) => (
                   <Col style={tagStyle} className='center' key={index}>

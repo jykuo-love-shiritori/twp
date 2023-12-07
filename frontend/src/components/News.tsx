@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '@components/style.css';
 import '@style/global.css';
 
 import TButton from '@components/TButton';
@@ -11,9 +10,18 @@ interface Props {
 }
 
 const News = ({ id, imgUrl, title }: Props) => {
+  const NewsComponentStyle = {
+    borderRadius: '52px',
+    boxShadow: '6px 6px 15px 5px rgba(0, 0, 0, 0.15)',
+    marginBottom: '20px',
+    width: '100%',
+    border: 'var(--border) solid 1px',
+    height: '250px',
+  };
+
   return (
     <div>
-      <img src={imgUrl} className='news_pic_c' />
+      <img src={imgUrl} style={NewsComponentStyle} />
 
       <div style={{ padding: '1% 10% 1% 10%' }} className='center'>
         <span>

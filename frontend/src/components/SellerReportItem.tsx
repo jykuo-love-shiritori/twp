@@ -3,7 +3,6 @@ import '@style/global.css';
 import TButton from '@components/TButton';
 
 import sellerReportData from '@pages/user/seller/sellerReportData.json';
-import NotFound from './NotFound';
 
 interface Goods {
   id: number;
@@ -19,7 +18,7 @@ interface Input {
 
 interface Props extends Input {
   goods: Goods[];
-  total_amount: number;
+  totalAmount: number;
   id: number;
 }
 
@@ -73,8 +72,6 @@ const SellerReportItem = ({ year, month }: Input) => {
         <TButton text='more' url={`/user/seller/reports/${data.id}`} />
       </div>
     );
-  } else {
-    return <NotFound />;
   }
 };
 

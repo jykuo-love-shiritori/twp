@@ -3,7 +3,6 @@ import '@style/global.css';
 import TButton from '@components/TButton';
 
 import adminReportData from '@pages/user/admin/adminReportData.json';
-import NotFound from './NotFound';
 
 interface Sellers {
   id: number;
@@ -19,7 +18,7 @@ interface Input {
 
 interface Props extends Input {
   sellers: Sellers[];
-  total_amount: number;
+  totalAmount: number;
   id: number;
 }
 
@@ -73,8 +72,6 @@ const AdminReportItem = ({ year, month }: Input) => {
         <TButton text='more' url={`/admin/reports/${data.id}`} />
       </div>
     );
-  } else {
-    return <NotFound />;
   }
 };
 
