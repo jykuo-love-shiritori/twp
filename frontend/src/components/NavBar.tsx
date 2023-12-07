@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
+import LogoImgUrl from '@assets/images/logo.png';
+
 import SearchBar from '@components/SearchBar';
 
 const NavBar = () => {
@@ -34,7 +36,7 @@ const NavBar = () => {
         <Row style={{ width: '100%' }}>
           <Col xs={2} className='center'>
             <NavbarBrand href='/' className='disappear_desktop'>
-              <img src='/images/logo.png' alt='logo' style={{ width: '35px' }} />
+              <img src={LogoImgUrl} alt='logo' style={{ width: '35px' }} />
             </NavbarBrand>
           </Col>
           <Col xs={8} className='center'>
@@ -185,7 +187,7 @@ const NavBar = () => {
           <Col sm={3}>
             <Link to='/' className='none'>
               <div className='center_vertical'>
-                <img src='/images/logo.png' alt='logo' style={{ width: '35px' }} />
+                <img src={LogoImgUrl} alt='logo' style={{ width: '35px' }} />
                 &nbsp;&nbsp; <span className='nav_title'>Too White Powder</span>
               </div>
             </Link>

@@ -1,9 +1,12 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import LoginImgUrl from '@assets/images/login.jpg';
+
 import Footer from '@components/Footer';
 
 const Login = () => {
+  console.log(LoginImgUrl);
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
@@ -12,7 +15,7 @@ const Login = () => {
             <div
               className='flex-wrapper'
               style={{
-                background: 'url("/images/login.jpg") no-repeat center center/cover',
+                background: `url(${LoginImgUrl}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>

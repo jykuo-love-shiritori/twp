@@ -22,7 +22,7 @@ const CreditCard = () => {
       <Row>
         <Col sm={12} md={8}></Col>
         <Col sm={12} md={4}>
-          <TButton text='Add New Card' url='/user/security/manageCreditCard/newCard' />
+          <TButton text='Add New Card' action='/user/security/manageCreditCard/newCard' />
         </Col>
       </Row>
       <br />
@@ -41,7 +41,7 @@ const CreditCard = () => {
                   ...{data.last_four_code}
                 </div>
               </div>
-              <TButton text='delete' url='' />
+              <TButton text='delete' />
             </Col>
           );
         })}

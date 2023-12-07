@@ -29,8 +29,8 @@ const UserViewShop = () => {
                 </div>
                 <hr className='hr' />
                 <div className='center'> Products : {goodsData.length} items</div>
-                <TButton text='Explore Shop' url='/sellerID/shop' />
-                <TButton text='Check Coupons' url='/sellerID/coupons' />
+                <TButton text='Explore Shop' action='/sellerID/shop' />
+                <TButton text='Check Coupons' action='/sellerID/coupons' />
               </Col>
             </Row>
           </Col>

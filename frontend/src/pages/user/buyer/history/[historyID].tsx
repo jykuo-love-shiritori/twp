@@ -54,7 +54,7 @@ const HistoryEach = () => {
 
         <hr className='hr' />
 
-        <UserItem img_path='../../../images/person.png' name='Tom Johnathan' />
+        <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
 
         {record?.items.map((data, index) => {
           return (

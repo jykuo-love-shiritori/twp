@@ -10,12 +10,24 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@style': path.resolve(__dirname, './src/style'),
       '@pages': path.resolve(__dirname, './src/pages'),
+      '@assets': path.resolve(__dirname, './src/assets'),
     },
   },
   server: {
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
       },
     },
   },
