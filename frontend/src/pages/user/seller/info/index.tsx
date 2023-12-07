@@ -1,46 +1,75 @@
-import { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { Col, Row } from 'react-bootstrap';
 
-import TButton from '@components/TButton';
-import InfoItem from '@components/InfoItem';
-import { Col, Form, Row } from 'react-bootstrap';
+interface ShopInfoProps {
+  shopName: string;
+  shopIconUrl: string;
+  visibility: boolean;
+  description: string;
+}
 
 const SellerInfo = () => {
-  //TODO: read the initial value
-  const [visibility, setVisibility] = useState<boolean>(true);
-  const [shopName, setShopName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-
-  const handleVisibility = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVisibility(e.target.checked);
+  //TODO: get the info from existing shop
+  const { register, handleSubmit, watch } = useForm<ShopInfoProps>({
+    defaultValues: {
+      shopName: 'shop name',
+      shopIconUrl: '',
+      visibility: false,
+      description: 'shop description',
+    },
+  });
+  const OnFormOutput: SubmitHandler<ShopInfoProps> = (data) => {
+    console.log(data);
+    return data;
   };
 
   return (
     <div>
       <div className='title'>Shop info</div>
       <hr className='hr' />
-      <Row style={{ margin: '2% 0% 2% 0% ' }}>
-        <Col xs={12} md={4} className='center_vertical'>
-          Visibility
-        </Col>
-        <Col className='left'>
-          <Form.Check
-            type='checkbox'
-            id='visibility_checkbox'
-            label=''
-            value={visibility ? 1 : 0}
-            onChange={handleVisibility}
-          />
-          {visibility ? 'Your shop is visible to everyone.' : 'Your shop is hidden from everyone.'}
-        </Col>
-      </Row>
-      <InfoItem text='Shop Name' isMore={false} value={shopName} setValue={setShopName} />
-      <InfoItem
-        text='Shop Description'
-        isMore={true}
-        value={description}
-        setValue={setDescription}
-      />
-      <TButton text='Save' />
+      <form onSubmit={handleSubmit(OnFormOutput)}>
+        <Row>
+          {/* left half */}
+          <Col xs={12} md={6}>
+            {/* <div className='user_icon'>
+              <img src='/placeholder/person.png' alt='user' />
+            </div> */}
+          </Col>
+
+          {/* right half */}
+          <Col xs={12} md={6}>
+            <Row>
+              <Col xs={12}>Visibility</Col>
+              <Col xs={12}>
+                <Row>
+                  <Col xs='auto' className='center' style={{ padding: '0 0 0 24px' }}>
+                    <input type='checkbox' {...register('visibility', { required: true })} />
+                  </Col>
+                  <Col className='left'>
+                    {watch('visibility')
+                      ? 'Your shop is visible to everyone.🌞'
+                      : 'Your shop is hidden from everyone.🌚'}
+                  </Col>
+
+                  <Col xs={12} style={{ paddingTop: '24px' }}>
+                    Description
+                  </Col>
+                  <Col xs={12} className='form_item_wrapper'>
+                    <textarea {...register('description', { required: true })} />
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </Col>
+
+          {/* submit button */}
+          <Col className='disappear_phone' />
+          <Col xs={12} md={4} className='form_item_wrapper' style={{ paddingTop: '24px' }}>
+            <input type='submit' value='Save' />
+          </Col>
+          <Col className='disappear_phone' />
+        </Row>
+      </form>
     </div>
   );
 };

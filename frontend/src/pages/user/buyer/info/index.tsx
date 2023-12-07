@@ -1,21 +1,50 @@
-import { useState } from 'react';
+import { Col, Row } from 'react-bootstrap';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import FormItem from '@components/FormItem';
 
-import TButton from '@components/TButton';
-import InfoItem from '@components/InfoItem';
+interface BuyerInfoProps {
+  name: string;
+  email: string;
+  address: string;
+}
 
 const Info = () => {
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
+  //TODO: get the info from existing user
+  const { register, handleSubmit } = useForm<BuyerInfoProps>({
+    defaultValues: {
+      name: 'name',
+      email: 'email',
+      address: 'address',
+    },
+  });
+  const OnFormOutput: SubmitHandler<BuyerInfoProps> = (data) => {
+    console.log(data);
+    return data;
+  };
 
   return (
     <div>
       <div className='title'>Personal info</div>
       <hr className='hr' />
-      <InfoItem text='Name' isMore={false} value={name} setValue={setName} />
-      <InfoItem text='Email Address' isMore={false} value={email} setValue={setEmail} />
-      <InfoItem text='Address' isMore={true} value={address} setValue={setAddress} />
-      <TButton text='Save' />
+      <form onSubmit={handleSubmit(OnFormOutput)}>
+        <FormItem label='Name'>
+          <input {...register('name', { required: true })} />
+        </FormItem>
+        <FormItem label='Email'>
+          <input {...register('email', { required: true })} />
+        </FormItem>
+        <FormItem label='Address'>
+          <input {...register('address', { required: true })} />
+        </FormItem>
+
+        <Row>
+          <Col className='disappear_phone' />
+          <Col xs={12} md={4} className='form_item_wrapper' style={{ paddingTop: '24px' }}>
+            <input type='submit' value='Save' />
+          </Col>
+          <Col className='disappear_phone' />
+        </Row>
+      </form>
     </div>
   );
 };
