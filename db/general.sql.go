@@ -26,7 +26,7 @@ WHERE "id" = $1
 `
 
 type GetProductInfoRow struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
@@ -88,7 +88,7 @@ type GetShopCouponsParams struct {
 }
 
 type GetShopCouponsRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -154,6 +154,70 @@ func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopIn
 		&i.Description,
 	)
 	return i, err
+}
+
+const getShopProducts = `-- name: GetShopProducts :many
+SELECT P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id",
+    P."expire_date",
+    P."stock",
+    P."sales"
+FROM "product" P,
+    "shop" S
+WHERE S."seller_name" = $1
+    AND P."shop_id" = S."id"
+    AND P."enabled" = TRUE
+ORDER BY P."sales" DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetShopProductsParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Limit      int32  `json:"limit"`
+	Offset     int32  `json:"offset"`
+}
+
+type GetShopProductsRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	ImageID     string             `json:"image_id"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Stock       int32              `json:"stock"`
+	Sales       int32              `json:"sales"`
+}
+
+func (q *Queries) GetShopProducts(ctx context.Context, arg GetShopProductsParams) ([]GetShopProductsRow, error) {
+	rows, err := q.db.Query(ctx, getShopProducts, arg.SellerName, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetShopProductsRow{}
+	for rows.Next() {
+		var i GetShopProductsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.ExpireDate,
+			&i.Stock,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getTagInfo = `-- name: GetTagInfo :one

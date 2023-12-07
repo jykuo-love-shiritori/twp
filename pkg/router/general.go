@@ -11,23 +11,39 @@ import (
 	"go.uber.org/zap"
 )
 
+type shopInfo struct {
+	Info     db.GetShopInfoRow       `json:"info"`
+	Products []db.GetShopProductsRow `json:"products"`
+}
+
 // @Summary		Get Shop Info
 // @Description	Get shop information with seller username
 // @Tags			Shop
 // @Accept			json
 // @Produce		json
 // @Param			seller_name	path		string	true	"seller username"
-// @Success		200			{object}	db.GetShopInfoRow
+// @Param			offset		query		int		false	"Begin index"	default(0)
+// @Param			limit		query		int		false	"limit"			default(10)
+// @Success		200			{object}	shopInfo
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		404			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/shop/{seller_name} [get]
 func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		qp := common.NewQueryParams(0, 10)
 		sellerName := c.Param("seller_name")
 		if sellerName == "" {
 			logger.Errorw("seller_name is empty")
 			return echo.NewHTTPError(http.StatusBadRequest, "seller_name is empty")
+		}
+		if err := c.Bind(&qp); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := qp.Validate(); err != nil {
+			logger.Errorw("failed to validate query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
 		}
 		if _, err := pg.Queries.ShopExists(c.Request().Context(), sellerName); err != nil {
 			if err == pgx.ErrNoRows {
@@ -36,12 +52,21 @@ func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to check shop exists", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		shopInfo, err := pg.Queries.GetShopInfo(c.Request().Context(), sellerName)
+		var result shopInfo
+		var err error
+		result.Info, err = pg.Queries.GetShopInfo(c.Request().Context(), sellerName)
 		if err != nil {
 			logger.Errorw("failed to get shop info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		return c.JSON(http.StatusOK, shopInfo)
+		result.Products, err = pg.Queries.GetShopProducts(c.Request().Context(), db.GetShopProductsParams{
+			Offset: qp.Offset, Limit: qp.Limit, SellerName: sellerName})
+
+		if err != nil {
+			logger.Errorw("failed to get shop info", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 

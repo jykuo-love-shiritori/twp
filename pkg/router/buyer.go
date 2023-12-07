@@ -141,6 +141,10 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Errorw("failed to bind product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		if err := echo.QueryParamsBinder(c).Int32("cart_id", &param.CartID).Int32("product_id", &param.ProductID).BindError(); err != nil {
+			logger.Errorw("failed to parse cart_id or product_id", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
 		if param.Quantity < 0 {
 			logger.Errorw("invalid quantity", "quantity", param.Quantity)
 			return echo.NewHTTPError(http.StatusBadRequest)
@@ -172,14 +176,17 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 	}
 }
 
+type ProductQuantity struct {
+	Quantity int32 `json:"quantity"`
+}
+
 // @Summary		Buyer Add Product To Cart
 // @Description	Add product to cart
 // @Tags			Buyer, Cart
 // @Accept			json
 // @Produce		json
-// @Param			cart_id		path		int	true	"Cart ID"
-// @Param			product_id	path		int	true	"Product ID"
-// @Param			quantity	body		int	true	"Quantity"
+// @Param			id	path		int	true	"Product ID"
+// @Param			quantity	body		ProductQuantity	true	"Quantity"
 // @Success		200			{integer}	int	"product quantity in cart"
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
@@ -188,11 +195,11 @@ func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 	return func(c echo.Context) error {
 		username := "🤡"
 		var param db.AddProductToCartParams
-		param.Username = username
 		if err := c.Bind(&param); err != nil {
 			logger.Errorw("failed to bind product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		param.Username = username
 		if param.Quantity <= 0 {
 			logger.Errorw("invalid quantity", "quantity", param.Quantity)
 			return echo.NewHTTPError(http.StatusBadRequest)
@@ -651,6 +658,18 @@ func buyerCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err := echo.PathParamsBinder(c).Int32("cart_id", &cartID).BindError(); err != nil {
 			logger.Errorw("failed to parse cart_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartID)
+		if err != nil {
+			logger.Errorw("failed to get product from cart")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for _, product := range products {
+			err := pg.Queries.UpdateProductVersion(c.Request().Context(), product.ProductID)
+			if err != nil {
+				logger.Errorw("failed to update product version")
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
 		}
 		// this will validate cart and product legitimacy
 		subtotal, err := pg.Queries.GetCartSubtotal(c.Request().Context(), cartID)

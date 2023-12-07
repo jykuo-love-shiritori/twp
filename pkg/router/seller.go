@@ -613,9 +613,9 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			description	body	string	true	"description of product"
 // @Param			price		body	number	false	"price"
 // @Param			image_id	body	string	true	"image id"
-// @Param			expire_date	body	time	true	"expire date"
-// @Param			stock		body	int		true	"stock"
-// @Param			enabled		body	time	true	"enabled"
+// @Param			expire_date	body	string	true	"expire date"
+// @Param			stock		body	integer		true	"stock"
+// @Param			enabled		body	boolean	true	"enabled"
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	db.SellerInsertProductRow

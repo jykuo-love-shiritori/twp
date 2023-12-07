@@ -54,8 +54,8 @@ func (q *Queries) AddCouponToCart(ctx context.Context, arg AddCouponToCartParams
 
 const addProductToCart = `-- name: AddProductToCart :one
 WITH valid_product AS (
-    SELECT P."id",
-        S."id"
+    SELECT P."id" AS product_id,
+        S."id" AS shop_id
     FROM "product" P,
         "shop" S
     WHERE P."shop_id" = S."id"
@@ -65,34 +65,21 @@ WITH valid_product AS (
 new_cart AS (
     INSERT INTO "cart" ("user_id", "shop_id")
     SELECT U."id",
-        S."shop_id"
+        S."id"
     FROM "user" AS U,
         "shop" AS S,
         "product" AS P
     WHERE U."username" = $1
         AND S."id" = P."shop_id"
+        AND P."id" = $3
         AND NOT EXISTS (
             SELECT 1
             FROM "cart" AS C
             WHERE C."user_id" = U."id"
-                AND C."shop_id" = S."shop_id"
+                AND C."shop_id" = S."id"
         )
     RETURNING "id"
-),
-existing_cart_product AS (
-    UPDATE "cart_product" AS CP
-    SET "quantity" = "quantity" + $2
-    FROM "cart" AS C,
-        "user" AS U
-    WHERE U."username" = $1
-        AND C."user_id" = U."id"
-        AND C."id" = CP."cart_id"
-        AND CP."product_id" = (
-            SELECT "id"
-            FROM valid_product
-        )
-    RETURNING 1
-) -- if the product already exists in the cart, update the quantity ⬆️
+) -- create new cart if not exists ⬆️
 INSERT INTO -- insert into the cart that have no given product ⬇️
     "cart_product" (
         "cart_id",
@@ -100,16 +87,19 @@ INSERT INTO -- insert into the cart that have no given product ⬇️
         "quantity"
     )
 SELECT C."id",
-    valid_product."id",
+    valid_product.product_id,
     $2
 FROM "cart" C,
-    valid_product
-WHERE NOT EXISTS (
-        SELECT 1
-        FROM existing_cart_product
-    )
+    valid_product,
+    "user" U,
+    "shop" S
+WHERE U."username" = $1
+    AND C."user_id" = U."id"
+    AND C."shop_id" = S."id" ON CONFLICT ("cart_id", "product_id") DO
+UPDATE
+SET "quantity" = "cart_product"."quantity" + $2
 RETURNING (
-        SELECT COUNT(*)
+        SELECT SUM(CP."quantity") + $2
         FROM "cart_product" CP,
             "cart" C,
             "user" U
@@ -122,16 +112,15 @@ RETURNING (
 type AddProductToCartParams struct {
 	Username string `json:"username"`
 	Quantity int32  `json:"quantity"`
-	ID       int32  `json:"id" param:"product_id"`
+	ID       int32  `json:"id" param:"id"`
 }
 
 // check product enabled ⬆️
-// create new cart if not exists ⬆️
-func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int64, error) {
+func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int32, error) {
 	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.Quantity, arg.ID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const checkout = `-- name: Checkout :exec
@@ -419,7 +408,7 @@ type GetCouponsFromCartParams struct {
 }
 
 type GetCouponsFromCartRow struct {
-	ID          int32          `json:"id" param:"coupon_id"`
+	ID          int32          `json:"id" param:"id"`
 	Name        string         `json:"name"`
 	Type        CouponType     `json:"type"`
 	Scope       CouponScope    `json:"scope"`
@@ -749,7 +738,7 @@ type GetUsableCouponsParams struct {
 }
 
 type GetUsableCouponsRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
@@ -815,4 +804,56 @@ func (q *Queries) UpdateProductFromCart(ctx context.Context, arg UpdateProductFr
 	var quantity int32
 	err := row.Scan(&quantity)
 	return quantity, err
+}
+
+const updateProductVersion = `-- name: UpdateProductVersion :exec
+WITH version_existed AS (
+    SELECT EXISTS (
+            SELECT 1
+            FROM "product" P,
+                "product_archive" PA
+            WHERE P."id" = $1
+                AND P."version" = PA."version"
+                AND P."id" = PA."id"
+                AND P."version" = PA."version"
+                AND P."name" = PA."name"
+                AND P."description" = PA."description"
+                AND P."price" = PA."price"
+                AND P."image_id" = PA."image_id"
+        )
+),
+update_product AS (
+    UPDATE "product" P
+    SET P."version" = (
+            SELECT (P."version" + 1)
+            FROM "product" P
+            WHERE P."id" = $1
+        )
+    FROM version_existed
+    WHERE P."id" = $1
+        AND version_existed."exists" = FALSE
+)
+INSERt INTO "product_archive" (
+        "id",
+        "version",
+        "name",
+        "description",
+        "price",
+        "image_id"
+    )
+SELECT P."id",
+    P."version",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id"
+FROM "product" P,
+    version_existed VE
+WHERE P."id" = $1
+    AND VE."exists" = FALSE
+`
+
+func (q *Queries) UpdateProductVersion(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, updateProductVersion, id)
+	return err
 }

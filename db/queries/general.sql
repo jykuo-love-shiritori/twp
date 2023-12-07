@@ -47,6 +47,23 @@ FROM "product"
 WHERE "id" = $1
     AND "enabled" = TRUE;
 
+-- name: GetShopProducts :many
+SELECT P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id",
+    P."expire_date",
+    P."stock",
+    P."sales"
+FROM "product" P,
+    "shop" S
+WHERE S."seller_name" = $1
+    AND P."shop_id" = S."id"
+    AND P."enabled" = TRUE
+ORDER BY P."sales" DESC
+LIMIT $2 OFFSET $3;
+
 -- name: GetSellerNameByShopID :one
 SELECT "seller_name"
 FROM "shop"

@@ -49,7 +49,7 @@ WHERE c."id" = $2 AND "shop_id" = (
 
 type SellerDeleteCouponParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"coupon_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 func (q *Queries) SellerDeleteCoupon(ctx context.Context, arg SellerDeleteCouponParams) (int64, error) {
@@ -79,7 +79,7 @@ WHERE EXISTS (
 type SellerDeleteCouponTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	ID         int32  `json:"id" param:"coupon_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 func (q *Queries) SellerDeleteCouponTag(ctx context.Context, arg SellerDeleteCouponTagParams) (int64, error) {
@@ -105,7 +105,7 @@ WHERE "shop_id" = (
 
 type SellerDeleteProductParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"product_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 func (q *Queries) SellerDeleteProduct(ctx context.Context, arg SellerDeleteProductParams) (int64, error) {
@@ -135,7 +135,7 @@ WHERE EXISTS (
 type SellerDeleteProductTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	ID         int32  `json:"id" param:"product_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 func (q *Queries) SellerDeleteProductTag(ctx context.Context, arg SellerDeleteProductTagParams) (int64, error) {
@@ -170,7 +170,7 @@ type SellerGetCouponParams struct {
 }
 
 type SellerGetCouponRow struct {
-	ID         int32              `json:"id" param:"coupon_id"`
+	ID         int32              `json:"id" param:"id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -222,7 +222,7 @@ WHERE
 
 type SellerGetCouponDetailParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"coupon_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 type SellerGetCouponDetailRow struct {
@@ -498,7 +498,7 @@ WHERE
 
 type SellerGetProductDetailParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"product_id"`
+	ID         int32  `json:"id" param:"id"`
 }
 
 type SellerGetProductDetailRow struct {
@@ -617,7 +617,7 @@ type SellerInsertCouponParams struct {
 }
 
 type SellerInsertCouponRow struct {
-	ID         int32              `json:"id" param:"coupon_id"`
+	ID         int32              `json:"id" param:"id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -742,7 +742,7 @@ type SellerInsertProductParams struct {
 }
 
 type SellerInsertProductRow struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
@@ -875,7 +875,7 @@ type SellerProductListParams struct {
 }
 
 type SellerProductListRow struct {
-	ID      int32          `json:"id" param:"product_id"`
+	ID      int32          `json:"id" param:"id"`
 	Name    string         `json:"name"`
 	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
@@ -983,7 +983,7 @@ RETURNING
 
 type SellerUpdateCouponInfoParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
@@ -993,7 +993,7 @@ type SellerUpdateCouponInfoParams struct {
 }
 
 type SellerUpdateCouponInfoRow struct {
-	ID         int32              `json:"id" param:"coupon_id"`
+	ID         int32              `json:"id" param:"id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -1163,7 +1163,7 @@ RETURNING
 
 type SellerUpdateProductInfoParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
@@ -1174,7 +1174,7 @@ type SellerUpdateProductInfoParams struct {
 }
 
 type SellerUpdateProductInfoRow struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`

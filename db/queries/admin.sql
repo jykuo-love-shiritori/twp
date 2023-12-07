@@ -131,7 +131,7 @@ FROM "coupon_tag" AS CT,
 WHERE CT."coupon_id" = $1
     AND CT."tag_id" = T."id";
 
--- name: EditCoupon :execrows
+-- name: EditCoupon :one
 UPDATE "coupon"
 SET "type" = COALESCE($2, "type"),
     "name" = COALESCE($3, "name"),

@@ -44,7 +44,7 @@ type AddCouponParams struct {
 }
 
 type AddCouponRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -197,7 +197,7 @@ func (q *Queries) DisableUser(ctx context.Context, username string) (int64, erro
 	return result.RowsAffected(), nil
 }
 
-const editCoupon = `-- name: EditCoupon :execrows
+const editCoupon = `-- name: EditCoupon :one
 UPDATE "coupon"
 SET "type" = COALESCE($2, "type"),
     "name" = COALESCE($3, "name"),
@@ -217,7 +217,7 @@ RETURNING "id",
 `
 
 type EditCouponParams struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
@@ -227,7 +227,7 @@ type EditCouponParams struct {
 }
 
 type EditCouponRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -237,8 +237,8 @@ type EditCouponRow struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
-func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (int64, error) {
-	result, err := q.db.Exec(ctx, editCoupon,
+func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (EditCouponRow, error) {
+	row := q.db.QueryRow(ctx, editCoupon,
 		arg.ID,
 		arg.Type,
 		arg.Name,
@@ -247,10 +247,18 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (int64, 
 		arg.StartDate,
 		arg.ExpireDate,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+	var i EditCouponRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
 }
 
 const enabledShop = `-- name: EnabledShop :execrows
@@ -287,7 +295,7 @@ type GetAnyCouponsParams struct {
 }
 
 type GetAnyCouponsRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -340,7 +348,7 @@ WHERE "id" = $1
 `
 
 type GetCouponDetailRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`
@@ -496,7 +504,7 @@ SELECT EXISTS (
 
 type ValidateTagsParams struct {
 	TagID    []int32 `json:"tag_id"`
-	CouponID int32   `json:"coupon_id" param:"coupon_id"`
+	CouponID int32   `json:"coupon_id" param:"id"`
 }
 
 func (q *Queries) ValidateTags(ctx context.Context, arg ValidateTagsParams) (bool, error) {

@@ -459,15 +459,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -477,7 +470,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/router.ProductQuantity"
                         }
                     }
                 ],
@@ -2042,7 +2035,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "boolean"
                         }
                     }
                 ],
@@ -2610,13 +2603,27 @@ const docTemplate = `{
                         "name": "seller_name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetShopInfoRow"
+                            "$ref": "#/definitions/router.shopInfo"
                         }
                     },
                     "400": {
@@ -3508,6 +3515,35 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetShopProductsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.GetTagInfoRow": {
             "type": "object",
             "properties": {
@@ -4101,6 +4137,14 @@ const docTemplate = `{
                 }
             }
         },
+        "router.ProductQuantity": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "router.checkout": {
             "type": "object",
             "properties": {
@@ -4202,6 +4246,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
+                    }
+                }
+            }
+        },
+        "router.shopInfo": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/db.GetShopInfoRow"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetShopProductsRow"
                     }
                 }
             }

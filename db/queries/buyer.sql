@@ -154,8 +154,8 @@ WHERE U."username" = $1
 
 -- name: AddProductToCart :one
 WITH valid_product AS (
-    SELECT P."id",
-        S."id"
+    SELECT P."id" AS product_id,
+        S."id" AS shop_id
     FROM "product" P,
         "shop" S
     WHERE P."shop_id" = S."id"
@@ -166,35 +166,21 @@ WITH valid_product AS (
 new_cart AS (
     INSERT INTO "cart" ("user_id", "shop_id")
     SELECT U."id",
-        S."shop_id"
+        S."id"
     FROM "user" AS U,
         "shop" AS S,
         "product" AS P
     WHERE U."username" = $1
         AND S."id" = P."shop_id"
+        AND P."id" = $3
         AND NOT EXISTS (
             SELECT 1
             FROM "cart" AS C
             WHERE C."user_id" = U."id"
-                AND C."shop_id" = S."shop_id"
+                AND C."shop_id" = S."id"
         )
     RETURNING "id"
-),
--- create new cart if not exists ⬆️
-existing_cart_product AS (
-    UPDATE "cart_product" AS CP
-    SET "quantity" = "quantity" + $2
-    FROM "cart" AS C,
-        "user" AS U
-    WHERE U."username" = $1
-        AND C."user_id" = U."id"
-        AND C."id" = CP."cart_id"
-        AND CP."product_id" = (
-            SELECT "id"
-            FROM valid_product
-        )
-    RETURNING 1
-) -- if the product already exists in the cart, update the quantity ⬆️
+) -- create new cart if not exists ⬆️
 INSERT INTO -- insert into the cart that have no given product ⬇️
     "cart_product" (
         "cart_id",
@@ -202,16 +188,19 @@ INSERT INTO -- insert into the cart that have no given product ⬇️
         "quantity"
     )
 SELECT C."id",
-    valid_product."id",
+    valid_product.product_id,
     $2
 FROM "cart" C,
-    valid_product
-WHERE NOT EXISTS (
-        SELECT 1
-        FROM existing_cart_product
-    )
+    valid_product,
+    "user" U,
+    "shop" S
+WHERE U."username" = $1
+    AND C."user_id" = U."id"
+    AND C."shop_id" = S."id" ON CONFLICT ("cart_id", "product_id") DO
+UPDATE
+SET "quantity" = "cart_product"."quantity" + $2
 RETURNING (
-        SELECT COUNT(*)
+        SELECT SUM(CP."quantity") + $2
         FROM "cart_product" CP,
             "cart" C,
             "user" U
@@ -373,3 +362,49 @@ WHERE C."id" = CP."cart_id"
     AND CP."product_id" = P."id"
     AND C."id" = @cart_id
     AND C."user_id" = U."id";
+
+-- name: UpdateProductVersion :exec
+WITH version_existed AS (
+    SELECT EXISTS (
+            SELECT 1
+            FROM "product" P,
+                "product_archive" PA
+            WHERE P."id" = $1
+                AND P."version" = PA."version"
+                AND P."id" = PA."id"
+                AND P."version" = PA."version"
+                AND P."name" = PA."name"
+                AND P."description" = PA."description"
+                AND P."price" = PA."price"
+                AND P."image_id" = PA."image_id"
+        )
+),
+update_product AS (
+    UPDATE "product" P
+    SET P."version" = (
+            SELECT (P."version" + 1)
+            FROM "product" P
+            WHERE P."id" = $1
+        )
+    FROM version_existed
+    WHERE P."id" = $1
+        AND version_existed."exists" = FALSE
+)
+INSERt INTO "product_archive" (
+        "id",
+        "version",
+        "name",
+        "description",
+        "price",
+        "image_id"
+    )
+SELECT P."id",
+    P."version",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id"
+FROM "product" P,
+    version_existed VE
+WHERE P."id" = $1
+    AND VE."exists" = FALSE;

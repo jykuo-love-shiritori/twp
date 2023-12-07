@@ -268,6 +268,25 @@ definitions:
       seller_name:
         type: string
     type: object
+  db.GetShopProductsRow:
+    properties:
+      description:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
   db.GetTagInfoRow:
     properties:
       id:
@@ -657,6 +676,11 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  router.ProductQuantity:
+    properties:
+      quantity:
+        type: integer
+    type: object
   router.checkout:
     properties:
       coupons:
@@ -723,6 +747,15 @@ definitions:
       tags:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
+        type: array
+    type: object
+  router.shopInfo:
+    properties:
+      info:
+        $ref: '#/definitions/db.GetShopInfoRow'
+      products:
+        items:
+          $ref: '#/definitions/db.GetShopProductsRow'
         type: array
     type: object
 externalDocs:
@@ -1271,14 +1304,9 @@ paths:
       - application/json
       description: Add product to cart
       parameters:
-      - description: Cart ID
-        in: path
-        name: cart_id
-        required: true
-        type: integer
       - description: Product ID
         in: path
-        name: product_id
+        name: id
         required: true
         type: integer
       - description: Quantity
@@ -1286,7 +1314,7 @@ paths:
         name: quantity
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/router.ProductQuantity'
       produces:
       - application/json
       responses:
@@ -2104,7 +2132,7 @@ paths:
         name: enabled
         required: true
         schema:
-          type: string
+          type: boolean
       produces:
       - application/json
       responses:
@@ -2490,13 +2518,23 @@ paths:
         name: seller_name
         required: true
         type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.GetShopInfoRow'
+            $ref: '#/definitions/router.shopInfo'
         "400":
           description: Bad Request
           schema:
