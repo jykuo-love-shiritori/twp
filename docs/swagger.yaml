@@ -15,8 +15,6 @@ definitions:
         example: john
         type: string
     type: object
-  big.Int:
-    type: object
   common.Cart:
     properties:
       products:
@@ -305,6 +303,17 @@ definitions:
       tag_id:
         type: integer
     type: object
+  db.SellerGetInfoRow:
+    properties:
+      description:
+        type: string
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+    type: object
   db.SellerGetOrderDetailRow:
     properties:
       description:
@@ -346,6 +355,21 @@ definitions:
       status:
         $ref: '#/definitions/db.OrderStatus'
       total_price:
+        type: integer
+    type: object
+  db.SellerGetProductDetailRow:
+    properties:
+      enabled:
+        type: boolean
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
         type: integer
     type: object
   db.SellerGetProductTagRow:
@@ -397,6 +421,23 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  db.SellerProductListRow:
+    properties:
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
     type: object
   db.SellerSearchTagRow:
     properties:
@@ -504,33 +545,10 @@ definitions:
     properties:
       message: {}
     type: object
-  pgtype.InfinityModifier:
-    enum:
-    - 1
-    - 0
-    - -1
-    type: integer
-    x-enum-varnames:
-    - Infinity
-    - Finite
-    - NegativeInfinity
   pgtype.Int4:
     properties:
       int32:
         type: integer
-      valid:
-        type: boolean
-    type: object
-  pgtype.Numeric:
-    properties:
-      exp:
-        type: integer
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      int:
-        $ref: '#/definitions/big.Int'
-      naN:
-        type: boolean
       valid:
         type: boolean
     type: object
@@ -548,17 +566,6 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/db.CouponType'
-    type: object
-  router.SellerInfo:
-    properties:
-      description:
-        type: string
-      enabled:
-        type: boolean
-      image:
-        type: string
-      name:
-        type: string
     type: object
   router.couponDetail:
     properties:
@@ -581,26 +588,11 @@ definitions:
   router.productDetail:
     properties:
       product_info:
-        $ref: '#/definitions/router.productInfo'
+        $ref: '#/definitions/db.SellerGetProductDetailRow'
       tags:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
         type: array
-    type: object
-  router.productInfo:
-    properties:
-      enabled:
-        type: boolean
-      image:
-        type: string
-      name:
-        type: string
-      price:
-        $ref: '#/definitions/pgtype.Numeric'
-      sales:
-        type: integer
-      stock:
-        type: integer
     type: object
 externalDocs:
   description: OpenAPI
@@ -1602,7 +1594,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.SellerInfo'
+            $ref: '#/definitions/db.SellerGetInfoRow'
         "400":
           description: Bad Request
           schema:
@@ -1815,7 +1807,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/router.productInfo'
+              $ref: '#/definitions/db.SellerProductListRow'
             type: array
         "400":
           description: Bad Request
@@ -1859,12 +1851,14 @@ paths:
         name: stock
         required: true
         type: integer
-      - in: formData
-        name: coupon_id
-        type: integer
-      - in: formData
-        name: tag_id
-        type: integer
+      - collectionFormat: csv
+        description: init tags
+        in: formData
+        items:
+          type: integer
+        name: tags
+        required: true
+        type: array
       produces:
       - application/json
       responses:
@@ -1952,7 +1946,7 @@ paths:
       - Product
     patch:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Edit product for shop.
       parameters:
       - description: Product ID
@@ -1961,46 +1955,29 @@ paths:
         required: true
         type: integer
       - description: name of product
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: description of product
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: price
-        in: body
+        in: formData
         name: price
-        schema:
-          type: number
+        type: number
       - description: image id
-        in: body
+        in: formData
         name: image_id
         required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
+        type: string
       - description: stock
-        in: body
+        in: formData
         name: stock
         required: true
-        schema:
-          type: integer
-      - description: enabled
-        in: body
-        name: enabled
-        required: true
-        schema:
-          type: string
+        type: integer
       produces:
       - application/json
       responses:

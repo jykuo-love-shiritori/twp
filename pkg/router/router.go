@@ -129,9 +129,9 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.GET("/seller/report/:year/:month", sellerGetReportDetail(db, logger))
 
 	api.GET("/seller/product", sellerListProduct(db, mc, logger))
-	api.POST("/seller/product", sellerAddProduct(db, logger))
+	api.POST("/seller/product", sellerAddProduct(db, mc, logger))
 	api.GET("/seller/product/:id", sellerGetProductDetail(db, mc, logger))
-	api.PATCH("/seller/product/:id", sellerEditProduct(db, logger))
+	api.PATCH("/seller/product/:id", sellerEditProduct(db, mc, logger))
 	api.POST("/seller/product/:id/tag", sellerAddProductTag(db, logger))
 	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(db, logger))
 	api.DELETE("/seller/product/:id", sellerDeleteProduct(db, logger))

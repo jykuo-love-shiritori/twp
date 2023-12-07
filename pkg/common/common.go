@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"errors"
 	"regexp"
 
@@ -32,4 +33,14 @@ func HasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
+}
+
+// c.FormValue("tags")
+func String2IntArray(str string) ([]int32, error) {
+	var array []int32
+	err := json.Unmarshal([]byte(str), &array)
+	if err != nil {
+		return nil, err
+	}
+	return array, nil
 }

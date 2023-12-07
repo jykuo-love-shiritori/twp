@@ -240,15 +240,15 @@ type Product struct {
 	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
-	Enabled     bool               `json:"enabled"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 type ProductArchive struct {

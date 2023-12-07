@@ -55,12 +55,22 @@ sql:
             go_struct_tag: swaggertype:"string"
           - column: order_history.create_at
             go_struct_tag: swaggertype:"string"
+
+          - column: product.name
+            go_struct_tag: form:"name"
+          - column: product.description
+            go_struct_tag: form:"description"
+          - column: product.stock
+            go_struct_tag: form:"stock"
           - column: product.price
-            go_struct_tag: swaggertype:"number"
+            go_struct_tag:  swaggertype:"number"
           - column: product.expire_date
-            go_struct_tag: swaggertype:"string"
+            go_struct_tag:  swaggertype:"string"
+          - column: product.enabled
+            go_struct_tag: form:"enabled"
+
           - column: product.edit_date
-            go_struct_tag: swaggertype:"string"
+            go_struct_tag:  swaggertype:"string"
           - column: product_archive.price
             go_struct_tag: swaggertype:"number"
           - column: order_history.created_at

@@ -1482,7 +1482,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.SellerInfo"
+                            "$ref": "#/definitions/db.SellerGetInfoRow"
                         }
                     },
                     "400": {
@@ -1789,7 +1789,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/router.productInfo"
+                                "$ref": "#/definitions/db.SellerProductListRow"
                             }
                         }
                     },
@@ -1857,14 +1857,15 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "name": "coupon_id",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "name": "tag_id",
-                        "in": "formData"
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "init tags",
+                        "name": "tags",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1987,7 +1988,7 @@ const docTemplate = `{
             "patch": {
                 "description": "Edit product for shop.",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -2007,66 +2008,38 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "name of product",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "description of product",
                         "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
+                        "in": "formData"
                     },
                     {
+                        "type": "string",
                         "description": "image id",
                         "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
+                        "type": "integer",
                         "description": "stock",
                         "name": "stock",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "description": "enabled",
-                        "name": "enabled",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2902,9 +2875,6 @@ const docTemplate = `{
                 }
             }
         },
-        "big.Int": {
-            "type": "object"
-        },
         "common.Cart": {
             "type": "object",
             "properties": {
@@ -3338,6 +3308,23 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerGetInfoRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.SellerGetOrderDetailRow": {
             "type": "object",
             "properties": {
@@ -3400,6 +3387,29 @@ const docTemplate = `{
                     "$ref": "#/definitions/db.OrderStatus"
                 },
                 "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.SellerGetProductDetailRow": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
                     "type": "integer"
                 }
             }
@@ -3478,6 +3488,32 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.SellerProductListRow": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         },
@@ -3644,44 +3680,11 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "pgtype.InfinityModifier": {
-            "type": "integer",
-            "enum": [
-                1,
-                0,
-                -1
-            ],
-            "x-enum-varnames": [
-                "Infinity",
-                "Finite",
-                "NegativeInfinity"
-            ]
-        },
         "pgtype.Int4": {
             "type": "object",
             "properties": {
                 "int32": {
                     "type": "integer"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Numeric": {
-            "type": "object",
-            "properties": {
-                "exp": {
-                    "type": "integer"
-                },
-                "infinityModifier": {
-                    "$ref": "#/definitions/pgtype.InfinityModifier"
-                },
-                "int": {
-                    "$ref": "#/definitions/big.Int"
-                },
-                "naN": {
-                    "type": "boolean"
                 },
                 "valid": {
                     "type": "boolean"
@@ -3708,23 +3711,6 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
-        "router.SellerInfo": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },
@@ -3760,36 +3746,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "product_info": {
-                    "$ref": "#/definitions/router.productInfo"
+                    "$ref": "#/definitions/db.SellerGetProductDetailRow"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
                     }
-                }
-            }
-        },
-        "router.productInfo": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "$ref": "#/definitions/pgtype.Numeric"
-                },
-                "sales": {
-                    "type": "integer"
-                },
-                "stock": {
-                    "type": "integer"
                 }
             }
         }
