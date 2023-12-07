@@ -221,6 +221,22 @@ RETURNING (
     );
 
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
+-- name: GetProductTag :many
+SELECT "tag_id",
+    "name"
+FROM "product_tag" AS PT,
+    "tag" AS T
+WHERE PT."product_id" = $1
+    AND PT."tag_id" = T."id";
+
+-- name: GetCouponTag :many
+SELECT "tag_id",
+    "name"
+FROM "coupon_tag" AS CT,
+    "tag" AS T
+WHERE CT."coupon_id" = $1
+    AND CT."tag_id" = T."id";
+
 -- name: AddCouponToCart :execrows
 INSERT INTO "cart_coupon" ("cart_id", "coupon_id")
 SELECT C."id",

@@ -146,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetCouponDetailRow"
+                            "$ref": "#/definitions/router.couponWithTag"
                         }
                     },
                     "400": {
@@ -571,6 +571,62 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{cart_id}/coupon": {
+            "get": {
+                "description": "Buyer get usable coupon of cart/shop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart",
+                    "Coupon"
+                ],
+                "summary": "Buyer Get usable coupon of cart/shop",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "coupon_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetUsableCouponsRow"
+                            }
                         }
                     },
                     "400": {
@@ -3262,6 +3318,17 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetCouponTagsRow": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "db.GetOrderDetailRow": {
             "type": "object",
             "properties": {
@@ -3288,6 +3355,9 @@ const docTemplate = `{
         "db.GetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3314,6 +3384,9 @@ const docTemplate = `{
         "db.GetOrderInfoRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "discount": {
                     "type": "integer"
                 },
@@ -3443,6 +3516,32 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.GetUsableCouponsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -3614,6 +3713,9 @@ const docTemplate = `{
         "db.SellerGetOrderHistoryRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3631,6 +3733,9 @@ const docTemplate = `{
         "db.SellerGetOrderRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3825,6 +3930,9 @@ const docTemplate = `{
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -4064,6 +4172,20 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "router.couponWithTag": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/db.GetCouponDetailRow"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponTagsRow"
+                    }
                 }
             }
         },

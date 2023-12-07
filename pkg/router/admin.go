@@ -99,12 +99,17 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
+type couponWithTag struct {
+	Info db.GetCouponDetailRow `json:"info"`
+	Tags []db.GetCouponTagsRow `json:"tags"`
+}
+
 // @Summary		Admin Get Coupon Detail
 // @Description	Get coupon details.
 // @Tags			Admin, Coupon, Shop
 // @Produce		json
 // @Param			id	path		int	true	"Coupon ID"
-// @Success		200	{object}	db.GetCouponDetailRow
+// @Success		200	{object}	couponWithTag
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
@@ -123,12 +128,20 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 			logger.Infow("coupon not found", "id", id)
 			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
-		if result, err := pg.Queries.GetCouponDetail(c.Request().Context(), id); err != nil {
+		var result couponWithTag
+		var err error
+		result.Info, err = pg.Queries.GetCouponDetail(c.Request().Context(), id)
+		if err != nil {
 			logger.Errorw("failed to get coupon detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else {
-			return c.JSON(http.StatusOK, result)
 		}
+		result.Tags, err = pg.Queries.GetCouponTags(c.Request().Context(), id)
+		if err != nil {
+			logger.Errorw("failed to get coupon tags", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, result)
+
 	}
 }
 
@@ -138,7 +151,7 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Accept			json
 // @Produce		json
 // @Param			coupon	body		db.AddCouponParams	true	"Coupon"
-// @Success		200		{object}	couponWithTag
+// @Success		200		{object}	db.AddCouponRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/coupon [post]

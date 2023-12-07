@@ -144,6 +144,13 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  db.GetCouponTagsRow:
+    properties:
+      name:
+        type: string
+      tag_id:
+        type: integer
+    type: object
   db.GetOrderDetailRow:
     properties:
       description:
@@ -161,6 +168,8 @@ definitions:
     type: object
   db.GetOrderHistoryRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       name:
@@ -178,6 +187,8 @@ definitions:
     type: object
   db.GetOrderInfoRow:
     properties:
+      created_at:
+        type: string
       discount:
         type: integer
       id:
@@ -263,6 +274,23 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  db.GetUsableCouponsRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   db.GetUsersRow:
     properties:
@@ -377,6 +405,8 @@ definitions:
     type: object
   db.SellerGetOrderHistoryRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -388,6 +418,8 @@ definitions:
     type: object
   db.SellerGetOrderRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -514,6 +546,8 @@ definitions:
     type: object
   db.SellerUpdateOrderStatusRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -671,6 +705,15 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  router.couponWithTag:
+    properties:
+      info:
+        $ref: '#/definitions/db.GetCouponDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.GetCouponTagsRow'
+        type: array
+    type: object
   router.orderDetail:
     properties:
       order_info:
@@ -813,7 +856,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.GetCouponDetailRow'
+            $ref: '#/definitions/router.couponWithTag'
         "400":
           description: Bad Request
           schema:
@@ -1045,6 +1088,44 @@ paths:
       tags:
       - Buyer
       - Checkout
+  /buyer/cart/{cart_id}/coupon:
+    get:
+      consumes:
+      - application/json
+      description: Buyer get usable coupon of cart/shop
+      parameters:
+      - description: Cart ID
+        in: path
+        name: cart_id
+        required: true
+        type: integer
+      - description: Coupon ID
+        in: path
+        name: coupon_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.GetUsableCouponsRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Get usable coupon of cart/shop
+      tags:
+      - Buyer
+      - Cart
+      - Coupon
   /buyer/cart/{cart_id}/coupon/{coupon_id}:
     delete:
       consumes:

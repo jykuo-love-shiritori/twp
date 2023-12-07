@@ -44,7 +44,6 @@ type AddCouponToCartParams struct {
 	CartID   int32  `json:"cart_id" param:"cart_id"`
 }
 
-// returning the number of products in any cart for US-SC-2 in SRS ⬆️
 func (q *Queries) AddCouponToCart(ctx context.Context, arg AddCouponToCartParams) (int64, error) {
 	result, err := q.db.Exec(ctx, addCouponToCart, arg.Username, arg.CouponID, arg.CartID)
 	if err != nil {
@@ -351,6 +350,40 @@ func (q *Queries) GetCartSubtotal(ctx context.Context, cartID int32) (int64, err
 	return subtotal, err
 }
 
+const getCouponTag = `-- name: GetCouponTag :many
+SELECT "tag_id",
+    "name"
+FROM "coupon_tag" AS CT,
+    "tag" AS T
+WHERE CT."coupon_id" = $1
+    AND CT."tag_id" = T."id"
+`
+
+type GetCouponTagRow struct {
+	TagID int32  `json:"tag_id"`
+	Name  string `json:"name"`
+}
+
+func (q *Queries) GetCouponTag(ctx context.Context, couponID int32) ([]GetCouponTagRow, error) {
+	rows, err := q.db.Query(ctx, getCouponTag, couponID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCouponTagRow{}
+	for rows.Next() {
+		var i GetCouponTagRow
+		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCouponsFromCart = `-- name: GetCouponsFromCart :many
 WITH delete_expire_coupons AS (
     DELETE FROM "cart_coupon" AS CC USING "coupon" AS CO,
@@ -635,6 +668,41 @@ func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetPr
 			&i.Quantity,
 			&i.Enabled,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProductTag = `-- name: GetProductTag :many
+SELECT "tag_id",
+    "name"
+FROM "product_tag" AS PT,
+    "tag" AS T
+WHERE PT."product_id" = $1
+    AND PT."tag_id" = T."id"
+`
+
+type GetProductTagRow struct {
+	TagID int32  `json:"tag_id"`
+	Name  string `json:"name"`
+}
+
+// returning the number of products in any cart for US-SC-2 in SRS ⬆️
+func (q *Queries) GetProductTag(ctx context.Context, productID int32) ([]GetProductTagRow, error) {
+	rows, err := q.db.Query(ctx, getProductTag, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductTagRow{}
+	for rows.Next() {
+		var i GetProductTagRow
+		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
