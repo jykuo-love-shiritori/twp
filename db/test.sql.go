@@ -297,11 +297,10 @@ INSERT INTO "order_history" (
         "shop_id",
         "image_id",
         "shipment",
-        "image_id",
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, user_id, shop_id, image_id, shipment, total_price, status, created_at
 `
 
@@ -311,7 +310,6 @@ type TestInsertOrderHistoryParams struct {
 	ShopID     int32       `json:"shop_id"`
 	ImageID    string      `json:"image_id"`
 	Shipment   int32       `json:"shipment"`
-	ImageID_2  string      `json:"image_id_2"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
 }
@@ -323,7 +321,6 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		arg.ShopID,
 		arg.ImageID,
 		arg.Shipment,
-		arg.ImageID_2,
 		arg.TotalPrice,
 		arg.Status,
 	)
