@@ -11,7 +11,7 @@ const Cart = () => {
       <CartGroup />
 
       <div className='light'>Total:0</div>
-      <TButton text='Submit' url='' />
+      <TButton text='Submit' />
     </div>
   );
 };

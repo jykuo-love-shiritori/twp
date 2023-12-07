@@ -9,7 +9,7 @@ const Admin = () => {
         <div className='user_bg center' style={{ width: '100%' }} />
         <Row className='user_icon'>
           <Col xs={12} className='center'>
-            <img src='../../images/person.png' className='user_img' />
+            <img src='/placeholder/person.png' className='user_img' />
           </Col>
           <Col xs={12} className='center'>
             <h4>Name</h4>

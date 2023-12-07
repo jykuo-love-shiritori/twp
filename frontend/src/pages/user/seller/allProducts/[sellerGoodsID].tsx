@@ -85,6 +85,7 @@ const EachSellerGoods = () => {
   };
 
   const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // this addressed the magic number: https://github.com/facebook/react/issues/14512
     if (event.keyCode === 229) return;
 
     if (event.key === 'Enter') {
@@ -238,8 +239,8 @@ const EachSellerGoods = () => {
             </Row>
 
             <div style={{ height: '50px' }} />
-            <TButton text='Delete Product' url='' />
-            <TButton text='Confirm Changes' url='' />
+            <TButton text='Delete Product' />
+            <TButton text='Confirm Changes' />
           </div>
         </Col>
         <Col xs={12} md={7}>

@@ -33,7 +33,7 @@ const NewCard = () => {
         value={cardHolderName}
         setValue={setCardHolderName}
       />
-      <TButton text='Save' url='' />
+      <TButton text='Save' />
     </div>
   );
 };

@@ -11,11 +11,16 @@ import GoodsItem from '@components/GoodsItem';
 import newsData from '@pages/home/newsData.json';
 import goodsData from '@pages/discover/goodsData.json';
 
+import TitleImgUrl from '@assets/images/title.png';
+import NewsImgUrl1 from '@assets/images/news1.jpg';
+import NewsImgUrl2 from '@assets/images/news2.jpg';
+import NewsImgUrl3 from '@assets/images/news3.jpg';
+
 const Home = () => {
   return (
     <div>
       <div className='home'>
-        <img src='../images/title.png' style={{ width: '100%' }}></img>
+        <img src={TitleImgUrl} style={{ width: '100%' }}></img>
       </div>
 
       <div style={{ padding: '1% 15% 1% 15%' }}>
@@ -24,7 +29,11 @@ const Home = () => {
           {newsData.map((data, index) => {
             return (
               <Col xs={12} md={4} key={index}>
-                <News id={data.id} imgUrl={data.imgUrl} title={data.title} />
+                <News
+                  id={data.id}
+                  imgUrl={[NewsImgUrl1, NewsImgUrl2, NewsImgUrl3][index]}
+                  title={data.title}
+                />
               </Col>
             );
           })}
@@ -61,7 +70,7 @@ const Home = () => {
         </Row>
 
         <div style={{ padding: '3% 0% 3% 0%' }}>
-          <TButton text='Explore more' url='/discover' />
+          <TButton text='Explore more' action='/discover' />
         </div>
       </div>
     </div>

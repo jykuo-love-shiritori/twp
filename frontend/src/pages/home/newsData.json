@@ -1,7 +1,6 @@
 [
   {
     "id": 3,
-    "imgUrl": "/images/news3.jpg",
     "title": "Enjoy More with Our Buy 3, Get 1 Free Deal!",
     "newUrl": "/news/1",
     "date": "04/14/2023",
@@ -10,7 +9,6 @@
   },
   {
     "id": 2,
-    "imgUrl": "/images/news2.jpg",
     "title": "Try Our Fresh New Drink!",
     "newUrl": "/news/2",
     "date": "03/25/2023",
@@ -19,7 +17,6 @@
   },
   {
     "id": 1,
-    "imgUrl": "/images/news1.jpg",
     "title": "Exciting Collab Coming Soon!",
     "newUrl": "/news/3",
     "date": "03/19/2023",

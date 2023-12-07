@@ -101,6 +101,7 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		param.SellerName = username
+		param.ImageID = ImageID
 		//wait update schema pr
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
