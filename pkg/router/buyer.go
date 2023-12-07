@@ -26,7 +26,7 @@ import (
 // @Router			/buyer/order [get]
 func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
@@ -61,7 +61,7 @@ type OrderDetail struct {
 // @Router			/buyer/order/{id} [get]
 func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var orderID int32
 		var orderDetail OrderDetail
 		var err error
@@ -86,6 +86,7 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 type Cart struct {
 	CartInfo db.GetCartRow
 	Products []db.GetProductFromCartRow
+	Coupons  []db.GetCouponsFromCartRow
 }
 
 // @Summary		Buyer Get Cart
@@ -98,22 +99,27 @@ type Cart struct {
 // @Router			/buyer/cart [get]
 func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		carts, err := pg.Queries.GetCart(c.Request().Context(), username)
 		if err != nil {
 			logger.Errorw("failed to get cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		var result []Cart
+		result := []Cart{}
 		for _, cartInfo := range carts {
 			var cart Cart
-			products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartInfo.ID)
+			var err error
+			cart.Products, err = pg.Queries.GetProductFromCart(c.Request().Context(), cartInfo.ID)
 			if err != nil {
 				logger.Errorw("failed to get product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			cart.Coupons, err = pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{Username: username, CartID: cartInfo.ID})
+			if err != nil {
+				logger.Errorw("failed to get coupon in cart", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
 			cart.CartInfo = cartInfo
-			cart.Products = products
 			result = append(result, cart)
 		}
 		return c.JSON(http.StatusOK, result)
@@ -127,22 +133,22 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce		json
 // @Param			cart_id		path		int		true	"Cart ID"
 // @Param			product_id	path		int		true	"Product ID"
-// @Param			quantity	body		int		true	"Quantity"
+// @Param			quantity	body		ProductQuantity	true	"Quantity"
 // @Success		200			{string}	string	constants.SUCCESS
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/product/{product_id} [patch]
 func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.UpdateProductFromCartParams
 		param.Username = username
-		if err := c.Bind(&param); err != nil {
-			logger.Errorw("failed to bind product in cart", "error", err)
+		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("product_id", &param.ProductID).BindError(); err != nil {
+			logger.Errorw("failed to parse cart_id or product_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if err := echo.QueryParamsBinder(c).Int32("cart_id", &param.CartID).Int32("product_id", &param.ProductID).BindError(); err != nil {
-			logger.Errorw("failed to parse cart_id or product_id", "error", err)
+		if err := c.Bind(&param); err != nil {
+			logger.Errorw("failed to bind product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if param.Quantity < 0 {
@@ -150,27 +156,26 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if param.Quantity == 0 {
-			remaining_count, err := pg.Queries.DeleteProductFromCart(c.Request().Context(),
+			rows, err := pg.Queries.DeleteProductFromCart(c.Request().Context(),
 				db.DeleteProductFromCartParams{
 					Username:  username,
 					CartID:    param.CartID,
 					ProductID: param.ProductID,
 				})
 			if err != nil {
-				if err == pgx.ErrNoRows {
-					return echo.NewHTTPError(http.StatusBadRequest)
-				}
 				logger.Errorw("failed to delete product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			return c.JSON(http.StatusOK, remaining_count)
-		}
-		if _, err := pg.Queries.UpdateProductFromCart(c.Request().Context(), param); err != nil {
-			if err == pgx.ErrNoRows {
+			if rows == 0 {
 				return echo.NewHTTPError(http.StatusBadRequest)
 			}
+			return c.JSON(http.StatusOK, constants.SUCCESS)
+		}
+		if rows, err := pg.Queries.UpdateProductFromCart(c.Request().Context(), param); err != nil {
 			logger.Errorw("failed to update product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if rows == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
@@ -193,7 +198,7 @@ type ProductQuantity struct {
 // @Router			/buyer/cart/product/{id} [post]
 func buyerAddProductToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.AddProductToCartParams
 		if err := c.Bind(&param); err != nil {
 			logger.Errorw("failed to bind product in cart", "error", err)
@@ -231,14 +236,13 @@ type couponV2 struct {
 // @Accept			json
 // @Produce		json
 // @Param			cart_id		path		int	true	"Cart ID"
-// @Param			coupon_id	path		int	true	"Coupon ID"
 // @Success		200			{array}		db.GetUsableCouponsRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/coupon [get]
 func buyerGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.GetUsableCouponsParams
 		param.Username = username
 		result := []db.GetUsableCouponsRow{}
@@ -326,6 +330,10 @@ func buyerGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 
 			// Check if the coupon is valid for any of the products in the cart
+			if usable.Scope == db.CouponScopeGlobal {
+				result = append(result, usable)
+				continue
+			}
 			matchFlag := false
 		outerLoop2:
 			for _, product := range cartProduct {
@@ -362,11 +370,11 @@ func buyerGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [post]
 func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.AddCouponToCartParams
 		param.Username = username
-		if err := c.Bind(&param); err != nil {
-			logger.Errorw("failed to bind coupon in cart", "error", err)
+		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("coupon_id", &param.CouponID).BindError(); err != nil {
+			logger.Errorw("failed to parse cart_id or coupon_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		cartProduct, err := pg.Queries.GetProductFromCart(c.Request().Context(), param.CartID)
@@ -447,7 +455,8 @@ func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 			logger.Errorw("failed to get coupon tag", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		couponValid := false
+		couponValid := couponDetail.Scope == db.CouponScopeGlobal
+
 	outerLoop2:
 		for _, product := range cartProduct {
 			if productCount[product.ProductID] == 0 {
@@ -465,7 +474,6 @@ func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		if !couponValid {
 			return echo.NewHTTPError(http.StatusBadRequest, "coupon not valid for any product in cart")
 		}
-
 		rows, err := pg.Queries.AddCouponToCart(c.Request().Context(), param)
 		if err != nil {
 			logger.Errorw("failed to add coupon to cart", "error", err)
@@ -490,11 +498,11 @@ func buyerAddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 // @Router			/buyer/cart/{cart_id}/product/{product_id} [delete]
 func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.DeleteProductFromCartParams
 		param.Username = username
-		if err := c.Bind(&param); err != nil {
-			logger.Errorw("failed to bind product in cart", "error", err)
+		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("product_id", &param.ProductID).BindError(); err != nil {
+			logger.Errorw("failed to parse cart_id or product_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if rows, err := pg.Queries.DeleteProductFromCart(c.Request().Context(), param); err != nil {
@@ -520,11 +528,11 @@ func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.Handl
 // @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
 func buyerDeleteCouponFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var param db.DeleteCouponFromCartParams
 		param.Username = username
-		if err := c.Bind(&param); err != nil {
-			logger.Errorw("failed to bind coupon in cart", "error", err)
+		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("coupon_id", &param.CouponID).BindError(); err != nil {
+			logger.Errorw("failed to parse cart_id or coupon_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if rows, err := pg.Queries.DeleteCouponFromCart(c.Request().Context(), param); err != nil {
@@ -570,7 +578,7 @@ func getShipmentFee(total int32) int32 {
 // @Router			/buyer/cart/{cart_id}/checkout [get]
 func buyerGetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var result checkout
 		var cartID int32
 		if err := echo.PathParamsBinder(c).Int32("cart_id", &cartID).BindError(); err != nil {
@@ -653,7 +661,7 @@ func buyerGetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/buyer/cart/{cart_id}/checkout [post]
 func buyerCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "🤡"
+		username := "Buyer"
 		var cartID int32
 		if err := echo.PathParamsBinder(c).Int32("cart_id", &cartID).BindError(); err != nil {
 			logger.Errorw("failed to parse cart_id", "error", err)

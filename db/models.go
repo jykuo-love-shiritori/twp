@@ -197,7 +197,7 @@ type CartCoupon struct {
 
 type CartProduct struct {
 	CartID    int32 `json:"cart_id"`
-	ProductID int32 `json:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 	Quantity  int32 `json:"quantity"`
 }
 

@@ -57,7 +57,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.GetAnyCouponsRow"
+                                "$ref": "#/definitions/db.GetGlobalCouponsRow"
                             }
                         }
                     },
@@ -146,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponWithTag"
+                            "$ref": "#/definitions/db.GetGlobalCouponDetailRow"
                         }
                     },
                     "400": {
@@ -596,13 +596,6 @@ const docTemplate = `{
                         "name": "cart_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "coupon_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -737,9 +730,6 @@ const docTemplate = `{
         "/buyer/cart/{cart_id}/product/{product_id}": {
             "delete": {
                 "description": "Delete product from cart",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -819,7 +809,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/router.ProductQuantity"
                         }
                     }
                 ],
@@ -3243,35 +3233,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetAnyCouponsRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "scope": {
-                    "$ref": "#/definitions/db.CouponScope"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.GetCartRow": {
             "type": "object",
             "properties": {
@@ -3289,7 +3250,30 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetCouponDetailRow": {
+        "db.GetCouponsFromCartRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3318,14 +3302,32 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetCouponTagsRow": {
+        "db.GetGlobalCouponsRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
-                "tag_id": {
-                    "type": "integer"
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -4088,6 +4090,12 @@ const docTemplate = `{
                 "cartInfo": {
                     "$ref": "#/definitions/db.GetCartRow"
                 },
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponsFromCartRow"
+                    }
+                },
                 "products": {
                     "type": "array",
                     "items": {
@@ -4201,20 +4209,6 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
-        "router.couponWithTag": {
-            "type": "object",
-            "properties": {
-                "info": {
-                    "$ref": "#/definitions/db.GetCouponDetailRow"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetCouponTagsRow"
-                    }
                 }
             }
         },

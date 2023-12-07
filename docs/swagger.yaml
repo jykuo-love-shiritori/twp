@@ -95,25 +95,6 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.GetAnyCouponsRow:
-    properties:
-      description:
-        type: string
-      discount:
-        type: number
-      expire_date:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      scope:
-        $ref: '#/definitions/db.CouponScope'
-      start_date:
-        type: string
-      type:
-        $ref: '#/definitions/db.CouponType'
-    type: object
   db.GetCartRow:
     properties:
       id:
@@ -125,7 +106,22 @@ definitions:
       shop_name:
         type: string
     type: object
-  db.GetCouponDetailRow:
+  db.GetCouponsFromCartRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.GetGlobalCouponDetailRow:
     properties:
       description:
         type: string
@@ -144,12 +140,24 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.GetCouponTagsRow:
+  db.GetGlobalCouponsRow:
     properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
       name:
         type: string
-      tag_id:
-        type: integer
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   db.GetOrderDetailRow:
     properties:
@@ -649,6 +657,10 @@ definitions:
     properties:
       cartInfo:
         $ref: '#/definitions/db.GetCartRow'
+      coupons:
+        items:
+          $ref: '#/definitions/db.GetCouponsFromCartRow'
+        type: array
       products:
         items:
           $ref: '#/definitions/db.GetProductFromCartRow'
@@ -724,15 +736,6 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  router.couponWithTag:
-    properties:
-      info:
-        $ref: '#/definitions/db.GetCouponDetailRow'
-      tags:
-        items:
-          $ref: '#/definitions/db.GetCouponTagsRow'
-        type: array
-    type: object
   router.orderDetail:
     properties:
       order_info:
@@ -798,7 +801,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.GetAnyCouponsRow'
+              $ref: '#/definitions/db.GetGlobalCouponsRow'
             type: array
         "400":
           description: Bad Request
@@ -884,7 +887,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.couponWithTag'
+            $ref: '#/definitions/db.GetGlobalCouponDetailRow'
         "400":
           description: Bad Request
           schema:
@@ -1122,11 +1125,6 @@ paths:
         name: cart_id
         required: true
         type: integer
-      - description: Coupon ID
-        in: path
-        name: coupon_id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -1222,8 +1220,6 @@ paths:
       - Coupon
   /buyer/cart/{cart_id}/product/{product_id}:
     delete:
-      consumes:
-      - application/json
       description: Delete product from cart
       parameters:
       - description: Cart ID
@@ -1275,7 +1271,7 @@ paths:
         name: quantity
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/router.ProductQuantity'
       produces:
       - application/json
       responses:

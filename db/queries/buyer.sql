@@ -68,6 +68,36 @@ WHERE U."username" = $1
     AND U."id" = C."user_id"
     AND C."shop_id" = S."id";
 
+-- name: GetCouponFromCart :many
+SELECT C."id",
+    C."name",
+    "type",
+    "scope",
+    "description",
+    "discount",
+    "expire_date"
+FROM "cart_coupon" AS CC,
+    "coupon" AS C,
+    "cart" AS 🛒,
+    "user" AS U
+WHERE U."username" = $1
+    AND U."id" = 🛒."user_id"
+    AND 🛒."id" = @cart_id
+    AND CC."cart_id" = 🛒."id"
+    AND CC."coupon_id" = C."id";
+
+-- name: GetCouponDetail :one
+SELECT "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "id" = $1;
+
 -- name: GetProductFromCart :many
 SELECT "product_id",
     "name",
@@ -81,7 +111,7 @@ FROM "cart_product" AS C,
 WHERE "cart_id" = $1
     AND C."product_id" = P."id";
 
--- name: UpdateProductFromCart :one
+-- name: UpdateProductFromCart :execrows
 UPDATE "cart_product"
 SET "quantity" = $3
 FROM "user" AS U,
@@ -89,15 +119,14 @@ FROM "user" AS U,
 WHERE U."username" = $4
     AND U."id" = C."user_id"
     AND "cart_id" = $1
-    AND "product_id" = $2
-RETURNING "quantity";
+    AND "product_id" = $2;
 
 -- name: DeleteProductFromCart :execrows
 WITH valid_cart AS (
     SELECT C."id"
     FROM "cart" C
         JOIN "user" u ON u."id" = C."user_id"
-    WHERE u."username" = $2
+    WHERE u."username" = $1
         AND C."id" = @cart_id
 ),
 deleted_products AS (
@@ -106,8 +135,8 @@ deleted_products AS (
             SELECT "id"
             FROM valid_cart
         )
-        AND CP."product_id" = $1
-    RETURNING 1
+        AND CP."product_id" = @product_id
+    RETURNING *
 ),
 remaining_products AS (
     SELECT COUNT(*) AS count
@@ -122,7 +151,13 @@ WHERE 🛒."id" = @cart_id
     AND (
         SELECT count
         FROM remaining_products
-    ) = 0;
+    ) = 0
+RETURNING (
+        SELECT EXISTS(
+                SELECT *
+                FROM deleted_products
+            )
+    );
 
 -- name: GetUsableCoupons :many
 SELECT C."id",
@@ -160,9 +195,9 @@ WITH valid_product AS (
     FROM "product" P,
         "shop" S
     WHERE P."shop_id" = S."id"
-        AND P."id" = $3
+        AND P."id" = $2
         AND P."enabled" = TRUE
-        AND P."stock" >= $2
+        AND P."stock" >= @quantity
 ),
 -- check product enabled ⬆️
 new_cart AS (
@@ -174,42 +209,59 @@ new_cart AS (
         "product" AS P
     WHERE U."username" = $1
         AND S."id" = P."shop_id"
-        AND P."id" = $3
+        AND P."id" = $2
         AND NOT EXISTS (
             SELECT 1
             FROM "cart" AS C
             WHERE C."user_id" = U."id"
                 AND C."shop_id" = S."id"
         )
-    RETURNING "id"
-) -- create new cart if not exists ⬆️
-INSERT INTO -- insert into the cart that have no given product ⬇️
-    "cart_product" (
-        "cart_id",
-        "product_id",
-        "quantity"
-    )
-SELECT C."id",
-    valid_product.product_id,
-    $2
-FROM "cart" C,
-    valid_product,
-    "user" U,
-    "shop" S
+    RETURNING *
+),
+existed_cart AS (
+    SELECT C."id"
+    FROM "cart" AS C,
+        "user" AS U,
+        "shop" AS S
+    WHERE U."username" = $1
+        AND C."user_id" = U."id"
+        AND C."shop_id" = S."id"
+        AND S."id" = (
+            SELECT "shop_id"
+            FROM valid_product
+        )
+),
+cart_id AS (
+    SELECT "id"
+    FROM new_cart
+    UNION ALL
+    SELECT "id"
+    FROM existed_cart
+    LIMIT 1
+), -- create new cart if not exists ⬆️
+-- insert product into cart (new or existed)⬇️
+insert_product AS (
+    INSERT INTO "cart_product" ("cart_id", "product_id", "quantity")
+    SELECT (
+            SELECT "id"
+            FROM cart_id
+        ),
+        (
+            SELECT "product_id"
+            FROM valid_product
+        ),
+        @quantity ON CONFLICT ("cart_id", "product_id") DO
+    UPDATE
+    SET "quantity" = "cart_product"."quantity" + @quantity
+    RETURNING *
+)
+SELECT COALESCE(SUM(CP."quantity"), 0) + @quantity AS total_quantity
+FROM "cart_product" AS CP,
+    "cart" AS C,
+    "user" AS U
 WHERE U."username" = $1
     AND C."user_id" = U."id"
-    AND C."shop_id" = S."id" ON CONFLICT ("cart_id", "product_id") DO
-UPDATE
-SET "quantity" = "cart_product"."quantity" + $2
-RETURNING (
-        SELECT SUM(CP."quantity") + $2
-        FROM "cart_product" CP,
-            "cart" C,
-            "user" U
-        WHERE CP."cart_id" = C."id"
-            AND U."id" = C."user_id"
-            AND U."username" = $1
-    );
+    AND CP."cart_id" = C."id";
 
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
 -- name: GetProductTag :many

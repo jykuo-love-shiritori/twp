@@ -59,9 +59,9 @@ WITH valid_product AS (
     FROM "product" P,
         "shop" S
     WHERE P."shop_id" = S."id"
-        AND P."id" = $3
+        AND P."id" = $2
         AND P."enabled" = TRUE
-        AND P."stock" >= $2
+        AND P."stock" >= $3
 ),
 new_cart AS (
     INSERT INTO "cart" ("user_id", "shop_id")
@@ -72,56 +72,73 @@ new_cart AS (
         "product" AS P
     WHERE U."username" = $1
         AND S."id" = P."shop_id"
-        AND P."id" = $3
+        AND P."id" = $2
         AND NOT EXISTS (
             SELECT 1
             FROM "cart" AS C
             WHERE C."user_id" = U."id"
                 AND C."shop_id" = S."id"
         )
-    RETURNING "id"
-) -- create new cart if not exists ⬆️
-INSERT INTO -- insert into the cart that have no given product ⬇️
-    "cart_product" (
-        "cart_id",
-        "product_id",
-        "quantity"
-    )
-SELECT C."id",
-    valid_product.product_id,
-    $2
-FROM "cart" C,
-    valid_product,
-    "user" U,
-    "shop" S
+    RETURNING id, user_id, shop_id
+),
+existed_cart AS (
+    SELECT C."id"
+    FROM "cart" AS C,
+        "user" AS U,
+        "shop" AS S
+    WHERE U."username" = $1
+        AND C."user_id" = U."id"
+        AND C."shop_id" = S."id"
+        AND S."id" = (
+            SELECT "shop_id"
+            FROM valid_product
+        )
+),
+cart_id AS (
+    SELECT "id"
+    FROM new_cart
+    UNION ALL
+    SELECT "id"
+    FROM existed_cart
+    LIMIT 1
+), -- create new cart if not exists ⬆️
+insert_product AS (
+    INSERT INTO "cart_product" ("cart_id", "product_id", "quantity")
+    SELECT (
+            SELECT "id"
+            FROM cart_id
+        ),
+        (
+            SELECT "product_id"
+            FROM valid_product
+        ),
+        $3 ON CONFLICT ("cart_id", "product_id") DO
+    UPDATE
+    SET "quantity" = "cart_product"."quantity" + $3
+    RETURNING cart_id, product_id, quantity
+)
+SELECT COALESCE(SUM(CP."quantity"), 0) + $3 AS total_quantity
+FROM "cart_product" AS CP,
+    "cart" AS C,
+    "user" AS U
 WHERE U."username" = $1
     AND C."user_id" = U."id"
-    AND C."shop_id" = S."id" ON CONFLICT ("cart_id", "product_id") DO
-UPDATE
-SET "quantity" = "cart_product"."quantity" + $2
-RETURNING (
-        SELECT SUM(CP."quantity") + $2
-        FROM "cart_product" CP,
-            "cart" C,
-            "user" U
-        WHERE CP."cart_id" = C."id"
-            AND U."id" = C."user_id"
-            AND U."username" = $1
-    )
+    AND CP."cart_id" = C."id"
 `
 
 type AddProductToCartParams struct {
 	Username string `json:"username"`
-	Quantity int32  `json:"quantity"`
 	ID       int32  `json:"id" param:"id"`
+	Quantity int32  `json:"quantity"`
 }
 
 // check product enabled ⬆️
+// insert product into cart (new or existed)⬇️
 func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int32, error) {
-	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.Quantity, arg.ID)
-	var column_1 int32
-	err := row.Scan(&column_1)
-	return column_1, err
+	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.ID, arg.Quantity)
+	var total_quantity int32
+	err := row.Scan(&total_quantity)
+	return total_quantity, err
 }
 
 const checkout = `-- name: Checkout :exec
@@ -241,8 +258,8 @@ WITH valid_cart AS (
     SELECT C."id"
     FROM "cart" C
         JOIN "user" u ON u."id" = C."user_id"
-    WHERE u."username" = $2
-        AND C."id" = $3
+    WHERE u."username" = $1
+        AND C."id" = $2
 ),
 deleted_products AS (
     DELETE FROM "cart_product" CP
@@ -250,8 +267,8 @@ deleted_products AS (
             SELECT "id"
             FROM valid_cart
         )
-        AND CP."product_id" = $1
-    RETURNING 1
+        AND CP."product_id" = $3
+    RETURNING cart_id, product_id, quantity
 ),
 remaining_products AS (
     SELECT COUNT(*) AS count
@@ -262,21 +279,27 @@ remaining_products AS (
         )
 ) -- if there are no products left in the cart, delete the cart ↙️
 DELETE FROM "cart" AS 🛒
-WHERE 🛒."id" = $3
+WHERE 🛒."id" = $2
     AND (
         SELECT count
         FROM remaining_products
     ) = 0
+RETURNING (
+        SELECT EXISTS(
+                SELECT cart_id, product_id, quantity
+                FROM deleted_products
+            )
+    )
 `
 
 type DeleteProductFromCartParams struct {
-	ProductID int32  `json:"product_id"`
 	Username  string `json:"username"`
 	CartID    int32  `json:"cart_id" param:"cart_id"`
+	ProductID int32  `json:"product_id" param:"id"`
 }
 
 func (q *Queries) DeleteProductFromCart(ctx context.Context, arg DeleteProductFromCartParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProductFromCart, arg.ProductID, arg.Username, arg.CartID)
+	result, err := q.db.Exec(ctx, deleteProductFromCart, arg.Username, arg.CartID, arg.ProductID)
 	if err != nil {
 		return 0, err
 	}
@@ -351,6 +374,108 @@ func (q *Queries) GetCartSubtotal(ctx context.Context, cartID int32) (int64, err
 	var subtotal int64
 	err := row.Scan(&subtotal)
 	return subtotal, err
+}
+
+const getCouponDetail = `-- name: GetCouponDetail :one
+SELECT "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "id" = $1
+`
+
+type GetCouponDetailRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetailRow, error) {
+	row := q.db.QueryRow(ctx, getCouponDetail, id)
+	var i GetCouponDetailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
+}
+
+const getCouponFromCart = `-- name: GetCouponFromCart :many
+SELECT C."id",
+    C."name",
+    "type",
+    "scope",
+    "description",
+    "discount",
+    "expire_date"
+FROM "cart_coupon" AS CC,
+    "coupon" AS C,
+    "cart" AS 🛒,
+    "user" AS U
+WHERE U."username" = $1
+    AND U."id" = 🛒."user_id"
+    AND 🛒."id" = $2
+    AND CC."cart_id" = 🛒."id"
+    AND CC."coupon_id" = C."id"
+`
+
+type GetCouponFromCartParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+type GetCouponFromCartRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `json:"name"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetCouponFromCart(ctx context.Context, arg GetCouponFromCartParams) ([]GetCouponFromCartRow, error) {
+	rows, err := q.db.Query(ctx, getCouponFromCart, arg.Username, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCouponFromCartRow{}
+	for rows.Next() {
+		var i GetCouponFromCartRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Scope,
+			&i.Description,
+			&i.Discount,
+			&i.ExpireDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCouponTag = `-- name: GetCouponTag :many
@@ -647,7 +772,7 @@ WHERE "cart_id" = $1
 `
 
 type GetProductFromCartRow struct {
-	ProductID int32          `json:"product_id"`
+	ProductID int32          `json:"product_id" param:"id"`
 	Name      string         `json:"name"`
 	ImageID   string         `json:"image_id"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
@@ -792,7 +917,7 @@ func (q *Queries) GetUsableCoupons(ctx context.Context, arg GetUsableCouponsPara
 	return items, nil
 }
 
-const updateProductFromCart = `-- name: UpdateProductFromCart :one
+const updateProductFromCart = `-- name: UpdateProductFromCart :execrows
 UPDATE "cart_product"
 SET "quantity" = $3
 FROM "user" AS U,
@@ -801,26 +926,26 @@ WHERE U."username" = $4
     AND U."id" = C."user_id"
     AND "cart_id" = $1
     AND "product_id" = $2
-RETURNING "quantity"
 `
 
 type UpdateProductFromCartParams struct {
 	CartID    int32  `json:"cart_id"`
-	ProductID int32  `json:"product_id"`
+	ProductID int32  `json:"product_id" param:"id"`
 	Quantity  int32  `json:"quantity"`
 	Username  string `json:"username"`
 }
 
-func (q *Queries) UpdateProductFromCart(ctx context.Context, arg UpdateProductFromCartParams) (int32, error) {
-	row := q.db.QueryRow(ctx, updateProductFromCart,
+func (q *Queries) UpdateProductFromCart(ctx context.Context, arg UpdateProductFromCartParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductFromCart,
 		arg.CartID,
 		arg.ProductID,
 		arg.Quantity,
 		arg.Username,
 	)
-	var quantity int32
-	err := row.Scan(&quantity)
-	return quantity, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateProductVersion = `-- name: UpdateProductVersion :exec

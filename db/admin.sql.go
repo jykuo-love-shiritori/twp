@@ -112,12 +112,9 @@ func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
 }
 
 const deleteCoupon = `-- name: DeleteCoupon :execrows
-WITH _ AS (
-    DELETE FROM "cart_coupon"
-    WHERE "coupon_id" = $1
-)
 DELETE FROM "coupon"
 WHERE "id" = $1
+    AND "scope" = 'global'
 `
 
 func (q *Queries) DeleteCoupon(ctx context.Context, id int32) (int64, error) {
@@ -206,6 +203,7 @@ SET "type" = COALESCE($2, "type"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
 WHERE "id" = $1
+    AND "scope" = 'global'
 RETURNING "id",
     "type",
     "scope",
@@ -275,105 +273,6 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, er
 	return result.RowsAffected(), nil
 }
 
-const getAnyCoupons = `-- name: GetAnyCoupons :many
-SELECT "id",
-    "type",
-    "scope",
-    "name",
-    "description",
-    "discount",
-    "start_date",
-    "expire_date"
-FROM "coupon"
-ORDER BY "id" ASC
-LIMIT $1 OFFSET $2
-`
-
-type GetAnyCouponsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-type GetAnyCouponsRow struct {
-	ID          int32              `json:"id" param:"id"`
-	Type        CouponType         `json:"type"`
-	Scope       CouponScope        `json:"scope"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-}
-
-func (q *Queries) GetAnyCoupons(ctx context.Context, arg GetAnyCouponsParams) ([]GetAnyCouponsRow, error) {
-	rows, err := q.db.Query(ctx, getAnyCoupons, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetAnyCouponsRow{}
-	for rows.Next() {
-		var i GetAnyCouponsRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Type,
-			&i.Scope,
-			&i.Name,
-			&i.Description,
-			&i.Discount,
-			&i.StartDate,
-			&i.ExpireDate,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getCouponDetail = `-- name: GetCouponDetail :one
-SELECT "id",
-    "type",
-    "scope",
-    "name",
-    "description",
-    "discount",
-    "start_date",
-    "expire_date"
-FROM "coupon"
-WHERE "id" = $1
-`
-
-type GetCouponDetailRow struct {
-	ID          int32              `json:"id" param:"id"`
-	Type        CouponType         `json:"type"`
-	Scope       CouponScope        `json:"scope"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-}
-
-func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetailRow, error) {
-	row := q.db.QueryRow(ctx, getCouponDetail, id)
-	var i GetCouponDetailRow
-	err := row.Scan(
-		&i.ID,
-		&i.Type,
-		&i.Scope,
-		&i.Name,
-		&i.Description,
-		&i.Discount,
-		&i.StartDate,
-		&i.ExpireDate,
-	)
-	return i, err
-}
-
 const getCouponTags = `-- name: GetCouponTags :many
 SELECT "tag_id",
     "name"
@@ -398,6 +297,107 @@ func (q *Queries) GetCouponTags(ctx context.Context, couponID int32) ([]GetCoupo
 	for rows.Next() {
 		var i GetCouponTagsRow
 		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGlobalCouponDetail = `-- name: GetGlobalCouponDetail :one
+SELECT "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "scope" = 'global'
+    AND "id" = $1
+`
+
+type GetGlobalCouponDetailRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetGlobalCouponDetail(ctx context.Context, id int32) (GetGlobalCouponDetailRow, error) {
+	row := q.db.QueryRow(ctx, getGlobalCouponDetail, id)
+	var i GetGlobalCouponDetailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
+}
+
+const getGlobalCoupons = `-- name: GetGlobalCoupons :many
+SELECT "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM "coupon"
+WHERE "scope" = 'global'
+ORDER BY "id" ASC
+LIMIT $1 OFFSET $2
+`
+
+type GetGlobalCouponsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetGlobalCouponsRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetGlobalCoupons(ctx context.Context, arg GetGlobalCouponsParams) ([]GetGlobalCouponsRow, error) {
+	rows, err := q.db.Query(ctx, getGlobalCoupons, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetGlobalCouponsRow{}
+	for rows.Next() {
+		var i GetGlobalCouponsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Scope,
+			&i.Name,
+			&i.Description,
+			&i.Discount,
+			&i.StartDate,
+			&i.ExpireDate,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

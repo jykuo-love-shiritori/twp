@@ -39,7 +39,8 @@ sql:
             go_struct_tag: param:"seller_name"
           - column: cart.cart_id
             go_struct_tag: param:"id"
-
+          - column: cart_product.product_id
+            go_struct_tag: param:"id"
           - column: coupon.discount
             go_struct_tag: swaggertype:"number"
           - column: coupon.start_date

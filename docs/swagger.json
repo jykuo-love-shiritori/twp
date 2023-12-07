@@ -51,7 +51,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.GetAnyCouponsRow"
+                                "$ref": "#/definitions/db.GetGlobalCouponsRow"
                             }
                         }
                     },
@@ -140,7 +140,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponWithTag"
+                            "$ref": "#/definitions/db.GetGlobalCouponDetailRow"
                         }
                     },
                     "400": {
@@ -590,13 +590,6 @@
                         "name": "cart_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "coupon_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -731,9 +724,6 @@
         "/buyer/cart/{cart_id}/product/{product_id}": {
             "delete": {
                 "description": "Delete product from cart",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -813,7 +803,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/router.ProductQuantity"
                         }
                     }
                 ],
@@ -3237,35 +3227,6 @@
                 }
             }
         },
-        "db.GetAnyCouponsRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "scope": {
-                    "$ref": "#/definitions/db.CouponScope"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.GetCartRow": {
             "type": "object",
             "properties": {
@@ -3283,7 +3244,30 @@
                 }
             }
         },
-        "db.GetCouponDetailRow": {
+        "db.GetCouponsFromCartRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3312,14 +3296,32 @@
                 }
             }
         },
-        "db.GetCouponTagsRow": {
+        "db.GetGlobalCouponsRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
-                "tag_id": {
-                    "type": "integer"
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -4082,6 +4084,12 @@
                 "cartInfo": {
                     "$ref": "#/definitions/db.GetCartRow"
                 },
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponsFromCartRow"
+                    }
+                },
                 "products": {
                     "type": "array",
                     "items": {
@@ -4195,20 +4203,6 @@
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
-        "router.couponWithTag": {
-            "type": "object",
-            "properties": {
-                "info": {
-                    "$ref": "#/definitions/db.GetCouponDetailRow"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetCouponTagsRow"
-                    }
                 }
             }
         },

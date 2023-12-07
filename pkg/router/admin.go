@@ -75,7 +75,7 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce		json
 // @param			offset	query		int	false	"Begin index"	default(0)
 // @param			limit	query		int	false	"limit"			default(10)
-// @Success		200		{array}		db.GetAnyCouponsRow
+// @Success		200		{array}		db.GetGlobalCouponsRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/coupon [get]
@@ -90,7 +90,7 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("invalid query parameter", "offset", q.Offset, "limit", q.Limit)
 			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
 		}
-		result, err := pg.Queries.GetAnyCoupons(c.Request().Context(), db.GetAnyCouponsParams{Offset: q.Offset, Limit: q.Limit})
+		result, err := pg.Queries.GetGlobalCoupons(c.Request().Context(), db.GetGlobalCouponsParams{Offset: q.Offset, Limit: q.Limit})
 		if err != nil {
 			logger.Errorw("failed to get coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -99,17 +99,12 @@ func adminGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-type couponWithTag struct {
-	Info db.GetCouponDetailRow `json:"info"`
-	Tags []db.GetCouponTagsRow `json:"tags"`
-}
-
 // @Summary		Admin Get Coupon Detail
 // @Description	Get coupon details.
 // @Tags			Admin, Coupon, Shop
 // @Produce		json
 // @Param			id	path		int	true	"Coupon ID"
-// @Success		200	{object}	couponWithTag
+// @Success		200	{object}	db.GetGlobalCouponDetailRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
@@ -128,18 +123,12 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 			logger.Infow("coupon not found", "id", id)
 			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
-		var result couponWithTag
-		var err error
-		result.Info, err = pg.Queries.GetCouponDetail(c.Request().Context(), id)
+		result, err := pg.Queries.GetGlobalCouponDetail(c.Request().Context(), id)
 		if err != nil {
 			logger.Errorw("failed to get coupon detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.Tags, err = pg.Queries.GetCouponTags(c.Request().Context(), id)
-		if err != nil {
-			logger.Errorw("failed to get coupon tags", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
+
 		return c.JSON(http.StatusOK, result)
 
 	}

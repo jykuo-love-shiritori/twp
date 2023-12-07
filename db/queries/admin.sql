@@ -64,7 +64,7 @@ SELECT EXISTS (
         WHERE "id" = $1
     );
 
--- name: GetAnyCoupons :many
+-- name: GetGlobalCoupons :many
 SELECT "id",
     "type",
     "scope",
@@ -74,10 +74,11 @@ SELECT "id",
     "start_date",
     "expire_date"
 FROM "coupon"
+WHERE "scope" = 'global'
 ORDER BY "id" ASC
 LIMIT $1 OFFSET $2;
 
--- name: GetCouponDetail :one
+-- name: GetGlobalCouponDetail :one
 SELECT "id",
     "type",
     "scope",
@@ -87,7 +88,8 @@ SELECT "id",
     "start_date",
     "expire_date"
 FROM "coupon"
-WHERE "id" = $1;
+WHERE "scope" = 'global'
+    AND "id" = $1;
 
 -- name: AddCoupon :one
 INSERT INTO "coupon" (
@@ -140,6 +142,7 @@ SET "type" = COALESCE($2, "type"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
 WHERE "id" = $1
+    AND "scope" = 'global'
 RETURNING "id",
     "type",
     "scope",
@@ -150,12 +153,9 @@ RETURNING "id",
     "expire_date";
 
 -- name: DeleteCoupon :execrows
-WITH _ AS (
-    DELETE FROM "cart_coupon"
-    WHERE "coupon_id" = $1
-)
 DELETE FROM "coupon"
-WHERE "id" = $1;
+WHERE "id" = $1
+    AND "scope" = 'global';
 
 -- name: GetUserIDByUsername :one
 SELECT "id"

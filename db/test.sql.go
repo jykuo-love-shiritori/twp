@@ -171,7 +171,7 @@ RETURNING cart_id, product_id, quantity
 
 type TestInsertCartProductParams struct {
 	CartID    int32 `json:"cart_id"`
-	ProductID int32 `json:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 	Quantity  int32 `json:"quantity"`
 }
 
