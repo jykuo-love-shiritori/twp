@@ -25,7 +25,7 @@ const SellerInfo = () => {
         <Col className='left'>
           <Form.Check
             type='checkbox'
-            id='visiblity_checkbox'
+            id='visibility_checkbox'
             label=''
             value={visibility ? 1 : 0}
             onChange={handleVisibility}
@@ -40,7 +40,7 @@ const SellerInfo = () => {
         value={description}
         setValue={setDescription}
       />
-      <TButton text='Save' url='' />
+      <TButton text='Save' />
     </div>
   );
 };
