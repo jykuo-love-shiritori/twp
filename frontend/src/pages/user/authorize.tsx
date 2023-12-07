@@ -5,6 +5,7 @@ import { useState, FormEventHandler } from 'react';
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
+import LoginImgUrl from '@assets/images/login.jpg';
 
 const Authorize = () => {
   const [searchParams] = useSearchParams();
@@ -52,7 +53,7 @@ const Authorize = () => {
             <div
               className='flex-wrapper'
               style={{
-                background: 'url("/images/login.jpg") no-repeat center center/cover',
+                background: `url(${LoginImgUrl}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>

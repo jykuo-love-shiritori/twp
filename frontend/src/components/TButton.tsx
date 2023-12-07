@@ -1,26 +1,30 @@
 import '@components/style.css';
 import '@style/global.css';
-
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 
 interface Props {
   text: string;
-  url: string;
+  action?: string | (() => void);
 }
 
-const TButton = ({ text, url }: Props) => {
-  const button = <Button className='button pointer center'>{text}</Button>;
+const TButton = ({ text, action }: Props) => {
+  const navigate = useNavigate();
 
-  const urlButton = (
-    <Link to={url} style={{ color: 'white', width: '100%' }}>
-      <Button className='none button pointer center'>{text}</Button>
-    </Link>
-  );
+  function handleClick() {
+    if (typeof action === 'string') {
+      navigate(action);
+    }
+    if (typeof action === 'function') {
+      action();
+    }
+  }
 
   return (
-    <div className='center' style={{ width: '100%' }}>
-      {url ? urlButton : button}
+    <div className='center none' style={{ width: '100%' }}>
+      <Button className='none button pointer center' onClick={handleClick}>
+        {text}
+      </Button>
     </div>
   );
 };

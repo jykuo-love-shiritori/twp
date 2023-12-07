@@ -49,7 +49,7 @@ WHERE c."id" = $2 AND "shop_id" = (
 
 type SellerDeleteCouponParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"coupon_id"`
 }
 
 func (q *Queries) SellerDeleteCoupon(ctx context.Context, arg SellerDeleteCouponParams) (int64, error) {
@@ -79,7 +79,7 @@ WHERE EXISTS (
 type SellerDeleteCouponTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"coupon_id"`
 }
 
 func (q *Queries) SellerDeleteCouponTag(ctx context.Context, arg SellerDeleteCouponTagParams) (int64, error) {
@@ -105,7 +105,7 @@ WHERE "shop_id" = (
 
 type SellerDeleteProductParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"product_id"`
 }
 
 func (q *Queries) SellerDeleteProduct(ctx context.Context, arg SellerDeleteProductParams) (int64, error) {
@@ -135,7 +135,7 @@ WHERE EXISTS (
 type SellerDeleteProductTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"product_id"`
 }
 
 func (q *Queries) SellerDeleteProductTag(ctx context.Context, arg SellerDeleteProductTagParams) (int64, error) {
@@ -170,7 +170,7 @@ type SellerGetCouponParams struct {
 }
 
 type SellerGetCouponRow struct {
-	ID         int32              `json:"id" param:"id"`
+	ID         int32              `json:"id" param:"coupon_id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -222,7 +222,7 @@ WHERE
 
 type SellerGetCouponDetailParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"coupon_id"`
 }
 
 type SellerGetCouponDetailRow struct {
@@ -300,10 +300,10 @@ WHERE "seller_name" = $1
 `
 
 type SellerGetInfoRow struct {
-	SellerName  string      `json:"seller_name" param:"seller_name"`
-	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	SellerName  string `json:"seller_name" param:"seller_name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
 }
 
 func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerGetInfoRow, error) {
@@ -349,7 +349,7 @@ type SellerGetOrderRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) ([]SellerGetOrderRow, error) {
@@ -401,10 +401,10 @@ type SellerGetOrderDetailParams struct {
 type SellerGetOrderDetailRow struct {
 	ID          pgtype.Int4    `json:"id"`
 	Version     pgtype.Int4    `json:"version"`
-	Name        pgtype.Text    `json:"name"`
-	Description pgtype.Text    `json:"description"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -461,7 +461,7 @@ type SellerGetOrderHistoryRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderHistoryParams) (SellerGetOrderHistoryRow, error) {
@@ -481,6 +481,7 @@ const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
 
 
 
+
 SELECT
     p."name",
     p."image_id",
@@ -497,18 +498,19 @@ WHERE
 
 type SellerGetProductDetailParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ID         int32  `json:"id" param:"id"`
+	ID         int32  `json:"id" param:"product_id"`
 }
 
 type SellerGetProductDetailRow struct {
 	Name    string         `json:"name"`
-	ImageID pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
 	Stock   int32          `json:"stock"`
 	Enabled bool           `json:"enabled"`
 }
 
+// TODO
 // SellerGetReport :many
 // SellerGetReportDetail :many
 func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProductDetailParams) (SellerGetProductDetailRow, error) {
@@ -615,7 +617,7 @@ type SellerInsertCouponParams struct {
 }
 
 type SellerInsertCouponRow struct {
-	ID         int32              `json:"id" param:"id"`
+	ID         int32              `json:"id" param:"coupon_id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -733,18 +735,18 @@ type SellerInsertProductParams struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Enabled     bool               `json:"enabled"`
 }
 
 type SellerInsertProductRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
@@ -873,9 +875,9 @@ type SellerProductListParams struct {
 }
 
 type SellerProductListRow struct {
-	ID      int32          `json:"id" param:"id"`
+	ID      int32          `json:"id" param:"product_id"`
 	Name    string         `json:"name"`
-	ImageID pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
 	Stock   int32          `json:"stock"`
@@ -981,7 +983,7 @@ RETURNING
 
 type SellerUpdateCouponInfoParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
@@ -991,7 +993,7 @@ type SellerUpdateCouponInfoParams struct {
 }
 
 type SellerUpdateCouponInfoRow struct {
-	ID         int32              `json:"id" param:"id"`
+	ID         int32              `json:"id" param:"coupon_id"`
 	Type       CouponType         `json:"type"`
 	Scope      CouponScope        `json:"scope"`
 	Name       string             `json:"name"`
@@ -1039,18 +1041,18 @@ RETURNING
 `
 
 type SellerUpdateInfoParams struct {
-	SellerName  string      `json:"seller_name" param:"seller_name"`
-	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Enabled     bool        `json:"enabled"`
+	SellerName  string `json:"seller_name" param:"seller_name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
 }
 
 type SellerUpdateInfoRow struct {
-	SellerName string      `json:"seller_name" param:"seller_name"`
-	ImageID    pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Name       string      `json:"name"`
-	Enabled    bool        `json:"enabled"`
+	SellerName string `json:"seller_name" param:"seller_name"`
+	ImageID    string `json:"image_id" swaggertype:"string"`
+	Name       string `json:"name"`
+	Enabled    bool   `json:"enabled"`
 }
 
 func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoParams) (SellerUpdateInfoRow, error) {
@@ -1105,7 +1107,7 @@ type SellerUpdateOrderStatusRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateOrderStatusParams) (SellerUpdateOrderStatusRow, error) {
@@ -1161,22 +1163,22 @@ RETURNING
 
 type SellerUpdateProductInfoParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Enabled     bool               `json:"enabled"`
 	Stock       int32              `json:"stock"`
 }
 
 type SellerUpdateProductInfoRow struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`

@@ -11,10 +11,8 @@ services:
     depends_on:
       - postgres
       - minio
-
-  # TODO: add golang-migrate script
   postgres:
-    image: postgres
+    image: postgres:16
     env_file:
       - .env
     ports:
@@ -23,18 +21,24 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"
-        ]
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./db/migrations:/migrations
+    command: -path=/migrations -database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up
+
   # TODO: add minio bucket automatic setup script
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio:RELEASE.2023-12-02T10-51-33Z
     env_file:
       - .env
     ports:
@@ -48,7 +52,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:${MINIO_CONSOLE_PORT}/minio/health/live || exit 1"
+          "curl -f http://localhost:${MINIO_CONSOLE_PORT}/minio/health/live || exit 1",
         ]
       interval: 10s
       timeout: 5s
