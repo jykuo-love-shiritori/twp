@@ -74,6 +74,7 @@ SELECT "product_id",
     "image_id",
     "price",
     "quantity",
+    "stock",
     "enabled"
 FROM "cart_product" AS C,
     "product" AS P
@@ -161,6 +162,7 @@ WITH valid_product AS (
     WHERE P."shop_id" = S."id"
         AND P."id" = $3
         AND P."enabled" = TRUE
+        AND P."stock" >= $2
 ),
 -- check product enabled ⬆️
 new_cart AS (
@@ -340,6 +342,19 @@ WITH insert_order AS (
         AND C."id" = @cart_id
         AND S."id" = C."shop_id"
     RETURNING "id"
+),
+delete_cart AS (
+    DELETE FROM "cart" AS C
+    WHERE C."id" = @cart_id
+),
+add_sales AS (
+    UPDATE "product" AS P
+    SET "sales" = "sales" + CP."quantity",
+        "stock" = "stock" - CP."quantity"
+    FROM "cart_product" AS CP
+    WHERE CP."cart_id" = @cart_id
+        AND CP."product_id" = P."id"
+        AND CP."quantity" <= P."stock"
 )
 INSERT INTO "order_detail" (
         "order_id",

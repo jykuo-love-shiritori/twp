@@ -3430,6 +3430,9 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         },

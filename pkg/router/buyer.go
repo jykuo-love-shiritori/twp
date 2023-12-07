@@ -665,6 +665,9 @@ func buyerCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for _, product := range products {
+			if product.Quantity > product.Stock {
+				return echo.NewHTTPError(http.StatusBadRequest, "some product out of stock")
+			}
 			err := pg.Queries.UpdateProductVersion(c.Request().Context(), product.ProductID)
 			if err != nil {
 				logger.Errorw("failed to update product version")

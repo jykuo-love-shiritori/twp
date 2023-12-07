@@ -61,6 +61,7 @@ WITH valid_product AS (
     WHERE P."shop_id" = S."id"
         AND P."id" = $3
         AND P."enabled" = TRUE
+        AND P."stock" >= $2
 ),
 new_cart AS (
     INSERT INTO "cart" ("user_id", "shop_id")
@@ -157,6 +158,19 @@ WITH insert_order AS (
         AND C."id" = $4
         AND S."id" = C."shop_id"
     RETURNING "id"
+),
+delete_cart AS (
+    DELETE FROM "cart" AS C
+    WHERE C."id" = $4
+),
+add_sales AS (
+    UPDATE "product" AS P
+    SET "sales" = "sales" + CP."quantity",
+        "stock" = "stock" - CP."quantity"
+    FROM "cart_product" AS CP
+    WHERE CP."cart_id" = $4
+        AND CP."product_id" = P."id"
+        AND CP."quantity" <= P."stock"
 )
 INSERT INTO "order_detail" (
         "order_id",
@@ -624,6 +638,7 @@ SELECT "product_id",
     "image_id",
     "price",
     "quantity",
+    "stock",
     "enabled"
 FROM "cart_product" AS C,
     "product" AS P
@@ -637,6 +652,7 @@ type GetProductFromCartRow struct {
 	ImageID   string         `json:"image_id"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
 	Quantity  int32          `json:"quantity"`
+	Stock     int32          `json:"stock"`
 	Enabled   bool           `json:"enabled"`
 }
 
@@ -655,6 +671,7 @@ func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetPr
 			&i.ImageID,
 			&i.Price,
 			&i.Quantity,
+			&i.Stock,
 			&i.Enabled,
 		); err != nil {
 			return nil, err
