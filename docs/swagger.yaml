@@ -146,6 +146,8 @@ definitions:
     type: object
   db.GetOrderHistoryRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -315,13 +317,13 @@ definitions:
   db.SellerGetOrderDetailRow:
     properties:
       description:
-        $ref: '#/definitions/pgtype.Text'
+        type: string
       id:
         $ref: '#/definitions/pgtype.Int4'
       image_id:
         type: string
       name:
-        $ref: '#/definitions/pgtype.Text'
+        type: string
       price:
         type: number
       quantity:
@@ -331,6 +333,8 @@ definitions:
     type: object
   db.SellerGetOrderHistoryRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -342,6 +346,8 @@ definitions:
     type: object
   db.SellerGetOrderRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -468,6 +474,8 @@ definitions:
     type: object
   db.SellerUpdateOrderStatusRow:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       shipment:
@@ -541,13 +549,6 @@ definitions:
     properties:
       int32:
         type: integer
-      valid:
-        type: boolean
-    type: object
-  pgtype.Text:
-    properties:
-      string:
-        type: string
       valid:
         type: boolean
     type: object

@@ -25,7 +25,7 @@ WHERE
 `
 
 type GetCartRow struct {
-	ID         int32  `json:"id"`
+	ID         int32  `json:"id" param:"cart_id"`
 	SellerName string `json:"seller_name" param:"seller_name"`
 }
 
@@ -79,7 +79,7 @@ type GetOrderHistoryRow struct {
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"-" swaggertype:"string"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {
