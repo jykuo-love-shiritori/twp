@@ -7,9 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"unicode/utf8"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 )
 
@@ -22,7 +20,7 @@ func main() {
 	defer pg.Close()
 
 	TestInsertData(pg)
-	TestDeleteData(pg)
+	// TestDeleteData(pg)
 }
 
 type testTable struct {
@@ -233,22 +231,4 @@ func TestDeleteData(pg *db.DB) {
 	}
 	fmt.Println("DeleteTestUser success")
 
-}
-
-func AddMockUsers(pg *db.DB) {
-	for i := 0; i < 10; i++ {
-		startRune, _ := utf8.DecodeRuneInString("🐱")
-		avatar := string(startRune + rune(i))
-		mockData := db.AddUserParams{
-			Username: fmt.Sprintf("test%d", i),
-			Password: fmt.Sprintf("test%d", i),
-			Name:     avatar,
-			Email:    fmt.Sprintf("test%d", i) + "@test.com",
-			ImageID:  pgtype.UUID{Valid: true},
-		}
-		if err := pg.Queries.AddUser(context.Background(), mockData); err != nil {
-			log.Fatal(err)
-		}
-	}
-	fmt.Println("InsertMockUser success")
 }

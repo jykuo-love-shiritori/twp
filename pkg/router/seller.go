@@ -2,9 +2,12 @@ package router
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/minio"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -29,11 +32,22 @@ type SellerInfo struct {
 	Enabled     bool   `json:"enabled"`
 }
 
+type AddCouponParams struct {
+	SellerName  string             `json:"seller_name" param:"seller_name"`
+	Type        db.CouponType      `json:"type"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Tags        []int32            `json:"tags" swaggertype:"string"`
+}
+
 // @Summary		Seller get shop info
 // @Description	Get shop info, includes user picture, name, description.
 // @Tags			Seller, Shop
 // @Produce		json
-// @success		200	{object}	SellerInfo
+// @success		200	{object}	db.SellerGetInfoRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/info [get]
@@ -46,19 +60,9 @@ func sellerGetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		//wait update schema
-		imageUrl, err := mc.GetFileURL(c.Request().Context(), "id.png")
-		if err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		result := SellerInfo{
-			Name:        shopInfo.Name,
-			Image:       imageUrl,
-			Description: shopInfo.Description,
-			Enabled:     shopInfo.Enabled,
-		}
+		shopInfo.ImageID = mc.GetFileURL(c.Request().Context(), shopInfo.ImageID)
 
-		return c.JSON(http.StatusOK, result)
+		return c.JSON(http.StatusOK, shopInfo)
 
 	}
 }
@@ -98,24 +102,14 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 		}
 		param.SellerName = username
 		//wait update schema pr
-		param.ImageID = common.DefaultImageUuid
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		imageUrl, err := mc.GetFileURL(c.Request().Context(), ImageID)
-		if err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		result := SellerInfo{
-			Name:        shopInfo.Name,
-			Image:       imageUrl,
-			Description: shopInfo.Description,
-			Enabled:     shopInfo.Enabled,
-		}
-		return c.JSON(http.StatusOK, result)
+		shopInfo.ImageID = mc.GetFileURL(c.Request().Context(), ImageID)
+
+		return c.JSON(http.StatusOK, shopInfo)
 	}
 }
 
@@ -201,7 +195,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
 // @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
-// @Param			limit	query	int	true	"limit"			default(10) minimum(20)
+// @Param			limit	query	int	true	"limit"			default(10)	minimum(20)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -273,13 +267,13 @@ func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Summary		Seller add coupon
 // @Description	Add coupon for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			type		body	string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
-// @Param			name		body	string	true	"name of coupon"
-// @Param			description	body	string	true	"description of coupon"
-// @Param			discount	body	number	false	"discount"
-// @Param			start_date	body	time	true	"start date"
-// @Param			expire_date	body	time	true	"expire date"
-// @Accept			json
+// @Param			type		body	string			true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
+// @Param			name		body	string			true	"name of coupon"
+// @Param			description	body	string			true	"description of coupon"
+// @Param			discount	body	number			false	"discount"
+// @Param			start_date	body	time			true	"start date"
+// @Param			expire_date	body	time			true	"expire date"
+// @Param			tags		body	[]int32	        true	"init tags"
 // @Produce		json
 // @success		200	{object}	db.SellerInsertCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -289,18 +283,31 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var param db.SellerInsertCouponParams
+		var param AddCouponParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
-
 		}
 		param.SellerName = username
-		coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), param)
+		queryParams := db.SellerInsertCouponParams{
+			SellerName:  username,
+			Type:        param.Type,
+			Name:        param.Name,
+			Description: param.Description,
+			Discount:    param.Discount,
+			StartDate:   param.StartDate,
+			ExpireDate:  param.ExpireDate,
+		}
+		coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), queryParams)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		// coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), queryParams)
+		// if err != nil {
+		// 	logger.Error(err)
+		// 	return echo.NewHTTPError(http.StatusInternalServerError)
+		// }
 		return c.JSON(http.StatusOK, coupon)
 	}
 }
@@ -401,7 +408,7 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
-		return c.JSON(http.StatusOK, "success")
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }
 
@@ -437,14 +444,14 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
-		return c.JSON(http.StatusOK, "success")
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }
 
 // @Summary		Seller get order
 // @Description	Get all orders for shop.
 // @Tags			Seller, Shop, Order
-// @Param			offset	query	int	true	"offset"	default(0) minimum(0)
+// @Param			offset	query	int	true	"offset"	default(0)	minimum(0)
 // @Param			limit	query	int	true	"limit"		default(10)	maximum(20)
 // @Produce		json
 // @Success		200	{array}		db.SellerGetOrderRow
@@ -589,29 +596,32 @@ func sellerGetReportDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/product/{id} [get]
-func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerGetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
-
-		var param db.SellerGetProductDetailParams
-		if err := c.Bind(&param); err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-
-		}
-		var result productDetail
 		var err error
+		var username string = "user1"
+		var param db.SellerGetProductDetailParams
+
 		param.SellerName = username
+		id, err := strconv.ParseInt(c.Param("id"), 10, 32)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		param.ID = int32(id)
+
+		var result productDetail
 		result.ProductInfo, err = pg.Queries.SellerGetProductDetail(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.Tags, err = pg.Queries.SellerGetProductTag(c.Request().Context(), db.SellerGetProductTagParams{SellerName: param.SellerName, ProductID: param.ID})
+		result.Tags, err = pg.Queries.SellerGetProductTag(c.Request().Context(), db.SellerGetProductTagParams{SellerName: username, ProductID: param.ID})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		result.ProductInfo.ImageID = mc.GetFileURL(c.Request().Context(), result.ProductInfo.ImageID)
 		return c.JSON(http.StatusOK, result)
 	}
 }
@@ -619,15 +629,15 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Summary		Seller get product
 // @Description	seller get product
 // @Tags			Seller, Shop, Product
-// @Param			offset	query	int	true	"offset page"	default(0) minimum(0)
+// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
 // @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
 // @Accept			json
 // @Produce		json
-// @Success		200	{array}		db.SellerProductListRow
+// @Success		200	{array}		productInfo
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/product [get]
-func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func sellerListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -642,26 +652,30 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		logger.Info(requestParam)
 		param := db.SellerProductListParams{SellerName: username, Limit: requestParam.Limit, Offset: requestParam.Offset}
-		products, err := pg.Queries.SellerProductList(c.Request().Context(), param)
+		productsRow, err := pg.Queries.SellerProductList(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		return c.JSON(http.StatusOK, products)
+		for i := range productsRow {
+			productsRow[i].ImageID = mc.GetFileURL(c.Request().Context(), productsRow[i].ImageID)
+		}
+		return c.JSON(http.StatusOK, productsRow)
 	}
 }
 
 // @Summary		Seller add product
 // @Description	Add product for shop.
 // @Tags			Seller, Shop, Product
-// @Param			name		body	string	true	"name of product"
-// @Param			description	body	string	true	"description of product"
-// @Param			price		body	number	false	"price"
-// @Param			image_id	body	string	true	"image id"
-// @Param			expire_date	body	time	true	"expire date"
-// @Param			stock		body	int		true	"stock"
-// @Param			enabled		body	time	true	"enabled"
-// @Accept			json
+// @Param			name		formData	string			true	"name of product"
+// @Param			description	formData	string			true	"description of product"
+// @Param			price		formData	number			false	"price"
+// @Param			image		formData	string			true	"image id"
+// @Param			expire_date	formData	time			true	"expire date"
+// @Param			stock		formData	int				true	"stock"
+// @Param			enabled		formData	time			true	"enabled"
+// @Param			tags		formData	db.CouponTag	true	"init tags"
+// @Accept			mpfd
 // @Produce		json
 // @Success		200	{object}	db.SellerInsertProductRow
 // @Failure		400	{object}	echo.HTTPError
@@ -684,23 +698,6 @@ func sellerAddProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, product)
-	}
-}
-
-// @Summary		Seller upload product image
-// @Description	Upload product image for shop.
-// @Tags			Seller, Shop, Product
-// @Accept			png,jpeg,gif
-// @Produce		json
-// @Param			id	path		int		true	"Product ID"
-// @Param			img	formData	file	true	"image to upload"
-// @Success		200
-// @Failure		401
-// @Router			/seller/product/{id}/upload [post]
-func sellerUploadProductImage(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
 	}
 }
 
@@ -803,7 +800,7 @@ func sellerDeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
-		return c.JSON(http.StatusOK, "success")
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 
 	}
 }
@@ -840,6 +837,6 @@ func sellerDeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
-		return c.JSON(http.StatusOK, "success")
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }

@@ -32,18 +32,19 @@ func NewMINIO() (*MC, error) {
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: false,
 	})
+
 	if err != nil {
 		return nil, err
 	}
 	mc := &MC{mcp: mcp, BucketName: os.Getenv("MINIO_BUCKET_NAME")}
 
-	if err = mc.CheckBuckets(context.Background()); err != nil {
+	if err = mc.CheckBucket(context.Background()); err != nil {
 		return nil, err
 	}
 	return mc, nil
 }
 
-func (mc MC) CheckBuckets(ctx context.Context) error {
+func (mc MC) CheckBucket(ctx context.Context) error {
 	err := mc.mcp.MakeBucket(ctx, mc.BucketName, minio.MakeBucketOptions{Region: "ap-northeast-1"})
 
 	if err != nil {
@@ -78,12 +79,12 @@ func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader) (string, e
 	return newFileName, nil
 }
 
-func (mc MC) GetFileURL(ctx context.Context, id string) (string, error) {
+func (mc MC) GetFileURL(ctx context.Context, id string) string {
 	reqParams := make(url.Values)
 	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, id, time.Second*24*60*60, reqParams)
 	if err != nil {
 		//default image if can find image by uuid
-		return "https://imgur.com/UniMfif.png", err
+		return ""
 	}
-	return presignedURL.String(), nil
+	return presignedURL.String()
 }

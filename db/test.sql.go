@@ -13,8 +13,8 @@ import (
 )
 
 const testDeleteCouponById = `-- name: TestDeleteCouponById :execrows
-
-DELETE FROM "coupon" WHERE "id" = $1
+DELETE FROM "coupon"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteCouponById(ctx context.Context, id int32) (int64, error) {
@@ -26,8 +26,8 @@ func (q *Queries) TestDeleteCouponById(ctx context.Context, id int32) (int64, er
 }
 
 const testDeleteOrderById = `-- name: TestDeleteOrderById :execrows
-
-DELETE FROM "order_history" WHERE "id" = $1
+DELETE FROM "order_history"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (int64, error) {
@@ -39,8 +39,8 @@ func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (int64, err
 }
 
 const testDeleteOrderDetailByOrderId = `-- name: TestDeleteOrderDetailByOrderId :execrows
-
-DELETE FROM "order_detail" WHERE "order_id" = $1
+DELETE FROM "order_detail"
+WHERE "order_id" = $1
 `
 
 func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, orderID int32) (int64, error) {
@@ -52,8 +52,9 @@ func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, orderID in
 }
 
 const testDeleteProductArchiveByIdVersion = `-- name: TestDeleteProductArchiveByIdVersion :execrows
-
-DELETE FROM "product_archive" WHERE "id" = $1 AND "version" = $2
+DELETE FROM "product_archive"
+WHERE "id" = $1
+    AND "version" = $2
 `
 
 type TestDeleteProductArchiveByIdVersionParams struct {
@@ -70,8 +71,8 @@ func (q *Queries) TestDeleteProductArchiveByIdVersion(ctx context.Context, arg T
 }
 
 const testDeleteProductById = `-- name: TestDeleteProductById :execrows
-
-DELETE FROM "product" WHERE "id" = $1
+DELETE FROM "product"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (int64, error) {
@@ -83,8 +84,8 @@ func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (int64, e
 }
 
 const testDeleteShopById = `-- name: TestDeleteShopById :execrows
-
-DELETE FROM "shop" WHERE "id" = $1
+DELETE FROM "shop"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (int64, error) {
@@ -96,8 +97,8 @@ func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (int64, erro
 }
 
 const testDeleteTagById = `-- name: TestDeleteTagById :execrows
-
-DELETE FROM "tag" WHERE "id" = $1
+DELETE FROM "tag"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (int64, error) {
@@ -109,8 +110,8 @@ func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (int64, error
 }
 
 const testDeleteUserById = `-- name: TestDeleteUserById :execrows
-
-DELETE FROM "user" WHERE "id" = $1
+DELETE FROM "user"
+WHERE "id" = $1
 `
 
 func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (int64, error) {
@@ -122,14 +123,13 @@ func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (int64, erro
 }
 
 const testInsertCart = `-- name: TestInsertCart :one
-
-INSERT INTO
-    "cart" ("id", "user_id", "shop_id")
-VALUES ($1, $2, $3) RETURNING id, user_id, shop_id
+INSERT INTO "cart" ("id", "user_id", "shop_id")
+VALUES ($1, $2, $3)
+RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
-	ID     int32 `json:"id"`
+	ID     int32 `json:"id" param:"cart_id"`
 	UserID int32 `json:"user_id"`
 	ShopID int32 `json:"shop_id"`
 }
@@ -142,10 +142,9 @@ func (q *Queries) TestInsertCart(ctx context.Context, arg TestInsertCartParams) 
 }
 
 const testInsertCartCoupon = `-- name: TestInsertCartCoupon :one
-
-INSERT INTO
-    "cart_coupon" ("cart_id", "coupon_id")
-VALUES ($1, $2) RETURNING cart_id, coupon_id
+INSERT INTO "cart_coupon" ("cart_id", "coupon_id")
+VALUES ($1, $2)
+RETURNING cart_id, coupon_id
 `
 
 type TestInsertCartCouponParams struct {
@@ -161,14 +160,13 @@ func (q *Queries) TestInsertCartCoupon(ctx context.Context, arg TestInsertCartCo
 }
 
 const testInsertCartProduct = `-- name: TestInsertCartProduct :one
-
-INSERT INTO
-    "cart_product" (
+INSERT INTO "cart_product" (
         "cart_id",
         "product_id",
         "quantity"
     )
-VALUES ($1, $2, $3) RETURNING cart_id, product_id, quantity
+VALUES ($1, $2, $3)
+RETURNING cart_id, product_id, quantity
 `
 
 type TestInsertCartProductParams struct {
@@ -185,9 +183,7 @@ func (q *Queries) TestInsertCartProduct(ctx context.Context, arg TestInsertCartP
 }
 
 const testInsertCoupon = `-- name: TestInsertCoupon :one
-
-INSERT INTO
-    "coupon" (
+INSERT INTO "coupon" (
         "id",
         "type",
         "scope",
@@ -198,11 +194,12 @@ INSERT INTO
         "start_date",
         "expire_date"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
 `
 
 type TestInsertCouponParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"coupon_id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"shop_id"`
@@ -241,10 +238,9 @@ func (q *Queries) TestInsertCoupon(ctx context.Context, arg TestInsertCouponPara
 }
 
 const testInsertCouponTag = `-- name: TestInsertCouponTag :one
-
-INSERT INTO
-    "coupon_tag" ("tag_id", "coupon_id")
-VALUES ($1, $2) RETURNING coupon_id, tag_id
+INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
+VALUES ($1, $2)
+RETURNING coupon_id, tag_id
 `
 
 type TestInsertCouponTagParams struct {
@@ -260,15 +256,14 @@ func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponT
 }
 
 const testInsertOrderDetail = `-- name: TestInsertOrderDetail :one
-
-INSERT INTO
-    "order_detail" (
+INSERT INTO "order_detail" (
         "order_id",
         "product_id",
         "product_version",
         "quantity"
     )
-VALUES ($1, $2, $3, $4) RETURNING order_id, product_id, product_version, quantity
+VALUES ($1, $2, $3, $4)
+RETURNING order_id, product_id, product_version, quantity
 `
 
 type TestInsertOrderDetailParams struct {
@@ -296,23 +291,24 @@ func (q *Queries) TestInsertOrderDetail(ctx context.Context, arg TestInsertOrder
 }
 
 const testInsertOrderHistory = `-- name: TestInsertOrderHistory :one
-
-INSERT INTO
-    "order_history" (
+INSERT INTO "order_history" (
         "id",
         "user_id",
         "shop_id",
+        "image_id",
         "shipment",
         "total_price",
         "status"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, user_id, shop_id, image_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
 	ID         int32       `json:"id" param:"id"`
 	UserID     int32       `json:"user_id"`
 	ShopID     int32       `json:"shop_id"`
+	ImageID    string      `json:"image_id"`
 	Shipment   int32       `json:"shipment"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
@@ -323,6 +319,7 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		arg.ID,
 		arg.UserID,
 		arg.ShopID,
+		arg.ImageID,
 		arg.Shipment,
 		arg.TotalPrice,
 		arg.Status,
@@ -332,6 +329,7 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		&i.ID,
 		&i.UserID,
 		&i.ShopID,
+		&i.ImageID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -341,9 +339,7 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 }
 
 const testInsertProduct = `-- name: TestInsertProduct :one
-
-INSERT INTO
-    "product" (
+INSERT INTO "product" (
         "id",
         "version",
         "shop_id",
@@ -370,17 +366,18 @@ VALUES (
         $9,
         $10,
         $11
-    ) RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+    )
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type TestInsertProductParams struct {
-	ID          int32              `json:"id" param:"id"`
+	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID        `json:"image_id" swaggertype:"string"`
+	ImageID     string             `json:"image_id"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
 	Stock       int32              `json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -420,9 +417,7 @@ func (q *Queries) TestInsertProduct(ctx context.Context, arg TestInsertProductPa
 }
 
 const testInsertProductArchive = `-- name: TestInsertProductArchive :one
-
-INSERT INTO
-    "product_archive" (
+INSERT INTO "product_archive" (
         "id",
         "version",
         "name",
@@ -430,7 +425,8 @@ INSERT INTO
         "price",
         "image_id"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, version, name, description, price, image_id
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, version, name, description, price, image_id
 `
 
 type TestInsertProductArchiveParams struct {
@@ -439,7 +435,7 @@ type TestInsertProductArchiveParams struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     pgtype.UUID    `json:"image_id" swaggertype:"string"`
+	ImageID     string         `json:"image_id"`
 }
 
 func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertProductArchiveParams) (ProductArchive, error) {
@@ -464,10 +460,9 @@ func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertPr
 }
 
 const testInsertProductTag = `-- name: TestInsertProductTag :one
-
-INSERT INTO
-    "product_tag" ("tag_id", "product_id")
-VALUES ($1, $2) RETURNING tag_id, product_id
+INSERT INTO "product_tag" ("tag_id", "product_id")
+VALUES ($1, $2)
+RETURNING tag_id, product_id
 `
 
 type TestInsertProductTagParams struct {
@@ -483,9 +478,7 @@ func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProduc
 }
 
 const testInsertShop = `-- name: TestInsertShop :one
-
-INSERT INTO
-    "shop" (
+INSERT INTO "shop" (
         "id",
         "seller_name",
         "name",
@@ -493,16 +486,17 @@ INSERT INTO
         "description",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_name, image_id, name, description, enabled
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, seller_name, image_id, name, description, enabled
 `
 
 type TestInsertShopParams struct {
-	ID          int32       `json:"id"`
-	SellerName  string      `json:"seller_name" param:"seller_name"`
-	Name        string      `form:"name" json:"name"`
-	ImageID     pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Description string      `form:"description" json:"description"`
-	Enabled     bool        `form:"enabled" json:"enabled"`
+	ID          int32  `json:"id"`
+	SellerName  string `json:"seller_name" param:"seller_name"`
+	Name        string `form:"name" json:"name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) (Shop, error) {
@@ -527,10 +521,9 @@ func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) 
 }
 
 const testInsertTag = `-- name: TestInsertTag :one
-
-INSERT INTO
-    "tag" ("id", "shop_id", "name")
-VALUES ($1, $2, $3) RETURNING id, shop_id, name
+INSERT INTO "tag" ("id", "shop_id", "name")
+VALUES ($1, $2, $3)
+RETURNING id, shop_id, name
 `
 
 type TestInsertTagParams struct {
@@ -547,9 +540,7 @@ func (q *Queries) TestInsertTag(ctx context.Context, arg TestInsertTagParams) (T
 }
 
 const testInsertUser = `-- name: TestInsertUser :one
-
-INSERT INTO
-    "user" (
+INSERT INTO "user" (
         "id",
         "username",
         "password",
@@ -559,22 +550,25 @@ INSERT INTO
         "image_id",
         "role",
         "credit_card",
+        "refresh_token",
         "enabled"
-
-) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) RETURNING id, username, password, name, email, address, image_id, role, credit_card, enabled
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled
 `
 
 type TestInsertUserParams struct {
-	ID         int32           `json:"id" param:"id"`
-	Username   string          `json:"username"`
-	Password   string          `json:"password"`
-	Name       string          `json:"name"`
-	Email      string          `json:"email"`
-	Address    string          `json:"address"`
-	ImageID    pgtype.UUID     `json:"image_id" swaggertype:"string"`
-	Role       RoleType        `json:"role"`
-	CreditCard json.RawMessage `json:"credit_card"`
-	Enabled    bool            `json:"enabled"`
+	ID           int32           `json:"id" param:"id"`
+	Username     string          `json:"username"`
+	Password     string          `json:"password"`
+	Name         string          `json:"name"`
+	Email        string          `json:"email"`
+	Address      string          `json:"address"`
+	ImageID      string          `json:"image_id" swaggertype:"string"`
+	Role         RoleType        `json:"role"`
+	CreditCard   json.RawMessage `json:"credit_card"`
+	RefreshToken string          `json:"refresh_token"`
+	Enabled      bool            `json:"enabled"`
 }
 
 func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
@@ -588,6 +582,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		arg.ImageID,
 		arg.Role,
 		arg.CreditCard,
+		arg.RefreshToken,
 		arg.Enabled,
 	)
 	var i User
@@ -601,6 +596,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
+		&i.RefreshToken,
 		&i.Enabled,
 	)
 	return i, err
