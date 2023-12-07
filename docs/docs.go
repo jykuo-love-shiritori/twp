@@ -1156,6 +1156,110 @@ const docTemplate = `{
                 }
             }
         },
+        "/seller/coupon/{coupon_id}": {
+            "patch": {
+                "description": "Edit coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller edit coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "coupon_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Coupon type",
+                        "name": "type",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "'percentage'",
+                                "'fixed'",
+                                "'shipping'"
+                            ]
+                        }
+                    },
+                    {
+                        "description": "name of coupon",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "description of coupon",
+                        "name": "description",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "discount",
+                        "name": "discount",
+                        "in": "body",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "description": "start date",
+                        "name": "start_date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "expire date",
+                        "name": "expire_date",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/seller/coupon/{id}": {
             "get": {
                 "description": "Get coupon detail by ID for shop.",
@@ -1236,108 +1340,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Edit coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller edit coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Coupon type",
-                        "name": "type",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1891,50 +1893,6 @@ const docTemplate = `{
             }
         },
         "/seller/product/{id}": {
-            "get": {
-                "description": "Delete product for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product"
-                ],
-                "summary": "Seller get product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/router.productDetail"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -2179,24 +2137,48 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/report": {
+        "/seller/product/{product_id}": {
             "get": {
-                "description": "Get all available reports for shop.",
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Seller",
                     "Shop",
-                    "Report"
+                    "Product"
                 ],
-                "summary": "Seller get report",
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.productDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -2231,10 +2213,22 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerInsertCouponRow"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -3257,6 +3251,9 @@ const docTemplate = `{
         "db.SellerGetCouponDetailRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "discount": {
                     "type": "number"
                 },
@@ -3269,6 +3266,9 @@ const docTemplate = `{
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
                 },
+                "start_date": {
+                    "type": "string"
+                },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
                 }
@@ -3277,6 +3277,9 @@ const docTemplate = `{
         "db.SellerGetCouponRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "discount": {
                     "type": "number"
                 },
@@ -3291,6 +3294,9 @@ const docTemplate = `{
                 },
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
@@ -3360,6 +3366,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "image_id": {
+                    "type": "string"
+                },
                 "shipment": {
                     "type": "integer"
                 },
@@ -3379,6 +3388,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
                 },
                 "shipment": {
                     "type": "integer"
@@ -3428,6 +3440,9 @@ const docTemplate = `{
         "db.SellerInsertCouponRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "discount": {
                     "type": "number"
                 },
@@ -3443,6 +3458,9 @@ const docTemplate = `{
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
                 },
+                "start_date": {
+                    "type": "string"
+                },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
                 }
@@ -3456,6 +3474,9 @@ const docTemplate = `{
                 },
                 "edit_date": {
                     "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
                 },
                 "expire_date": {
                     "type": "string"
@@ -3531,6 +3552,9 @@ const docTemplate = `{
         "db.SellerUpdateCouponInfoRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "discount": {
                     "type": "number"
                 },
@@ -3545,6 +3569,9 @@ const docTemplate = `{
                 },
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
@@ -3596,6 +3623,9 @@ const docTemplate = `{
                 },
                 "edit_date": {
                     "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
                 },
                 "expire_date": {
                     "type": "string"

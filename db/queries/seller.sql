@@ -7,10 +7,13 @@ FROM "shop"
 WHERE "seller_name" = $1;
 -- name: SellerUpdateInfo :one
 UPDATE "shop"
-SET "image_id" = COALESCE($2, "image_id"),
-    "name" = COALESCE($3, "name"),
-    "description" = COALESCE($4, "description"),
-    "enabled" = COALESCE($5, "enabled")
+SET "image_id" = CASE
+        WHEN sqlc.arg('image_id')::TEXT = '' THEN "image_id"
+        ELSE sqlc.arg('image_id')::TEXT
+    END,
+    "name" = COALESCE($2, "name"),
+    "description" = COALESCE($3, "description"),
+    "enabled" = COALESCE($4, "enabled")
 WHERE "seller_name" = $1
 RETURNING "name",
     "image_id",
@@ -51,7 +54,9 @@ SELECT c."id",
     c."type",
     c."scope",
     c."name",
+    c."description",
     c."discount",
+    c."start_date",
     c."expire_date"
 FROM "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
@@ -63,6 +68,8 @@ SELECT c."type",
     c."scope",
     c."name",
     c."discount",
+    c."description",
+    c."start_date",
     c."expire_date"
 FROM "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
@@ -99,6 +106,8 @@ RETURNING "id",
     "scope",
     "name",
     "discount",
+    "description",
+    "start_date",
     "expire_date";
 -- name: SellerUpdateCouponInfo :one
 UPDATE "coupon" c
@@ -119,7 +128,9 @@ RETURNING c."id",
     c."type",
     c."scope",
     c."name",
+    c."description",
     c."discount",
+    c."start_date",
     c."expire_date";
 -- name: SellerDeleteCoupon :execrows
 DELETE FROM "coupon" c
@@ -132,6 +143,7 @@ WHERE c."id" = $2
     );
 -- name: SellerGetOrder :many
 SELECT "id",
+    "image_id",
     "shipment",
     "total_price",
     "status",
@@ -146,6 +158,7 @@ ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3;
 -- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
+    "order_history"."image_id",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
@@ -181,9 +194,50 @@ RETURNING oh."id",
     oh."total_price",
     oh."status",
     oh."created_at";
--- TODO
--- SellerGetReport :many
--- SellerGetReportDetail :many
+-- name: SellerBestSellProduct :many
+SELECT order_detail.product_id,
+    product_archive.name,
+    product_archive.price,
+    product_archive.image_id,
+    SUM(order_detail.quantity) AS total_quantity,
+    SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
+    COUNT(order_history.id) AS order_count
+FROM "order_detail"
+    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
+    AND order_detail.product_version = product_archive.version
+    LEFT JOIN order_history ON order_history.id = order_detail.order_id
+    LEFT JOIN shop ON order_history.shop_id = shop.id
+WHERE shop.seller_name = $1
+    AND EXTRACT(
+        YEAR
+        FROM order_history."created_at"
+    )::INTEGER = sqlc.arg('year')::INT
+    AND EXTRACT(
+        MONTH
+        FROM order_history."created_at"
+    )::INTEGER = sqlc.arg('month')::INT
+GROUP BY product_archive.id,
+    product_archive.description,
+    product_archive.name,
+    product_archive.price,
+    product_archive.image_id,
+    order_detail.product_id
+ORDER BY total_quantity DESC
+LIMIT $2;
+-- name: SellerReport :one
+SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
+    COUNT(order_history.id) AS order_count
+FROM order_history
+    LEFT JOIN shop ON order_history.shop_id = shop.id
+WHERE shop.seller_name = $1
+    AND EXTRACT(
+        MONTH
+        FROM order_history."created_at"
+    )::INT = sqlc.arg('month')::INT
+    AND EXTRACT(
+        YEAR
+        FROM order_history."created_at"
+    )::INT = sqlc.arg('year')::INT;
 -- name: SellerGetProductDetail :one
 SELECT p."name",
     p."image_id",
@@ -246,16 +300,20 @@ RETURNING "id",
     "expire_date",
     "edit_date",
     "stock",
-    "sales";
+    "sales",
+    "enabled";
 -- name: SellerUpdateProductInfo :one
 UPDATE "product" p
 SET "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "price" = COALESCE($5, "price"),
-    "image_id" = COALESCE($6, "image_id"),
-    "expire_date" = COALESCE($7, "expire_date"),
-    "enabled" = COALESCE($8, "enabled"),
-    "stock" = COALESCE($9, "stock"),
+    "image_id" = CASE
+        WHEN sqlc.arg('image_id')::TEXT = '' THEN "image_id"
+        ELSE sqlc.arg('image_id')::TEXT
+    END,
+    "expire_date" = COALESCE($6, "expire_date"),
+    "enabled" = COALESCE($7, "enabled"),
+    "stock" = COALESCE($8, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "shop_id" = (
@@ -273,7 +331,8 @@ RETURNING "id",
     "expire_date",
     "edit_date",
     "stock",
-    "sales";
+    "sales",
+    "enabled";
 -- name: SellerDeleteProduct :execrows
 DELETE FROM "product" p
 WHERE "shop_id" = (

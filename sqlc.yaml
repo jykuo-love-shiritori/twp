@@ -77,8 +77,10 @@ sql:
             go_struct_tag: swaggertype:"string"
           - column: shop.image_id
             go_struct_tag: swaggertype:"string"
+            nullable: true
           - column: user.image_id
             go_struct_tag: swaggertype:"string"
+            nullable: true
 
           # - column: coupon.shop_id
           #   go_struct_tag: json:"-"
