@@ -14,7 +14,7 @@ import HistoryEach from '@pages/user/buyer/history/[historyID]';
 import Info from '@pages/user/buyer/info';
 import History from '@pages/user/buyer/history';
 import Admin from '@pages/user/admin/index';
-import ManageUser from '@components/ManageUser';
+import ManageUser from '@pages/user/admin/manageUsers/index';
 import ManageAdminCoupons from '@pages/user/admin/allCoupons';
 import NewAdminCoupon from '@pages/user/admin/allCoupons/newCoupon';
 import EachAdminCoupon from '@pages/user/admin/allCoupons/[adminCouponID]';

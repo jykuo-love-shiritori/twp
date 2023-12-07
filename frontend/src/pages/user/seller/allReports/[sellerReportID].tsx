@@ -70,7 +70,7 @@ const SellerReportEach = () => {
           <Row>
             <Col xs={12} className='center_vertical'>
               <h4>
-                <b>Total sales revenue :</b>{' '}
+                <b>Total sales revenue :</b>
               </h4>
             </Col>
             <Col xs={12} className='center_vertical'>
