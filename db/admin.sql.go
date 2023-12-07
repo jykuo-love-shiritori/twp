@@ -421,13 +421,62 @@ func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) 
 	return id, err
 }
 
+const getTopSeller = `-- name: GetTopSeller :many
+SELECT S."seller_name",
+    S."name",
+    S."image_id",
+    SUM(O."total_price") AS "total_sales"
+FROM "shop" AS S,
+    "order_history" AS O
+WHERE S."id" = O."shop_id"
+    AND O."status" = 'paid'
+    AND O."created_at" < ($1) + INTERVAL '1 month'
+    AND O."created_at" >= $1
+GROUP BY S."seller_name",
+    S."name",
+    S."image_id"
+ORDER BY "total_sales" DESC
+LIMIT 3
+`
+
+type GetTopSellerRow struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Name       string `json:"name"`
+	ImageID    string `json:"image_id" swaggertype:"string"`
+	TotalSales int64  `json:"total_sales"`
+}
+
+func (q *Queries) GetTopSeller(ctx context.Context, date interface{}) ([]GetTopSellerRow, error) {
+	rows, err := q.db.Query(ctx, getTopSeller, date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetTopSellerRow{}
+	for rows.Next() {
+		var i GetTopSellerRow
+		if err := rows.Scan(
+			&i.SellerName,
+			&i.Name,
+			&i.ImageID,
+			&i.TotalSales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserIDByUsername = `-- name: GetUserIDByUsername :one
 SELECT "id"
 FROM "user"
 WHERE "username" = $1
 `
 
-// TODO name: GetReport :many
 func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (int32, error) {
 	row := q.db.QueryRow(ctx, getUserIDByUsername, username)
 	var id int32

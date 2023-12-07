@@ -276,15 +276,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Start date",
-                        "name": "start_date",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "End date",
-                        "name": "end_date",
+                        "description": "Start year/month",
+                        "name": "date",
                         "in": "query",
                         "required": true
                     }

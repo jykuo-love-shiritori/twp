@@ -2,8 +2,8 @@ package router
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
@@ -235,27 +235,47 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// For further implementation
-type dateParams struct {
-	StartDate pgtype.Timestamptz `query:"start_date"`
-	EndDate   pgtype.Timestamptz `query:"end_date"`
+type adminReport struct {
+	Year        int32                `json:"year"`
+	Month       int32                `json:"month"`
+	TotalAmount int64                `json:"total"`
+	Sellers     []db.GetTopSellerRow `json:"sellers"`
 }
 
-// TODO
-//
-//	@Summary		Admin Get Site Report
-//	@Description	Get site report.
-//	@Tags			Admin, Report
-//	@Produce		json
-//	@Param			start_date	query		string	true	"Start date"
-//	@Param			end_date	query		string	true	"End date"
-//	@Success		200			{string}	string	"TODO"
-//	@Failure		400			{object}	echo.HTTPError
-//	@Failure		500			{object}	echo.HTTPError
-//	@Router			/admin/report [get]
+// @Summary		Admin Get Site Report
+// @Description	Get site report.
+// @Tags			Admin, Report
+// @Produce		json
+// @Param			date	query		string	true	"Start year/month"
+// @Success		200			{string}	string	"TODO"
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var _ dateParams // keep for future
-		return echo.NewHTTPError(http.StatusNotImplemented)
+		date := c.QueryParam("date")
+		// verify the date is any start day of the month
+		t, err := time.Parse(time.RFC3339, date)
+		if err != nil {
+			logger.Errorw("failed to parse date", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if t.Day() != 1 {
+			logger.Errorw("date is not the first day of the month", "date", date)
+			return echo.NewHTTPError(http.StatusBadRequest, "Date is not the first day of the month")
+		}
+		year, month, _ := t.Date()
+		result := adminReport{Year: int32(year), Month: int32(month)}
+		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), date)
+		if err != nil {
+			logger.Errorw("failed to get top seller", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		// get total amount by sum the total_sales of sellers
+		result.TotalAmount = 0
+		for _, seller := range result.Sellers {
+			result.TotalAmount += seller.TotalSales
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }

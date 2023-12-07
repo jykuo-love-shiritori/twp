@@ -939,14 +939,9 @@ paths:
     get:
       description: Get site report.
       parameters:
-      - description: Start date
+      - description: Start year/month
         in: query
-        name: start_date
-        required: true
-        type: string
-      - description: End date
-        in: query
-        name: end_date
+        name: date
         required: true
         type: string
       produces:

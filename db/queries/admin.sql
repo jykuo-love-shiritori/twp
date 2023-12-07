@@ -157,7 +157,6 @@ WITH _ AS (
 DELETE FROM "coupon"
 WHERE "id" = $1;
 
--- TODO name: GetReport :many
 -- name: GetUserIDByUsername :one
 SELECT "id"
 FROM "user"
@@ -167,3 +166,20 @@ WHERE "username" = $1;
 SELECT "id"
 FROM "shop"
 WHERE "seller_name" = $1;
+
+-- name: GetTopSeller :many
+SELECT S."seller_name",
+    S."name",
+    S."image_id",
+    SUM(O."total_price") AS "total_sales"
+FROM "shop" AS S,
+    "order_history" AS O
+WHERE S."id" = O."shop_id"
+    AND O."status" = 'paid'
+    AND O."created_at" < (@date) + INTERVAL '1 month'
+    AND O."created_at" >= @date
+GROUP BY S."seller_name",
+    S."name",
+    S."image_id"
+ORDER BY "total_sales" DESC
+LIMIT 3;
