@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -60,13 +58,11 @@ func Authorize(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 
 		// generate OTP
-		buf := make([]byte, 32)
-		_, err = rand.Read(buf)
+		code, err := generateRandomString(32)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		code := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(buf)
 
 		mu.Lock()
 		codeChallengePairs[code] = challengeUser{
