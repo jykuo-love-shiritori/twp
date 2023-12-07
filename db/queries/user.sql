@@ -75,12 +75,15 @@ SELECT EXISTS (
     );
 
 -- name: FindUserInfoAndPassword :one
-
-SELECT
-    "username",
+SELECT "username",
     "role",
     "password"
 FROM "user"
-WHERE
-    "username" = $1
+WHERE "username" = $1
     OR "email" = $1;
+
+-- name: SetRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = @refresh_token,
+    "refresh_token_expire_date" = @expire_date
+WHERE "username" = @username;

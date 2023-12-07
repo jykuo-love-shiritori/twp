@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -21,7 +24,7 @@ type tokenParams struct {
 	GrantType    string `form:"grant_type" json:"grant_type"`
 }
 
-func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func Token(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var params tokenParams
 		err := c.Bind(&params)
@@ -44,23 +47,40 @@ func Token(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 
-		claims := &jwtCustomClaims{
-			user.Username,
-			user.Role,
-			jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-			},
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenString, err := token.SignedString([]byte(os.Getenv("TWP_JWT_SECRET")))
+		accessToken, err := generateAccessToken(user.Username, user.Role)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
+		refreshToken, err := generateRandomString(32)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		expireDate := time.Now().Add(30 * 24 * time.Hour)
+		err = pg.Queries.SetRefreshToken(c.Request().Context(), db.SetRefreshTokenParams{
+			Username:     user.Username,
+			RefreshToken: refreshToken,
+			ExpireDate:   pgtype.Timestamptz{Time: expireDate, Valid: true},
+		})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		cookie := new(http.Cookie)
+		cookie.Name = "refresh_token"
+		cookie.Value = refreshToken
+		cookie.Secure = common.IsEnv(constants.PROD)
+		cookie.Expires = expireDate
+		cookie.HttpOnly = true
+		cookie.SameSite = http.SameSiteStrictMode
+		c.SetCookie(cookie)
+
 		return c.JSON(http.StatusOK, echo.Map{
-			"access_token": tokenString,
+			"access_token": accessToken,
 		})
 	}
 }
@@ -78,4 +98,17 @@ func verifyCodeChallenge(verifier string, challenge challengeUser) bool {
 	default:
 		return false
 	}
+}
+
+func generateAccessToken(username string, role db.RoleType) (string, error) {
+	claims := &jwtCustomClaims{
+		username,
+		role,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(os.Getenv("TWP_JWT_SECRET")))
 }

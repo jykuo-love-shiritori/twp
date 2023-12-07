@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"go.uber.org/zap"
@@ -33,7 +34,7 @@ func main() {
 
 	router.RegisterApi(e, db, logger.Sugar())
 
-	if os.Getenv("TWP_ENV") == constants.DEV.String() {
+	if common.IsEnv(constants.DEV) {
 		router.RegisterDocs(e)
 	}
 	go func() {
