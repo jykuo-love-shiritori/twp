@@ -18,6 +18,11 @@ const EmptyGoods = () => {
     width: '100%',
   };
 
+  const LeftBgStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+  };
+
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>([]);
   const [modification, setModification] = useState<boolean[]>([]);
@@ -70,8 +75,8 @@ const EmptyGoods = () => {
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
       <Row>
-        <Col xs={12} md={5} className='goods_bgW'>
-          <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
+        <Col xs={12} md={5} style={LeftBgStyle}>
+          <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div
               style={{
                 position: 'relative',

@@ -20,6 +20,14 @@ interface Props extends Input {
 }
 
 const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input) => {
+  const CartItemStyle = {
+    borderRadius: '30px',
+    background: 'rgba(255, 255, 255, 0.6)',
+    backdropFilter: 'blur(10px)',
+    padding: '2% 30px 2% 30px',
+    margin: '2% 0 2% 0',
+  };
+
   const data: Props = {
     item_id,
     quantity,
@@ -42,7 +50,7 @@ const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input)
     data.subtotal = matchingGood.price * data.quantity;
 
     return (
-      <div className='cart_item' style={{ margin: '2% 0 2% 0' }}>
+      <div style={CartItemStyle}>
         <Row>
           <Col xs={4} md={1} className='center'>
             <img src={data.imgUrl} style={{ width: '100%', borderRadius: '10px' }} />

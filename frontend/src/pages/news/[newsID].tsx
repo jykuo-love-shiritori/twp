@@ -1,15 +1,15 @@
 import '@style/global.css';
 
+import { useParams } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
 
 import NotFound from '@components/NotFound';
 
 import newsData from '@pages/home/newsData.json';
-import { useParams } from 'react-router-dom';
 
 interface Props {
-  id: number | null;
-  imgUrl: string;
+  id: number;
+  newUrl: string;
   title: string;
   date: string;
   subTitle: string;
@@ -17,20 +17,30 @@ interface Props {
 }
 
 const EachNews = () => {
+  const NewsBgStyle = {
+    borderRadius: '50px 50px 0px 0px',
+    border: '1px solid var(--button_border)',
+    background: 'var(--bg)',
+    boxShadow: '0px 4px 30px 2px var(--title)',
+    padding: '10% 7% 10% 7%',
+  };
+
+  const NewsPicStyle = {
+    width: '100%',
+    border: '1px solid var(--button_border, #34977f)',
+  };
+
+  // TODO : data will be assign to the data got from backend, the newsData will be removed
   const params = useParams();
+  const data: Props | undefined = newsData.find((news) => news.id.toString() === params.news_id);
 
-  const data: Props = { id: null, imgUrl: '', title: '', date: '', subTitle: '', content: '' };
-  const foundNews = newsData.find((news) => news.id.toString() === params.news_id);
-
-  if (foundNews) {
-    Object.assign(data, foundNews);
-
+  if (data) {
     return (
       <div style={{ padding: '10% 10% 0% 10%' }}>
-        <div className='news_bg flex-wrapper'>
+        <div className='flex_wrapper' style={NewsBgStyle}>
           <Row>
-            <Col xs={12} md={4}>
-              <img src={data.imgUrl} className='news_pic' />
+            <Col xs={12} md={4} className='center_horizontal'>
+              <img src={data.newUrl} style={NewsPicStyle} />
             </Col>
             <Col xs={12} md={8}>
               <h4 className='inpage_title'>{data.title}</h4> <br />
