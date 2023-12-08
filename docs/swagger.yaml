@@ -1397,6 +1397,68 @@ paths:
       - Shop
       - Coupon
   /seller/coupon/{coupon_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: coupon_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    get:
+      description: Get coupon detail by ID for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: coupon_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/router.CouponDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get coupon detail
+      tags:
+      - Seller
+      - Shop
+      - Coupon
     patch:
       consumes:
       - application/json
@@ -1466,70 +1528,7 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/coupon/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete coupon for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller delete coupon
-      tags:
-      - Seller
-      - Shop
-      - Coupon
-    get:
-      description: Get coupon detail by ID for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.CouponDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get coupon detail
-      tags:
-      - Seller
-      - Shop
-      - Coupon
-  /seller/coupon/{id}/tag:
+  /seller/coupon/{coupon_id}/tag:
     delete:
       consumes:
       - application/json
@@ -1537,7 +1536,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: string
       - description: add tag id
@@ -1578,7 +1577,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: string
       - description: add tag id
@@ -1637,9 +1636,9 @@ paths:
       parameters:
       - description: update image UUID
         in: formData
-        name: image_id
+        name: image
         required: true
-        type: string
+        type: file
       - description: update shop name
         in: formData
         minLength: 6
@@ -1728,7 +1727,7 @@ paths:
         name: id
         required: true
         type: integer
-      - description: order status
+      - description: order current status
         in: body
         name: current_status
         required: true
@@ -1740,7 +1739,7 @@ paths:
           - '''delivered'''
           - '''cancelled'''
           type: string
-      - description: order status
+      - description: order set status
         in: body
         name: set_status
         required: true
@@ -1868,7 +1867,7 @@ paths:
         in: formData
         name: image
         required: true
-        type: string
+        type: file
       - description: stock
         in: formData
         name: stock
@@ -1902,7 +1901,7 @@ paths:
       - Seller
       - Shop
       - Product
-  /seller/product/{id}:
+  /seller/product/{product_id}:
     delete:
       consumes:
       - application/json
@@ -1910,7 +1909,7 @@ paths:
       parameters:
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       produces:
@@ -1937,6 +1936,36 @@ paths:
       - Seller
       - Shop
       - Product
+    get:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/router.ProductDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
+      tags:
+      - Seller
+      - Shop
+      - Product
     patch:
       consumes:
       - multipart/form-data
@@ -1944,7 +1973,7 @@ paths:
       parameters:
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       - description: name of product
@@ -1991,7 +2020,7 @@ paths:
       - Seller
       - Shop
       - Product
-  /seller/product/{id}/tag:
+  /seller/product/{product_id}/tag:
     delete:
       consumes:
       - application/json
@@ -1999,7 +2028,7 @@ paths:
       parameters:
       - description: product id
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
       - description: add tag id
@@ -2032,38 +2061,6 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/product/{product_id}:
-    get:
-      consumes:
-      - application/json
-      description: Delete product for shop.
-      parameters:
-      - description: Product ID
-        in: path
-        name: product_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.ProductDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get product
-      tags:
-      - Seller
-      - Shop
-      - Product
-  /seller/product/{product_id}/tag:
     post:
       consumes:
       - application/json
@@ -2071,7 +2068,7 @@ paths:
       parameters:
       - description: product id
         in: path
-        name: id
+        name: product_id
         required: true
         type: string
       - description: add tag id

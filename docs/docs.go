@@ -1157,6 +1157,97 @@ const docTemplate = `{
             }
         },
         "/seller/coupon/{coupon_id}": {
+            "get": {
+                "description": "Get coupon detail by ID for shop.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller get coupon detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "coupon_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.CouponDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller delete coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "coupon_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "Edit coupon for shop.",
                 "consumes": [
@@ -1260,100 +1351,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{id}": {
-            "get": {
-                "description": "Get coupon detail by ID for shop.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller get coupon detail",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/router.CouponDetail"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller delete coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/coupon/{id}/tag": {
+        "/seller/coupon/{coupon_id}/tag": {
             "post": {
                 "description": "Add tag on coupon",
                 "consumes": [
@@ -1373,7 +1371,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     },
@@ -1427,7 +1425,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     },
@@ -1516,9 +1514,9 @@ const docTemplate = `{
                 "summary": "Seller edit shop info",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "update image UUID",
-                        "name": "image_id",
+                        "name": "image",
                         "in": "formData",
                         "required": true
                     },
@@ -1647,7 +1645,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "order status",
+                        "description": "order current status",
                         "name": "current_status",
                         "in": "body",
                         "required": true,
@@ -1663,7 +1661,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "description": "order status",
+                        "description": "order set status",
                         "name": "set_status",
                         "in": "body",
                         "required": true,
@@ -1845,7 +1843,7 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "image id",
                         "name": "image",
                         "in": "formData",
@@ -1892,7 +1890,51 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{id}": {
+        "/seller/product/{product_id}": {
+            "get": {
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.ProductDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -1911,7 +1953,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -1961,7 +2003,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     },
@@ -2022,7 +2064,61 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{id}/tag": {
+        "/seller/product/{product_id}/tag": {
+            "post": {
+                "description": "Add tag on product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product",
+                    "Tag"
+                ],
+                "summary": "Seller add product tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "product id",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "add tag id",
+                        "name": "tag_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.ProductTag"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -2041,7 +2137,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "product id",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     },
@@ -2070,108 +2166,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/product/{product_id}": {
-            "get": {
-                "description": "Delete product for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product"
-                ],
-                "summary": "Seller get product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/router.ProductDetail"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/product/{product_id}/tag": {
-            "post": {
-                "description": "Add tag on product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product",
-                    "Tag"
-                ],
-                "summary": "Seller add product tag",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "product id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "add tag id",
-                        "name": "tag_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.ProductTag"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }

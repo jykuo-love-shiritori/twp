@@ -35,7 +35,6 @@ func HasRegexSpecialChars(input string) bool {
 	return re.MatchString(input)
 }
 
-// c.FormValue("tags")
 func String2IntArray(str string) ([]int32, error) {
 	var array []int32
 	err := json.Unmarshal([]byte(str), &array)
