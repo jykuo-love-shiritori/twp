@@ -253,7 +253,44 @@ func (q *Queries) DeleteCouponFromCart(ctx context.Context, arg DeleteCouponFrom
 	return result.RowsAffected(), nil
 }
 
-const deleteProductFromCart = `-- name: DeleteProductFromCart :execrows
+const deleteEmptyCart = `-- name: DeleteEmptyCart :exec
+WITH valid_cart AS (
+    SELECT C."id"
+    FROM "cart" C
+        JOIN "user" u ON u."id" = C."user_id"
+    WHERE u."username" = $1
+        AND C."id" = $2
+        AND NOT EXISTS (
+            SELECT 1
+            FROM "cart_product" CP
+            WHERE CP."cart_id" = C."id"
+        )
+),
+delete_coupon AS (
+    DELETE FROM "cart_coupon" AS CC
+    WHERE "cart_id" = (
+            SELECT "id"
+            FROM valid_cart
+        )
+)
+DELETE FROM "cart" AS C
+WHERE "id" = (
+        SELECT "id"
+        FROM valid_cart
+    )
+`
+
+type DeleteEmptyCartParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+func (q *Queries) DeleteEmptyCart(ctx context.Context, arg DeleteEmptyCartParams) error {
+	_, err := q.db.Exec(ctx, deleteEmptyCart, arg.Username, arg.CartID)
+	return err
+}
+
+const deleteProductFromCart = `-- name: DeleteProductFromCart :one
 WITH valid_cart AS (
     SELECT C."id"
     FROM "cart" C
@@ -269,26 +306,10 @@ deleted_products AS (
         )
         AND CP."product_id" = $3
     RETURNING cart_id, product_id, quantity
-),
-remaining_products AS (
-    SELECT COUNT(*) AS count
-    FROM "cart_product"
-    WHERE "cart_id" = (
-            SELECT "id"
-            FROM valid_cart
-        )
-) -- if there are no products left in the cart, delete the cart ↙️
-DELETE FROM "cart" AS 🛒
-WHERE 🛒."id" = $2
-    AND (
-        SELECT count
-        FROM remaining_products
-    ) = 0
-RETURNING (
-        SELECT EXISTS(
-                SELECT cart_id, product_id, quantity
-                FROM deleted_products
-            )
+)
+SELECT EXISTS (
+        SELECT 1
+        FROM deleted_products
     )
 `
 
@@ -298,12 +319,11 @@ type DeleteProductFromCartParams struct {
 	ProductID int32  `json:"product_id" param:"id"`
 }
 
-func (q *Queries) DeleteProductFromCart(ctx context.Context, arg DeleteProductFromCartParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProductFromCart, arg.Username, arg.CartID, arg.ProductID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) DeleteProductFromCart(ctx context.Context, arg DeleteProductFromCartParams) (bool, error) {
+	row := q.db.QueryRow(ctx, deleteProductFromCart, arg.Username, arg.CartID, arg.ProductID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const getCart = `-- name: GetCart :many
@@ -918,14 +938,19 @@ func (q *Queries) GetUsableCoupons(ctx context.Context, arg GetUsableCouponsPara
 }
 
 const updateProductFromCart = `-- name: UpdateProductFromCart :execrows
-UPDATE "cart_product"
+UPDATE "cart_product" AS CP
 SET "quantity" = $3
 FROM "user" AS U,
-    "cart" AS C
+    "cart" AS C,
+    "product" AS P
 WHERE U."username" = $4
     AND U."id" = C."user_id"
-    AND "cart_id" = $1
-    AND "product_id" = $2
+    AND CP."cart_id" = $1
+    AND CP."product_id" = $2
+    AND $3 <= P."stock"
+    AND P."id" = $2
+    AND P."enabled" = TRUE
+    AND C."id" = CP."cart_id"
 `
 
 type UpdateProductFromCartParams struct {

@@ -131,10 +131,10 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Buyer, Cart
 // @Accept			json
 // @Produce		json
-// @Param			cart_id		path		int		true	"Cart ID"
-// @Param			product_id	path		int		true	"Product ID"
+// @Param			cart_id		path		int				true	"Cart ID"
+// @Param			product_id	path		int				true	"Product ID"
 // @Param			quantity	body		ProductQuantity	true	"Quantity"
-// @Success		200			{string}	string	constants.SUCCESS
+// @Success		200			{string}	string			constants.SUCCESS
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/product/{product_id} [patch]
@@ -156,7 +156,7 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if param.Quantity == 0 {
-			rows, err := pg.Queries.DeleteProductFromCart(c.Request().Context(),
+			exec, err := pg.Queries.DeleteProductFromCart(c.Request().Context(),
 				db.DeleteProductFromCartParams{
 					Username:  username,
 					CartID:    param.CartID,
@@ -166,8 +166,16 @@ func buyerEditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 				logger.Errorw("failed to delete product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			if rows == 0 {
+			if !exec {
 				return echo.NewHTTPError(http.StatusBadRequest)
+			}
+			// delete empty cart
+			if err := pg.Queries.DeleteEmptyCart(c.Request().Context(), db.DeleteEmptyCartParams{
+				Username: username,
+				CartID:   param.CartID,
+			}); err != nil {
+				logger.Errorw("failed to delete empty cart", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			return c.JSON(http.StatusOK, constants.SUCCESS)
 		}
@@ -190,9 +198,9 @@ type ProductQuantity struct {
 // @Tags			Buyer, Cart
 // @Accept			json
 // @Produce		json
-// @Param			id	path		int	true	"Product ID"
+// @Param			id			path		int				true	"Product ID"
 // @Param			quantity	body		ProductQuantity	true	"Quantity"
-// @Success		200			{integer}	int	"product quantity in cart"
+// @Success		200			{integer}	int				"product quantity in cart"
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/buyer/cart/product/{id} [post]
@@ -235,10 +243,10 @@ type couponV2 struct {
 // @Tags			Buyer, Cart, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			cart_id		path		int	true	"Cart ID"
-// @Success		200			{array}		db.GetUsableCouponsRow
-// @Failure		400			{object}	echo.HTTPError
-// @Failure		500			{object}	echo.HTTPError
+// @Param			cart_id	path		int	true	"Cart ID"
+// @Success		200		{array}		db.GetUsableCouponsRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
 // @Router			/buyer/cart/{cart_id}/coupon [get]
 func buyerGetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -505,11 +513,19 @@ func buyerDeleteProductFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.Handl
 			logger.Errorw("failed to parse cart_id or product_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if rows, err := pg.Queries.DeleteProductFromCart(c.Request().Context(), param); err != nil {
+		if exec, err := pg.Queries.DeleteProductFromCart(c.Request().Context(), param); err != nil {
 			logger.Errorw("failed to delete product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if rows == 0 {
+		} else if !exec {
 			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		// delete empty cart
+		if err := pg.Queries.DeleteEmptyCart(c.Request().Context(), db.DeleteEmptyCartParams{
+			Username: username,
+			CartID:   param.CartID,
+		}); err != nil {
+			logger.Errorw("failed to delete empty cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}

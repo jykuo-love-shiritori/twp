@@ -156,7 +156,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
 // @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
-// @Param			limit	query	int	true	"limit"			default(10) minimum(20)
+// @Param			limit	query	int	true	"limit"			default(10)	minimum(20)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -399,7 +399,7 @@ func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFun
 // @Summary		Seller get order
 // @Description	Get all orders for shop.
 // @Tags			Seller, Shop, Order
-// @Param			offset	query	int	true	"offset"	default(0) minimum(0)
+// @Param			offset	query	int	true	"offset"	default(0)	minimum(0)
 // @Param			limit	query	int	true	"limit"		default(10)	maximum(20)
 // @Produce		json
 // @Success		200	{array}		db.SellerGetOrderRow
@@ -574,7 +574,7 @@ func sellerGetProductDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFu
 // @Summary		Seller get product
 // @Description	seller get product
 // @Tags			Seller, Shop, Product
-// @Param			offset	query	int	true	"offset page"	default(0) minimum(0)
+// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
 // @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
 // @Accept			json
 // @Produce		json
@@ -614,7 +614,7 @@ func sellerListProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			price		body	number	false	"price"
 // @Param			image_id	body	string	true	"image id"
 // @Param			expire_date	body	string	true	"expire date"
-// @Param			stock		body	integer		true	"stock"
+// @Param			stock		body	integer	true	"stock"
 // @Param			enabled		body	boolean	true	"enabled"
 // @Accept			json
 // @Produce		json

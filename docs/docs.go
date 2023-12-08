@@ -730,6 +730,9 @@ const docTemplate = `{
         "/buyer/cart/{cart_id}/product/{product_id}": {
             "delete": {
                 "description": "Delete product from cart",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],

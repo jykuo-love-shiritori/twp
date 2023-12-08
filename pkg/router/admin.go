@@ -236,9 +236,9 @@ type adminReport struct {
 // @Tags			Admin, Report
 // @Produce		json
 // @Param			date	query		string	true	"Start year/month"
-// @Success		200			{string}	string	"TODO"
-// @Failure		400			{object}	echo.HTTPError
-// @Failure		500			{object}	echo.HTTPError
+// @Success		200		{string}	string	"TODO"
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/report [get]
 func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {

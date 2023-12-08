@@ -112,16 +112,21 @@ WHERE "cart_id" = $1
     AND C."product_id" = P."id";
 
 -- name: UpdateProductFromCart :execrows
-UPDATE "cart_product"
+UPDATE "cart_product" AS CP
 SET "quantity" = $3
 FROM "user" AS U,
-    "cart" AS C
+    "cart" AS C,
+    "product" AS P
 WHERE U."username" = $4
     AND U."id" = C."user_id"
-    AND "cart_id" = $1
-    AND "product_id" = $2;
+    AND CP."cart_id" = $1
+    AND CP."product_id" = $2
+    AND $3 <= P."stock"
+    AND P."id" = $2
+    AND P."enabled" = TRUE
+    AND C."id" = CP."cart_id";
 
--- name: DeleteProductFromCart :execrows
+-- name: DeleteProductFromCart :one
 WITH valid_cart AS (
     SELECT C."id"
     FROM "cart" C
@@ -137,26 +142,36 @@ deleted_products AS (
         )
         AND CP."product_id" = @product_id
     RETURNING *
+)
+SELECT EXISTS (
+        SELECT 1
+        FROM deleted_products
+    );
+
+-- name: DeleteEmptyCart :exec
+WITH valid_cart AS (
+    SELECT C."id"
+    FROM "cart" C
+        JOIN "user" u ON u."id" = C."user_id"
+    WHERE u."username" = $1
+        AND C."id" = @cart_id
+        AND NOT EXISTS (
+            SELECT 1
+            FROM "cart_product" CP
+            WHERE CP."cart_id" = C."id"
+        )
 ),
-remaining_products AS (
-    SELECT COUNT(*) AS count
-    FROM "cart_product"
+delete_coupon AS (
+    DELETE FROM "cart_coupon" AS CC
     WHERE "cart_id" = (
             SELECT "id"
             FROM valid_cart
         )
-) -- if there are no products left in the cart, delete the cart ↙️
-DELETE FROM "cart" AS 🛒
-WHERE 🛒."id" = @cart_id
-    AND (
-        SELECT count
-        FROM remaining_products
-    ) = 0
-RETURNING (
-        SELECT EXISTS(
-                SELECT *
-                FROM deleted_products
-            )
+)
+DELETE FROM "cart" AS C
+WHERE "id" = (
+        SELECT "id"
+        FROM valid_cart
     );
 
 -- name: GetUsableCoupons :many

@@ -1220,6 +1220,8 @@ paths:
       - Coupon
   /buyer/cart/{cart_id}/product/{product_id}:
     delete:
+      consumes:
+      - application/json
       description: Delete product from cart
       parameters:
       - description: Cart ID
