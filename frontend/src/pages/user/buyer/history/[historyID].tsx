@@ -58,7 +58,22 @@ const HistoryEach = () => {
 
         {record?.items.map((data, index) => {
           return (
-            <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} key={index} />
+            <CartItem
+              data={{
+                product_id: data.item_id,
+                quantity: data.quantity,
+                enabled: true,
+                stock: 10,
+                name: 'test',
+                price: 10,
+                image_id: '/placeholder/goods1.png',
+              }}
+              cart_id={0}
+              onRefetch={() => {
+                void 0;
+              }}
+              key={index}
+            />
           );
         })}
 

@@ -21,22 +21,17 @@ interface ProductProps {
 const CartItem = ({ data, cart_id, onRefetch }: Props) => {
   const removeItem = () => {
     //TODO: DELETE /buyer/cart/:cart_id/product/:product_id
-    const path = `/buyer/cart/${cart_id}/product/${data.product_id}`;
-    console.log(path);
+    console.log(`${data.name} delete in cart ${cart_id}`);
     onRefetch();
   };
 
   const updateQuantity = (quantity: number) => {
     //TODO: PATCH /buyer/cart/:cart_id/product/:product_id
+    // body: { quantity: number }
     if (quantity === 0) {
       removeItem();
     } else if (quantity > 0 && quantity <= data.stock) {
-      const path = `/buyer/cart/${cart_id}/product/${data.product_id}`;
-      const obj = {
-        quantity: quantity,
-      };
-      console.log(path);
-      console.log(obj);
+      console.log(`${data.name} ${quantity} in cart ${cart_id}`);
       onRefetch();
     }
   };
@@ -49,11 +44,16 @@ const CartItem = ({ data, cart_id, onRefetch }: Props) => {
         </Col>
         <Col xs={8} md={11} className='dark center_vertical'>
           <Row className='center_vertical' style={{ width: '100%' }}>
-            <Col xs={12} md={5} className='center_vertical' style={{ wordBreak: 'break-all' }}>
+            <Col
+              xs={12}
+              md={5}
+              className='center_vertical'
+              style={{ wordBreak: 'break-all', padding: '2% 0' }}
+            >
               {data.name}
             </Col>
 
-            <Col xs={12} md={4} className='right'>
+            <Col xs={6} md={4} className='right' style={{ padding: '2% 0' }}>
               <Row>
                 <Col xs={3} onClick={() => updateQuantity(data.quantity - 1)} className='pointer'>
                   <div className='quantity_f pointer center'>-</div>
@@ -77,11 +77,11 @@ const CartItem = ({ data, cart_id, onRefetch }: Props) => {
               </Row>
             </Col>
 
-            <Col xs={12} md={2} className='right'>
+            <Col xs={4} md={2} className='right'>
               {data.price * data.quantity} NTD
             </Col>
 
-            <Col xs={6} md={1} className='center'>
+            <Col xs={2} md={1} className='center'>
               <FontAwesomeIcon icon={faTrash} className='trash' onClick={removeItem} />
             </Col>
           </Row>

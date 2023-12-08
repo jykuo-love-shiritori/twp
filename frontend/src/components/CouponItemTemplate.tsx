@@ -7,9 +7,10 @@ interface CouponItemTemplate {
     name: string;
     description: string;
     discount: number;
-    start_date: string;
+    start_date?: string;
     expire_date: string;
-    tags: {
+    scope?: string;
+    tags?: {
       name: string;
     }[];
   };
@@ -21,6 +22,7 @@ const couponStyle = {
   borderRadius: '30px',
   padding: '5%',
   border: 'var(--border) solid 2px',
+  witdh: '100%',
 };
 
 const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
