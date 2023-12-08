@@ -175,18 +175,34 @@ const CartGroup = ({ data, onRefetch }: Props) => {
   return (
     <>
       <div className='cart_group'>
-        <Row style={{ padding: '0 5%' }} className='center_vertical'>
-          <Col xs={8} md={6}>
-            <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
-          </Col>
+        <div className='disappear_phone' style={{ fontSize: '20px' }}>
+          <Row className='center_vertical' style={{ width: '100%', padding: '0 2%' }}>
+            <Col md={6}>
+              <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
+            </Col>
+            <Col md={3} className='center'>
+              Subtotal: ${data.products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
+            </Col>
+            <Col md={3} className='center'>
+              <TButton text='Checkout' action={onViewCheckout} />
+            </Col>
+          </Row>
+        </div>
 
-          <Col xs={4} md={3} className='center'>
-            Subtotal: ${data.products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
-          </Col>
-          <Col xs={12} md={3} className='center'>
-            <TButton text='Checkout' action={onViewCheckout} />
-          </Col>
-        </Row>
+        <div className='disappear_tablet disappear_desktop'>
+          <Row className='center_vertical' style={{ width: '100%', padding: '0 3%', margin: '0' }}>
+            <Col xs={6} style={{ padding: '0 0 0 5%' }}>
+              <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
+            </Col>
+            <Col xs={6} className='right'>
+              Subtotal: ${data.products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
+            </Col>
+            <Col xs={12} className='center'>
+              <TButton text='Checkout' action={onViewCheckout} />
+            </Col>
+          </Row>
+        </div>
+
         {data.products.map((productData, index) => (
           <CartItem
             data={productData}
