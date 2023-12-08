@@ -28,7 +28,7 @@ const userImgStyle = {
 const labelStyle = {
   fontSize: '16px',
   fontWeight: '500',
-  color: '#FFFFFFAA',
+  color: 'rgba(255, 255, 255, 0.67)',
 };
 
 const SellerInfo = () => {
