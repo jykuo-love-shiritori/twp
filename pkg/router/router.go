@@ -69,9 +69,8 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.GET("/admin/report", adminGetReport(db, logger))
 
 	// user
-	api.GET("/user/info", userGetInfo(db, logger))
-	api.PATCH("/user/info", userEditInfo(db, logger))
-	api.POST("/user/info/upload", userUploadAvatar(db, logger))
+	api.GET("/user/info", userGetInfo(db, mc, logger))
+	api.PATCH("/user/info", userEditInfo(db, mc, logger))
 	api.POST("/user/security/password", userEditPassword(db, logger))
 
 	api.GET("/user/security/credit_card", userGetCreditCard(db, logger))

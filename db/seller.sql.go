@@ -115,6 +115,29 @@ func (q *Queries) SellerBestSellProduct(ctx context.Context, arg SellerBestSellP
 	return items, nil
 }
 
+const sellerCheckTags = `-- name: SellerCheckTags :one
+SELECT NOT EXISTS (
+        SELECT 1
+        FROM unnest($2::INT []) as t
+            LEFT JOIN "tag" ON t = "tag"."id"
+            LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
+        WHERE "tag"."id" = NULL
+            OR s."seller_name" != $1
+    )
+`
+
+type SellerCheckTagsParams struct {
+	SellerName string  `json:"seller_name" param:"seller_name"`
+	Tags       []int32 `json:"tags"`
+}
+
+func (q *Queries) SellerCheckTags(ctx context.Context, arg SellerCheckTagsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, sellerCheckTags, arg.SellerName, arg.Tags)
+	var not_exists bool
+	err := row.Scan(&not_exists)
+	return not_exists, err
+}
+
 const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
 DELETE FROM "coupon" c
 WHERE c."id" = $2
@@ -338,7 +361,7 @@ WHERE s."seller_name" = $1
 
 type SellerGetCouponTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	CouponID   int32  `json:"coupon_id" param:"id"`
+	CouponID   int32  `json:"coupon_id" param:"coupon_id"`
 }
 
 type SellerGetCouponTagRow struct {
@@ -605,7 +628,7 @@ WHERE s."seller_name" = $1
 
 type SellerGetProductTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	ProductID  int32  `json:"product_id" param:"id"`
+	ProductID  int32  `json:"product_id" param:"product_id"`
 }
 
 type SellerGetProductTagRow struct {
@@ -740,7 +763,7 @@ RETURNING coupon_id, tag_id
 type SellerInsertCouponTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	CouponID   int32  `json:"coupon_id" param:"id"`
+	CouponID   int32  `json:"coupon_id" param:"coupon_id"`
 }
 
 func (q *Queries) SellerInsertCouponTag(ctx context.Context, arg SellerInsertCouponTagParams) (CouponTag, error) {
@@ -748,6 +771,21 @@ func (q *Queries) SellerInsertCouponTag(ctx context.Context, arg SellerInsertCou
 	var i CouponTag
 	err := row.Scan(&i.CouponID, &i.TagID)
 	return i, err
+}
+
+const sellerInsertCouponTags = `-- name: SellerInsertCouponTags :exec
+INSERT INTO "coupon_tag" ("coupon_id", "tag_id")
+VALUES ($1, unnest($2::INT []))
+`
+
+type SellerInsertCouponTagsParams struct {
+	CouponID int32   `json:"coupon_id" param:"coupon_id"`
+	Tags     []int32 `json:"tags"`
+}
+
+func (q *Queries) SellerInsertCouponTags(ctx context.Context, arg SellerInsertCouponTagsParams) error {
+	_, err := q.db.Exec(ctx, sellerInsertCouponTags, arg.CouponID, arg.Tags)
+	return err
 }
 
 const sellerInsertProduct = `-- name: SellerInsertProduct :one
@@ -868,7 +906,7 @@ RETURNING tag_id, product_id
 type SellerInsertProductTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	TagID      int32  `json:"tag_id"`
-	ProductID  int32  `json:"product_id" param:"id"`
+	ProductID  int32  `json:"product_id" param:"product_id"`
 }
 
 func (q *Queries) SellerInsertProductTag(ctx context.Context, arg SellerInsertProductTagParams) (ProductTag, error) {
@@ -876,6 +914,21 @@ func (q *Queries) SellerInsertProductTag(ctx context.Context, arg SellerInsertPr
 	var i ProductTag
 	err := row.Scan(&i.TagID, &i.ProductID)
 	return i, err
+}
+
+const sellerInsertProductTags = `-- name: SellerInsertProductTags :exec
+INSERT INTO "product_tag" ("product_id", "tag_id")
+VALUES ($1, unnest($2::INT []))
+`
+
+type SellerInsertProductTagsParams struct {
+	ProductID int32   `json:"product_id" param:"product_id"`
+	Tags      []int32 `json:"tags"`
+}
+
+func (q *Queries) SellerInsertProductTags(ctx context.Context, arg SellerInsertProductTagsParams) error {
+	_, err := q.db.Exec(ctx, sellerInsertProductTags, arg.ProductID, arg.Tags)
+	return err
 }
 
 const sellerInsertTag = `-- name: SellerInsertTag :one

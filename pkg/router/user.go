@@ -4,10 +4,16 @@ import (
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type updatePasswordParams struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
 
 // @Summary		User Get Info
 // @Description	Get user information
@@ -17,7 +23,7 @@ import (
 // @success		200	{object}	db.UserGetInfoRow
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/info [get]
-func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userGetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
@@ -25,6 +31,7 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		user.ImageID = mc.GetFileURL(c.Request().Context(), user.ImageID)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -32,16 +39,17 @@ func userGetInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		User Edit Info
 // @Description	Edit user information
 // @Tags			User
-// @Param			name		body	string	true	"name of coupon"
-// @Param			address		body	string	true	"user address"
-// @Param			image_id	body	string	true	"image id"
+// @Param			name	formData	string	true	"name of coupon"
+// @Param			address	formData	string	true	"user address"
+// @Param			email	formData	string	true	"email"
+// @Param			image	formData	string	true	"image id"
 // @Accept			json
 // @Produce		json
 // @success		200	{object}	db.UserUpdateInfoRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/info [patch]
-func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -49,38 +57,29 @@ func userEditInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
-
+		}
+		fileHeader, err := c.FormFile("image")
+		//if have file then store in minio
+		if fileHeader != nil && err == nil {
+			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
+			if err != nil {
+				logger.Error(err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			param.ImageID = ImageID
+		} else {
+			param.ImageID = ""
 		}
 		param.Username = username
-		info, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
+		user, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
-		return c.JSON(http.StatusOK, info)
+		user.ImageID = mc.GetFileURL(c.Request().Context(), user.ImageID)
+		return c.JSON(http.StatusOK, user)
 	}
-}
-
-// @Summary		User Upload Avatar
-// @Description	Upload user avatar
-// @Tags			User
-// @Accept			png,jpeg,gif
-// @Produce		json
-// @Param			img	formData	file	true	"Image to upload"
-// @Success		200
-// @Failure		401
-// @Router			/user/avatar [post]
-func userUploadAvatar(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
-	}
-}
-
-type updatePasswordParams struct {
-	CurrentPassword string `json:"current_password"`
-	NewPassword     string `json:"new_password"`
 }
 
 // @Summary		User Edit Password

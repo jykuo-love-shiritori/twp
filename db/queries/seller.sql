@@ -262,6 +262,21 @@ FROM "product" p
 WHERE s.seller_name = $1
 ORDER BY "sales" DESC
 LIMIT $2 OFFSET $3;
+-- name: SellerCheckTags :one
+SELECT NOT EXISTS (
+        SELECT 1
+        FROM unnest(sqlc.slice('tags')::INT []) as t
+            LEFT JOIN "tag" ON t = "tag"."id"
+            LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
+        WHERE "tag"."id" = NULL
+            OR s."seller_name" != $1
+    );
+-- name: SellerInsertProductTags :exec
+INSERT INTO "product_tag" ("product_id", "tag_id")
+VALUES ($1, unnest(@tags::INT []));
+-- name: SellerInsertCouponTags :exec
+INSERT INTO "coupon_tag" ("coupon_id", "tag_id")
+VALUES ($1, unnest(@tags::INT []));
 -- name: SellerInsertProduct :one
 INSERT INTO "product"(
         "version",

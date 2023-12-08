@@ -412,9 +412,9 @@ type GetUsersParams struct {
 
 type GetUsersRow struct {
 	Username   string          `json:"username"`
-	Name       string          `json:"name"`
-	Email      string          `json:"email"`
-	Address    string          `json:"address"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
 	Role       RoleType        `json:"role"`
 	CreditCard json.RawMessage `json:"credit_card"`
 	Enabled    bool            `json:"enabled"`

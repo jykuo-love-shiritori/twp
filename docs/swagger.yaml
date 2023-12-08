@@ -532,10 +532,10 @@ definitions:
     type: object
   db.UserGetInfoRow:
     properties:
+      address:
+        type: string
       email:
         type: string
-      enabled:
-        type: boolean
       image_id:
         type: string
       name:
@@ -543,10 +543,10 @@ definitions:
     type: object
   db.UserUpdateInfoRow:
     properties:
+      address:
+        type: string
       email:
         type: string
-      enabled:
-        type: boolean
       image_id:
         type: string
       name:
@@ -558,8 +558,6 @@ definitions:
         type: string
       email:
         type: string
-      enabled:
-        type: boolean
       image_id:
         type: string
       name:
@@ -576,6 +574,24 @@ definitions:
       valid:
         type: boolean
     type: object
+  router.CouponDetail:
+    properties:
+      coupon_info:
+        $ref: '#/definitions/db.SellerGetCouponDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.SellerGetCouponTagRow'
+        type: array
+    type: object
+  router.OrderDetail:
+    properties:
+      order_info:
+        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
+      products:
+        items:
+          $ref: '#/definitions/db.SellerGetOrderDetailRow'
+        type: array
+    type: object
   router.PrettierCoupon:
     properties:
       description:
@@ -591,25 +607,7 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  router.couponDetail:
-    properties:
-      coupon_info:
-        $ref: '#/definitions/db.SellerGetCouponDetailRow'
-      tags:
-        items:
-          $ref: '#/definitions/db.SellerGetCouponTagRow'
-        type: array
-    type: object
-  router.orderDetail:
-    properties:
-      order_info:
-        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
-      products:
-        items:
-          $ref: '#/definitions/db.SellerGetOrderDetailRow'
-        type: array
-    type: object
-  router.productDetail:
+  router.ProductDetail:
     properties:
       product_info:
         $ref: '#/definitions/db.SellerGetProductDetailRow'
@@ -1517,7 +1515,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.couponDetail'
+            $ref: '#/definitions/router.CouponDetail'
         "400":
           description: Bad Request
           schema:
@@ -1787,7 +1785,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.orderDetail'
+            $ref: '#/definitions/router.OrderDetail'
         "400":
           description: Bad Request
           schema:
@@ -2034,6 +2032,38 @@ paths:
       - Seller
       - Shop
       - Coupon
+  /seller/product/{product_id}:
+    get:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/router.ProductDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
+      tags:
+      - Seller
+      - Shop
+      - Product
+  /seller/product/{product_id}/tag:
     post:
       consumes:
       - application/json
@@ -2071,37 +2101,6 @@ paths:
       - Shop
       - Product
       - Tag
-  /seller/product/{product_id}:
-    get:
-      consumes:
-      - application/json
-      description: Delete product for shop.
-      parameters:
-      - description: Product ID
-        in: path
-        name: product_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.productDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get product
-      tags:
-      - Seller
-      - Shop
-      - Product
   /seller/report/{year}/{month}:
     get:
       description: Get report detail by year and month for shop.
@@ -2141,12 +2140,11 @@ paths:
       description: Get all available tags for shop.
       parameters:
       - description: search tag name start with
-        in: body
+        in: query
         minLength: 1
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:
@@ -2371,29 +2369,6 @@ paths:
       summary: Get Tag Info
       tags:
       - Tag
-  /user/avatar:
-    post:
-      consumes:
-      - image/png
-      - image/jpeg
-      - image/gif
-      description: Upload user avatar
-      parameters:
-      - description: Image to upload
-        in: formData
-        name: img
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Upload Avatar
-      tags:
-      - User
   /user/info:
     get:
       consumes:
@@ -2419,23 +2394,25 @@ paths:
       description: Edit user information
       parameters:
       - description: name of coupon
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: user address
-        in: body
+        in: formData
         name: address
         required: true
-        schema:
-          type: string
-      - description: image id
-        in: body
-        name: image_id
+        type: string
+      - description: email
+        in: formData
+        name: email
         required: true
-        schema:
-          type: string
+        type: string
+      - description: image id
+        in: formData
+        name: image
+        required: true
+        type: string
       produces:
       - application/json
       responses:

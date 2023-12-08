@@ -1285,7 +1285,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponDetail"
+                            "$ref": "#/definitions/router.CouponDetail"
                         }
                     },
                     "400": {
@@ -1726,7 +1726,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.orderDetail"
+                            "$ref": "#/definitions/router.OrderDetail"
                         }
                     },
                     "400": {
@@ -2023,60 +2023,6 @@ const docTemplate = `{
             }
         },
         "/seller/product/{id}/tag": {
-            "post": {
-                "description": "Add tag on product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product",
-                    "Tag"
-                ],
-                "summary": "Seller add product tag",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "product id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "add tag id",
-                        "name": "tag_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.ProductTag"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -2165,7 +2111,63 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.productDetail"
+                            "$ref": "#/definitions/router.ProductDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/product/{product_id}/tag": {
+            "post": {
+                "description": "Add tag on product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product",
+                    "Tag"
+                ],
+                "summary": "Seller add product tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "add tag id",
+                        "name": "tag_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.ProductTag"
                         }
                     },
                     "400": {
@@ -2248,13 +2250,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "minLength": 1,
+                        "type": "string",
                         "description": "search tag name start with",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2584,40 +2584,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/avatar": {
-            "post": {
-                "description": "Upload user avatar",
-                "consumes": [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Upload Avatar",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Image to upload",
-                        "name": "img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/user/info": {
             "get": {
                 "description": "Get user information",
@@ -2660,31 +2626,32 @@ const docTemplate = `{
                 "summary": "User Edit Info",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "name of coupon",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "user address",
                         "name": "address",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "image id",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3653,11 +3620,11 @@ const docTemplate = `{
         "db.UserGetInfoRow": {
             "type": "object",
             "properties": {
-                "email": {
+                "address": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
+                "email": {
+                    "type": "string"
                 },
                 "image_id": {
                     "type": "string"
@@ -3670,11 +3637,11 @@ const docTemplate = `{
         "db.UserUpdateInfoRow": {
             "type": "object",
             "properties": {
-                "email": {
+                "address": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
+                "email": {
+                    "type": "string"
                 },
                 "image_id": {
                     "type": "string"
@@ -3692,9 +3659,6 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string"
-                },
-                "enabled": {
-                    "type": "boolean"
                 },
                 "image_id": {
                     "type": "string"
@@ -3721,6 +3685,34 @@ const docTemplate = `{
                 }
             }
         },
+        "router.CouponDetail": {
+            "type": "object",
+            "properties": {
+                "coupon_info": {
+                    "$ref": "#/definitions/db.SellerGetCouponDetailRow"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerGetCouponTagRow"
+                    }
+                }
+            }
+        },
+        "router.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "order_info": {
+                    "$ref": "#/definitions/db.SellerGetOrderHistoryRow"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerGetOrderDetailRow"
+                    }
+                }
+            }
+        },
         "router.PrettierCoupon": {
             "type": "object",
             "properties": {
@@ -3744,35 +3736,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router.couponDetail": {
-            "type": "object",
-            "properties": {
-                "coupon_info": {
-                    "$ref": "#/definitions/db.SellerGetCouponDetailRow"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.SellerGetCouponTagRow"
-                    }
-                }
-            }
-        },
-        "router.orderDetail": {
-            "type": "object",
-            "properties": {
-                "order_info": {
-                    "$ref": "#/definitions/db.SellerGetOrderHistoryRow"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.SellerGetOrderDetailRow"
-                    }
-                }
-            }
-        },
-        "router.productDetail": {
+        "router.ProductDetail": {
             "type": "object",
             "properties": {
                 "product_info": {

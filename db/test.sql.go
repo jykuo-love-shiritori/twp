@@ -245,7 +245,7 @@ RETURNING coupon_id, tag_id
 
 type TestInsertCouponTagParams struct {
 	TagID    int32 `json:"tag_id"`
-	CouponID int32 `json:"coupon_id" param:"id"`
+	CouponID int32 `json:"coupon_id" param:"coupon_id"`
 }
 
 func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponTagParams) (CouponTag, error) {
@@ -467,7 +467,7 @@ RETURNING tag_id, product_id
 
 type TestInsertProductTagParams struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id" param:"id"`
+	ProductID int32 `json:"product_id" param:"product_id"`
 }
 
 func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProductTagParams) (ProductTag, error) {
@@ -561,9 +561,9 @@ type TestInsertUserParams struct {
 	ID           int32           `json:"id" param:"id"`
 	Username     string          `json:"username"`
 	Password     string          `json:"password"`
-	Name         string          `json:"name"`
-	Email        string          `json:"email"`
-	Address      string          `json:"address"`
+	Name         string          `form:"name" json:"name"`
+	Email        string          `form:"email" json:"email"`
+	Address      string          `form:"address" json:"address"`
 	ImageID      string          `json:"image_id" swaggertype:"string"`
 	Role         RoleType        `json:"role"`
 	CreditCard   json.RawMessage `json:"credit_card"`
