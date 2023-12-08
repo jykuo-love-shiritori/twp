@@ -1,64 +1,61 @@
-import Form from 'react-bootstrap/Form';
-import { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 
 import CartItem from '@components/CartItem';
 import UserItem from '@components/UserItem';
-
 import sellerInfo from '@pages/user/seller/sellerInfo.json';
+import TButton from './TButton';
 
 interface Props {
-  item_id: number;
-  quantity: number;
-  subtotal: number;
+  data: CartProps;
+  onRefetch: () => void;
 }
 
-const CartGroup = () => {
-  const initialData: Props[] = [];
-  for (let i = 0; i < 3; i++) {
-    const newData: Props = {
-      item_id: 2 + i,
-      quantity: 3 + 3 * i,
-      subtotal: 0,
-    };
-    initialData.push(newData);
-  }
-  const [cartContainer, setCartContainer] = useState<Props[]>(initialData);
+interface CartProps {
+  cartInfo: { id: number; image_id: string; seller_name: string; shop_name: string };
+  coupons: CouponProps[];
+  products: ProductProps[];
+}
 
-  const removeItem = (id: number) => {
-    setCartContainer((prevCartContainer) => {
-      const updateCartContainer = prevCartContainer.filter((item) => item.item_id !== id);
-      return updateCartContainer;
-    });
-  };
+interface CouponProps {
+  description: string;
+  discount: number;
+  id: number;
+  name: string;
+  type: string; // 'percentage' | 'fixed' | 'shipping'
+  scope: string; // 'global' | 'shop'
+}
 
-  if (cartContainer.length != 0) {
-    return (
-      <div className='cart_group'>
-        <Row style={{ padding: '0 0 0 5%' }}>
-          <Col xs={1} className='right'>
-            <Form.Check type={'checkbox'} />
-          </Col>
-          <Col xs={11}>
-            <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
-          </Col>
-        </Row>
+interface ProductProps {
+  enabled: boolean;
+  image_id: string;
+  name: string;
+  price: number;
+  product_id: number;
+  quantity: number;
+  stock: number;
+}
 
-        {cartContainer.map((data, index) => {
-          return (
-            <CartItem
-              item_id={data.item_id}
-              quantity={data.quantity}
-              removeItem={removeItem}
-              // updateTotal={updateTotal}
-              isCart={true}
-              key={index}
-            />
-          );
-        })}
-      </div>
-    );
-  }
+const CartGroup = ({ data, onRefetch }: Props) => {
+  return (
+    <div className='cart_group'>
+      <Row style={{ padding: '0 5%' }} className='center_vertical'>
+        <Col xs={8} md={6}>
+          <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
+        </Col>
+
+        <Col xs={4} md={3} className='center'>
+          Subtotal: ${data.products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
+        </Col>
+        <Col xs={12} md={3} className='center'>
+          <TButton text='Checkout' />
+        </Col>
+      </Row>
+      {data.products.map((productData, index) => (
+        <CartItem data={productData} cart_id={data.cartInfo.id} key={index} onRefetch={onRefetch} />
+      ))}
+    </div>
+  );
+  // }
 };
 
 export default CartGroup;
