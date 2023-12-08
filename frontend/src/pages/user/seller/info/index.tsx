@@ -1,10 +1,11 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Col, Row } from 'react-bootstrap';
 import TButton from '@components/TButton';
+import { useRef, useState } from 'react';
 
 interface ShopInfoProps {
   shopName: string;
-  shopIconUrl: string;
+  shopIcon: File | undefined;
   visibility: boolean;
   description: string;
 }
@@ -18,9 +19,9 @@ const SellerItemStyle = {
 
 const userImgStyle = {
   borderRadius: '50%',
-  background: `url(/placeholder/person.png) lightgray 50% / cover no-repeat`,
   width: '100px',
   height: '100px',
+  cursor: 'pointer',
 };
 
 const labelStyle = {
@@ -31,11 +32,10 @@ const labelStyle = {
 
 const SellerInfo = () => {
   //TODO: get the info from existing shop
-  //TODO: add the shop icon
-  const { register, handleSubmit, watch } = useForm<ShopInfoProps>({
+  const { register, handleSubmit, watch, setValue } = useForm<ShopInfoProps>({
     defaultValues: {
       shopName: 'shop name',
-      shopIconUrl: '',
+      shopIcon: undefined,
       visibility: false,
       description: 'shop description',
     },
@@ -43,6 +43,22 @@ const SellerInfo = () => {
   const OnFormOutput: SubmitHandler<ShopInfoProps> = (data) => {
     console.log(data);
     return data;
+  };
+
+  // icon upload thing
+  const [image, setImage] = useState<string | undefined>(undefined);
+  const iconOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      //TODO? check file type
+      setValue('shopIcon', e.target.files[0]);
+      setImage(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+  const hiddenFileInput = useRef<HTMLInputElement>(null);
+  const handleIconClick = () => {
+    if (hiddenFileInput.current) {
+      hiddenFileInput.current.click();
+    }
   };
 
   return (
@@ -57,8 +73,19 @@ const SellerInfo = () => {
               <Col />
               <Col xs={8} xl={7}>
                 <div style={SellerItemStyle}>
+                  {/* upload img */}
                   <div className='center'>
-                    <div style={userImgStyle} />
+                    <input
+                      type='file'
+                      onChange={iconOnChange}
+                      style={{ display: 'none' }}
+                      ref={hiddenFileInput}
+                    />
+                    <img
+                      src={image ? image : '/placeholder/person.png'}
+                      style={userImgStyle}
+                      onClick={handleIconClick}
+                    />
                   </div>
                   <div className='center' style={{ paddingTop: '10px' }}>
                     <h5>{watch('shopName')}</h5>
