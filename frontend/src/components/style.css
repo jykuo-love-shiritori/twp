@@ -481,3 +481,12 @@
   transition: all 0.3s ease-in-out;
   text-decoration: underline;
 }
+
+.checkout_button {
+  cursor: pointer;
+  color: rgb(133, 133, 133);
+}
+.checkout_button:hover {
+  transition: all 0.3s ease-in-out;
+  color: var(--button_dark);
+}

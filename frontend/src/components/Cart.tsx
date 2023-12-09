@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+import { faBan, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 import CartProduct from '@components/CartProduct';
@@ -275,12 +276,14 @@ const Cart = ({ data, onRefetch }: Props) => {
                   <Col xs='auto' style={{ paddingRight: '0' }}>
                     Discount
                   </Col>
-                  <Col
-                    xs='auto'
-                    onClick={onChooseCoupon}
-                    style={{ fontWeight: '900', cursor: 'pointer' }}
-                  >
-                    +
+
+                  <Col xs='auto'>
+                    <FontAwesomeIcon
+                      className='checkout_button'
+                      icon={faPlus}
+                      size='sm'
+                      onClick={onChooseCoupon}
+                    />
                   </Col>
                 </Row>
 
@@ -288,12 +291,13 @@ const Cart = ({ data, onRefetch }: Props) => {
                   <Row style={ContentStyle} key={index}>
                     <Col xs={6}>
                       <Row>
-                        <Col
-                          xs='auto'
-                          onClick={() => onRemoveCoupon(couponData.id)}
-                          style={{ fontWeight: '900', cursor: 'pointer' }}
-                        >
-                          -
+                        <Col xs='auto'>
+                          <FontAwesomeIcon
+                            className='checkout_button'
+                            icon={faBan}
+                            size='sm'
+                            onClick={() => onRemoveCoupon(couponData.id)}
+                          />
                         </Col>
                         {couponData.name}
                         <Col></Col>
