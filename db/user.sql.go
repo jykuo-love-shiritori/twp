@@ -8,20 +8,15 @@ package db
 import (
 	"context"
 	"encoding/json"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addUser = `-- name: AddUser :exec
-
-INSERT INTO
-    "user" (
+INSERT INTO "user" (
         "username",
         "password",
         "name",
         "email",
         "address",
-        "image_id",
         "role",
         "credit_card"
     )
@@ -30,7 +25,6 @@ VALUES (
         $2,
         $3,
         $4,
-        '',
         $5,
         'customer',
         '{}'
@@ -38,11 +32,11 @@ VALUES (
 `
 
 type AddUserParams struct {
-	Username string      `json:"username"`
-	Password string      `json:"password"`
-	Name     string      `json:"name"`
-	Email    string      `json:"email"`
-	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
 }
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
@@ -51,18 +45,16 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 		arg.Password,
 		arg.Name,
 		arg.Email,
-		arg.ImageID,
+		arg.Address,
 	)
 	return err
 }
 
 const userExists = `-- name: UserExists :one
-
 SELECT EXISTS (
         SELECT 1
         FROM "user"
-        WHERE
-            "username" = $1
+        WHERE "username" = $1
             OR "email" = $2
     )
 `
@@ -80,8 +72,9 @@ func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, e
 }
 
 const userGetCreditCard = `-- name: UserGetCreditCard :one
-
-SELECT "credit_card" FROM "user" WHERE "username" = $1
+SELECT "credit_card"
+FROM "user"
+WHERE "username" = $1
 `
 
 func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.RawMessage, error) {
@@ -92,9 +85,7 @@ func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.
 }
 
 const userGetInfo = `-- name: UserGetInfo :one
-
-SELECT
-    "name",
+SELECT "name",
     "email",
     "image_id",
     "enabled"
@@ -103,10 +94,10 @@ WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
@@ -122,8 +113,9 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 }
 
 const userGetPassword = `-- name: UserGetPassword :one
-
-SELECT "password" FROM "user" WHERE "username" = $1
+SELECT "password"
+FROM "user"
+WHERE "username" = $1
 `
 
 func (q *Queries) UserGetPassword(ctx context.Context, username string) (string, error) {
@@ -134,7 +126,6 @@ func (q *Queries) UserGetPassword(ctx context.Context, username string) (string,
 }
 
 const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
-
 UPDATE "user"
 SET "credit_card" = $2
 WHERE "username" = $1
@@ -154,34 +145,31 @@ func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCredit
 }
 
 const userUpdateInfo = `-- name: UserUpdateInfo :one
-
 UPDATE "user"
-SET
-    "name" = COALESCE($2, "name"),
+SET "name" = COALESCE($2, "name"),
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
     "image_id" = COALESCE($5, "image_id")
 WHERE "username" = $1
-RETURNING
-    "name",
+RETURNING "name",
     "email",
     "image_id",
     "enabled"
 `
 
 type UserUpdateInfoParams struct {
-	Username string      `json:"username"`
-	Name     string      `json:"name"`
-	Email    string      `json:"email"`
-	Address  string      `json:"address"`
-	ImageID  pgtype.UUID `json:"image_id" swaggertype:"string"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	ImageID  string `json:"image_id" swaggertype:"string"`
 }
 
 type UserUpdateInfoRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
@@ -203,13 +191,10 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 }
 
 const userUpdatePassword = `-- name: UserUpdatePassword :one
-
 UPDATE "user"
-SET
-    "password" = $2
+SET "password" = $2
 WHERE "username" = $1
-RETURNING
-    "name",
+RETURNING "name",
     "email",
     "address",
     "image_id",
@@ -222,11 +207,11 @@ type UserUpdatePasswordParams struct {
 }
 
 type UserUpdatePasswordRow struct {
-	Name    string      `json:"name"`
-	Email   string      `json:"email"`
-	Address string      `json:"address"`
-	ImageID pgtype.UUID `json:"image_id" swaggertype:"string"`
-	Enabled bool        `json:"enabled"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Address string `json:"address"`
+	ImageID string `json:"image_id" swaggertype:"string"`
+	Enabled bool   `json:"enabled"`
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {

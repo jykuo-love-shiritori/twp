@@ -5,7 +5,6 @@ import (
 	"net/mail"
 
 	"github.com/jykuo-love-shiritori/twp/db"
-	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -68,7 +67,6 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			Password: hash,
 			Name:     params.Name,
 			Email:    params.Email,
-			ImageID:  common.DefaultImageUuid,
 		})
 		if err != nil {
 			logger.Error(err)
