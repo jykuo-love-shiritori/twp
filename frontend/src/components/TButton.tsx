@@ -22,7 +22,11 @@ const TButton = ({ text, action }: Props) => {
 
   return (
     <div className='center none' style={{ width: '100%' }}>
-      <Button className='none button pointer center' onClick={handleClick}>
+      <Button
+        className='none button pointer center'
+        onClick={handleClick}
+        style={{ boxShadow: '6px 6px 15px 5px rgba(0, 0, 0, 0.15)' }}
+      >
         {text}
       </Button>
     </div>

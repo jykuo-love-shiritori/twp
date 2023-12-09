@@ -2,9 +2,10 @@ import { Row, Col, Offcanvas, Modal } from 'react-bootstrap';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import { faBan, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 import CartProduct from '@components/CartProduct';
@@ -172,6 +173,11 @@ const Cart = ({ data, onRefetch }: Props) => {
   const onPay = () => {
     // TODO: Buyer checkout
     // POST /buyer/cart/:cart_id/checkout
+    if (watch('card_id') === null) {
+      // TODO: implement real card selection
+      console.log('please select a card');
+      return;
+    }
     console.log('pay');
     onRefetch();
     setCanvaShow(false);
@@ -195,6 +201,11 @@ const Cart = ({ data, onRefetch }: Props) => {
     console.log(`remove coupon ${coupon_id}`);
     onRefetchCheckout();
   };
+
+  interface FormProps {
+    card_id: number;
+  }
+  const { register, watch } = useForm<FormProps>();
 
   return (
     <>
@@ -266,7 +277,7 @@ const Cart = ({ data, onRefetch }: Props) => {
                 <Row style={ContentStyle}>
                   <Col xs={6}>Shipment</Col>
                   <Col xs={6} className='right'>
-                    {checkoutData?.shipment}
+                    {checkoutData?.shipment} NTD
                   </Col>
                 </Row>
               </Col>
@@ -304,7 +315,7 @@ const Cart = ({ data, onRefetch }: Props) => {
                       </Row>
                     </Col>
                     <Col xs={6} className='right'>
-                      {couponData.discount_value}
+                      {couponData.discount_value} NTD
                     </Col>
                   </Row>
                 ))}
@@ -315,15 +326,15 @@ const Cart = ({ data, onRefetch }: Props) => {
                 <Row style={ContentStyle}>
                   <Col xs={6}>subtotal</Col>
                   <Col xs={6} className='right'>
-                    {checkoutData?.subtotal}
+                    {checkoutData?.subtotal} NTD
                   </Col>
                   <Col xs={6}>shipment</Col>
                   <Col xs={6} className='right'>
-                    {checkoutData?.shipment}
+                    {checkoutData?.shipment} NTD
                   </Col>
                   <Col xs={6}>discount</Col>
                   <Col xs={6} className='right'>
-                    -{checkoutData?.total_discount}
+                    -{checkoutData?.total_discount} NTD
                   </Col>
                   <Col
                     xs={6}
@@ -336,13 +347,36 @@ const Cart = ({ data, onRefetch }: Props) => {
                     className='right'
                     style={{ fontWeight: '900', fontSize: '20px', textDecoration: 'underline' }}
                   >
-                    {checkoutData?.total}
+                    {checkoutData?.total} NTD
                   </Col>
                 </Row>
               </Col>
 
               <Col xs={12} style={LabelStyle}>
                 Payment Method
+                <form>
+                  {/* TODO: implement real card selection */}
+                  <Row style={ContentStyle}>
+                    <Col xs={2} className='center'>
+                      <input
+                        type='radio'
+                        value={1}
+                        {...register('card_id')}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </Col>
+                    <Col xs={10}>Card1</Col>
+                    <Col xs={2} className='center'>
+                      <input
+                        type='radio'
+                        value={1}
+                        {...register('card_id')}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </Col>
+                    <Col xs={10}>Card2</Col>
+                  </Row>
+                </form>
               </Col>
 
               <Col className='disappear_phone' />
