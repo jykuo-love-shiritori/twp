@@ -1,4 +1,4 @@
-import CartGroup from '@components/CartGroup';
+import CartGroup from '@components/Cart';
 import { useQuery } from '@tanstack/react-query';
 
 interface CartProps {
@@ -26,7 +26,7 @@ interface ProductProps {
   stock: number;
 }
 
-const Cart = () => {
+const BuyerCarts = () => {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['jsonData'],
     queryFn: async () => {
@@ -60,4 +60,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default BuyerCarts;

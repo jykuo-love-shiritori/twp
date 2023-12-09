@@ -1,14 +1,15 @@
 import { Row, Col, Offcanvas, Modal } from 'react-bootstrap';
-
-import CartItem from '@components/CartItem';
-import UserItem from '@components/UserItem';
-import sellerInfo from '@pages/user/seller/sellerInfo.json';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { useQuery } from '@tanstack/react-query';
+
+import CartProduct from '@components/CartProduct';
+import sellerInfo from '@pages/user/seller/sellerInfo.json';
+import UserItem from '@components/UserItem';
 import TButton from './TButton';
-import { useState } from 'react';
 import CouponItemTemplate from './CouponItemTemplate';
 
 interface Props {
@@ -81,21 +82,36 @@ const ContentStyle = {
   margin: '1% 4%',
 };
 
-const CartGroup = ({ data, onRefetch }: Props) => {
-  //checkout things
-  //TODO GET /buyer/cart/:cart_id/checkout
+const RouteOnError = (code: number) => {
+  const navigate = useNavigate();
+  switch (code) {
+    case 401:
+      navigate('/unauthorized');
+      break;
+    case 403:
+      navigate('/forbidden');
+      break;
+    case 404:
+      navigate('/notFound');
+      break;
+  }
+};
+
+const Cart = ({ data, onRefetch }: Props) => {
+  // get the checkout detail
+  // TODO: Buyer get checkout
+  // GET /buyer/cart/:cart_id/checkout
   const [canvaShow, setCanvaShow] = useState(false);
   const {
     data: checkoutData,
-    isLoading: isLoadingCheckout,
-    isError: isErrorCheckout,
+    status: checkoutStatus,
     refetch: refetchCheckout,
   } = useQuery({
     queryKey: ['checkoutData'],
     queryFn: async () => {
       const response = await fetch('/resources/Checkout.json');
       if (!response.ok) {
-        throw new Error('Failed to fetch data');
+        RouteOnError(response.status);
       }
       return response.json();
     },
@@ -106,39 +122,28 @@ const CartGroup = ({ data, onRefetch }: Props) => {
   const onRefetchCheckout = () => {
     console.log('refetch checkout');
     refetchCheckout();
-    if (isLoadingCheckout) {
+    if (checkoutStatus === 'pending') {
       return <div>Loading...</div>;
     }
-    if (isErrorCheckout) {
+    if (checkoutStatus === 'error') {
       return <div>Error fetching data</div>;
     }
   };
-  const onViewCheckout = () => {
-    //TODO POST /buyer/cart/:cart_id/checkout
-    setCanvaShow(true);
-    onRefetchCheckout();
-  };
-  const onPay = () => {
-    //TODO POST /buyer/cart/:cart_id/checkout
-    console.log('pay');
-    onRefetch();
-    setCanvaShow(false);
-  };
 
-  // select coupons things
-  //TODO GET /buyer/cart/:cart_id/coupon
+  // get the usable coupons
+  // TODO: Buyer get usable coupon of cart/shop
+  // GET /buyer/cart/:cart_id/coupon
   const [modalShow, setModalShow] = useState(false);
   const {
     data: usableCouponData,
-    isLoading: isLoadingCoupon,
-    isError: isErrorCoupon,
+    status: usableCouponStatus,
     refetch: refetchCoupon,
   } = useQuery({
     queryKey: ['usableCouponData'],
     queryFn: async () => {
       const response = await fetch('/resources/UsableCoupons.json');
       if (!response.ok) {
-        throw new Error('Failed to fetch data');
+        RouteOnError(response.status);
       }
       return response.json();
     },
@@ -149,25 +154,43 @@ const CartGroup = ({ data, onRefetch }: Props) => {
   const onRefetchUsableCoupon = () => {
     console.log('refetch usable coupon');
     refetchCoupon();
-    if (isLoadingCoupon) {
+    if (usableCouponStatus === 'pending') {
       return <div>Loading...</div>;
     }
-    if (isErrorCoupon) {
+    if (usableCouponStatus === 'error') {
       return <div>Error fetching data</div>;
     }
   };
+
+  const onViewCheckout = () => {
+    // TODO: Buyer get checkout
+    // GET /buyer/cart/:cart_id/checkout
+    onRefetchCheckout();
+    setCanvaShow(true);
+  };
+  const onPay = () => {
+    // TODO: Buyer checkout
+    // POST /buyer/cart/:cart_id/checkout
+    console.log('pay');
+    onRefetch();
+    setCanvaShow(false);
+  };
   const onChooseCoupon = () => {
-    setModalShow(true);
+    // TODO: Buyer get usable coupon of cart
+    // GET /buyer/cart/:cart_id/coupon
     onRefetchUsableCoupon();
+    setModalShow(true);
   };
   const onApplyCoupon = (coupon_id: number) => {
-    //TODO POST /buyer/cart/:cart_id/coupon/:coupon_id
+    // TODO: Buyer apply coupon to cart
+    // POST /buyer/cart/:cart_id/coupon/:coupon_id
     console.log(`apply coupon ${coupon_id}`);
     onRefetchCheckout();
     setModalShow(false);
   };
   const onRemoveCoupon = (coupon_id: number) => {
-    //TODO DELETE /buyer/cart/:cart_id/coupon/:coupon_id
+    // TODO: Buyer delete coupon in cart
+    // DELETE /buyer/cart/:cart_id/coupon/:coupon_id
     console.log(`remove coupon ${coupon_id}`);
     onRefetchCheckout();
   };
@@ -204,7 +227,7 @@ const CartGroup = ({ data, onRefetch }: Props) => {
         </div>
 
         {data.products.map((productData, index) => (
-          <CartItem
+          <CartProduct
             data={productData}
             cart_id={data.cartInfo.id}
             key={index}
@@ -262,8 +285,8 @@ const CartGroup = ({ data, onRefetch }: Props) => {
                 </Row>
 
                 {checkoutData?.coupons.map((couponData, index) => (
-                  <Row style={ContentStyle}>
-                    <Col xs={6} key={index}>
+                  <Row style={ContentStyle} key={index}>
+                    <Col xs={6}>
                       <Row>
                         <Col
                           xs='auto'
@@ -332,10 +355,10 @@ const CartGroup = ({ data, onRefetch }: Props) => {
       <Modal show={modalShow} onHide={() => setModalShow(false)} centered className='coupon_modal'>
         <Modal.Header style={{ border: 'none' }}>
           <Row className='center_vertical' style={{ width: '100%' }}>
-            <Col xs={6} className='title'>
+            <Col xs={8} md={11} className='title'>
               Select Coupons
             </Col>
-            <Col xs={6} className='right'>
+            <Col xs={4} md={1} className='right' style={{ padding: '0' }}>
               <FontAwesomeIcon
                 icon={faCircleXmark as IconProp}
                 size='2x'
@@ -361,4 +384,4 @@ const CartGroup = ({ data, onRefetch }: Props) => {
   );
 };
 
-export default CartGroup;
+export default Cart;

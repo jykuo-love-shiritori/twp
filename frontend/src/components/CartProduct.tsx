@@ -18,15 +18,17 @@ interface ProductProps {
   stock: number;
 }
 
-const CartItem = ({ data, cart_id, onRefetch }: Props) => {
+const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
+  // TODO: Buyer delete product in cart
+  // DELETE /buyer/cart/:cart_id/product/:product_id
   const removeItem = () => {
-    //TODO: DELETE /buyer/cart/:cart_id/product/:product_id
     console.log(`${data.name} delete in cart ${cart_id}`);
     onRefetch();
   };
 
   const updateQuantity = (quantity: number) => {
-    //TODO: PATCH /buyer/cart/:cart_id/product/:product_id
+    // TODO: Buyer edit product in cart
+    // PATCH /buyer/cart/:cart_id/product/:product_id
     // body: { quantity: number }
     if (quantity === 0) {
       removeItem();
@@ -137,4 +139,4 @@ const CartItem = ({ data, cart_id, onRefetch }: Props) => {
   );
 };
 
-export default CartItem;
+export default CartProduct;

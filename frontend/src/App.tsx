@@ -6,7 +6,7 @@ import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
 import Coupons from '@pages/coupon';
-import Cart from '@pages/cart';
+import BuyerCarts from '@pages/user/buyer/cart';
 import User from '@pages/user/buyer/index';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
@@ -103,7 +103,7 @@ function App() {
             <Route path=':history_id' element={<HistoryEach />} />
           </Route>
 
-          <Route path='/buyer/cart' element={<Cart />} />
+          <Route path='/buyer/cart' element={<BuyerCarts />} />
 
           <Route path='/admin' element={<Admin />}>
             <Route index element={<ManageUser />} />
