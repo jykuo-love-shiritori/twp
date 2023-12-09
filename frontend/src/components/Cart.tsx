@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import { faBan, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 import CartProduct from '@components/CartProduct';
@@ -13,6 +13,8 @@ import sellerInfo from '@pages/user/seller/sellerInfo.json';
 import UserItem from '@components/UserItem';
 import TButton from './TButton';
 import CouponItemTemplate from './CouponItemTemplate';
+import CheckoutItem from './CheckoutItem';
+import CheckoutItemCoupon from './CheckoutItemCoupon';
 
 interface Props {
   data: CartProps;
@@ -209,6 +211,7 @@ const Cart = ({ data, onRefetch }: Props) => {
 
   return (
     <>
+      {/* single cart */}
       <div className='cart_group'>
         <div className='disappear_phone' style={{ fontSize: '20px' }}>
           <Row className='center_vertical' style={{ width: '100%', padding: '0 2%' }}>
@@ -273,13 +276,24 @@ const Cart = ({ data, onRefetch }: Props) => {
           <Offcanvas.Body style={{ padding: '3% 6%' }}>
             <Row style={{ margin: '0' }}>
               <Col xs={12} style={LabelStyle}>
+                Cart
+                {data.products.map((productData, index) => (
+                  <CheckoutItem
+                    label={`${productData.name} x ${productData.quantity}`}
+                    value={`${productData.price * productData.quantity} NTD`}
+                    key={index}
+                  />
+                ))}
+                <CheckoutItem
+                  label={'Subtotal'}
+                  value={`${checkoutData?.subtotal} NTD`}
+                  style={{ fontWeight: '700' }}
+                />
+              </Col>
+
+              <Col xs={12} style={LabelStyle}>
                 Delivery
-                <Row style={ContentStyle}>
-                  <Col xs={6}>Shipment</Col>
-                  <Col xs={6} className='right'>
-                    {checkoutData?.shipment} NTD
-                  </Col>
-                </Row>
+                <CheckoutItem label={'Shipment'} value={`${checkoutData?.shipment} NTD`} />{' '}
               </Col>
 
               <Col xs={12} style={LabelStyle}>
@@ -287,7 +301,6 @@ const Cart = ({ data, onRefetch }: Props) => {
                   <Col xs='auto' style={{ paddingRight: '0' }}>
                     Discount
                   </Col>
-
                   <Col xs='auto'>
                     <FontAwesomeIcon
                       className='checkout_button'
@@ -297,59 +310,25 @@ const Cart = ({ data, onRefetch }: Props) => {
                     />
                   </Col>
                 </Row>
-
                 {checkoutData?.coupons.map((couponData, index) => (
-                  <Row style={ContentStyle} key={index}>
-                    <Col xs={6}>
-                      <Row>
-                        <Col xs='auto'>
-                          <FontAwesomeIcon
-                            className='checkout_button'
-                            icon={faBan}
-                            size='sm'
-                            onClick={() => onRemoveCoupon(couponData.id)}
-                          />
-                        </Col>
-                        {couponData.name}
-                        <Col></Col>
-                      </Row>
-                    </Col>
-                    <Col xs={6} className='right'>
-                      {couponData.discount_value} NTD
-                    </Col>
-                  </Row>
+                  <CheckoutItemCoupon
+                    coupon={couponData}
+                    onClick={() => onRemoveCoupon(index)}
+                    key={index}
+                  />
                 ))}
               </Col>
 
               <Col xs={12} style={LabelStyle}>
                 Summary
-                <Row style={ContentStyle}>
-                  <Col xs={6}>subtotal</Col>
-                  <Col xs={6} className='right'>
-                    {checkoutData?.subtotal} NTD
-                  </Col>
-                  <Col xs={6}>shipment</Col>
-                  <Col xs={6} className='right'>
-                    {checkoutData?.shipment} NTD
-                  </Col>
-                  <Col xs={6}>discount</Col>
-                  <Col xs={6} className='right'>
-                    -{checkoutData?.total_discount} NTD
-                  </Col>
-                  <Col
-                    xs={6}
-                    style={{ fontWeight: '900', fontSize: '20px', textDecoration: 'underline' }}
-                  >
-                    total
-                  </Col>
-                  <Col
-                    xs={6}
-                    className='right'
-                    style={{ fontWeight: '900', fontSize: '20px', textDecoration: 'underline' }}
-                  >
-                    {checkoutData?.total} NTD
-                  </Col>
-                </Row>
+                <CheckoutItem label={'Subtotal'} value={`${checkoutData?.subtotal} NTD`} />
+                <CheckoutItem label={'Shipment'} value={`${checkoutData?.shipment} NTD`} />
+                <CheckoutItem label={'Discount'} value={`-${checkoutData?.total_discount} NTD`} />
+                <CheckoutItem
+                  label={'Total'}
+                  value={`${checkoutData?.total} NTD`}
+                  style={{ fontWeight: '900', textDecoration: 'underline' }}
+                />
               </Col>
 
               <Col xs={12} style={LabelStyle}>
