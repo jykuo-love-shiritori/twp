@@ -54,6 +54,37 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 	return err
 }
 
+const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = NULL
+WHERE "refresh_token" = $1
+`
+
+func (q *Queries) DeleteRefreshToken(ctx context.Context, refreshToken string) error {
+	_, err := q.db.Exec(ctx, deleteRefreshToken, refreshToken)
+	return err
+}
+
+const findUserByRefreshToken = `-- name: FindUserByRefreshToken :one
+SELECT "username",
+    "role"
+FROM "user"
+WHERE "refresh_token" = $1
+    AND "refresh_token_expire_date" > NOW()
+`
+
+type FindUserByRefreshTokenRow struct {
+	Username string   `json:"username"`
+	Role     RoleType `json:"role"`
+}
+
+func (q *Queries) FindUserByRefreshToken(ctx context.Context, refreshToken string) (FindUserByRefreshTokenRow, error) {
+	row := q.db.QueryRow(ctx, findUserByRefreshToken, refreshToken)
+	var i FindUserByRefreshTokenRow
+	err := row.Scan(&i.Username, &i.Role)
+	return i, err
+}
+
 const findUserInfoAndPassword = `-- name: FindUserInfoAndPassword :one
 SELECT "username",
     "role",

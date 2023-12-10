@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -18,10 +19,10 @@ import (
 )
 
 type tokenParams struct {
-	ClientId     string `form:"client_id" json:"client_id"`
-	Code         string `form:"code" json:"code"`
-	CodeVerifier string `form:"code_verifier" json:"code_verifier"`
-	GrantType    string `form:"grant_type" json:"grant_type"`
+	ClientId     string `json:"client_id"`
+	Code         string `json:"code"`
+	CodeVerifier string `json:"code_verifier"`
+	GrantType    string `json:"grant_type"`
 }
 
 func Token(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -33,6 +34,9 @@ func Token(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse data")
 		}
 
+		fmt.Printf("%+v\n", c.QueryParams())
+		fmt.Printf("%+v\n", params)
+
 		code := strings.TrimSpace(params.Code)
 		verifier := strings.TrimSpace(params.CodeVerifier)
 
@@ -41,9 +45,11 @@ func Token(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		delete(codeChallengePairs, params.Code)
 		mu.Unlock()
 		if !found {
+			logger.Errorln("code not found")
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 		if !verifyCodeChallenge(verifier, user) {
+			logger.Errorln("challenge failed")
 			return echo.NewHTTPError(http.StatusUnauthorized)
 		}
 

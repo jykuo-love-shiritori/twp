@@ -7,13 +7,17 @@ import Navbar from 'react-bootstrap/Navbar';
 import { Row, Col, NavbarBrand, Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
+import { useAuth } from '@lib/Auth';
 
 const NavBar = () => {
+  const tokenRef = useAuth();
+  const navigate = useNavigate();
+
   const DropDownStyle = {
     borderRadius: '25px',
     border: '1px solid var(--border)',
@@ -29,6 +33,17 @@ const NavBar = () => {
 
   // TODO: read user auth later
   const isAdmin = true;
+
+  const logout = async () => {
+    await fetch('/api/oauth/logout', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${tokenRef.current}`,
+      },
+    });
+
+    navigate('/login');
+  };
 
   return (
     <div className='navbar_twp'>
@@ -160,9 +175,13 @@ const NavBar = () => {
                         ) : (
                           <></>
                         )}
-                        <Link to='/login' className='none nav_link' style={{ padding: '0%' }}>
-                          <div style={{ padding: '5px 10% 5px 10%' }}>Logout</div>
-                        </Link>
+                        <div
+                          className='none nav_link'
+                          style={{ padding: '5px 10% 5px 10%', cursor: 'pointer' }}
+                          onClick={logout}
+                        >
+                          Logout
+                        </div>
                       </Dropdown.Menu>
                     </Dropdown>
                     <Link

@@ -43,7 +43,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 
 	api.GET("/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
-	}, auth.IsRole(pg, logger, db.RoleTypeAdmin))
+	}, auth.IsRole(pg, logger, db.RoleTypeCustomer))
 
 	api.GET("/delay", func(c echo.Context) error {
 		time.Sleep(1 * time.Second)
@@ -54,6 +54,8 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 
 	api.POST("/oauth/authorize", auth.Authorize(pg, logger))
 	api.POST("/oauth/token", auth.Token(pg, logger))
+	api.POST("/oauth/refresh", auth.Refresh(pg, logger))
+	api.POST("/oauth/logout", auth.Logout(pg, logger), auth.ValidateJwt(pg, logger))
 
 	// admin
 	api.GET("/admin/user", adminGetUser(pg, logger))

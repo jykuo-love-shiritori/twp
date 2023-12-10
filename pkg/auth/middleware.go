@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -13,6 +14,39 @@ import (
 
 const tokenPrefix string = "Bearer "
 
+// Validate JWT only
+func ValidateJwt(pg *db.DB, logger *zap.SugaredLogger) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			authorization := c.Request().Header.Get("Authorization")
+			if authorization == "" {
+				return echo.NewHTTPError(http.StatusUnauthorized, "No token found")
+			}
+
+			if !strings.HasPrefix(authorization, tokenPrefix) {
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
+			}
+
+			tokenString := strings.TrimPrefix(authorization, tokenPrefix)
+
+			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+				return []byte(os.Getenv("TWP_JWT_SECRET")), nil
+			})
+			if err != nil {
+				logger.Error(err)
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
+			}
+
+			if !token.Valid {
+				return echo.NewHTTPError(http.StatusForbidden, "Token validation failed")
+			}
+
+			return next(c)
+		}
+	}
+}
+
+// Validate and parse JWT
 func IsRole(pg *db.DB, logger *zap.SugaredLogger, role db.RoleType) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -22,6 +56,7 @@ func IsRole(pg *db.DB, logger *zap.SugaredLogger, role db.RoleType) echo.Middlew
 			}
 
 			if !strings.HasPrefix(authorization, tokenPrefix) {
+				fmt.Println(authorization)
 				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
 			}
 

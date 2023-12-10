@@ -40,17 +40,18 @@ import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
 import Callback from '@pages/user/callback';
-import { AuthProvider } from '@components/AuthProvider';
+import AuthProvider from '@components/AuthProvider';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path='/login' element={<Login />} />
+        <Route path='/authorize' element={<Authorize />} />
+        <Route path='/signup' element={<Signup />} />
+
         <Route path='/' element={<AuthProvider />}>
-          <Route path='/login' element={<Login />} />
-          <Route path='/authorize' element={<Authorize />} />
-          <Route path='/signup' element={<Signup />} />
           <Route path='/callback' element={<Callback />} />
 
           <Route path='/' element={<Layout />}>

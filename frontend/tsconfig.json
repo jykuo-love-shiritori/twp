@@ -8,7 +8,8 @@
     "paths": {
       "@components/*": ["./src/components/*"],
       "@style/*": ["./src/style/*"],
-      "@pages/*": ["./src/pages/*"]
+      "@pages/*": ["./src/pages/*"],
+      "@lib/*": ["./src/lib/*"]
     },
 
     /* Bundler mode */

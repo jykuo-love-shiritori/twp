@@ -87,3 +87,15 @@ UPDATE "user"
 SET "refresh_token" = @refresh_token,
     "refresh_token_expire_date" = @expire_date
 WHERE "username" = @username;
+
+-- name: FindUserByRefreshToken :one
+SELECT "username",
+    "role"
+FROM "user"
+WHERE "refresh_token" = @refresh_token
+    AND "refresh_token_expire_date" > NOW();
+
+-- name: DeleteRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = NULL
+WHERE "refresh_token" = @refresh_token;

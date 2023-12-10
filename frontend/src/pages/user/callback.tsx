@@ -1,15 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useContext } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthContext } from '../../components/AuthProvider';
-
-interface Token {
-  access_token: string;
-}
+import { Navigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@lib/Auth';
+import { Token } from '@components/AuthProvider';
 
 const Callback = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   // TODO proper error handling
   const code = searchParams.get('code') ?? '';
@@ -17,14 +12,14 @@ const Callback = () => {
   const state = localStorage.getItem('state') ?? '';
   const verifier = localStorage.getItem('verifier') ?? '';
 
-  const { setToken } = useContext(AuthContext);
-
-  const tokenUrl = '/api/oauth/token';
+  const tokenRef = useAuth();
 
   const getToken = async () => {
     if (searchParams.get('state') !== state) {
       return;
     }
+
+    const tokenUrl = '/api/oauth/token';
 
     const resp = await fetch(tokenUrl, {
       headers: {
@@ -38,15 +33,10 @@ const Callback = () => {
       }),
     });
 
-    const token = (await resp.json()) as Token;
-    setToken(token.access_token);
-
-    navigate('/', { replace: true });
-
-    return token;
+    return (await resp.json()) as Token;
   };
 
-  const { isPending, error } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['token'],
     queryFn: getToken,
   });
@@ -57,6 +47,11 @@ const Callback = () => {
 
   if (error) {
     return <>error</>;
+  }
+
+  if (data) {
+    tokenRef.current = data.access_token;
+    return <Navigate to='/' replace={true} />;
   }
 };
 
