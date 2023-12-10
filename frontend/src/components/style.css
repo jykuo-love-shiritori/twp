@@ -181,6 +181,19 @@
       padding: 5px;
       cursor: pointer;
     }
+    &[type='submit'] {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--button_light);
+      padding: 5px 10px;
+      width: 100%;
+      color: white;
+      cursor: pointer;
+      &:hover {
+        background: var(--button_dark);
+        transition-duration: 0.5s;
+      }
+    }
   }
   :is(textarea) {
     border-radius: 20px;
