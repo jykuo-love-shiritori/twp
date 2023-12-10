@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@lib/Auth';
-import { Token } from '@components/AuthProvider';
+import { Token } from '@lib/Auth';
+import { useContext } from 'react';
+import { AuthContext } from '@components/AuthProvider';
 
 const Callback = () => {
   const [searchParams] = useSearchParams();
@@ -12,7 +13,7 @@ const Callback = () => {
   const state = localStorage.getItem('state') ?? '';
   const verifier = localStorage.getItem('verifier') ?? '';
 
-  const tokenRef = useAuth();
+  const { tokenRef } = useContext(AuthContext);
 
   const getToken = async () => {
     if (searchParams.get('state') !== state) {

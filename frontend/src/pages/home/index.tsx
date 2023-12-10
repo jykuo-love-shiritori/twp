@@ -18,8 +18,8 @@ import NewsImgUrl2 from '@assets/images/news2.jpg';
 import NewsImgUrl3 from '@assets/images/news3.jpg';
 
 const Home = () => {
-  const tokenRef = useAuth();
-  console.log(tokenRef.current);
+  const token = useAuth();
+  console.log(token);
   return (
     <div>
       <div className='home'>

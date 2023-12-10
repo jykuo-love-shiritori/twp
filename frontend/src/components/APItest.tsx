@@ -4,14 +4,14 @@ import '@style/global.css';
 import { useQuery } from '@tanstack/react-query';
 
 const APItest = () => {
-  const tokenRef = useAuth();
+  const token = useAuth();
 
   const { isLoading, isError, data } = useQuery({
-    queryKey: ['APItest', tokenRef.current],
+    queryKey: ['APItest', token],
     queryFn: async () => {
       const response = await fetch('/api/ping', {
         headers: {
-          Authorization: `Bearer ${tokenRef.current}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

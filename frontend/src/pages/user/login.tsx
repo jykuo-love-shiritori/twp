@@ -1,9 +1,11 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link, createSearchParams } from 'react-router-dom';
+import { Link, Navigate, createSearchParams } from 'react-router-dom';
 
 import LoginImgUrl from '@assets/images/login.jpg';
 
 import Footer from '@components/Footer';
+import { useQuery } from '@tanstack/react-query';
+import { TryRefresh } from '@lib/Auth';
 
 const randomString = (length: number) => {
   const array = new Uint32Array(length);
@@ -30,6 +32,16 @@ const generateChallenge = async (verifier: string) => {
 
 const Login = () => {
   const authUrl = 'http://localhost:5173/authorize';
+
+  const { isSuccess } = useQuery({
+    queryKey: ['refresh'],
+    queryFn: TryRefresh,
+    retry: false,
+  });
+
+  if (isSuccess) {
+    return <Navigate to='/' />;
+  }
 
   const login = async () => {
     const state = randomString(8);

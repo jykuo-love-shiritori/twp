@@ -15,7 +15,7 @@ import SearchBar from '@components/SearchBar';
 import { useAuth } from '@lib/Auth';
 
 const NavBar = () => {
-  const tokenRef = useAuth();
+  const token = useAuth();
   const navigate = useNavigate();
 
   const DropDownStyle = {
@@ -38,7 +38,7 @@ const NavBar = () => {
     await fetch('/api/oauth/logout', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${tokenRef.current}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 

@@ -40,8 +40,8 @@ import EachSellerGoods from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import SellerShipment from '@pages/user/seller/allShipments';
 import Shop from '@pages/user/shop/Shop';
 import Callback from '@pages/user/callback';
-import AuthProvider from '@components/AuthProvider';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
+import ProtectedBoundary from '@components/ProtectedBoundary';
 
 function App() {
   return (
@@ -51,9 +51,9 @@ function App() {
         <Route path='/authorize' element={<Authorize />} />
         <Route path='/signup' element={<Signup />} />
 
-        <Route path='/' element={<AuthProvider />}>
-          <Route path='/callback' element={<Callback />} />
+        <Route path='/callback' element={<Callback />} />
 
+        <Route path='/' element={<ProtectedBoundary />}>
           <Route path='/' element={<Layout />}>
             <Route index element={<Home />} />
             <Route path='/' element={<Home />} />
