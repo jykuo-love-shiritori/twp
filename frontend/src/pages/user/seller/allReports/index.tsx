@@ -1,33 +1,35 @@
-import { Col, Row } from 'react-bootstrap';
+import { useState } from 'react';
 
 import TButton from '@components/TButton';
-import SellerReportItem from '@components/SellerReportItem';
-
-import sellerReportData from '@pages/user/seller/sellerReportData.json';
+import FormItem from '@components/FormItem';
 
 const SellerReport = () => {
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
   return (
-    <div>
-      <Row>
-        <Col sm={12} md={8}>
-          <div className='title'>All Reports</div>
-        </Col>
-        <Col sm={12} md={4}>
-          <div style={{ padding: '20px 0 0 0' }}>
-            <TButton text='Generate Report' action='/user/seller/reports/new' />
-          </div>
-        </Col>
-      </Row>
+    <div style={{ padding: '5% 8% 10% 8% ' }}>
+      <h3>At what time would you like to view the report?</h3>
       <hr className='hr' />
-      <Row>
-        {sellerReportData.map((data, index) => {
-          return (
-            <Col xs={6} md={3} key={index}>
-              <SellerReportItem year={data.year} month={data.month} />
-            </Col>
-          );
-        })}
-      </Row>
+      <FormItem label='Year'>
+        <input
+          type='text'
+          defaultValue={year}
+          onChange={(e) => {
+            setYear(parseInt(e.target.value));
+          }}
+        />
+      </FormItem>
+      <FormItem label='Month'>
+        <input
+          type='text'
+          defaultValue={month}
+          onChange={(e) => {
+            setMonth(parseInt(e.target.value));
+          }}
+        />
+      </FormItem>
+      <TButton text='Confirm' action={`/user/seller/reports/${year}/${month}`} />
     </div>
   );
 };

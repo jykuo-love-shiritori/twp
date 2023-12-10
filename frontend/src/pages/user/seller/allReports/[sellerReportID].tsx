@@ -32,11 +32,10 @@ const SellerReportEach = () => {
     padding: ' 7% 12% 10% 12%',
   };
 
-  const params = useParams();
-
+  const { year, month } = useParams();
   let data: Props | undefined;
   reportData.findIndex((item) => {
-    if (item.id.toString() === params.report_id) {
+    if (item.year.toString() === year && item.month.toString() === month) {
       data = item;
     }
   });

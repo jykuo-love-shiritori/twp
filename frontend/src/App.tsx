@@ -119,7 +119,7 @@ function App() {
           </Route>
 
           <Route path='/user/seller/reports'>
-            <Route path=':report_id' element={<SellerReportEach />} />
+            <Route path=':year/:month' element={<SellerReportEach />} />
           </Route>
 
           <Route path='/buyer/cart' element={<Cart />} />
@@ -133,7 +133,7 @@ function App() {
           </Route>
 
           <Route path='/admin/reports'>
-            <Route path=':report_id' element={<AdminReportEach />} />
+            <Route path=':year/:month' element={<AdminReportEach />} />
           </Route>
 
           <Route path='/admin/manageCoupons'>
