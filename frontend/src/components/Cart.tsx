@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 import CartProduct from '@components/CartProduct';
@@ -301,14 +300,6 @@ const Cart = ({ data, onRefetch }: Props) => {
                   <Col xs='auto' style={{ paddingRight: '0' }}>
                     Discount
                   </Col>
-                  <Col xs='auto'>
-                    <FontAwesomeIcon
-                      className='checkout_button'
-                      icon={faPlus}
-                      size='sm'
-                      onClick={onChooseCoupon}
-                    />
-                  </Col>
                 </Row>
                 {checkoutData?.coupons.map((couponData, index) => (
                   <CheckoutItemCoupon
@@ -317,6 +308,7 @@ const Cart = ({ data, onRefetch }: Props) => {
                     key={index}
                   />
                 ))}
+                <CheckoutItemCoupon onClick={onChooseCoupon} isAddMore={true} />
               </Col>
 
               <Col xs={12} style={LabelStyle}>
