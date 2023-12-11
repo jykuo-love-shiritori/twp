@@ -34,7 +34,7 @@ const EachSellerCoupon = () => {
   const { register, control, handleSubmit, watch, setValue } = useForm<CouponProps>({
     defaultValues: {
       id: 0,
-      type: '',
+      type: 'percentage',
       name: '',
       description: '',
       discount: 0,
