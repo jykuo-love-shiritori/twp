@@ -1,4 +1,4 @@
-import CartGroup from '@components/Cart';
+import Cart from '@components/Cart';
 import { useQuery } from '@tanstack/react-query';
 
 interface CartProps {
@@ -12,8 +12,8 @@ interface CouponProps {
   discount: number;
   id: number;
   name: string;
-  type: string; // 'percentage' | 'fixed' | 'shipping'
-  scope: string; // 'global' | 'shop'
+  type: 'percentage' | 'fixed' | 'shipping';
+  scope: 'global' | 'shop';
 }
 
 interface ProductProps {
@@ -54,7 +54,7 @@ const BuyerCarts = () => {
       <span className='title'>Cart</span>
 
       {fetchedData.map((cartData, index) => (
-        <CartGroup data={cartData} key={index} onRefetch={onRefetch} />
+        <Cart data={cartData} key={index} onRefetch={onRefetch} />
       ))}
     </div>
   );

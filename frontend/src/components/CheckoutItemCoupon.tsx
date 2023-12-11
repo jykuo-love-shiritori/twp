@@ -9,8 +9,8 @@ interface Props {
     discount_value: number;
     id: number;
     name: string;
-    scope: string; // 'global' | 'shop'
-    type: string; // 'percentage' | 'fixed' | 'shipping'
+    scope: 'global' | 'shop';
+    type: 'percentage' | 'fixed' | 'shipping';
   };
   onClick: () => void;
 }

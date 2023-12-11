@@ -2,7 +2,7 @@ import { faFile, faMoneyBill, faTruck, faBox } from '@fortawesome/free-solid-svg
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 
-import CartItem from '@components/CartProduct';
+import HistoryProduct from '@components/HistoryProduct';
 import NotFound from '@components/NotFound';
 import RecordStatus from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
@@ -58,19 +58,12 @@ const HistoryEach = () => {
 
         {record?.items.map((data, index) => {
           return (
-            <CartItem
+            <HistoryProduct
               data={{
-                product_id: data.item_id,
-                quantity: data.quantity,
-                enabled: true,
-                stock: 10,
-                name: 'test',
-                price: 10,
                 image_id: '/placeholder/goods1.png',
-              }}
-              cart_id={0}
-              onRefetch={() => {
-                void 0;
+                name: 'aaa',
+                price: 500,
+                quantity: 2,
               }}
               key={index}
             />

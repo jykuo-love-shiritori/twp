@@ -11,7 +11,7 @@ import TButton from './TButton';
 interface WrapCouponProps {
   data: {
     id: number;
-    type: string; // 'percentage', 'fixed', 'shipping'
+    type: 'percentage' | 'fixed' | 'shipping';
     name: string;
     description: string;
     discount: number;

@@ -3,7 +3,7 @@ import { Row, Col } from 'react-bootstrap';
 interface CouponItemTemplate {
   data: {
     id: number;
-    type: string; // 'percentage', 'fixed', 'shipping'
+    type: 'percentage' | 'fixed' | 'shipping';
     name: string;
     description: string;
     discount: number;
@@ -22,7 +22,7 @@ const couponStyle = {
   borderRadius: '30px',
   padding: '5%',
   border: 'var(--border) solid 2px',
-  witdh: '100%',
+  width: '100%',
 };
 
 const CouponItemTemplate = ({ data }: CouponItemTemplate) => {

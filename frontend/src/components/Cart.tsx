@@ -32,8 +32,8 @@ interface CouponProps {
   discount: number;
   id: number;
   name: string;
-  type: string; // 'percentage' | 'fixed' | 'shipping'
-  scope: string; // 'global' | 'shop'
+  scope: 'global' | 'shop';
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 interface ProductProps {
@@ -54,8 +54,8 @@ interface CheckoutProps {
       discount_value: number;
       id: number;
       name: string;
-      scope: string; // 'global' | 'shop'
-      type: string; // 'percentage' | 'fixed' | 'shipping'
+      scope: 'global' | 'shop';
+      type: 'percentage' | 'fixed' | 'shipping';
     },
   ];
   shipment: number;
@@ -70,8 +70,8 @@ interface UsableCouponProps {
   expire_date: string;
   id: number;
   name: string;
-  scope: string; // 'global' | 'shop'
-  type: string; // 'percentage' | 'fixed' | 'shipping'
+  scope: 'global' | 'shop';
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 const LabelStyle = {
