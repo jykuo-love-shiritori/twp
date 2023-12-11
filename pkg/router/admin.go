@@ -70,7 +70,7 @@ func adminDisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 }
 
 // @Summary		Admin Get Coupon
-// @Description	Get all coupons (include shops' coupon).
+// @Description	Get all global coupons .
 // @Tags			Admin, Coupon
 // @Produce		json
 // @param			offset	query		int	false	"Begin index"	default(0)
@@ -128,9 +128,7 @@ func adminGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 			logger.Errorw("failed to get coupon detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-
 		return c.JSON(http.StatusOK, result)
-
 	}
 }
 
@@ -150,6 +148,15 @@ func adminAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		discount, err := coupon.Discount.Float64Value()
+		if err != nil {
+			logger.Errorw("failed to parse discount", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
+		}
+		if discount.Float64 < 0 || discount.Float64 > 100 {
+			logger.Errorw("discount is invalid", "discount", discount)
+			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
 		coupon.Scope = "global"
 		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
@@ -171,7 +178,7 @@ type PrettierCoupon struct { // for swagger
 }
 
 // @Summary		Admin Edit Coupon
-// @Description	Edit any coupon.
+// @Description	Edit global coupon.
 // @Tags			Admin, Coupon
 // @Accept			json
 // @Produce		json
@@ -187,6 +194,15 @@ func adminEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err := c.Bind(&coupon); err != nil {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid coupon data")
+		}
+		discount, err := coupon.Discount.Float64Value()
+		if err != nil {
+			logger.Errorw("failed to parse discount", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
+		}
+		if discount.Float64 < 0 || discount.Float64 > 100 {
+			logger.Errorw("discount is invalid", "discount", discount)
+			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
 		result, err := pg.Queries.EditCoupon(c.Request().Context(), coupon)
 		if err != nil {
@@ -227,16 +243,16 @@ func adminDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 type adminReport struct {
 	Year        int32                `json:"year"`
 	Month       int32                `json:"month"`
-	TotalAmount int64                `json:"total"`
+	TotalAmount int32                `json:"total"`
 	Sellers     []db.GetTopSellerRow `json:"sellers"`
 }
 
 // @Summary		Admin Get Site Report
-// @Description	Get site report.
+// @Description	Get site report (top 3 sellers and total amount).
 // @Tags			Admin, Report
 // @Produce		json
 // @Param			date	query		string	true	"Start year/month"
-// @Success		200		{string}	string	"TODO"
+// @Success		200		{object}	adminReport
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/report [get]
@@ -253,17 +269,20 @@ func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("date is not the first day of the month", "date", date)
 			return echo.NewHTTPError(http.StatusBadRequest, "Date is not the first day of the month")
 		}
-		year, month, _ := t.Date()
+		year, month, day := t.Date()
 		result := adminReport{Year: int32(year), Month: int32(month)}
-		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), date)
+		// set date's time to 00:00:00
+		formattedDate := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Format(time.RFC3339)
+		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), formattedDate)
 		if err != nil {
 			logger.Errorw("failed to get top seller", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		// get total amount by sum the total_sales of sellers
-		result.TotalAmount = 0
-		for _, seller := range result.Sellers {
-			result.TotalAmount += seller.TotalSales
+		result.TotalAmount, err = pg.Queries.GetTotalSales(c.Request().Context(), date)
+		if err != nil {
+			logger.Errorw("failed to get total sales", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
 	}

@@ -1,6 +1,6 @@
 -- name: GetOrderHistory :many
 SELECT O."id",
-    s."name",
+    s."name" AS "shop_name",
     s."image_id" AS "shop_image_id",
     O."image_id" AS "thumbnail_id",
     "shipment",
@@ -18,22 +18,21 @@ LIMIT $3;
 
 -- name: GetOrderInfo :one
 SELECT O."id",
-    s."name",
-    s."image_id",
+    S."name" AS "shop_name",
+    S."image_id" AS "shop_image_id",
     "shipment",
     "total_price",
     "status",
     "created_at",
     (
-        "subtotal" + "shipment" - "total_price"
+        T."subtotal" + "shipment" - "total_price"
     ) AS "discount"
 FROM "order_history" AS O,
     "order_detail" AS D,
-    "product_archive" AS P,
     "user" AS U,
     "shop" AS S,
     (
-        SELECT SUM(P."price" * D."quantity") AS "subtotal"
+        SELECT SUM(P."price" * D."quantity")::int AS "subtotal"
         FROM "order_detail" AS D,
             "product_archive" AS P
         WHERE D."order_id" = $1
@@ -41,7 +40,10 @@ FROM "order_history" AS O,
             AND D."product_version" = P."version"
     ) AS T
 WHERE U."username" = $2
-    AND O."id" = $1;
+    AND O."id" = $1
+    AND O."user_id" = U."id"
+    AND O."id" = D."order_id"
+    AND O."shop_id" = S."id";
 
 -- name: GetOrderDetail :many
 SELECT O."product_id",
@@ -331,6 +333,7 @@ WHERE C."id" = CP."cart_id"
     AND CP."product_id" = P."id"
     AND C."id" = @cart_id
     AND C."user_id" = U."id"
+    AND U."username" = $1
     AND NOT EXISTS (
         SELECT 1
         FROM "product" AS P
@@ -400,9 +403,10 @@ WITH insert_order AS (
             WHERE "id" = (
                     SELECT "product_id"
                     FROM "cart_product"
+                    WHERE "cart_id" = @cart_id
+                    ORDER BY "price" DESC
+                    LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
                 )
-            ORDER BY "price" DESC
-            LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
         ) AS T
     WHERE U."username" = $1
         AND U."id" = C."user_id"
@@ -446,18 +450,24 @@ WHERE C."id" = CP."cart_id"
     AND C."user_id" = U."id";
 
 -- name: UpdateProductVersion :exec
-WITH version_existed AS (
+WITH check_version AS (
     SELECT EXISTS (
             SELECT 1
             FROM "product" P,
                 "product_archive" PA
             WHERE P."id" = $1
                 AND P."id" = PA."id"
+                AND P."version" = PA."version"
                 AND P."name" = PA."name"
                 AND P."description" = PA."description"
                 AND P."price" = PA."price"
                 AND P."image_id" = PA."image_id"
-        )
+        ) AS "version_existed",
+        EXISTS (
+            SELECT 1
+            FROM "product_archive" PA
+            WHERE PA."id" = $1
+        ) AS "product_existed"
 ),
 insert_archive AS (
     INSERt INTO "product_archive" (
@@ -474,13 +484,30 @@ insert_archive AS (
         P."description",
         P."price",
         P."image_id"
-    FROM "product" P,
-        version_existed VE
+    FROM "product" AS P,
+        check_version AS CV
     WHERE P."id" = $1
-        AND VE."version_existed" = FALSE
+        AND CV."version_existed" = FALSE
 )
-UPDATE "product" P
-SET P."version" = P."version" + 1
-FROM version_existed
-WHERE P."id" = $1
-    AND version_existed."version_exists" = FALSE;
+UPDATE "product"
+SET "version" = "version" + 1
+FROM check_version CV
+WHERE "product"."id" = $1
+    AND CV."version_existed" = FALSE
+    AND CV."product_existed" = TRUE;
+
+-- name: GetCreditCard :one 
+SELECT "credit_card"
+FROM "user"
+WHERE "username" = $1;
+
+-- name: ValidatePayment :one
+SELECT EXISTS (
+        SELECT 1
+        FROM "user"
+        WHERE "username" = $1
+            AND (
+                "credit_card" = $2
+                OR random() < 0.999 -- random validate payment
+            )
+    );

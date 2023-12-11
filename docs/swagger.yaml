@@ -180,11 +180,11 @@ definitions:
         type: string
       id:
         type: integer
-      name:
-        type: string
       shipment:
         type: integer
       shop_image_id:
+        type: string
+      shop_name:
         type: string
       status:
         $ref: '#/definitions/db.OrderStatus'
@@ -201,12 +201,12 @@ definitions:
         type: integer
       id:
         type: integer
-      image_id:
-        type: string
-      name:
-        type: string
       shipment:
         type: integer
+      shop_image_id:
+        type: string
+      shop_name:
+        type: string
       status:
         $ref: '#/definitions/db.OrderStatus'
       total_price:
@@ -303,6 +303,17 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  db.GetTopSellerRow:
+    properties:
+      image_id:
+        type: string
+      name:
+        type: string
+      seller_name:
+        type: string
+      total_sales:
+        type: integer
     type: object
   db.GetUsableCouponsRow:
     properties:
@@ -675,6 +686,11 @@ definitions:
       info:
         $ref: '#/definitions/db.GetOrderInfoRow'
     type: object
+  router.PaymentMethod:
+    properties:
+      creditCard:
+        type: object
+    type: object
   router.PrettierCoupon:
     properties:
       description:
@@ -695,11 +711,28 @@ definitions:
       quantity:
         type: integer
     type: object
+  router.adminReport:
+    properties:
+      month:
+        type: integer
+      sellers:
+        items:
+          $ref: '#/definitions/db.GetTopSellerRow'
+        type: array
+      total:
+        type: integer
+      year:
+        type: integer
+    type: object
   router.checkout:
     properties:
       coupons:
         items:
           $ref: '#/definitions/router.couponDiscount'
+        type: array
+      payments:
+        items:
+          type: integer
         type: array
       shipment:
         type: integer
@@ -782,7 +815,7 @@ info:
 paths:
   /admin/coupon:
     get:
-      description: Get all coupons (include shops' coupon).
+      description: Get all global coupons .
       parameters:
       - default: 0
         description: Begin index
@@ -908,7 +941,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Edit any coupon.
+      description: Edit global coupon.
       parameters:
       - description: Coupon ID
         in: path
@@ -942,7 +975,7 @@ paths:
       - Coupon
   /admin/report:
     get:
-      description: Get site report.
+      description: Get site report (top 3 sellers and total amount).
       parameters:
       - description: Start year/month
         in: query
@@ -953,9 +986,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: TODO
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/router.adminReport'
         "400":
           description: Bad Request
           schema:
@@ -1095,6 +1128,12 @@ paths:
         name: cart_id
         required: true
         type: integer
+      - description: Payment
+        in: body
+        name: payment_method
+        required: true
+        schema:
+          $ref: '#/definitions/router.PaymentMethod'
       produces:
       - application/json
       responses:

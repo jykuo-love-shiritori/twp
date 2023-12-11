@@ -7,6 +7,7 @@ SELECT "username",
     "credit_card",
     "enabled"
 FROM "user"
+WHERE "enabled" = TRUE
 ORDER BY "id" ASC
 LIMIT $1 OFFSET $2;
 
@@ -176,10 +177,25 @@ FROM "shop" AS S,
     "order_history" AS O
 WHERE S."id" = O."shop_id"
     AND O."status" = 'paid'
-    AND O."created_at" < (@date) + INTERVAL '1 month'
-    AND O."created_at" >= @date
+    AND O."created_at" < CAST(
+        (
+            CAST(@date::TEXT AS TIMESTAMPTZ) + (INTERVAL '1 month')
+        ) AS TIMESTAMPTZ
+    )
+    AND O."created_at" >= CAST(@date::TEXT AS TIMESTAMPTZ)
 GROUP BY S."seller_name",
     S."name",
     S."image_id"
 ORDER BY "total_sales" DESC
 LIMIT 3;
+
+-- name: GetTotalSales :one
+SELECT COALESCE(SUM("total_price"), 0)::INTEGER AS "total_sales"
+FROM "order_history"
+WHERE "status" = 'paid'
+    AND "created_at" < CAST(
+        (
+            CAST(@date::TEXT AS TIMESTAMPTZ) + (INTERVAL '1 month')
+        ) AS TIMESTAMPTZ
+    )
+    AND "created_at" >= CAST(@date::TEXT AS TIMESTAMPTZ);

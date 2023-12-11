@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/admin/coupon": {
             "get": {
-                "description": "Get all coupons (include shops' coupon).",
+                "description": "Get all global coupons .",
                 "produces": [
                     "application/json"
                 ],
@@ -210,7 +210,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Edit any coupon.",
+                "description": "Edit global coupon.",
                 "consumes": [
                     "application/json"
                 ],
@@ -264,7 +264,7 @@ const docTemplate = `{
         },
         "/admin/report": {
             "get": {
-                "description": "Get site report.",
+                "description": "Get site report (top 3 sellers and total amount).",
                 "produces": [
                     "application/json"
                 ],
@@ -284,9 +284,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "TODO",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/router.adminReport"
                         }
                     },
                     "400": {
@@ -550,6 +550,15 @@ const docTemplate = `{
                         "name": "cart_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Payment",
+                        "name": "payment_method",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router.PaymentMethod"
+                        }
                     }
                 ],
                 "responses": {
@@ -3366,13 +3375,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
                 },
                 "shop_image_id": {
+                    "type": "string"
+                },
+                "shop_name": {
                     "type": "string"
                 },
                 "status": {
@@ -3398,14 +3407,14 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
+                },
+                "shop_image_id": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
@@ -3553,6 +3562,23 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.GetTopSellerRow": {
+            "type": "object",
+            "properties": {
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "total_sales": {
+                    "type": "integer"
                 }
             }
         },
@@ -4121,6 +4147,14 @@ const docTemplate = `{
                 }
             }
         },
+        "router.PaymentMethod": {
+            "type": "object",
+            "properties": {
+                "creditCard": {
+                    "type": "object"
+                }
+            }
+        },
         "router.PrettierCoupon": {
             "type": "object",
             "properties": {
@@ -4152,6 +4186,26 @@ const docTemplate = `{
                 }
             }
         },
+        "router.adminReport": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "integer"
+                },
+                "sellers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetTopSellerRow"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
         "router.checkout": {
             "type": "object",
             "properties": {
@@ -4159,6 +4213,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/router.couponDiscount"
+                    }
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
                     }
                 },
                 "shipment": {

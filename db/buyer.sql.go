@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -166,9 +167,10 @@ WITH insert_order AS (
             WHERE "id" = (
                     SELECT "product_id"
                     FROM "cart_product"
+                    WHERE "cart_id" = $4
+                    ORDER BY "price" DESC
+                    LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
                 )
-            ORDER BY "price" DESC
-            LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
         ) AS T
     WHERE U."username" = $1
         AND U."id" = C."user_id"
@@ -379,8 +381,9 @@ FROM "cart_product" AS CP,
     "user" AS U
 WHERE C."id" = CP."cart_id"
     AND CP."product_id" = P."id"
-    AND C."id" = $1
+    AND C."id" = $2
     AND C."user_id" = U."id"
+    AND U."username" = $1
     AND NOT EXISTS (
         SELECT 1
         FROM "product" AS P
@@ -389,8 +392,13 @@ WHERE C."id" = CP."cart_id"
     )
 `
 
-func (q *Queries) GetCartSubtotal(ctx context.Context, cartID int32) (int32, error) {
-	row := q.db.QueryRow(ctx, getCartSubtotal, cartID)
+type GetCartSubtotalParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+func (q *Queries) GetCartSubtotal(ctx context.Context, arg GetCartSubtotalParams) (int32, error) {
+	row := q.db.QueryRow(ctx, getCartSubtotal, arg.Username, arg.CartID)
 	var subtotal int32
 	err := row.Scan(&subtotal)
 	return subtotal, err
@@ -602,6 +610,19 @@ func (q *Queries) GetCouponsFromCart(ctx context.Context, arg GetCouponsFromCart
 	return items, nil
 }
 
+const getCreditCard = `-- name: GetCreditCard :one
+SELECT "credit_card"
+FROM "user"
+WHERE "username" = $1
+`
+
+func (q *Queries) GetCreditCard(ctx context.Context, username string) (json.RawMessage, error) {
+	row := q.db.QueryRow(ctx, getCreditCard, username)
+	var credit_card json.RawMessage
+	err := row.Scan(&credit_card)
+	return credit_card, err
+}
+
 const getOrderDetail = `-- name: GetOrderDetail :many
 SELECT O."product_id",
     P."name",
@@ -654,7 +675,7 @@ func (q *Queries) GetOrderDetail(ctx context.Context, orderID int32) ([]GetOrder
 
 const getOrderHistory = `-- name: GetOrderHistory :many
 SELECT O."id",
-    s."name",
+    s."name" AS "shop_name",
     s."image_id" AS "shop_image_id",
     O."image_id" AS "thumbnail_id",
     "shipment",
@@ -679,7 +700,7 @@ type GetOrderHistoryParams struct {
 
 type GetOrderHistoryRow struct {
 	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
+	ShopName    string             `json:"shop_name"`
 	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
 	ThumbnailID string             `json:"thumbnail_id"`
 	Shipment    int32              `json:"shipment"`
@@ -699,7 +720,7 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 		var i GetOrderHistoryRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
+			&i.ShopName,
 			&i.ShopImageID,
 			&i.ThumbnailID,
 			&i.Shipment,
@@ -719,22 +740,21 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 
 const getOrderInfo = `-- name: GetOrderInfo :one
 SELECT O."id",
-    s."name",
-    s."image_id",
+    S."name" AS "shop_name",
+    S."image_id" AS "shop_image_id",
     "shipment",
     "total_price",
     "status",
     "created_at",
     (
-        "subtotal" + "shipment" - "total_price"
+        T."subtotal" + "shipment" - "total_price"
     ) AS "discount"
 FROM "order_history" AS O,
     "order_detail" AS D,
-    "product_archive" AS P,
     "user" AS U,
     "shop" AS S,
     (
-        SELECT SUM(P."price" * D."quantity") AS "subtotal"
+        SELECT SUM(P."price" * D."quantity")::int AS "subtotal"
         FROM "order_detail" AS D,
             "product_archive" AS P
         WHERE D."order_id" = $1
@@ -743,6 +763,9 @@ FROM "order_history" AS O,
     ) AS T
 WHERE U."username" = $2
     AND O."id" = $1
+    AND O."user_id" = U."id"
+    AND O."id" = D."order_id"
+    AND O."shop_id" = S."id"
 `
 
 type GetOrderInfoParams struct {
@@ -751,14 +774,14 @@ type GetOrderInfoParams struct {
 }
 
 type GetOrderInfoRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Name       string             `json:"name"`
-	ImageID    string             `json:"image_id" swaggertype:"string"`
-	Shipment   int32              `json:"shipment"`
-	TotalPrice int32              `json:"total_price"`
-	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
-	Discount   int32              `json:"discount"`
+	ID          int32              `json:"id" param:"id"`
+	ShopName    string             `json:"shop_name"`
+	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
+	Shipment    int32              `json:"shipment"`
+	TotalPrice  int32              `json:"total_price"`
+	Status      OrderStatus        `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	Discount    int32              `json:"discount"`
 }
 
 func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (GetOrderInfoRow, error) {
@@ -766,8 +789,8 @@ func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (Get
 	var i GetOrderInfoRow
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.ImageID,
+		&i.ShopName,
+		&i.ShopImageID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -974,18 +997,24 @@ func (q *Queries) UpdateProductFromCart(ctx context.Context, arg UpdateProductFr
 }
 
 const updateProductVersion = `-- name: UpdateProductVersion :exec
-WITH version_existed AS (
+WITH check_version AS (
     SELECT EXISTS (
             SELECT 1
             FROM "product" P,
                 "product_archive" PA
             WHERE P."id" = $1
                 AND P."id" = PA."id"
+                AND P."version" = PA."version"
                 AND P."name" = PA."name"
                 AND P."description" = PA."description"
                 AND P."price" = PA."price"
                 AND P."image_id" = PA."image_id"
-        )
+        ) AS "version_existed",
+        EXISTS (
+            SELECT 1
+            FROM "product_archive" PA
+            WHERE PA."id" = $1
+        ) AS "product_existed"
 ),
 insert_archive AS (
     INSERt INTO "product_archive" (
@@ -1002,19 +1031,44 @@ insert_archive AS (
         P."description",
         P."price",
         P."image_id"
-    FROM "product" P,
-        version_existed VE
+    FROM "product" AS P,
+        check_version AS CV
     WHERE P."id" = $1
-        AND VE."version_existed" = FALSE
+        AND CV."version_existed" = FALSE
 )
-UPDATE "product" P
-SET P."version" = P."version" + 1
-FROM version_existed
-WHERE P."id" = $1
-    AND version_existed."version_exists" = FALSE
+UPDATE "product"
+SET "version" = "version" + 1
+FROM check_version CV
+WHERE "product"."id" = $1
+    AND CV."version_existed" = FALSE
+    AND CV."product_existed" = TRUE
 `
 
 func (q *Queries) UpdateProductVersion(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, updateProductVersion, id)
 	return err
+}
+
+const validatePayment = `-- name: ValidatePayment :one
+SELECT EXISTS (
+        SELECT 1
+        FROM "user"
+        WHERE "username" = $1
+            AND (
+                "credit_card" = $2
+                OR random() < 0.999 -- random validate payment
+            )
+    )
+`
+
+type ValidatePaymentParams struct {
+	Username   string          `json:"username"`
+	CreditCard json.RawMessage `json:"credit_card"`
+}
+
+func (q *Queries) ValidatePayment(ctx context.Context, arg ValidatePaymentParams) (bool, error) {
+	row := q.db.QueryRow(ctx, validatePayment, arg.Username, arg.CreditCard)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
