@@ -541,13 +541,13 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 }
 
 const validateTags = `-- name: ValidateTags :one
-SELECT EXISTS (
+SELECT NOT EXISTS (
         SELECT 1
         FROM "tag" AS T,
             "coupon" AS C
-        WHERE T."id" = ANY($1::int [])
+        WHERE T."id" != ANY($1::int [])
             AND C."id" = $2
-            AND T."shop_id" != C."shop_id"
+            AND T."shop_id" = C."shop_id"
     )
 `
 
@@ -558,7 +558,7 @@ type ValidateTagsParams struct {
 
 func (q *Queries) ValidateTags(ctx context.Context, arg ValidateTagsParams) (bool, error) {
 	row := q.db.QueryRow(ctx, validateTags, arg.TagID, arg.CouponID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
+	var not_exists bool
+	err := row.Scan(&not_exists)
+	return not_exists, err
 }

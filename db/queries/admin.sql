@@ -112,13 +112,13 @@ RETURNING "id",
     "expire_date";
 
 -- name: ValidateTags :one
-SELECT EXISTS (
+SELECT NOT EXISTS (
         SELECT 1
         FROM "tag" AS T,
             "coupon" AS C
-        WHERE T."id" = ANY(@tag_id::int [])
+        WHERE T."id" != ANY(@tag_id::int [])
             AND C."id" = @coupon_id
-            AND T."shop_id" != C."shop_id"
+            AND T."shop_id" = C."shop_id"
     );
 
 -- name: AddCouponTags :execrows

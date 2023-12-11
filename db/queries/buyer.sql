@@ -322,7 +322,7 @@ WHERE U."username" = $1
     AND CO."id" = $2;
 
 -- name: GetCartSubtotal :one
-SELECT SUM(P."price" * CP."quantity") AS "subtotal"
+SELECT SUM(P."price" * CP."quantity")::int AS "subtotal"
 FROM "cart_product" AS CP,
     "product" AS P,
     "cart" AS C,
@@ -452,41 +452,35 @@ WITH version_existed AS (
             FROM "product" P,
                 "product_archive" PA
             WHERE P."id" = $1
-                AND P."version" = PA."version"
                 AND P."id" = PA."id"
-                AND P."version" = PA."version"
                 AND P."name" = PA."name"
                 AND P."description" = PA."description"
                 AND P."price" = PA."price"
                 AND P."image_id" = PA."image_id"
         )
 ),
-update_product AS (
-    UPDATE "product" P
-    SET P."version" = (
-            SELECT (P."version" + 1)
-            FROM "product" P
-            WHERE P."id" = $1
+insert_archive AS (
+    INSERt INTO "product_archive" (
+            "id",
+            "version",
+            "name",
+            "description",
+            "price",
+            "image_id"
         )
-    FROM version_existed
+    SELECT P."id",
+        P."version",
+        P."name",
+        P."description",
+        P."price",
+        P."image_id"
+    FROM "product" P,
+        version_existed VE
     WHERE P."id" = $1
-        AND version_existed."exists" = FALSE
+        AND VE."version_existed" = FALSE
 )
-INSERt INTO "product_archive" (
-        "id",
-        "version",
-        "name",
-        "description",
-        "price",
-        "image_id"
-    )
-SELECT P."id",
-    P."version",
-    P."name",
-    P."description",
-    P."price",
-    P."image_id"
-FROM "product" P,
-    version_existed VE
+UPDATE "product" P
+SET P."version" = P."version" + 1
+FROM version_existed
 WHERE P."id" = $1
-    AND VE."exists" = FALSE;
+    AND version_existed."version_exists" = FALSE;
