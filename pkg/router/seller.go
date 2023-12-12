@@ -79,13 +79,14 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 		fileHeader, err := c.FormFile("image")
 		//if have file then store in minio
 		if fileHeader != nil && err == nil {
-			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
+			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			param.ImageID = ImageID
 		} else {
+			//use the origin image
 			param.ImageID = ""
 		}
 		param.SellerName = username
@@ -700,7 +701,7 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -717,25 +718,23 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 	}
 }
 
-// todo handle null input
-//
-//	@Summary		Seller edit product
-//	@Description	Edit product for shop.
-//	@Tags			Seller, Shop, Product
-//	@Accept			mpfd
-//	@Produce		json
-//	@Param			id			path		int		true	"Product ID"
-//	@Param			name		formData	string	true	"name of product"
-//	@Param			description	formData	string	true	"description of product"
-//	@Param			price		formData	number	false	"price"
-//	@Param			image_id	formData	string	true	"image id"
-//	@Param			expire_date	formData	time	true	"expire date"
-//	@Param			stock		formData	int		true	"stock"
-//	@Param			enabled		formData	time	true	"enabled"
-//	@Success		200			{object}	db.SellerUpdateProductInfoRow
-//	@Failure		400			{object}	echo.HTTPError
-//	@Failure		500			{object}	echo.HTTPError
-//	@Router			/seller/product/{id} [patch]
+// @Summary		Seller edit product
+// @Description	Edit product for shop.
+// @Tags			Seller, Shop, Product
+// @Accept			mpfd
+// @Produce		json
+// @Param			id			path		int		true	"Product ID"
+// @Param			name		formData	string	true	"name of product"
+// @Param			description	formData	string	true	"description of product"
+// @Param			price		formData	number	false	"price"
+// @Param			image_id	formData	string	true	"image id"
+// @Param			expire_date	formData	time	true	"expire date"
+// @Param			stock		formData	int		true	"stock"
+// @Param			enabled		formData	time	true	"enabled"
+// @Success		200			{object}	db.SellerUpdateProductInfoRow
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/seller/product/{id} [patch]
 func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -748,13 +747,14 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 		fileHeader, err := c.FormFile("image")
 		//if have file then store in minio
 		if fileHeader != nil && err == nil {
-			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
+			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			param.ImageID = ImageID
 		} else {
+			//use the origin image
 			param.ImageID = ""
 		}
 		param.SellerName = username
@@ -792,7 +792,6 @@ func sellerAddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
-
 		}
 		param.SellerName = username
 		productTag, err := pg.Queries.SellerInsertProductTag(c.Request().Context(), param)

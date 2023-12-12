@@ -9,6 +9,8 @@ import (
 	"os"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -17,10 +19,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer pg.Close()
+	mc, err := minio.NewMINIO()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	TestInsertData(pg)
-	TestDeleteData(pg)
+	TestInsertData(pg, mc)
+	// TestDeleteData(pg, mc)
 }
 
 type testTable struct {
@@ -39,7 +44,7 @@ type testTable struct {
 	OrderDetail    []db.TestInsertOrderDetailParams    `json:"order_detail"`
 }
 
-func TestInsertData(pg *db.DB) {
+func TestInsertData(pg *db.DB, mc *minio.MC) {
 
 	jsonFile, err := os.Open("data.json")
 	if err != nil {
@@ -59,6 +64,17 @@ func TestInsertData(pg *db.DB) {
 	}
 
 	for _, userParam := range data.User {
+		hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(userParam.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		userParam.ImageID = userParam.ImageID + ".jpg"
+		_, err = mc.PutFileByPath(context.Background(), "./test.jpg", userParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		userParam.Password = string(hashNewPassword)
 		_, err = pg.Queries.TestInsertUser(context.Background(), userParam)
 		if err != nil {
 			log.Fatal(err)
@@ -66,6 +82,11 @@ func TestInsertData(pg *db.DB) {
 	}
 	fmt.Println("InsertTestUser success")
 	for _, shopParam := range data.Shop {
+		shopParam.ImageID = shopParam.ImageID + ".jpg"
+		_, err := mc.PutFileByPath(context.Background(), "./test.jpg", shopParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestInsertShop(context.Background(), shopParam)
 		if err != nil {
 			log.Fatal(err)
@@ -80,6 +101,11 @@ func TestInsertData(pg *db.DB) {
 	}
 	fmt.Println("InsertTestCoupon success")
 	for _, productParam := range data.Product {
+		productParam.ImageID = productParam.ImageID + ".jpg"
+		_, err := mc.PutFileByPath(context.Background(), "./test.jpg", productParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestInsertProduct(context.Background(), productParam)
 		if err != nil {
 			log.Fatal(err)
@@ -87,6 +113,11 @@ func TestInsertData(pg *db.DB) {
 	}
 	fmt.Println("InsertTestProduct success")
 	for _, productArchiveParam := range data.ProductArchive {
+		productArchiveParam.ImageID = productArchiveParam.ImageID + ".jpg"
+		_, err := mc.PutFileByPath(context.Background(), "./test.jpg", productArchiveParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestInsertProductArchive(context.Background(), productArchiveParam)
 		if err != nil {
 			log.Fatal(err)
@@ -122,6 +153,11 @@ func TestInsertData(pg *db.DB) {
 	}
 	fmt.Println("InsertTestCart success")
 	for _, orderParam := range data.OrderHistory {
+		orderParam.ImageID = orderParam.ImageID + ".jpg"
+		_, err := mc.PutFileByPath(context.Background(), "./test.jpg", orderParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestInsertOrderHistory(context.Background(), orderParam)
 		if err != nil {
 			log.Fatal(err)
@@ -151,7 +187,7 @@ func TestInsertData(pg *db.DB) {
 	fmt.Println("InsertTestCartProduct success")
 }
 
-func TestDeleteData(pg *db.DB) {
+func TestDeleteData(pg *db.DB, mc *minio.MC) {
 
 	jsonFile, err := os.Open("data.json")
 	if err != nil {
@@ -178,6 +214,10 @@ func TestDeleteData(pg *db.DB) {
 	fmt.Println("DeleteTestCoupon success")
 
 	for _, productParam := range data.Product {
+		err := mc.RemoveFile(context.Background(), productParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestDeleteProductById(context.Background(), productParam.ID)
 		if err != nil {
 			log.Fatal(err)
@@ -201,6 +241,10 @@ func TestDeleteData(pg *db.DB) {
 	fmt.Println("DeleteTestOrderDetail success")
 
 	for _, orderParam := range data.OrderHistory {
+		err := mc.RemoveFile(context.Background(), orderParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestDeleteOrderById(context.Background(), orderParam.ID)
 		if err != nil {
 			log.Fatal(err)
@@ -209,6 +253,10 @@ func TestDeleteData(pg *db.DB) {
 	fmt.Println("DeleteTestOrderHistory success")
 	for _, ProductArchiveParam := range data.ProductArchive {
 
+		err := mc.RemoveFile(context.Background(), ProductArchiveParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestDeleteProductArchiveByIdVersion(context.Background(), db.TestDeleteProductArchiveByIdVersionParams{ID: ProductArchiveParam.ID, Version: ProductArchiveParam.Version})
 		if err != nil {
 			log.Fatal(err)
@@ -216,6 +264,10 @@ func TestDeleteData(pg *db.DB) {
 	}
 	fmt.Println("DeleteTestProductArchive success")
 	for _, shopParam := range data.Shop {
+		err := mc.RemoveFile(context.Background(), shopParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestDeleteShopById(context.Background(), shopParam.ID)
 		if err != nil {
 			log.Fatal(err)
@@ -224,6 +276,10 @@ func TestDeleteData(pg *db.DB) {
 	fmt.Println("DeleteTestShop success")
 
 	for _, userParam := range data.User {
+		err := mc.RemoveFile(context.Background(), userParam.ImageID)
+		if err != nil {
+			log.Fatal(err)
+		}
 		_, err = pg.Queries.TestDeleteUserById(context.Background(), userParam.ID)
 		if err != nil {
 			log.Fatal(err)
