@@ -31,7 +31,7 @@ const generateChallenge = async (verifier: string) => {
 };
 
 const Login = () => {
-  const authUrl = 'http://localhost:5173/authorize';
+  const authUrl = import.meta.env.VITE_AUTHORIZE_URL;
 
   const { isSuccess } = useQuery({
     queryKey: ['refresh'],
