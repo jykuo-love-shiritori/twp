@@ -74,6 +74,8 @@ SELECT EXISTS (
             OR "email" = $2
     );
 
+-- user can enter both username and email to verify
+-- but writing "usernameOrEmail" is too long
 -- name: FindUserInfoAndPassword :one
 SELECT "username",
     "role",

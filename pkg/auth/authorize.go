@@ -9,6 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// user can enter both username and email to verify
+// but writing "usernameOrEmail" is too long
 type loginParams struct {
 	ClientId            string              `json:"client_id"`
 	CodeChallenge       string              `json:"code_challenge"`

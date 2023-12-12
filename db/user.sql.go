@@ -100,6 +100,8 @@ type FindUserInfoAndPasswordRow struct {
 	Password string   `json:"password"`
 }
 
+// user can enter both username and email to verify
+// but writing "usernameOrEmail" is too long
 func (q *Queries) FindUserInfoAndPassword(ctx context.Context, username string) (FindUserInfoAndPasswordRow, error) {
 	row := q.db.QueryRow(ctx, findUserInfoAndPassword, username)
 	var i FindUserInfoAndPasswordRow
