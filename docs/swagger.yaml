@@ -1637,11 +1637,6 @@ paths:
       - multipart/form-data
       description: Edit shop name, description, visibility.
       parameters:
-      - description: update image UUID
-        in: formData
-        name: image_id
-        required: true
-        type: string
       - description: update shop name
         in: formData
         minLength: 6

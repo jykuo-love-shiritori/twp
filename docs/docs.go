@@ -1516,13 +1516,6 @@ const docTemplate = `{
                 "summary": "Seller edit shop info",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "update image UUID",
-                        "name": "image_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
                         "minLength": 6,
                         "type": "string",
                         "description": "update shop name",

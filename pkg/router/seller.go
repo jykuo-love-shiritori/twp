@@ -58,7 +58,6 @@ func sellerGetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 // @Description	Edit shop name, description, visibility.
 // @Tags			Seller, Shop
 // @Accept			mpfd
-// @Param			image_id	formData	string	true	"update image UUID"
 // @Param			name		formData	string	true	"update shop name"	minlength(6)
 // @Param			image		formData	file	true	"image file"
 // @Param			description	formData	string	true	"update description"
