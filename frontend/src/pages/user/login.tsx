@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link, Navigate, createSearchParams } from 'react-router-dom';
+import { Link, createSearchParams, useNavigate } from 'react-router-dom';
 
 import LoginImgUrl from '@assets/images/login.jpg';
 
@@ -31,19 +31,25 @@ const generateChallenge = async (verifier: string) => {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const authUrl = import.meta.env.VITE_AUTHORIZE_URL;
 
-  const { isSuccess } = useQuery({
+  const { refetch } = useQuery({
     queryKey: ['refresh'],
     queryFn: TryRefresh,
     retry: false,
+    enabled: false,
   });
 
-  if (isSuccess) {
-    return <Navigate to='/' />;
-  }
-
   const login = async () => {
+    const { isSuccess } = await refetch();
+
+    if (isSuccess) {
+      console.log('success');
+      navigate('/');
+      return;
+    }
+
     const state = randomString(8);
     const verifier = generateVerifier();
     const challenge = await generateChallenge(verifier);
