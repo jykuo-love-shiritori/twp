@@ -6,7 +6,6 @@ export type Token = {
 };
 
 export const TryRefresh = async () => {
-  console.log('refresh');
   const refreshUrl = '/api/oauth/refresh';
   const resp = await fetch(refreshUrl, { method: 'POST' });
   if (!resp.ok) {

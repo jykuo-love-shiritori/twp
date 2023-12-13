@@ -19,6 +19,8 @@ import NewsImgUrl3 from '@assets/images/news3.jpg';
 
 const Home = () => {
   const token = useAuth();
+
+  // TODO: remove this when integrating with backend
   console.log(token);
   return (
     <div>

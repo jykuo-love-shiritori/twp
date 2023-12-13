@@ -45,7 +45,6 @@ const Login = () => {
     const { isSuccess } = await refetch();
 
     if (isSuccess) {
-      console.log('success');
       navigate('/');
       return;
     }
