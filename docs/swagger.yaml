@@ -121,6 +121,21 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  db.GetDiscoversRow:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+    type: object
   db.GetGlobalCouponDetailRow:
     properties:
       description:
@@ -1436,13 +1451,30 @@ paths:
       consumes:
       - application/json
       description: Get discover content
+      parameters:
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.GetDiscoversRow'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get Discover
       tags:
       - Discover

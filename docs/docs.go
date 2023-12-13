@@ -955,12 +955,37 @@ const docTemplate = `{
                     "Product"
                 ],
                 "summary": "Get Discover",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetDiscoversRow"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -3282,6 +3307,29 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetDiscoversRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
                 }
             }
         },

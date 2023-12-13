@@ -68,3 +68,15 @@ LIMIT $2 OFFSET $3;
 SELECT "seller_name"
 FROM "shop"
 WHERE "id" = $1;
+
+-- name: GetDiscovers :many
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT $1 OFFSET $2;

@@ -11,6 +11,60 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getDiscovers = `-- name: GetDiscovers :many
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT $1 OFFSET $2
+`
+
+type GetDiscoversParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetDiscoversRow struct {
+	ID          int32          `json:"id" param:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     string         `json:"image_id"`
+	Sales       int32          `json:"sales"`
+}
+
+func (q *Queries) GetDiscovers(ctx context.Context, arg GetDiscoversParams) ([]GetDiscoversRow, error) {
+	rows, err := q.db.Query(ctx, getDiscovers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetDiscoversRow{}
+	for rows.Next() {
+		var i GetDiscoversRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductInfo = `-- name: GetProductInfo :one
 SELECT "id",
     "name",

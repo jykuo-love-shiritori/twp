@@ -237,20 +237,33 @@ func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// TODO
-//
-//	@Summary		Get Discover
-//	@Description	Get discover content
-//	@Tags			Discover,Product
-//	@Accept			json
-//	@Produce		json
-//	@Success		200
-//	@Failure		401
-//	@Router			/discover [get]
+// @Summary		Get Discover
+// @Description	Get discover content
+// @Tags			Discover,Product
+// @Accept			json
+// @Produce		json
+// @Param			offset	query	int	false	"Begin index"	default(0)
+// @Param			limit	query	int	false	"limit"			default(10)
+// @Success		200 {array} db.GetDiscoversRow
+// @Failure		500 {object} echo.HTTPError
+// @Router			/discover [get]
 func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		q := common.NewQueryParams(0, 10)
+		if err := c.Bind(&q); err != nil {
+			logger.Errorw("failed to bind query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := q.Validate(); err != nil {
+			logger.Errorw("failed to validate query parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
+		}
+		result, err := pg.Queries.GetDiscovers(c.Request().Context(), db.GetDiscoversParams{Offset: q.Offset, Limit: q.Limit})
+		if err != nil {
+			logger.Errorw("failed to get discover", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 
