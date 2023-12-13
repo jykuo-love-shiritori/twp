@@ -293,11 +293,11 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), queryParams)
+		// coupon, err := pg.Queries.SellerInsertCouponTag(c.Request().Context(), queryParams)
 		// if err != nil {
 		// 	logger.Error(err)
 		// 	return echo.NewHTTPError(http.StatusInternalServerError)
-		// }
+		// // }
 		return c.JSON(http.StatusOK, coupon)
 	}
 }
