@@ -47,7 +47,7 @@ func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader, fileName s
 
 	info, err := mc.mcp.PutObject(ctx, mc.BucketName, fileName, object, file.Size, minio.PutObjectOptions{ContentType: "multipart/form-data"})
 	if err != nil {
-		return info.VersionID, err
+		return "", err
 	}
 	if err := object.Close(); err != nil {
 		return info.VersionID, err

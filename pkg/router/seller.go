@@ -77,21 +77,31 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
-		//if have file then store in minio
-		if fileHeader != nil && err == nil {
-			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+		if err == nil {
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			param.ImageID = ImageID
-		} else {
+			param.ImageID = imageID
+		} else if err.Error() == "http: no such file" {
 			//use the origin image
 			param.ImageID = ""
+		} else {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+
 		param.SellerName = username
 		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
+			if param.ImageID != "" {
+				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
+				if err != nil {
+					logger.Error(err)
+					return echo.NewHTTPError(http.StatusInternalServerError)
+				}
+			}
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
@@ -701,18 +711,27 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		//put file to minio
 		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		param.SellerName = username
 		param.ImageID = ImageID
+		param.SellerName = username
 		product, err := pg.Queries.SellerInsertProduct(c.Request().Context(), param)
 		if err != nil {
+			if param.ImageID != "" {
+				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
+				if err != nil {
+					logger.Error(err)
+					return echo.NewHTTPError(http.StatusInternalServerError)
+				}
+			}
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+
 		product.ImageID = mc.GetFileURL(c.Request().Context(), product.ImageID)
 		return c.JSON(http.StatusOK, product)
 	}
@@ -745,17 +764,19 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
-		//if have file then store in minio
-		if fileHeader != nil && err == nil {
-			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+		if err == nil {
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			param.ImageID = ImageID
-		} else {
+			param.ImageID = imageID
+		} else if err.Error() == "http: no such file" {
 			//use the origin image
 			param.ImageID = ""
+		} else {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		param.SellerName = username
 		if err := param.Price.Scan(c.FormValue("price")); err != nil {
@@ -765,6 +786,13 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 		// param.Price = pgtype.Numeric{}
 		product, err := pg.Queries.SellerUpdateProductInfo(c.Request().Context(), param)
 		if err != nil {
+			if param.ImageID != "" {
+				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
+				if err != nil {
+					logger.Error(err)
+					return echo.NewHTTPError(http.StatusInternalServerError)
+				}
+			}
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
