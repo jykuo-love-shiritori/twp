@@ -3,7 +3,6 @@ package auth
 import (
 	"crypto/sha256"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -33,9 +32,6 @@ func Token(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest, "Failed to parse data")
 		}
-
-		fmt.Printf("%+v\n", c.QueryParams())
-		fmt.Printf("%+v\n", params)
 
 		code := strings.TrimSpace(params.Code)
 		verifier := strings.TrimSpace(params.CodeVerifier)

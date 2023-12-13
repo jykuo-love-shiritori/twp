@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -56,7 +55,6 @@ func IsRole(pg *db.DB, logger *zap.SugaredLogger, role db.RoleType) echo.Middlew
 			}
 
 			if !strings.HasPrefix(authorization, tokenPrefix) {
-				fmt.Println(authorization)
 				return echo.NewHTTPError(http.StatusBadRequest, "Bad token")
 			}
 
