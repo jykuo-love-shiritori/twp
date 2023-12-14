@@ -1,15 +1,16 @@
-import { useRef, useState } from 'react';
-import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { Col, Row } from 'react-bootstrap';
+import TButton from '@components/TButton';
+import { useRef, useState } from 'react';
 
-interface BuyerInfoProps {
+interface ShopInfoProps {
   name: string;
-  email: string;
-  address: string;
   image: File | undefined;
+  enabled: boolean;
+  description: string;
 }
 
-const BuyerItemStyle = {
+const SellerItemStyle = {
   borderRadius: '10px',
   padding: '10% 10% 5% 10%',
   border: '1px solid var(--button_border, #34977F)',
@@ -30,17 +31,17 @@ const labelStyle = {
   color: 'rgba(255, 255, 255, 0.67)',
 };
 
-const Info = () => {
-  //TODO: get the info from existing user
-  const { register, handleSubmit, watch, setValue } = useForm<BuyerInfoProps>({
+const SellerInfo = () => {
+  //TODO: get the info from existing shop
+  const { register, handleSubmit, watch, setValue } = useForm<ShopInfoProps>({
     defaultValues: {
-      name: 'username',
+      name: 'shop name',
       image: undefined,
-      address: 'an address',
-      email: 'thisIsAnEmail@mail.com',
+      enabled: false,
+      description: 'shop description',
     },
   });
-  const OnFormOutput: SubmitHandler<BuyerInfoProps> = (data) => {
+  const OnFormOutput: SubmitHandler<ShopInfoProps> = (data) => {
     console.log(data);
     return data;
   };
@@ -63,7 +64,7 @@ const Info = () => {
 
   return (
     <div>
-      <div className='title'>Personal info</div>
+      <div className='title'>Shop info</div>
       <hr className='hr' />
       <form onSubmit={handleSubmit(OnFormOutput)}>
         <Row>
@@ -72,7 +73,7 @@ const Info = () => {
             <Row className='center' style={{ height: '100%' }}>
               <Col />
               <Col xs={8} xl={7}>
-                <div style={BuyerItemStyle}>
+                <div style={SellerItemStyle}>
                   {/* upload img */}
                   <div className='center'>
                     <input
@@ -90,6 +91,7 @@ const Info = () => {
                   <div className='center' style={{ paddingTop: '10px' }}>
                     <h5>{watch('name')}</h5>
                   </div>
+                  <TButton text='View Shop' />
                 </div>
               </Col>
               <Col />
@@ -100,24 +102,37 @@ const Info = () => {
           <Col xs={12} md={6}>
             <Row>
               <Col xs={12} style={labelStyle}>
-                Userame
+                Shop Name
               </Col>
               <Col xs={12} className='form_item_wrapper'>
                 <input type='text' {...register('name', { required: true })} />
               </Col>
 
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
-                Email
+                Visibility
               </Col>
-              <Col xs={12} className='form_item_wrapper'>
-                <input type='text' {...register('email', { required: true })} />
+              <Col xs={12}>
+                <Row>
+                  <Col
+                    xs='auto'
+                    className='center'
+                    style={{ ...labelStyle, padding: '0 0 0 24px' }}
+                  >
+                    <input type='checkbox' {...register('enabled')} />
+                  </Col>
+                  <Col className='left'>
+                    {watch('enabled')
+                      ? 'Your shop is visible to everyone.🌞'
+                      : 'Your shop is hidden from everyone.🌚'}
+                  </Col>
+                </Row>
               </Col>
 
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
-                Address
+                Description
               </Col>
               <Col xs={12} className='form_item_wrapper'>
-                <textarea {...register('address', { required: true })} />
+                <textarea {...register('description', { required: true })} />
               </Col>
             </Row>
           </Col>
@@ -134,4 +149,4 @@ const Info = () => {
   );
 };
 
-export default Info;
+export default SellerInfo;

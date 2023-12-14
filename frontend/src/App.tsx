@@ -29,6 +29,7 @@ import Password from '@pages/user/buyer/security/Password';
 import CreditCard from '@pages/user/buyer/security/CreditCard';
 import NewCard from '@pages/user/buyer/security/NewCard';
 import UserViewShop from '@pages/user/shop';
+import SellerInfo from '@pages/user/seller/info';
 import Products from '@pages/user/seller/allProducts';
 import NewGoods from '@pages/user/seller/allProducts/NewGoods';
 import ManageSellerCoupons from '@pages/user/seller/allCoupons';
@@ -134,8 +135,8 @@ function App() {
           </Route>
 
           <Route path='/user/seller' element={<Seller />}>
-            <Route index element={<NotFound />} />
-            <Route path='/user/seller/info' element={<NotFound />} />
+            <Route index element={<SellerInfo />} />
+            <Route path='/user/seller/info' element={<SellerInfo />} />
             <Route path='/user/seller/manageProducts' element={<Products />} />
             <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />
             <Route path='/user/seller/orders' element={<SellerShipment />} />

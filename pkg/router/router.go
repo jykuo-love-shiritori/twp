@@ -10,6 +10,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	_ "github.com/jykuo-love-shiritori/twp/docs"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
@@ -38,7 +39,7 @@ func RegisterDocs(e *echo.Echo) {
 	docs.GET("/*", echoSwagger.WrapHandler)
 }
 
-func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
+func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) {
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c echo.Context) error {
@@ -92,7 +93,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.GET("/news/:id", getNewsDetail(pg, logger))
 	api.GET("/discover", getDiscover(pg, logger))
 
-	api.GET("/product/:id", getProductInfo(pg, logger))
+	api.GET("/product/:product_id", getProductInfo(pg, logger))
 
 	// buyer
 	api.GET("/buyer/order", buyerGetOrderHistory(pg, logger))
@@ -109,8 +110,8 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(pg, logger))
 
 	// seller
-	api.GET("/seller/info", sellerGetShopInfo(pg, logger))
-	api.PATCH("/seller/info", sellerEditInfo(pg, logger))
+	api.GET("/seller/info", sellerGetShopInfo(pg, mc, logger))
+	api.PATCH("/seller/info", sellerEditInfo(pg, mc, logger))
 	api.GET("/seller/tag", sellerGetTag(pg, logger))  // search available tag
 	api.POST("/seller/tag", sellerAddTag(pg, logger)) // add tag for shop
 
@@ -122,18 +123,24 @@ func RegisterApi(e *echo.Echo, pg *db.DB, logger *zap.SugaredLogger) {
 	api.POST("/seller/coupon/:id/tag", sellerAddCouponTag(pg, logger))
 	api.DELETE("/seller/coupon/:id/tag", sellerDeleteCouponTag(pg, logger))
 
-	api.GET("/seller/order", sellerGetOrder(pg, logger))
-	api.GET("/seller/order/:id", sellerGetOrderDetail(pg, logger))
+	api.GET("/seller/order", sellerGetOrder(pg, mc, logger))
+	api.GET("/seller/order/:id", sellerGetOrderDetail(pg, mc, logger))
 	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(pg, logger))
 
-	api.GET("/seller/report", sellerGetReport(pg, logger))
-	api.GET("/seller/report/:year/:month", sellerGetReportDetail(pg, logger))
+	api.GET("/seller/report/:year/:month", sellerGetReportDetail(pg, mc, logger))
 
-	api.GET("/seller/product", sellerListProduct(pg, logger))
-	api.POST("/seller/product", sellerAddProduct(pg, logger))
-	api.POST("/seller/product/:id/upload", sellerUploadProductImage(pg, logger))
-	api.GET("/seller/product/:id", sellerGetProductDetail(pg, logger))
-	api.PATCH("/seller/product/:id", sellerEditProduct(pg, logger))
+	api.GET("/seller/product", sellerListProduct(pg, mc, logger))
+	api.POST("/seller/product", sellerAddProduct(pg, mc, logger))
+	api.GET("/seller/product/:id", sellerGetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:id", sellerEditProduct(pg, mc, logger))
+	api.POST("/seller/product/:id/tag", sellerAddProductTag(pg, logger))
+	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(pg, logger))
+	api.DELETE("/seller/product/:id", sellerDeleteProduct(pg, logger))
+
+	api.GET("/seller/product", sellerListProduct(pg, mc, logger))
+	api.POST("/seller/product", sellerAddProduct(pg, mc, logger))
+	api.GET("/seller/product/:id", sellerGetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:id", sellerEditProduct(pg, mc, logger))
 	api.POST("/seller/product/:id/tag", sellerAddProductTag(pg, logger))
 	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(pg, logger))
 	api.DELETE("/seller/product/:id", sellerDeleteProduct(pg, logger))

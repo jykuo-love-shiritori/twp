@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
@@ -29,10 +30,14 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
+	mc, err := minio.NewMINIO()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
 
 	RegisterFrontend(e)
 
-	router.RegisterApi(e, db, logger.Sugar())
+	router.RegisterApi(e, db, mc, logger.Sugar())
 
 	if common.IsEnv(constants.DEV) {
 		router.RegisterDocs(e)
