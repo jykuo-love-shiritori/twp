@@ -1,9 +1,13 @@
 package common
 
 import (
+	"encoding/json"
 	"errors"
+	"mime/multipart"
 	"regexp"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
@@ -32,4 +36,21 @@ func HasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
+}
+
+// c.FormValue("tags")
+func String2IntArray(str string) ([]int32, error) {
+	var array []int32
+	err := json.Unmarshal([]byte(str), &array)
+	if err != nil {
+		return nil, err
+	}
+	return array, nil
+}
+func GetFileName(file *multipart.FileHeader) string {
+	id := uuid.New()
+	parts := strings.Split(file.Filename, ".")
+	fileType := parts[len(parts)-1]
+	newFileName := id.String() + "." + fileType
+	return newFileName
 }

@@ -21,7 +21,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +40,6 @@ services:
       - ./db/migrations:/migrations
     command: -path=/migrations -database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up
 
-  # TODO: add minio bucket automatic setup script
   minio:
     image: quay.io/minio/minio:RELEASE.2023-12-02T10-51-33Z
     env_file:
@@ -52,11 +55,22 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -f http://localhost:${MINIO_CONSOLE_PORT}/minio/health/live || exit 1",
+          "curl -f http://localhost:${MINIO_CONSOLE_PORT}/minio/health/live || exit 1"
         ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      - minio
+    env_file:
+      - .env
+    entrypoint: >
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME};"
 
 volumes:
   postgres-data:
