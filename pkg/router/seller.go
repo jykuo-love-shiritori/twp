@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -84,7 +85,7 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			param.ImageID = imageID
-		} else if err.Error() == "http: no such file" {
+		} else if errors.Is(err, http.ErrMissingFile) {
 			//use the origin image
 			param.ImageID = ""
 		} else {
@@ -771,7 +772,7 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			param.ImageID = imageID
-		} else if err.Error() == "http: no such file" {
+		} else if errors.Is(err, http.ErrMissingFile) {
 			//use the origin image
 			param.ImageID = ""
 		} else {
