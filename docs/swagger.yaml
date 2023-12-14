@@ -15,6 +15,26 @@ definitions:
         example: john
         type: string
     type: object
+  common.News:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      title:
+        type: string
+    type: object
+  common.NewsInfo:
+    properties:
+      id:
+        type: integer
+      image_id:
+        type: string
+      title:
+        type: string
+    type: object
   db.AddCouponParams:
     properties:
       description:
@@ -1543,8 +1563,14 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/common.NewsInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get News
       tags:
       - News
@@ -1564,8 +1590,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.News'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get News Detail
       tags:
       - News

@@ -202,38 +202,49 @@ func searchShopByName(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	}
 }
 
-// TODO
-//
-//	@Summary		Get News
-//	@Description	Get news
-//	@Tags			News
-//	@Accept			json
-//	@Produce		json
-//	@Success		200
-//	@Failure		401
-//	@Router			/news [get]
+type GetNewsInfo struct {
+	ID      int32  `json:"id"`
+	Title   string `json:"news"`
+	ImageID string `json:"image_id"`
+}
+
+// @Summary		Get News
+// @Description	Get news
+// @Tags			News
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		common.NewsInfo
+// @Failure		400	{object}	echo.HTTPError
+// @Router			/news [get]
 func getNews(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		return c.JSON(http.StatusOK, common.GetNewsInfo())
 	}
 }
 
-// TODO
-//
-//	@Summary		Get News Detail
-//	@Description	Get details of a specific news item by ID
-//	@Tags			News
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path	int	true	"News ID"
-//	@Success		200
-//	@Failure		401
-//	@Router			/news/{id} [get]
+// @Summary		Get News Detail
+// @Description	Get details of a specific news item by ID
+// @Tags			News
+// @Accept			json
+// @Produce		json
+// @Param			id	path		int	true	"News ID"
+// @Success		200	{object}	common.News
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Router			/news/{id} [get]
 func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		return c.NoContent(http.StatusOK)
+		var id int32
+		if err := echo.PathParamsBinder(c).Int32("id", &id).BindError(); err != nil {
+			logger.Errorw("failed to parse id", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		result, err := common.GetNews(id)
+		if err != nil {
+			logger.Errorw("failed to get news detail", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "News Not Found")
+		}
+		return c.JSON(http.StatusOK, result)
 	}
 }
 
@@ -242,10 +253,10 @@ func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Discover,Product
 // @Accept			json
 // @Produce		json
-// @Param			offset	query	int	false	"Begin index"	default(0)
-// @Param			limit	query	int	false	"limit"			default(10)
-// @Success		200 {array} db.GetRandomProductsRow
-// @Failure		500 {object} echo.HTTPError
+// @Param			offset	query		int	false	"Begin index"	default(0)
+// @Param			limit	query		int	false	"limit"			default(10)
+// @Success		200		{array}		db.GetRandomProductsRow
+// @Failure		500		{object}	echo.HTTPError
 // @Router			/discover [get]
 func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -277,8 +288,8 @@ type popular struct {
 // @Tags			Discover, Product
 // @Accept			json
 // @Produce		json
-// @Success		200 {array} popular
-// @Failure		500 {object} echo.HTTPError
+// @Success		200	{array}		popular
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/popular [get]
 func getPopular(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
