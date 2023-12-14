@@ -16,7 +16,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "expire_date",
     "stock",
     "sales"
@@ -30,7 +30,7 @@ type GetProductInfoRow struct {
 	Name        string             `form:"name" json:"name"`
 	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id"`
+	ImageUrl    string             `json:"image_url"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -44,7 +44,7 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.Name,
 		&i.Description,
 		&i.Price,
-		&i.ImageID,
+		&i.ImageUrl,
 		&i.ExpireDate,
 		&i.Stock,
 		&i.Sales,
@@ -70,7 +70,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "shop_id" = (
@@ -87,7 +87,7 @@ type GetProductsFromNearByShopRow struct {
 	Name        string         `form:"name" json:"name"`
 	Description string         `form:"description" json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id"`
+	ImageUrl    string         `json:"image_url"`
 	Sales       int32          `json:"sales"`
 }
 
@@ -105,7 +105,7 @@ func (q *Queries) GetProductsFromNearByShop(ctx context.Context) ([]GetProductsF
 			&i.Name,
 			&i.Description,
 			&i.Price,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.Sales,
 		); err != nil {
 			return nil, err
@@ -140,7 +140,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "shop_id" = (
@@ -157,7 +157,7 @@ type GetProductsFromPopularShopRow struct {
 	Name        string         `form:"name" json:"name"`
 	Description string         `form:"description" json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id"`
+	ImageUrl    string         `json:"image_url"`
 	Sales       int32          `json:"sales"`
 }
 
@@ -175,7 +175,7 @@ func (q *Queries) GetProductsFromPopularShop(ctx context.Context) ([]GetProducts
 			&i.Name,
 			&i.Description,
 			&i.Price,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.Sales,
 		); err != nil {
 			return nil, err
@@ -193,7 +193,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "enabled" = TRUE
@@ -211,7 +211,7 @@ type GetRandomProductsRow struct {
 	Name        string         `form:"name" json:"name"`
 	Description string         `form:"description" json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id"`
+	ImageUrl    string         `json:"image_url"`
 	Sales       int32          `json:"sales"`
 }
 
@@ -229,7 +229,7 @@ func (q *Queries) GetRandomProducts(ctx context.Context, arg GetRandomProductsPa
 			&i.Name,
 			&i.Description,
 			&i.Price,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.Sales,
 		); err != nil {
 			return nil, err
@@ -319,7 +319,7 @@ func (q *Queries) GetShopCoupons(ctx context.Context, arg GetShopCouponsParams) 
 
 const getShopInfo = `-- name: GetShopInfo :one
 SELECT "seller_name",
-    "image_id",
+    "image_id" AS "image_url",
     "name",
     "description"
 FROM "shop"
@@ -329,7 +329,7 @@ WHERE "seller_name" = $1
 
 type GetShopInfoRow struct {
 	SellerName  string `json:"seller_name" param:"seller_name"`
-	ImageID     string `json:"image_id" swaggertype:"string"`
+	ImageUrl    string `json:"image_url" swaggertype:"string"`
 	Name        string `form:"name" json:"name"`
 	Description string `form:"description" json:"description"`
 }
@@ -339,7 +339,7 @@ func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopIn
 	var i GetShopInfoRow
 	err := row.Scan(
 		&i.SellerName,
-		&i.ImageID,
+		&i.ImageUrl,
 		&i.Name,
 		&i.Description,
 	)
@@ -351,7 +351,7 @@ SELECT P."id",
     P."name",
     P."description",
     P."price",
-    P."image_id",
+    P."image_id" AS "image_url",
     P."expire_date",
     P."stock",
     P."sales"
@@ -375,7 +375,7 @@ type GetShopProductsRow struct {
 	Name        string             `form:"name" json:"name"`
 	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id"`
+	ImageUrl    string             `json:"image_url"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
@@ -395,7 +395,7 @@ func (q *Queries) GetShopProducts(ctx context.Context, arg GetShopProductsParams
 			&i.Name,
 			&i.Description,
 			&i.Price,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.ExpireDate,
 			&i.Stock,
 			&i.Sales,

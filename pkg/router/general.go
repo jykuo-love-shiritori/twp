@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -29,7 +30,7 @@ type shopInfo struct {
 // @Failure		404			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/shop/{seller_name} [get]
-func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func getShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		qp := common.NewQueryParams(0, 10)
 		sellerName := c.Param("seller_name")
@@ -59,12 +60,15 @@ func getShopInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get shop info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		result.Info.ImageUrl = mc.GetFileURL(c.Request().Context(), result.Info.ImageUrl)
 		result.Products, err = pg.Queries.GetShopProducts(c.Request().Context(), db.GetShopProductsParams{
 			Offset: qp.Offset, Limit: qp.Limit, SellerName: sellerName})
-
 		if err != nil {
 			logger.Errorw("failed to get shop info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range result.Products {
+			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -258,7 +262,7 @@ func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success		200		{array}		db.GetRandomProductsRow
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/discover [get]
-func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func getDiscover(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
@@ -273,6 +277,9 @@ func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			logger.Errorw("failed to get discover", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range result {
+			result[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -291,7 +298,7 @@ type popular struct {
 // @Success		200	{array}		popular
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/popular [get]
-func getPopular(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func getPopular(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var result popular
 		var err error
@@ -299,6 +306,9 @@ func getPopular(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			logger.Errorw("failed to get popular products", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range result.PopularProducts {
+			result.PopularProducts[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.PopularProducts[i].ImageUrl)
 		}
 		result.LocalProducts, err = pg.Queries.GetProductsFromNearByShop(c.Request().Context())
 		if err != nil {
@@ -320,7 +330,7 @@ func getPopular(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/product/{id} [get]
-func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func getProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var id int32
 		if err := echo.PathParamsBinder(c).Int32("id", &id).BindError(); err != nil {
@@ -335,6 +345,7 @@ func getProductInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get product info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		result.ImageUrl = mc.GetFileURL(c.Request().Context(), result.ImageUrl)
 		return c.JSON(http.StatusOK, result)
 	}
 }

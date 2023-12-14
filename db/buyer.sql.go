@@ -331,7 +331,7 @@ func (q *Queries) DeleteProductFromCart(ctx context.Context, arg DeleteProductFr
 const getCart = `-- name: GetCart :many
 SELECT C."id",
     S."seller_name",
-    S."image_id",
+    S."image_id" AS "shop_image_url",
     S."name" AS "shop_name"
 FROM "cart" AS C,
     "user" AS U,
@@ -342,10 +342,10 @@ WHERE U."username" = $1
 `
 
 type GetCartRow struct {
-	ID         int32  `json:"id" param:"cart_id"`
-	SellerName string `json:"seller_name" param:"seller_name"`
-	ImageID    string `json:"image_id" swaggertype:"string"`
-	ShopName   string `form:"name" json:"shop_name"`
+	ID           int32  `json:"id" param:"cart_id"`
+	SellerName   string `json:"seller_name" param:"seller_name"`
+	ShopImageUrl string `json:"shop_image_url" swaggertype:"string"`
+	ShopName     string `form:"name" json:"shop_name"`
 }
 
 func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, error) {
@@ -360,7 +360,7 @@ func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, e
 		if err := rows.Scan(
 			&i.ID,
 			&i.SellerName,
-			&i.ImageID,
+			&i.ShopImageUrl,
 			&i.ShopName,
 		); err != nil {
 			return nil, err
@@ -628,7 +628,7 @@ SELECT O."product_id",
     P."name",
     P."description",
     P."price",
-    P."image_id",
+    P."image_id" AS "image_url",
     O."quantity"
 FROM "order_detail" AS O,
     "product_archive" AS P
@@ -642,7 +642,7 @@ type GetOrderDetailRow struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id"`
+	ImageUrl    string         `json:"image_url"`
 	Quantity    int32          `json:"quantity"`
 }
 
@@ -660,7 +660,7 @@ func (q *Queries) GetOrderDetail(ctx context.Context, orderID int32) ([]GetOrder
 			&i.Name,
 			&i.Description,
 			&i.Price,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.Quantity,
 		); err != nil {
 			return nil, err
@@ -676,8 +676,8 @@ func (q *Queries) GetOrderDetail(ctx context.Context, orderID int32) ([]GetOrder
 const getOrderHistory = `-- name: GetOrderHistory :many
 SELECT O."id",
     s."name" AS "shop_name",
-    s."image_id" AS "shop_image_id",
-    O."image_id" AS "thumbnail_id",
+    s."image_id" AS "shop_image_url",
+    O."image_id" AS "thumbnail_url",
     "shipment",
     "total_price",
     "status",
@@ -699,14 +699,14 @@ type GetOrderHistoryParams struct {
 }
 
 type GetOrderHistoryRow struct {
-	ID          int32              `json:"id" param:"id"`
-	ShopName    string             `form:"name" json:"shop_name"`
-	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
-	ThumbnailID string             `json:"thumbnail_id"`
-	Shipment    int32              `json:"shipment"`
-	TotalPrice  int32              `json:"total_price"`
-	Status      OrderStatus        `json:"status"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	ID           int32              `json:"id" param:"id"`
+	ShopName     string             `form:"name" json:"shop_name"`
+	ShopImageUrl string             `json:"shop_image_url" swaggertype:"string"`
+	ThumbnailUrl string             `json:"thumbnail_url"`
+	Shipment     int32              `json:"shipment"`
+	TotalPrice   int32              `json:"total_price"`
+	Status       OrderStatus        `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams) ([]GetOrderHistoryRow, error) {
@@ -721,8 +721,8 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 		if err := rows.Scan(
 			&i.ID,
 			&i.ShopName,
-			&i.ShopImageID,
-			&i.ThumbnailID,
+			&i.ShopImageUrl,
+			&i.ThumbnailUrl,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
@@ -741,7 +741,7 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 const getOrderInfo = `-- name: GetOrderInfo :one
 SELECT O."id",
     S."name" AS "shop_name",
-    S."image_id" AS "shop_image_id",
+    S."image_id" AS "shop_image_url",
     "shipment",
     "total_price",
     "status",
@@ -774,14 +774,14 @@ type GetOrderInfoParams struct {
 }
 
 type GetOrderInfoRow struct {
-	ID          int32              `json:"id" param:"id"`
-	ShopName    string             `form:"name" json:"shop_name"`
-	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
-	Shipment    int32              `json:"shipment"`
-	TotalPrice  int32              `json:"total_price"`
-	Status      OrderStatus        `json:"status"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
-	Discount    int32              `json:"discount"`
+	ID           int32              `json:"id" param:"id"`
+	ShopName     string             `form:"name" json:"shop_name"`
+	ShopImageUrl string             `json:"shop_image_url" swaggertype:"string"`
+	Shipment     int32              `json:"shipment"`
+	TotalPrice   int32              `json:"total_price"`
+	Status       OrderStatus        `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	Discount     int32              `json:"discount"`
 }
 
 func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (GetOrderInfoRow, error) {
@@ -790,7 +790,7 @@ func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (Get
 	err := row.Scan(
 		&i.ID,
 		&i.ShopName,
-		&i.ShopImageID,
+		&i.ShopImageUrl,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -803,7 +803,7 @@ func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (Get
 const getProductFromCart = `-- name: GetProductFromCart :many
 SELECT "product_id",
     "name",
-    "image_id",
+    "image_id" AS "image_url",
     "price",
     "quantity",
     "stock",
@@ -817,7 +817,7 @@ WHERE "cart_id" = $1
 type GetProductFromCartRow struct {
 	ProductID int32          `json:"product_id" param:"id"`
 	Name      string         `form:"name" json:"name"`
-	ImageID   string         `json:"image_id"`
+	ImageUrl  string         `json:"image_url"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
 	Quantity  int32          `json:"quantity"`
 	Stock     int32          `form:"stock" json:"stock"`
@@ -836,7 +836,7 @@ func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetPr
 		if err := rows.Scan(
 			&i.ProductID,
 			&i.Name,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.Price,
 			&i.Quantity,
 			&i.Stock,

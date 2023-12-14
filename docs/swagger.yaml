@@ -119,9 +119,9 @@ definitions:
     properties:
       id:
         type: integer
-      image_id:
-        type: string
       seller_name:
+        type: string
+      shop_image_url:
         type: string
       shop_name:
         type: string
@@ -183,7 +183,7 @@ definitions:
     properties:
       description:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -202,13 +202,13 @@ definitions:
         type: integer
       shipment:
         type: integer
-      shop_image_id:
+      shop_image_url:
         type: string
       shop_name:
         type: string
       status:
         $ref: '#/definitions/db.OrderStatus'
-      thumbnail_id:
+      thumbnail_url:
         type: string
       total_price:
         type: integer
@@ -223,7 +223,7 @@ definitions:
         type: integer
       shipment:
         type: integer
-      shop_image_id:
+      shop_image_url:
         type: string
       shop_name:
         type: string
@@ -236,7 +236,7 @@ definitions:
     properties:
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -257,7 +257,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -274,7 +274,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -289,7 +289,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -304,7 +304,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -336,7 +336,7 @@ definitions:
     properties:
       description:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -351,7 +351,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -371,7 +371,7 @@ definitions:
     type: object
   db.GetTopSellerRow:
     properties:
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -409,6 +409,8 @@ definitions:
         type: string
       enabled:
         type: boolean
+      icon_url:
+        type: string
       name:
         type: string
       role:
@@ -2302,12 +2304,22 @@ paths:
         in: formData
         name: image
         required: true
+        type: file
+      - description: expire date
+        in: formData
+        name: expire_date
+        required: true
         type: string
       - description: stock
         in: formData
         name: stock
         required: true
         type: integer
+      - description: enabled
+        in: formData
+        name: enabled
+        required: true
+        type: string
       - collectionFormat: csv
         description: init tags
         in: formData

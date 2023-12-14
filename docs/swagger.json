@@ -2071,9 +2071,16 @@
                         "in": "formData"
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "image id",
                         "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "expire date",
+                        "name": "expire_date",
                         "in": "formData",
                         "required": true
                     },
@@ -2081,6 +2088,13 @@
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     },
@@ -3265,10 +3279,10 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "seller_name": {
                     "type": "string"
                 },
-                "seller_name": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3363,7 +3377,7 @@
                 "description": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3392,7 +3406,7 @@
                 "shipment": {
                     "type": "integer"
                 },
-                "shop_image_id": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3401,7 +3415,7 @@
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
-                "thumbnail_id": {
+                "thumbnail_url": {
                     "type": "string"
                 },
                 "total_price": {
@@ -3424,7 +3438,7 @@
                 "shipment": {
                     "type": "integer"
                 },
-                "shop_image_id": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3444,7 +3458,7 @@
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3476,7 +3490,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3502,7 +3516,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3525,7 +3539,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3548,7 +3562,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3597,7 +3611,7 @@
                 "description": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3620,7 +3634,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3651,7 +3665,7 @@
         "db.GetTopSellerRow": {
             "type": "object",
             "properties": {
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3708,6 +3722,9 @@
                 },
                 "enabled": {
                     "type": "boolean"
+                },
+                "icon_url": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

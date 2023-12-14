@@ -2077,9 +2077,16 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
-                        "type": "string",
+                        "type": "file",
                         "description": "image id",
                         "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "expire date",
+                        "name": "expire_date",
                         "in": "formData",
                         "required": true
                     },
@@ -2087,6 +2094,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     },
@@ -3271,10 +3285,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "seller_name": {
                     "type": "string"
                 },
-                "seller_name": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3369,7 +3383,7 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3398,7 +3412,7 @@ const docTemplate = `{
                 "shipment": {
                     "type": "integer"
                 },
-                "shop_image_id": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3407,7 +3421,7 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
-                "thumbnail_id": {
+                "thumbnail_url": {
                     "type": "string"
                 },
                 "total_price": {
@@ -3430,7 +3444,7 @@ const docTemplate = `{
                 "shipment": {
                     "type": "integer"
                 },
-                "shop_image_id": {
+                "shop_image_url": {
                     "type": "string"
                 },
                 "shop_name": {
@@ -3450,7 +3464,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3482,7 +3496,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3508,7 +3522,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3531,7 +3545,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3554,7 +3568,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3603,7 +3617,7 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3626,7 +3640,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3657,7 +3671,7 @@ const docTemplate = `{
         "db.GetTopSellerRow": {
             "type": "object",
             "properties": {
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3714,6 +3728,9 @@ const docTemplate = `{
                 },
                 "enabled": {
                     "type": "boolean"
+                },
+                "icon_url": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

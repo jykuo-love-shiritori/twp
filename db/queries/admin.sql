@@ -3,6 +3,7 @@ SELECT "username",
     "name",
     "email",
     "address",
+    "image_id" AS "icon_url",
     "role",
     "credit_card",
     "enabled"
@@ -171,7 +172,7 @@ WHERE "seller_name" = $1;
 -- name: GetTopSeller :many
 SELECT S."seller_name",
     S."name",
-    S."image_id",
+    S."image_id" AS "image_url",
     SUM(O."total_price") AS "total_sales"
 FROM "shop" AS S,
     "order_history" AS O

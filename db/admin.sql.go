@@ -424,7 +424,7 @@ func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) 
 const getTopSeller = `-- name: GetTopSeller :many
 SELECT S."seller_name",
     S."name",
-    S."image_id",
+    S."image_id" AS "image_url",
     SUM(O."total_price") AS "total_sales"
 FROM "shop" AS S,
     "order_history" AS O
@@ -446,7 +446,7 @@ LIMIT 3
 type GetTopSellerRow struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	Name       string `form:"name" json:"name"`
-	ImageID    string `json:"image_id" swaggertype:"string"`
+	ImageUrl   string `json:"image_url" swaggertype:"string"`
 	TotalSales int64  `json:"total_sales"`
 }
 
@@ -462,7 +462,7 @@ func (q *Queries) GetTopSeller(ctx context.Context, date string) ([]GetTopSeller
 		if err := rows.Scan(
 			&i.SellerName,
 			&i.Name,
-			&i.ImageID,
+			&i.ImageUrl,
 			&i.TotalSales,
 		); err != nil {
 			return nil, err
@@ -512,6 +512,7 @@ SELECT "username",
     "name",
     "email",
     "address",
+    "image_id" AS "icon_url",
     "role",
     "credit_card",
     "enabled"
@@ -531,6 +532,7 @@ type GetUsersRow struct {
 	Name       string          `json:"name"`
 	Email      string          `json:"email"`
 	Address    string          `json:"address"`
+	IconUrl    string          `json:"icon_url" swaggertype:"string"`
 	Role       RoleType        `json:"role"`
 	CreditCard json.RawMessage `json:"credit_card"`
 	Enabled    bool            `json:"enabled"`
@@ -550,6 +552,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 			&i.Name,
 			&i.Email,
 			&i.Address,
+			&i.IconUrl,
 			&i.Role,
 			&i.CreditCard,
 			&i.Enabled,

@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,7 @@ import (
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/buyer/order [get]
-func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetOrderHistory(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		q := common.NewQueryParams(0, 10)
@@ -41,6 +42,10 @@ func buyerGetOrderHistory(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc
 		if err != nil {
 			logger.Errorw("failed to get order history", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range orders {
+			orders[i].ShopImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ShopImageUrl)
+			orders[i].ThumbnailUrl = mc.GetFileURL(c.Request().Context(), orders[i].ThumbnailUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -60,7 +65,7 @@ type OrderDetail struct {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/order/{id} [get]
-func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		var orderID int32
@@ -79,9 +84,13 @@ func buyerGetOrderDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 			logger.Errorw("failed to get order info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		orderDetail.Info.ShopImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Info.ShopImageUrl)
 		if orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID); err != nil {
 			logger.Errorw("failed to get order detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range orderDetail.Details {
+			orderDetail.Details[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Details[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, orderDetail)
 	}
@@ -101,7 +110,7 @@ type Cart struct {
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/cart [get]
-func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func buyerGetCart(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		carts, err := pg.Queries.GetCart(c.Request().Context(), username)
@@ -118,11 +127,15 @@ func buyerGetCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				logger.Errorw("failed to get product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			for i := range cart.Products {
+				cart.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), cart.Products[i].ImageUrl)
+			}
 			cart.Coupons, err = pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{Username: username, CartID: cartInfo.ID})
 			if err != nil {
 				logger.Errorw("failed to get coupon in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			cartInfo.ShopImageUrl = mc.GetFileURL(c.Request().Context(), cartInfo.ShopImageUrl)
 			cart.CartInfo = cartInfo
 			result = append(result, cart)
 		}

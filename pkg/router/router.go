@@ -57,7 +57,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.POST("/oauth/token", auth.Token(db, logger))
 
 	// admin
-	api.GET("/admin/user", adminGetUser(db, logger))
+	api.GET("/admin/user", adminGetUser(db, mc, logger))
 	api.DELETE("/admin/user/:username", adminDisableUser(db, logger))
 
 	api.GET("/admin/coupon", adminGetCoupon(db, logger))
@@ -66,7 +66,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.PATCH("/admin/coupon/:id", adminEditCoupon(db, logger))
 	api.DELETE("/admin/coupon/:id", adminDeleteCoupon(db, logger))
 
-	api.GET("/admin/report", adminGetReport(db, logger))
+	api.GET("/admin/report", adminGetReport(db, mc, logger))
 
 	// user
 	api.GET("/user/info", userGetInfo(db, logger))
@@ -78,7 +78,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.PATCH("/user/security/credit_card", userUpdateCreditCard(db, logger))
 
 	// general
-	api.GET("/shop/:seller_name", getShopInfo(db, logger)) // user
+	api.GET("/shop/:seller_name", getShopInfo(db, mc, logger)) // user
 	api.GET("/shop/:seller_name/coupon", getShopCoupon(db, logger))
 	api.GET("/shop/:seller_name/search", searchShopProduct(db, logger))
 
@@ -89,16 +89,16 @@ func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 
 	api.GET("/news", getNews(db, logger))
 	api.GET("/news/:id", getNewsDetail(db, logger))
-	api.GET("/discover", getDiscover(db, logger))
-	api.GET("/popular", getPopular(db, logger))
+	api.GET("/discover", getDiscover(db, mc, logger))
+	api.GET("/popular", getPopular(db, mc, logger))
 
-	api.GET("/product/:product_id", getProductInfo(db, logger))
+	api.GET("/product/:id", getProductInfo(db, mc, logger))
 
 	// buyer
-	api.GET("/buyer/order", buyerGetOrderHistory(db, logger))
-	api.GET("/buyer/order/:id", buyerGetOrderDetail(db, logger))
+	api.GET("/buyer/order", buyerGetOrderHistory(db, mc, logger))
+	api.GET("/buyer/order/:id", buyerGetOrderDetail(db, mc, logger))
 
-	api.GET("/buyer/cart", buyerGetCart(db, logger))
+	api.GET("/buyer/cart", buyerGetCart(db, mc, logger))
 	api.POST("/buyer/cart/product/:id", buyerAddProductToCart(db, logger)) // since the cart might not exist yet
 	api.GET("/buyer/cart/:cart_id/coupon", buyerGetCoupon(db, logger))
 	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart(db, logger))

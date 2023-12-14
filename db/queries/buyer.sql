@@ -1,8 +1,8 @@
 -- name: GetOrderHistory :many
 SELECT O."id",
     s."name" AS "shop_name",
-    s."image_id" AS "shop_image_id",
-    O."image_id" AS "thumbnail_id",
+    s."image_id" AS "shop_image_url",
+    O."image_id" AS "thumbnail_url",
     "shipment",
     "total_price",
     "status",
@@ -19,7 +19,7 @@ LIMIT $3;
 -- name: GetOrderInfo :one
 SELECT O."id",
     S."name" AS "shop_name",
-    S."image_id" AS "shop_image_id",
+    S."image_id" AS "shop_image_url",
     "shipment",
     "total_price",
     "status",
@@ -50,7 +50,7 @@ SELECT O."product_id",
     P."name",
     P."description",
     P."price",
-    P."image_id",
+    P."image_id" AS "image_url",
     O."quantity"
 FROM "order_detail" AS O,
     "product_archive" AS P
@@ -61,7 +61,7 @@ WHERE O."order_id" = $1
 -- name: GetCart :many
 SELECT C."id",
     S."seller_name",
-    S."image_id",
+    S."image_id" AS "shop_image_url",
     S."name" AS "shop_name"
 FROM "cart" AS C,
     "user" AS U,
@@ -103,7 +103,7 @@ WHERE "id" = $1;
 -- name: GetProductFromCart :many
 SELECT "product_id",
     "name",
-    "image_id",
+    "image_id" AS "image_url",
     "price",
     "quantity",
     "stock",

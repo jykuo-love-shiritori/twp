@@ -92,6 +92,9 @@ func (mc MC) RemoveFile(ctx context.Context, fileName string) error {
 	return nil
 }
 func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
+	if fileName == "" {
+		return ""
+	}
 	reqParams := make(url.Values)
 	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, fileName, time.Second*24*60*60, reqParams)
 	if err != nil {

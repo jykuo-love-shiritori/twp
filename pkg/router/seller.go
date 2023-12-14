@@ -675,10 +675,10 @@ func sellerListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 // @Param			name		formData	string	true	"name of product"
 // @Param			description	formData	string	true	"description of product"
 // @Param			price		formData	number	false	"price"
-// @Param			image		formData	string	true	"image id"
-// @Param			expire_date	formData	time	true	"expire date"
+// @Param			image		formData	file	true	"image id"
+// @Param			expire_date	formData	string	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	time	true	"enabled"
+// @Param			enabled		formData	string	true	"enabled"
 // @Param			tags		formData	[]int32	true	"init tags"
 // @Accept			mpfd
 // @Produce		json

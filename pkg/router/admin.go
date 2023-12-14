@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
@@ -21,7 +22,7 @@ import (
 // @Success		200		{array}		db.GetUsersRow
 // @Failure		400		{object}	echo.HTTPError
 // @Router			/admin/user [get]
-func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetUser(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
@@ -36,6 +37,9 @@ func adminGetUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			logger.Errorw("failed to get users", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range users {
+			users[i].IconUrl = mc.GetFileURL(c.Request().Context(), users[i].IconUrl)
 		}
 		return c.JSON(http.StatusOK, users)
 	}
@@ -256,7 +260,7 @@ type adminReport struct {
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
 // @Router			/admin/report [get]
-func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func adminGetReport(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		date := c.QueryParam("date")
 		// verify the date is any start day of the month
@@ -274,6 +278,11 @@ func adminGetReport(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		// set date's time to 00:00:00
 		formattedDate := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Format(time.RFC3339)
 		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), formattedDate)
+		for i := range result.Sellers {
+			if result.Sellers[i].ImageUrl != "" {
+				result.Sellers[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Sellers[i].ImageUrl)
+			}
+		}
 		if err != nil {
 			logger.Errorw("failed to get top seller", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

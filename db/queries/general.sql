@@ -1,6 +1,6 @@
 -- name: GetShopInfo :one
 SELECT "seller_name",
-    "image_id",
+    "image_id" AS "image_url",
     "name",
     "description"
 FROM "shop"
@@ -39,7 +39,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "expire_date",
     "stock",
     "sales"
@@ -52,7 +52,7 @@ SELECT P."id",
     P."name",
     P."description",
     P."price",
-    P."image_id",
+    P."image_id" AS "image_url",
     P."expire_date",
     P."stock",
     P."sales"
@@ -91,7 +91,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "shop_id" = (
@@ -120,7 +120,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "shop_id" = (
@@ -136,7 +136,7 @@ SELECT "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" AS "image_url",
     "sales"
 FROM "product"
 WHERE "enabled" = TRUE
