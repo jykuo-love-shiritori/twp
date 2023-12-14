@@ -345,7 +345,7 @@ type GetCartRow struct {
 	ID         int32  `json:"id" param:"cart_id"`
 	SellerName string `json:"seller_name" param:"seller_name"`
 	ImageID    string `json:"image_id" swaggertype:"string"`
-	ShopName   string `json:"shop_name"`
+	ShopName   string `form:"name" json:"shop_name"`
 }
 
 func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, error) {
@@ -700,7 +700,7 @@ type GetOrderHistoryParams struct {
 
 type GetOrderHistoryRow struct {
 	ID          int32              `json:"id" param:"id"`
-	ShopName    string             `json:"shop_name"`
+	ShopName    string             `form:"name" json:"shop_name"`
 	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
 	ThumbnailID string             `json:"thumbnail_id"`
 	Shipment    int32              `json:"shipment"`
@@ -775,7 +775,7 @@ type GetOrderInfoParams struct {
 
 type GetOrderInfoRow struct {
 	ID          int32              `json:"id" param:"id"`
-	ShopName    string             `json:"shop_name"`
+	ShopName    string             `form:"name" json:"shop_name"`
 	ShopImageID string             `json:"shop_image_id" swaggertype:"string"`
 	Shipment    int32              `json:"shipment"`
 	TotalPrice  int32              `json:"total_price"`
@@ -816,12 +816,12 @@ WHERE "cart_id" = $1
 
 type GetProductFromCartRow struct {
 	ProductID int32          `json:"product_id" param:"id"`
-	Name      string         `json:"name"`
+	Name      string         `form:"name" json:"name"`
 	ImageID   string         `json:"image_id"`
 	Price     pgtype.Numeric `json:"price" swaggertype:"number"`
 	Quantity  int32          `json:"quantity"`
-	Stock     int32          `json:"stock"`
-	Enabled   bool           `json:"enabled"`
+	Stock     int32          `form:"stock" json:"stock"`
+	Enabled   bool           `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetProductFromCartRow, error) {

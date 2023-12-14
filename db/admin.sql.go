@@ -445,7 +445,7 @@ LIMIT 3
 
 type GetTopSellerRow struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Name       string `json:"name"`
+	Name       string `form:"name" json:"name"`
 	ImageID    string `json:"image_id" swaggertype:"string"`
 	TotalSales int64  `json:"total_sales"`
 }
