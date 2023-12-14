@@ -977,7 +977,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.GetDiscoversRow"
+                                "$ref": "#/definitions/db.GetRandomProductsRow"
                             }
                         }
                     },
@@ -1061,6 +1061,39 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/popular": {
+            "get": {
+                "description": "Get discover content",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Discover",
+                    "Product"
+                ],
+                "summary": "Get Popular products and Local products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/router.popular"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -3310,29 +3343,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetDiscoversRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "sales": {
-                    "type": "integer"
-                }
-            }
-        },
         "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
@@ -3523,6 +3533,75 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetProductsFromNearByShopRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetProductsFromPopularShopRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetRandomProductsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
                     "type": "integer"
                 }
             }
@@ -4333,6 +4412,23 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.SellerGetOrderDetailRow"
+                    }
+                }
+            }
+        },
+        "router.popular": {
+            "type": "object",
+            "properties": {
+                "local_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromNearByShopRow"
+                    }
+                },
+                "popular_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
                     }
                 }
             }

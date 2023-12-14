@@ -11,60 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getDiscovers = `-- name: GetDiscovers :many
-SELECT "id",
-    "name",
-    "description",
-    "price",
-    "image_id",
-    "sales"
-FROM "product"
-WHERE "enabled" = TRUE
-ORDER BY "sales" DESC
-LIMIT $1 OFFSET $2
-`
-
-type GetDiscoversParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-type GetDiscoversRow struct {
-	ID          int32          `json:"id" param:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	ImageID     string         `json:"image_id"`
-	Sales       int32          `json:"sales"`
-}
-
-func (q *Queries) GetDiscovers(ctx context.Context, arg GetDiscoversParams) ([]GetDiscoversRow, error) {
-	rows, err := q.db.Query(ctx, getDiscovers, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetDiscoversRow{}
-	for rows.Next() {
-		var i GetDiscoversRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.Price,
-			&i.ImageID,
-			&i.Sales,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getProductInfo = `-- name: GetProductInfo :one
 SELECT "id",
     "name",
@@ -104,6 +50,196 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.Sales,
 	)
 	return i, err
+}
+
+const getProductsFromNearByShop = `-- name: GetProductsFromNearByShop :many
+WITH nearby_shop AS (
+    SELECT S."id" AS "id"
+    FROM "shop" S
+    WHERE S."enabled" = TRUE
+        AND (
+            SELECt COUNT("product"."id")
+            FROM "product"
+            WHERE "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE
+        ) >= 1
+    ORDER BY RANDOM() -- implement distance in future
+    LIMIT 1
+)
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM nearby_shop
+    )
+    AND "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT 4
+`
+
+type GetProductsFromNearByShopRow struct {
+	ID          int32          `json:"id" param:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     string         `json:"image_id"`
+	Sales       int32          `json:"sales"`
+}
+
+func (q *Queries) GetProductsFromNearByShop(ctx context.Context) ([]GetProductsFromNearByShopRow, error) {
+	rows, err := q.db.Query(ctx, getProductsFromNearByShop)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductsFromNearByShopRow{}
+	for rows.Next() {
+		var i GetProductsFromNearByShopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProductsFromPopularShop = `-- name: GetProductsFromPopularShop :many
+WITH popular_shop AS (
+    SELECT S."id" AS "id"
+    FROM "shop" S,
+        "order_history" O
+    WHERE S."id" = O."shop_id"
+        AND S."enabled" = TRUE
+        AND O."created_at" >= (NOW() - (INTERVAL '1 month'))
+        AND (
+            SELECt COUNT("product"."id")
+            FROM "product"
+            WHERE "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE
+        ) >= 1
+    GROUP BY S."id"
+    ORDER BY COUNT(O."id") DESC
+    LIMIT 1
+)
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM popular_shop
+    )
+    AND "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT 4
+`
+
+type GetProductsFromPopularShopRow struct {
+	ID          int32          `json:"id" param:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     string         `json:"image_id"`
+	Sales       int32          `json:"sales"`
+}
+
+func (q *Queries) GetProductsFromPopularShop(ctx context.Context) ([]GetProductsFromPopularShopRow, error) {
+	rows, err := q.db.Query(ctx, getProductsFromPopularShop)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductsFromPopularShopRow{}
+	for rows.Next() {
+		var i GetProductsFromPopularShopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRandomProducts = `-- name: GetRandomProducts :many
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "enabled" = TRUE
+ORDER BY "image_id" -- random but stable
+LIMIT $1 OFFSET $2
+`
+
+type GetRandomProductsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetRandomProductsRow struct {
+	ID          int32          `json:"id" param:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID     string         `json:"image_id"`
+	Sales       int32          `json:"sales"`
+}
+
+func (q *Queries) GetRandomProducts(ctx context.Context, arg GetRandomProductsParams) ([]GetRandomProductsRow, error) {
+	rows, err := q.db.Query(ctx, getRandomProducts, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetRandomProductsRow{}
+	for rows.Next() {
+		var i GetRandomProductsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ImageID,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getSellerNameByShopID = `-- name: GetSellerNameByShopID :one

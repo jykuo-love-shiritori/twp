@@ -69,7 +69,69 @@ SELECT "seller_name"
 FROM "shop"
 WHERE "id" = $1;
 
--- name: GetDiscovers :many
+-- name: GetProductsFromPopularShop :many
+WITH popular_shop AS (
+    SELECT S."id" AS "id"
+    FROM "shop" S,
+        "order_history" O
+    WHERE S."id" = O."shop_id"
+        AND S."enabled" = TRUE
+        AND O."created_at" >= (NOW() - (INTERVAL '1 month'))
+        AND (
+            SELECt COUNT("product"."id")
+            FROM "product"
+            WHERE "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE
+        ) >= 1
+    GROUP BY S."id"
+    ORDER BY COUNT(O."id") DESC
+    LIMIT 1
+)
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM popular_shop
+    )
+    AND "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT 4;
+
+-- name: GetProductsFromNearByShop :many
+WITH nearby_shop AS (
+    SELECT S."id" AS "id"
+    FROM "shop" S
+    WHERE S."enabled" = TRUE
+        AND (
+            SELECt COUNT("product"."id")
+            FROM "product"
+            WHERE "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE
+        ) >= 1
+    ORDER BY RANDOM() -- implement distance in future
+    LIMIT 1
+)
+SELECT "id",
+    "name",
+    "description",
+    "price",
+    "image_id",
+    "sales"
+FROM "product"
+WHERE "shop_id" = (
+        SELECT "id"
+        FROM nearby_shop
+    )
+    AND "enabled" = TRUE
+ORDER BY "sales" DESC
+LIMIT 4;
+
+-- name: GetRandomProducts :many
 SELECT "id",
     "name",
     "description",
@@ -78,5 +140,5 @@ SELECT "id",
     "sales"
 FROM "product"
 WHERE "enabled" = TRUE
-ORDER BY "sales" DESC
+ORDER BY "image_id" -- random but stable
 LIMIT $1 OFFSET $2;

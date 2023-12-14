@@ -89,6 +89,7 @@ func RegisterApi(e *echo.Echo, db *db.DB, logger *zap.SugaredLogger) {
 	api.GET("/news", getNews(db, logger))
 	api.GET("/news/:id", getNewsDetail(db, logger))
 	api.GET("/discover", getDiscover(db, logger))
+	api.GET("/popular", getPopular(db, logger))
 
 	api.GET("/product/:id", getProductInfo(db, logger))
 

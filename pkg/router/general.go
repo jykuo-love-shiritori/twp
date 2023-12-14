@@ -244,7 +244,7 @@ func getNewsDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Produce		json
 // @Param			offset	query	int	false	"Begin index"	default(0)
 // @Param			limit	query	int	false	"limit"			default(10)
-// @Success		200 {array} db.GetDiscoversRow
+// @Success		200 {array} db.GetRandomProductsRow
 // @Failure		500 {object} echo.HTTPError
 // @Router			/discover [get]
 func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
@@ -258,9 +258,40 @@ func getDiscover(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to validate query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
 		}
-		result, err := pg.Queries.GetDiscovers(c.Request().Context(), db.GetDiscoversParams{Offset: q.Offset, Limit: q.Limit})
+		result, err := pg.Queries.GetRandomProducts(c.Request().Context(), db.GetRandomProductsParams{Offset: q.Offset, Limit: q.Limit})
 		if err != nil {
 			logger.Errorw("failed to get discover", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, result)
+	}
+}
+
+type popular struct {
+	PopularProducts []db.GetProductsFromPopularShopRow `json:"popular_products"`
+	LocalProducts   []db.GetProductsFromNearByShopRow  `json:"local_products"`
+}
+
+// @Summary		Get Popular products and Local products
+// @Description	Get discover content
+// @Tags			Discover, Product
+// @Accept			json
+// @Produce		json
+// @Success		200 {array} popular
+// @Failure		500 {object} echo.HTTPError
+// @Router			/popular [get]
+func getPopular(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var result popular
+		var err error
+		result.PopularProducts, err = pg.Queries.GetProductsFromPopularShop(c.Request().Context())
+		if err != nil {
+			logger.Errorw("failed to get popular products", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		result.LocalProducts, err = pg.Queries.GetProductsFromNearByShop(c.Request().Context())
+		if err != nil {
+			logger.Errorw("failed to get popular products", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, result)
