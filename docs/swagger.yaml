@@ -447,6 +447,8 @@ definitions:
     - RoleTypeCustomer
   db.SellerGetCouponDetailRow:
     properties:
+      description:
+        type: string
       discount:
         type: number
       expire_date:
@@ -455,11 +457,15 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
   db.SellerGetCouponRow:
     properties:
+      description:
+        type: string
       discount:
         type: number
       expire_date:
@@ -470,6 +476,8 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
@@ -488,7 +496,7 @@ definitions:
         type: boolean
       image_id:
         type: string
-      seller_name:
+      name:
         type: string
     type: object
   db.SellerGetOrderDetailRow:
@@ -514,6 +522,8 @@ definitions:
         type: string
       id:
         type: integer
+      image_id:
+        type: string
       shipment:
         type: integer
       status:
@@ -527,6 +537,8 @@ definitions:
         type: string
       id:
         type: integer
+      image_id:
+        type: string
       shipment:
         type: integer
       status:
@@ -558,6 +570,8 @@ definitions:
     type: object
   db.SellerInsertCouponRow:
     properties:
+      description:
+        type: string
       discount:
         type: number
       expire_date:
@@ -568,6 +582,8 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
@@ -577,6 +593,8 @@ definitions:
         type: string
       edit_date:
         type: string
+      enabled:
+        type: boolean
       expire_date:
         type: string
       id:
@@ -625,6 +643,8 @@ definitions:
     type: object
   db.SellerUpdateCouponInfoRow:
     properties:
+      description:
+        type: string
       discount:
         type: number
       expire_date:
@@ -635,18 +655,20 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
   db.SellerUpdateInfoRow:
     properties:
+      description:
+        type: string
       enabled:
         type: boolean
       image_id:
         type: string
       name:
-        type: string
-      seller_name:
         type: string
     type: object
   db.SellerUpdateOrderStatusRow:
@@ -668,6 +690,8 @@ definitions:
         type: string
       edit_date:
         type: string
+      enabled:
+        type: boolean
       expire_date:
         type: string
       id:
@@ -1742,10 +1766,86 @@ paths:
       - Shop
       - Coupon
     post:
-      consumes:
-      - application/json
       description: Add coupon for shop.
       parameters:
+      - description: Coupon type
+        in: body
+        name: type
+        required: true
+        schema:
+          enum:
+          - '''percentage'''
+          - '''fixed'''
+          - '''shipping'''
+          type: string
+      - description: name of coupon
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: description of coupon
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: discount
+        in: body
+        name: discount
+        schema:
+          type: number
+      - description: start date
+        in: body
+        name: start_date
+        required: true
+        schema:
+          type: string
+      - description: expire date
+        in: body
+        name: expire_date
+        required: true
+        schema:
+          type: string
+      - description: init tags
+        in: body
+        name: tags
+        required: true
+        schema:
+          items:
+            type: integer
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerInsertCouponRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller add coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+  /seller/coupon/{coupon_id}:
+    patch:
+      consumes:
+      - application/json
+      description: Edit coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: coupon_id
+        required: true
+        type: integer
       - description: Coupon type
         in: body
         name: type
@@ -1791,7 +1891,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerInsertCouponRow'
+            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
         "400":
           description: Bad Request
           schema:
@@ -1800,7 +1900,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
-      summary: Seller add coupon
+      summary: Seller edit coupon
       tags:
       - Seller
       - Shop
@@ -1864,75 +1964,6 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Seller get coupon detail
-      tags:
-      - Seller
-      - Shop
-      - Coupon
-    patch:
-      consumes:
-      - application/json
-      description: Edit coupon for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Coupon type
-        in: body
-        name: type
-        required: true
-        schema:
-          enum:
-          - '''percentage'''
-          - '''fixed'''
-          - '''shipping'''
-          type: string
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: description of coupon
-        in: body
-        name: description
-        required: true
-        schema:
-          type: string
-      - description: discount
-        in: body
-        name: discount
-        schema:
-          type: number
-      - description: start date
-        in: body
-        name: start_date
-        required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller edit coupon
       tags:
       - Seller
       - Shop
@@ -2039,33 +2070,31 @@ paths:
       - Seller
       - Shop
     patch:
+      consumes:
+      - multipart/form-data
       description: Edit shop name, description, visibility.
       parameters:
-      - description: update image UUID
-        in: body
-        name: image_id
-        required: true
-        schema:
-          type: string
       - description: update shop name
-        in: body
+        in: formData
         minLength: 6
         name: name
         required: true
-        schema:
-          type: string
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
       - description: update description
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: update enabled status
-        in: body
+        in: formData
         name: enabled
         required: true
-        schema:
-          type: boolean
+        type: boolean
       produces:
       - application/json
       responses:
@@ -2252,50 +2281,41 @@ paths:
       - Product
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Add product for shop.
       parameters:
       - description: name of product
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: description of product
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: price
-        in: body
+        in: formData
         name: price
-        schema:
-          type: number
+        type: number
       - description: image id
-        in: body
-        name: image_id
+        in: formData
+        name: image
         required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
+        type: string
       - description: stock
-        in: body
+        in: formData
         name: stock
         required: true
-        schema:
+        type: integer
+      - collectionFormat: csv
+        description: init tags
+        in: formData
+        items:
           type: integer
-      - description: enabled
-        in: body
-        name: enabled
+        name: tags
         required: true
-        schema:
-          type: boolean
+        type: array
       produces:
       - application/json
       responses:
@@ -2351,39 +2371,9 @@ paths:
       - Seller
       - Shop
       - Product
-    get:
-      consumes:
-      - application/json
-      description: Delete product for shop.
-      parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.productDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get product
-      tags:
-      - Seller
-      - Shop
-      - Product
     patch:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Edit product for shop.
       parameters:
       - description: Product ID
@@ -2392,46 +2382,29 @@ paths:
         required: true
         type: integer
       - description: name of product
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: description of product
-        in: body
+        in: formData
         name: description
         required: true
-        schema:
-          type: string
+        type: string
       - description: price
-        in: body
+        in: formData
         name: price
-        schema:
-          type: number
+        type: number
       - description: image id
-        in: body
+        in: formData
         name: image_id
         required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
+        type: string
       - description: stock
-        in: body
+        in: formData
         name: stock
         required: true
-        schema:
-          type: integer
-      - description: enabled
-        in: body
-        name: enabled
-        required: true
-        schema:
-          type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -2530,51 +2503,37 @@ paths:
       - Shop
       - Product
       - Tag
-  /seller/product/{id}/upload:
-    post:
+  /seller/product/{product_id}:
+    get:
       consumes:
-      - image/png
-      - image/jpeg
-      - image/gif
-      description: Upload product image for shop.
+      - application/json
+      description: Delete product for shop.
       parameters:
       - description: Product ID
         in: path
-        name: id
+        name: product_id
         required: true
         type: integer
-      - description: image to upload
-        in: formData
-        name: img
-        required: true
-        type: file
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller upload product image
+          schema:
+            $ref: '#/definitions/router.productDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
       tags:
       - Seller
       - Shop
       - Product
-  /seller/report:
-    get:
-      description: Get all available reports for shop.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Seller get report
-      tags:
-      - Seller
-      - Shop
-      - Report
   /seller/report/{year}/{month}:
     get:
       description: Get report detail by year and month for shop.
@@ -2594,8 +2553,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/db.SellerInsertCouponRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Seller get report detail
       tags:
       - Seller

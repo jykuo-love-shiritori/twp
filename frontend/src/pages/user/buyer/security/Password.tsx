@@ -19,7 +19,7 @@ const Password = () => {
         setValue={setConfirmedPassword}
       />
       <PasswordItem text='Old Password' value={oldPassword} setValue={setOldPassword} />
-      <TButton text='Save' url='' />
+      <TButton text='Save' />
     </div>
   );
 };

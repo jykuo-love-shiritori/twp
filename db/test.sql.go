@@ -374,14 +374,14 @@ type TestInsertProductParams struct {
 	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
-	Enabled     bool               `json:"enabled"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) TestInsertProduct(ctx context.Context, arg TestInsertProductParams) (Product, error) {
@@ -493,10 +493,10 @@ RETURNING id, seller_name, image_id, name, description, enabled
 type TestInsertShopParams struct {
 	ID          int32  `json:"id"`
 	SellerName  string `json:"seller_name" param:"seller_name"`
-	Name        string `json:"name"`
+	Name        string `form:"name" json:"name"`
 	ImageID     string `json:"image_id" swaggertype:"string"`
-	Description string `json:"description"`
-	Enabled     bool   `json:"enabled"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) (Shop, error) {

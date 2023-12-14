@@ -11,10 +11,8 @@ services:
     depends_on:
       - postgres
       - minio
-
-  # TODO: add golang-migrate script
   postgres:
-    image: postgres
+    image: postgres:16
     env_file:
       - .env
     ports:
@@ -32,9 +30,18 @@ services:
       timeout: 5s
       retries: 5
 
-  # TODO: add minio bucket automatic setup script
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    volumes:
+      - ./db/migrations:/migrations
+    command: -path=/migrations -database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up
+
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio:RELEASE.2023-12-02T10-51-33Z
     env_file:
       - .env
     ports:
@@ -53,6 +60,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      - minio
+    env_file:
+      - .env
+    entrypoint: >
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME};"
 
 volumes:
   postgres-data:

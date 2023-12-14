@@ -12,13 +12,11 @@ import (
 )
 
 const haveTagName = `-- name: HaveTagName :one
-
 SELECT EXISTS (
         SELECT 1
         FROM "tag" t
             LEFT JOIN "shop" s ON "shop_id" = s.id
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND t."name" = $2
     )
 `
@@ -35,14 +33,95 @@ func (q *Queries) HaveTagName(ctx context.Context, arg HaveTagNameParams) (bool,
 	return exists, err
 }
 
-const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
+const sellerBestSellProduct = `-- name: SellerBestSellProduct :many
+SELECT order_detail.product_id,
+    product_archive.name,
+    product_archive.price,
+    product_archive.image_id,
+    SUM(order_detail.quantity) AS total_quantity,
+    SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
+    COUNT(order_history.id) AS order_count
+FROM "order_detail"
+    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
+    AND order_detail.product_version = product_archive.version
+    LEFT JOIN order_history ON order_history.id = order_detail.order_id
+    LEFT JOIN shop ON order_history.shop_id = shop.id
+WHERE shop.seller_name = $1
+    AND EXTRACT(
+        YEAR
+        FROM order_history."created_at"
+    )::INTEGER = $3::INT
+    AND EXTRACT(
+        MONTH
+        FROM order_history."created_at"
+    )::INTEGER = $4::INT
+GROUP BY product_archive.id,
+    product_archive.description,
+    product_archive.name,
+    product_archive.price,
+    product_archive.image_id,
+    order_detail.product_id
+ORDER BY total_quantity DESC
+LIMIT $2
+`
 
+type SellerBestSellProductParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Limit      int32  `json:"limit"`
+	Year       int32  `json:"year"`
+	Month      int32  `json:"month"`
+}
+
+type SellerBestSellProductRow struct {
+	ProductID     int32          `json:"product_id"`
+	Name          string         `json:"name"`
+	Price         pgtype.Numeric `json:"price" swaggertype:"number"`
+	ImageID       string         `json:"image_id"`
+	TotalQuantity int64          `json:"total_quantity"`
+	TotalSell     pgtype.Numeric `json:"total_sell"`
+	OrderCount    int64          `json:"order_count"`
+}
+
+func (q *Queries) SellerBestSellProduct(ctx context.Context, arg SellerBestSellProductParams) ([]SellerBestSellProductRow, error) {
+	rows, err := q.db.Query(ctx, sellerBestSellProduct,
+		arg.SellerName,
+		arg.Limit,
+		arg.Year,
+		arg.Month,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SellerBestSellProductRow{}
+	for rows.Next() {
+		var i SellerBestSellProductRow
+		if err := rows.Scan(
+			&i.ProductID,
+			&i.Name,
+			&i.Price,
+			&i.ImageID,
+			&i.TotalQuantity,
+			&i.TotalSell,
+			&i.OrderCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
 DELETE FROM "coupon" c
-WHERE c."id" = $2 AND "shop_id" = (
+WHERE c."id" = $2
+    AND "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
     )
 `
@@ -61,14 +140,12 @@ func (q *Queries) SellerDeleteCoupon(ctx context.Context, arg SellerDeleteCoupon
 }
 
 const sellerDeleteCouponTag = `-- name: SellerDeleteCouponTag :execrows
-
 DELETE FROM "coupon_tag" tp
 WHERE EXISTS (
         SELECT 1
         FROM "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
             AND c."id" = $3
     )
@@ -91,13 +168,11 @@ func (q *Queries) SellerDeleteCouponTag(ctx context.Context, arg SellerDeleteCou
 }
 
 const sellerDeleteProduct = `-- name: SellerDeleteProduct :execrows
-
 DELETE FROM "product" p
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
     )
     AND p."id" = $2
@@ -117,14 +192,12 @@ func (q *Queries) SellerDeleteProduct(ctx context.Context, arg SellerDeleteProdu
 }
 
 const sellerDeleteProductTag = `-- name: SellerDeleteProductTag :execrows
-
 DELETE FROM "product_tag" tp
 WHERE EXISTS (
         SELECT 1
         FROM "product" p
             JOIN "shop" s ON s."id" = p."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND p."id" = $3
             AND s."enabled" = true
     )
@@ -147,20 +220,19 @@ func (q *Queries) SellerDeleteProductTag(ctx context.Context, arg SellerDeletePr
 }
 
 const sellerGetCoupon = `-- name: SellerGetCoupon :many
-
-SELECT
-    c."id",
+SELECT c."id",
     c."type",
     c."scope",
     c."name",
+    c."description",
     c."discount",
+    c."start_date",
     c."expire_date"
 FROM "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
 WHERE s.seller_name = $1
 ORDER BY "start_date" DESC
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type SellerGetCouponParams struct {
@@ -170,12 +242,14 @@ type SellerGetCouponParams struct {
 }
 
 type SellerGetCouponRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Type       CouponType         `json:"type"`
-	Scope      CouponScope        `json:"scope"`
-	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetCoupon(ctx context.Context, arg SellerGetCouponParams) ([]SellerGetCouponRow, error) {
@@ -192,7 +266,9 @@ func (q *Queries) SellerGetCoupon(ctx context.Context, arg SellerGetCouponParams
 			&i.Type,
 			&i.Scope,
 			&i.Name,
+			&i.Description,
 			&i.Discount,
+			&i.StartDate,
 			&i.ExpireDate,
 		); err != nil {
 			return nil, err
@@ -206,17 +282,16 @@ func (q *Queries) SellerGetCoupon(ctx context.Context, arg SellerGetCouponParams
 }
 
 const sellerGetCouponDetail = `-- name: SellerGetCouponDetail :one
-
-SELECT
-    c."type",
+SELECT c."type",
     c."scope",
     c."name",
     c."discount",
+    c."description",
+    c."start_date",
     c."expire_date"
 FROM "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND c."id" = $2
 `
 
@@ -226,11 +301,13 @@ type SellerGetCouponDetailParams struct {
 }
 
 type SellerGetCouponDetailRow struct {
-	Type       CouponType         `json:"type"`
-	Scope      CouponScope        `json:"scope"`
-	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	Description string             `json:"description"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCouponDetailParams) (SellerGetCouponDetailRow, error) {
@@ -241,20 +318,21 @@ func (q *Queries) SellerGetCouponDetail(ctx context.Context, arg SellerGetCoupon
 		&i.Scope,
 		&i.Name,
 		&i.Discount,
+		&i.Description,
+		&i.StartDate,
 		&i.ExpireDate,
 	)
 	return i, err
 }
 
 const sellerGetCouponTag = `-- name: SellerGetCouponTag :many
-
-SELECT ct."tag_id", t."name"
+SELECT ct."tag_id",
+    t."name"
 FROM "coupon_tag" ct
     JOIN "coupon" c ON c."id" = ct."coupon_id"
     JOIN "shop" s ON s."id" = c."shop_id"
     JOIN "tag" t ON t."id" = ct."tag_id"
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND "coupon_id" = $2
 `
 
@@ -289,9 +367,7 @@ func (q *Queries) SellerGetCouponTag(ctx context.Context, arg SellerGetCouponTag
 }
 
 const sellerGetInfo = `-- name: SellerGetInfo :one
-
-SELECT
-    "seller_name",
+SELECT "name",
     "image_id",
     "description",
     "enabled"
@@ -300,17 +376,17 @@ WHERE "seller_name" = $1
 `
 
 type SellerGetInfoRow struct {
-	SellerName  string `json:"seller_name" param:"seller_name"`
+	Name        string `form:"name" json:"name"`
 	ImageID     string `json:"image_id" swaggertype:"string"`
-	Description string `json:"description"`
-	Enabled     bool   `json:"enabled"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerGetInfoRow, error) {
 	row := q.db.QueryRow(ctx, sellerGetInfo, sellerName)
 	var i SellerGetInfoRow
 	err := row.Scan(
-		&i.SellerName,
+		&i.Name,
 		&i.ImageID,
 		&i.Description,
 		&i.Enabled,
@@ -319,9 +395,8 @@ func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerG
 }
 
 const sellerGetOrder = `-- name: SellerGetOrder :many
-
-SELECT
-    "id",
+SELECT "id",
+    "image_id",
     "shipment",
     "total_price",
     "status",
@@ -330,12 +405,10 @@ FROM "order_history"
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
     )
 ORDER BY "created_at" DESC
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type SellerGetOrderParams struct {
@@ -346,6 +419,7 @@ type SellerGetOrderParams struct {
 
 type SellerGetOrderRow struct {
 	ID         int32              `json:"id" param:"id"`
+	ImageID    string             `json:"image_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
@@ -363,6 +437,7 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 		var i SellerGetOrderRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.ImageID,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
@@ -379,16 +454,14 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 }
 
 const sellerGetOrderDetail = `-- name: SellerGetOrderDetail :many
-
-SELECT
-    product_archive.id, product_archive.version, product_archive.name, product_archive.description, product_archive.price, product_archive.image_id,
+SELECT product_archive.id, product_archive.version, product_archive.name, product_archive.description, product_archive.price, product_archive.image_id,
     order_detail.quantity
 FROM "order_detail"
-    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id AND order_detail.product_version = product_archive.version
+    LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
+    AND order_detail.product_version = product_archive.version
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
-WHERE
-    shop.seller_name = $1
+WHERE shop.seller_name = $1
     AND order_detail.order_id = $2
 ORDER BY quantity * price DESC
 `
@@ -437,17 +510,15 @@ func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDe
 }
 
 const sellerGetOrderHistory = `-- name: SellerGetOrderHistory :one
-
-SELECT
-    "order_history"."id",
+SELECT "order_history"."id",
+    "order_history"."image_id",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
     "order_history"."created_at"
 FROM "order_history"
     JOIN shop ON order_history.shop_id = shop.id
-WHERE
-    shop.seller_name = $1
+WHERE shop.seller_name = $1
     AND order_history.id = $2
 `
 
@@ -458,6 +529,7 @@ type SellerGetOrderHistoryParams struct {
 
 type SellerGetOrderHistoryRow struct {
 	ID         int32              `json:"id" param:"id"`
+	ImageID    string             `json:"image_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
@@ -469,6 +541,7 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 	var i SellerGetOrderHistoryRow
 	err := row.Scan(
 		&i.ID,
+		&i.ImageID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -478,12 +551,7 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 }
 
 const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
-
-
-
-
-SELECT
-    p."name",
+SELECT p."name",
     p."image_id",
     p."price",
     p."sales",
@@ -491,8 +559,7 @@ SELECT
     p."enabled"
 FROM "product" p
     JOIN "shop" s ON p."shop_id" = s.id
-WHERE
-    s.seller_name = $1
+WHERE s.seller_name = $1
     AND p."id" = $2
 `
 
@@ -502,17 +569,14 @@ type SellerGetProductDetailParams struct {
 }
 
 type SellerGetProductDetailRow struct {
-	Name    string         `json:"name"`
+	Name    string         `form:"name" json:"name"`
 	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
-	Stock   int32          `json:"stock"`
-	Enabled bool           `json:"enabled"`
+	Stock   int32          `form:"stock" json:"stock"`
+	Enabled bool           `form:"enabled" json:"enabled"`
 }
 
-// TODO
-// SellerGetReport :many
-// SellerGetReportDetail :many
 func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProductDetailParams) (SellerGetProductDetailRow, error) {
 	row := q.db.QueryRow(ctx, sellerGetProductDetail, arg.SellerName, arg.ID)
 	var i SellerGetProductDetailRow
@@ -528,14 +592,13 @@ func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProdu
 }
 
 const sellerGetProductTag = `-- name: SellerGetProductTag :many
-
-SELECT pt."tag_id", t."name"
+SELECT pt."tag_id",
+    t."name"
 FROM "product_tag" pt
     JOIN "product" p ON p."id" = pt."product_id"
     JOIN "shop" s ON s."id" = p."shop_id"
     JOIN "tag" t ON t."id" = pt."tag_id"
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND "product_id" = $2
     AND s."enabled" = true
 `
@@ -571,9 +634,7 @@ func (q *Queries) SellerGetProductTag(ctx context.Context, arg SellerGetProductT
 }
 
 const sellerInsertCoupon = `-- name: SellerInsertCoupon :one
-
-INSERT INTO
-    "coupon" (
+INSERT INTO "coupon" (
         "type",
         "scope",
         "shop_id",
@@ -584,11 +645,12 @@ INSERT INTO
         "expire_date"
     )
 VALUES (
-        $2, 'shop', (
+        $2,
+        'shop',
+        (
             SELECT s."id"
             FROM "shop" s
-            WHERE
-                s."seller_name" = $1
+            WHERE s."seller_name" = $1
                 AND s."enabled" = true
         ),
         $3,
@@ -597,12 +659,13 @@ VALUES (
         $6,
         $7
     )
-RETURNING
-    "id",
+RETURNING "id",
     "type",
     "scope",
     "name",
     "discount",
+    "description",
+    "start_date",
     "expire_date"
 `
 
@@ -617,12 +680,14 @@ type SellerInsertCouponParams struct {
 }
 
 type SellerInsertCouponRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Type       CouponType         `json:"type"`
-	Scope      CouponScope        `json:"scope"`
-	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	Description string             `json:"description"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerInsertCoupon(ctx context.Context, arg SellerInsertCouponParams) (SellerInsertCouponRow, error) {
@@ -642,22 +707,22 @@ func (q *Queries) SellerInsertCoupon(ctx context.Context, arg SellerInsertCoupon
 		&i.Scope,
 		&i.Name,
 		&i.Discount,
+		&i.Description,
+		&i.StartDate,
 		&i.ExpireDate,
 	)
 	return i, err
 }
 
 const sellerInsertCouponTag = `-- name: SellerInsertCouponTag :one
-
-INSERT INTO
-    "coupon_tag" ("tag_id", "coupon_id")
-SELECT $2, $3
+INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
+SELECT $2,
+    $3
 WHERE EXISTS (
         SELECT 1
         FROM "tag" t
             JOIN "shop" s ON s."id" = t."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
             AND t."id" = $2
     )
@@ -665,8 +730,7 @@ WHERE EXISTS (
         SELECT 1
         FROM "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
             AND c."id" = $3
     )
@@ -687,9 +751,7 @@ func (q *Queries) SellerInsertCouponTag(ctx context.Context, arg SellerInsertCou
 }
 
 const sellerInsertProduct = `-- name: SellerInsertProduct :one
-
-INSERT INTO
-    "product"(
+INSERT INTO "product"(
         "version",
         "shop_id",
         "name",
@@ -702,11 +764,11 @@ INSERT INTO
         "enabled"
     )
 VALUES (
-        1, (
+        1,
+        (
             SELECT s."id"
             FROM "shop" s
-            WHERE
-                s."seller_name" = $1
+            WHERE s."seller_name" = $1
                 AND s."enabled" = true
         ),
         $2,
@@ -718,8 +780,7 @@ VALUES (
         $7,
         $8
     )
-RETURNING
-    "id",
+RETURNING "id",
     "name",
     "description",
     "price",
@@ -727,30 +788,32 @@ RETURNING
     "expire_date",
     "edit_date",
     "stock",
-    "sales"
+    "sales",
+    "enabled"
 `
 
 type SellerInsertProductParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
-	Enabled     bool               `json:"enabled"`
+	Stock       int32              `form:"stock" json:"stock"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 type SellerInsertProductRow struct {
 	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProductParams) (SellerInsertProductRow, error) {
@@ -775,21 +838,20 @@ func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProdu
 		&i.EditDate,
 		&i.Stock,
 		&i.Sales,
+		&i.Enabled,
 	)
 	return i, err
 }
 
 const sellerInsertProductTag = `-- name: SellerInsertProductTag :one
-
-INSERT INTO
-    "product_tag" ("tag_id", "product_id")
-SELECT $2, $3
+INSERT INTO "product_tag" ("tag_id", "product_id")
+SELECT $2,
+    $3
 WHERE EXISTS (
         SELECT 1
         FROM "tag" t
             JOIN "shop" s ON s."id" = t."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND t."id" = $2
             AND s."enabled" = true
     )
@@ -797,8 +859,7 @@ WHERE EXISTS (
         SELECT 1
         FROM "product" p
             JOIN "shop" s ON s."id" = p."shop_id"
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND p."id" = $3
     )
 RETURNING tag_id, product_id
@@ -818,19 +879,18 @@ func (q *Queries) SellerInsertProductTag(ctx context.Context, arg SellerInsertPr
 }
 
 const sellerInsertTag = `-- name: SellerInsertTag :one
-
-INSERT INTO
-    "tag" ("shop_id", "name")
-VALUES ( (
+INSERT INTO "tag" ("shop_id", "name")
+VALUES (
+        (
             SELECT s."id"
             FROM "shop" s
-            WHERE
-                s."seller_name" = $1
+            WHERE s."seller_name" = $1
                 AND s."enabled" = true
         ),
         $2
     )
-RETURNING "id", "name"
+RETURNING "id",
+    "name"
 `
 
 type SellerInsertTagParams struct {
@@ -851,9 +911,7 @@ func (q *Queries) SellerInsertTag(ctx context.Context, arg SellerInsertTagParams
 }
 
 const sellerProductList = `-- name: SellerProductList :many
-
-SELECT
-    p."id",
+SELECT p."id",
     p."name",
     p."image_id",
     p."price",
@@ -864,8 +922,7 @@ FROM "product" p
     JOIN "shop" s ON p."shop_id" = s.id
 WHERE s.seller_name = $1
 ORDER BY "sales" DESC
-LIMIT $2
-OFFSET $3
+LIMIT $2 OFFSET $3
 `
 
 type SellerProductListParams struct {
@@ -876,12 +933,12 @@ type SellerProductListParams struct {
 
 type SellerProductListRow struct {
 	ID      int32          `json:"id" param:"id"`
-	Name    string         `json:"name"`
+	Name    string         `form:"name" json:"name"`
 	ImageID string         `json:"image_id"`
 	Price   pgtype.Numeric `json:"price" swaggertype:"number"`
 	Sales   int32          `json:"sales"`
-	Stock   int32          `json:"stock"`
-	Enabled bool           `json:"enabled"`
+	Stock   int32          `form:"stock" json:"stock"`
+	Enabled bool           `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerProductList(ctx context.Context, arg SellerProductListParams) ([]SellerProductListRow, error) {
@@ -912,13 +969,46 @@ func (q *Queries) SellerProductList(ctx context.Context, arg SellerProductListPa
 	return items, nil
 }
 
-const sellerSearchTag = `-- name: SellerSearchTag :many
+const sellerReport = `-- name: SellerReport :one
+SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
+    COUNT(order_history.id) AS order_count
+FROM order_history
+    LEFT JOIN shop ON order_history.shop_id = shop.id
+WHERE shop.seller_name = $1
+    AND EXTRACT(
+        MONTH
+        FROM order_history."created_at"
+    )::INT = $2::INT
+    AND EXTRACT(
+        YEAR
+        FROM order_history."created_at"
+    )::INT = $3::INT
+`
 
-SELECT t."id", t."name"
+type SellerReportParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Month      int32  `json:"month"`
+	Year       int32  `json:"year"`
+}
+
+type SellerReportRow struct {
+	TotalIncome pgtype.Numeric `json:"total_income"`
+	OrderCount  int64          `json:"order_count"`
+}
+
+func (q *Queries) SellerReport(ctx context.Context, arg SellerReportParams) (SellerReportRow, error) {
+	row := q.db.QueryRow(ctx, sellerReport, arg.SellerName, arg.Month, arg.Year)
+	var i SellerReportRow
+	err := row.Scan(&i.TotalIncome, &i.OrderCount)
+	return i, err
+}
+
+const sellerSearchTag = `-- name: SellerSearchTag :many
+SELECT t."id",
+    t."name"
 FROM "tag" t
     LEFT JOIN "shop" s ON "shop_id" = s.id
-WHERE
-    s."seller_name" = $1
+WHERE s."seller_name" = $1
     AND t."name" ~* $2
 ORDER BY LENGTH(t."name") ASC
 LIMIT $3
@@ -956,28 +1046,27 @@ func (q *Queries) SellerSearchTag(ctx context.Context, arg SellerSearchTagParams
 }
 
 const sellerUpdateCouponInfo = `-- name: SellerUpdateCouponInfo :one
-
 UPDATE "coupon" c
-SET
-    "type" = COALESCE($3, "type"),
+SET "type" = COALESCE($3, "type"),
     "name" = COALESCE($4, "name"),
     "description" = COALESCE($5, "description"),
     "discount" = COALESCE($6, "discount"),
     "start_date" = COALESCE($7, "start_date"),
     "expire_date" = COALESCE($8, "expire_date")
-WHERE c."id" = $2 AND "shop_id" = (
+WHERE c."id" = $2
+    AND "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
     )
-RETURNING
-    c."id",
+RETURNING c."id",
     c."type",
     c."scope",
     c."name",
+    c."description",
     c."discount",
+    c."start_date",
     c."expire_date"
 `
 
@@ -993,12 +1082,14 @@ type SellerUpdateCouponInfoParams struct {
 }
 
 type SellerUpdateCouponInfoRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Type       CouponType         `json:"type"`
-	Scope      CouponScope        `json:"scope"`
-	Name       string             `json:"name"`
-	Discount   pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	ExpireDate pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
 func (q *Queries) SellerUpdateCouponInfo(ctx context.Context, arg SellerUpdateCouponInfoParams) (SellerUpdateCouponInfoRow, error) {
@@ -1018,77 +1109,75 @@ func (q *Queries) SellerUpdateCouponInfo(ctx context.Context, arg SellerUpdateCo
 		&i.Type,
 		&i.Scope,
 		&i.Name,
+		&i.Description,
 		&i.Discount,
+		&i.StartDate,
 		&i.ExpireDate,
 	)
 	return i, err
 }
 
 const sellerUpdateInfo = `-- name: SellerUpdateInfo :one
-
 UPDATE "shop"
-SET
-    "image_id" = COALESCE($2, "image_id"),
-    "name" = COALESCE($3, "name"),
-    "description" = COALESCE($4, "description"),
-    "enabled" = COALESCE($5, "enabled")
+SET "image_id" = CASE
+        WHEN $5::TEXT = '' THEN "image_id"
+        ELSE $5::TEXT
+    END,
+    "name" = COALESCE($2, "name"),
+    "description" = COALESCE($3, "description"),
+    "enabled" = COALESCE($4, "enabled")
 WHERE "seller_name" = $1
-RETURNING
-    "seller_name",
+RETURNING "name",
     "image_id",
-    "name",
+    "description",
     "enabled"
 `
 
 type SellerUpdateInfoParams struct {
 	SellerName  string `json:"seller_name" param:"seller_name"`
-	ImageID     string `json:"image_id" swaggertype:"string"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Enabled     bool   `json:"enabled"`
+	Name        string `form:"name" json:"name"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
+	ImageID     string `json:"image_id"`
 }
 
 type SellerUpdateInfoRow struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	ImageID    string `json:"image_id" swaggertype:"string"`
-	Name       string `json:"name"`
-	Enabled    bool   `json:"enabled"`
+	Name        string `form:"name" json:"name"`
+	ImageID     string `json:"image_id" swaggertype:"string"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoParams) (SellerUpdateInfoRow, error) {
 	row := q.db.QueryRow(ctx, sellerUpdateInfo,
 		arg.SellerName,
-		arg.ImageID,
 		arg.Name,
 		arg.Description,
 		arg.Enabled,
+		arg.ImageID,
 	)
 	var i SellerUpdateInfoRow
 	err := row.Scan(
-		&i.SellerName,
-		&i.ImageID,
 		&i.Name,
+		&i.ImageID,
+		&i.Description,
 		&i.Enabled,
 	)
 	return i, err
 }
 
 const sellerUpdateOrderStatus = `-- name: SellerUpdateOrderStatus :one
-
 UPDATE "order_history" oh
-SET
-    "status" = $3
+SET "status" = $3
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
     )
     AND oh."id" = $2
     AND oh."status" = $4
-RETURNING
-    oh."id",
+RETURNING oh."id",
     oh."shipment",
     oh."total_price",
     oh."status",
@@ -1129,28 +1218,27 @@ func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateO
 }
 
 const sellerUpdateProductInfo = `-- name: SellerUpdateProductInfo :one
-
 UPDATE "product" p
-SET
-    "name" = COALESCE($3, "name"),
+SET "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "price" = COALESCE($5, "price"),
-    "image_id" = COALESCE($6, "image_id"),
-    "expire_date" = COALESCE($7, "expire_date"),
-    "enabled" = COALESCE($8, "enabled"),
-    "stock" = COALESCE($9, "stock"),
+    "image_id" = CASE
+        WHEN $9::TEXT = '' THEN "image_id"
+        ELSE $9::TEXT
+    END,
+    "expire_date" = COALESCE($6, "expire_date"),
+    "enabled" = COALESCE($7, "enabled"),
+    "stock" = COALESCE($8, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
-        WHERE
-            s."seller_name" = $1
+        WHERE s."seller_name" = $1
             AND s."enabled" = true
     )
     AND p."id" = $2
-RETURNING
-    "id",
+RETURNING "id",
     "name",
     "description",
     "price",
@@ -1158,31 +1246,33 @@ RETURNING
     "expire_date",
     "edit_date",
     "stock",
-    "sales"
+    "sales",
+    "enabled"
 `
 
 type SellerUpdateProductInfoParams struct {
 	SellerName  string             `json:"seller_name" param:"seller_name"`
 	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-	Enabled     bool               `json:"enabled"`
-	Stock       int32              `json:"stock"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
+	Stock       int32              `form:"stock" json:"stock"`
+	ImageID     string             `json:"image_id"`
 }
 
 type SellerUpdateProductInfoRow struct {
 	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerUpdateProductInfo(ctx context.Context, arg SellerUpdateProductInfoParams) (SellerUpdateProductInfoRow, error) {
@@ -1192,10 +1282,10 @@ func (q *Queries) SellerUpdateProductInfo(ctx context.Context, arg SellerUpdateP
 		arg.Name,
 		arg.Description,
 		arg.Price,
-		arg.ImageID,
 		arg.ExpireDate,
 		arg.Enabled,
 		arg.Stock,
+		arg.ImageID,
 	)
 	var i SellerUpdateProductInfoRow
 	err := row.Scan(
@@ -1208,6 +1298,7 @@ func (q *Queries) SellerUpdateProductInfo(ctx context.Context, arg SellerUpdateP
 		&i.EditDate,
 		&i.Stock,
 		&i.Sales,
+		&i.Enabled,
 	)
 	return i, err
 }

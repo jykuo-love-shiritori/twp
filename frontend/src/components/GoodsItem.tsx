@@ -19,7 +19,7 @@ const GoodsItem = ({ id, name, imgUrl }: Props) => {
         </p>
       </div>
 
-      <TButton text='more' url={`/sellerID/shop/${id}`} />
+      <TButton text='more' action={`/sellerID/shop/${id}`} />
     </div>
   );
 };
