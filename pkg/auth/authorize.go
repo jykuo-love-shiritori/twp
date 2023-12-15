@@ -1,28 +1,29 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
+// user can enter both username and email to verify
+// but writing "usernameOrEmail" is too long
 type loginParams struct {
-	ClientId            string              `query:"client_id"`
-	CodeChallenge       string              `query:"code_challenge"`
-	CodeChallengeMethod codeChallengeMethod `query:"code_challenge_method"`
-	RedirectUri         string              `query:"redirect_uri"`
-	ResponseType        responseType        `query:"response_type"`
-	Scope               string              `query:"scope"`
-	State               string              `query:"state"`
-	Username            string              `json:"username"`
+	ClientId            string              `json:"client_id"`
+	CodeChallenge       string              `json:"code_challenge"`
+	CodeChallengeMethod codeChallengeMethod `json:"code_challenge_method"`
+	RedirectUri         string              `json:"redirect_uri"`
+	ResponseType        responseType        `json:"response_type"`
+	Scope               string              `json:"scope"`
+	State               string              `json:"state"`
+	Email               string              `json:"email"`
 	Password            string              `json:"password"`
 }
 
-func Authorize(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func Authorize(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var params loginParams
 		err := c.Bind(&params)
@@ -48,39 +49,35 @@ func Authorize(db *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Unsupported response type")
 		}
 
-		_, err = hashPassword(params.Password)
+		result, err := pg.Queries.FindUserInfoAndPassword(c.Request().Context(), params.Email)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(params.Password))
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Wrong username, email, or password")
 		}
 
-		// TODO: Add user authentication
-
-		buf := make([]byte, 32)
-		_, err = rand.Read(buf)
+		// generate OTP
+		code, err := generateRandomString(32)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		code := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(buf)
 
 		mu.Lock()
-		codeChallengePairs[code] = challenge{params.CodeChallenge, params.CodeChallengeMethod}
+		codeChallengePairs[code] = challengeUser{
+			CodeChallenge:   params.CodeChallenge,
+			ChallengeMethod: params.CodeChallengeMethod,
+			Username:        result.Username,
+			Role:            result.Role,
+		}
 		mu.Unlock()
 
-		// redirectUri, err := url.Parse(params.RedirectUri)
-		// if err != nil {
-		// 	logger.Error(err)
-		// 	return echo.NewHTTPError(http.StatusBadRequest, "Invalid redirect URI")
-		// }
-		// values := redirectUri.Query()
-		// values.Add("code", code)
-		// redirectUri.RawQuery = values.Encode()
-
-		// fmt.Println(redirectUri)
-
 		return c.JSON(http.StatusOK, echo.Map{
-			"code": code,
+			"code":  code,
+			"state": params.State,
 		})
 	}
 }
