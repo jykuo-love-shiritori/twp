@@ -1156,7 +1156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{coupon_id}": {
+        "/seller/coupon/{id}": {
             "get": {
                 "description": "Get coupon detail by ID for shop.",
                 "produces": [
@@ -1172,7 +1172,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1216,7 +1216,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1266,7 +1266,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1351,7 +1351,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{coupon_id}/tag": {
+        "/seller/coupon/{id}/tag": {
             "post": {
                 "description": "Add tag on coupon",
                 "consumes": [
@@ -1371,7 +1371,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1425,7 +1425,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1513,13 +1513,6 @@ const docTemplate = `{
                 ],
                 "summary": "Seller edit shop info",
                 "parameters": [
-                    {
-                        "type": "file",
-                        "description": "update image UUID",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
                     {
                         "minLength": 6,
                         "type": "string",
@@ -1890,7 +1883,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{product_id}": {
+        "/seller/product/{id}": {
             "get": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -1909,7 +1902,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1953,7 +1946,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -2003,7 +1996,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2028,9 +2021,9 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
-                        "type": "string",
-                        "description": "image id",
-                        "name": "image_id",
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
                         "in": "formData",
                         "required": true
                     },
@@ -2064,7 +2057,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{product_id}/tag": {
+        "/seller/product/{id}/tag": {
             "post": {
                 "description": "Add tag on product",
                 "consumes": [
@@ -2084,7 +2077,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "product id",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2137,7 +2130,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "product id",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },

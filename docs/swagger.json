@@ -1150,7 +1150,7 @@
                 }
             }
         },
-        "/seller/coupon/{coupon_id}": {
+        "/seller/coupon/{id}": {
             "get": {
                 "description": "Get coupon detail by ID for shop.",
                 "produces": [
@@ -1166,7 +1166,7 @@
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1210,7 +1210,7 @@
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1260,7 +1260,7 @@
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1345,7 +1345,7 @@
                 }
             }
         },
-        "/seller/coupon/{coupon_id}/tag": {
+        "/seller/coupon/{id}/tag": {
             "post": {
                 "description": "Add tag on coupon",
                 "consumes": [
@@ -1365,7 +1365,7 @@
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1419,7 +1419,7 @@
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1507,13 +1507,6 @@
                 ],
                 "summary": "Seller edit shop info",
                 "parameters": [
-                    {
-                        "type": "file",
-                        "description": "update image UUID",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
                     {
                         "minLength": 6,
                         "type": "string",
@@ -1884,7 +1877,7 @@
                 }
             }
         },
-        "/seller/product/{product_id}": {
+        "/seller/product/{id}": {
             "get": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -1903,7 +1896,7 @@
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1947,7 +1940,7 @@
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1997,7 +1990,7 @@
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2022,9 +2015,9 @@
                         "in": "formData"
                     },
                     {
-                        "type": "string",
-                        "description": "image id",
-                        "name": "image_id",
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
                         "in": "formData",
                         "required": true
                     },
@@ -2058,7 +2051,7 @@
                 }
             }
         },
-        "/seller/product/{product_id}/tag": {
+        "/seller/product/{id}/tag": {
             "post": {
                 "description": "Add tag on product",
                 "consumes": [
@@ -2078,7 +2071,7 @@
                     {
                         "type": "string",
                         "description": "product id",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -2131,7 +2124,7 @@
                     {
                         "type": "integer",
                         "description": "product id",
-                        "name": "product_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },

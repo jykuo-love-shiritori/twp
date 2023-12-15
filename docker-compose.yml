@@ -61,15 +61,16 @@ services:
       timeout: 5s
       retries: 5
 
-  minio-set-access-key:
+  minio-setup:
     image: minio/mc
     depends_on:
       - minio
     env_file:
       - .env
     entrypoint: >
-      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; /usr/bin/mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY};
-       /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME}; "
+      /bin/sh -c "/usr/bin/mc alias set myminio http://minio:${MINIO_API_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc admin user svcacct add  myminio ${MINIO_ROOT_USER} --access-key ${MINIO_ACCESS_KEY} --secret-key ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME};"
 
 volumes:
   postgres-data:
