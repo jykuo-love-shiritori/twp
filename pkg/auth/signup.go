@@ -7,6 +7,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type signupParams struct {
@@ -44,7 +45,7 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		})
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if userExists {
 			return echo.NewHTTPError(http.StatusBadRequest, "Username or email already exists")
@@ -56,21 +57,21 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid email")
 		}
 
-		hash, err := hashPassword(params.Password)
+		hash, err := bcrypt.GenerateFromPassword([]byte(params.Password), 14)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
 		err = pg.Queries.AddUser(c.Request().Context(), db.AddUserParams{
 			Username: params.Username,
-			Password: hash,
+			Password: string(hash),
 			Name:     params.Name,
 			Email:    params.Email,
 		})
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unexpected error")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
 		return c.NoContent(http.StatusOK)

@@ -39,102 +39,103 @@ func RegisterDocs(e *echo.Echo) {
 	docs.GET("/*", echoSwagger.WrapHandler)
 }
 
-func RegisterApi(e *echo.Echo, db *db.DB, mc *minio.MC, logger *zap.SugaredLogger) {
+func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) {
 	api := e.Group("/api")
 
 	api.GET("/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
-	}, auth.IsRole(db, logger, constants.ADMIN))
+	}, auth.IsRole(pg, logger, db.RoleTypeCustomer))
 
 	api.GET("/delay", func(c echo.Context) error {
 		time.Sleep(1 * time.Second)
 		return c.JSON(http.StatusOK, map[string]string{"message": "delay"})
 	})
 
-	api.POST("/signup", auth.Signup(db, logger))
+	api.POST("/signup", auth.Signup(pg, logger))
 
-	api.Any("/oauth/authorize", auth.Authorize(db, logger))
-	api.POST("/oauth/token", auth.Token(db, logger))
+	api.POST("/oauth/authorize", auth.Authorize(pg, logger))
+	api.POST("/oauth/token", auth.Token(pg, logger))
+	api.POST("/oauth/refresh", auth.Refresh(pg, logger))
+	api.POST("/oauth/logout", auth.Logout(pg, logger), auth.ValidateJwt(pg, logger))
 
 	// admin
-	api.GET("/admin/user", adminGetUser(db, mc, logger))
-	api.DELETE("/admin/user/:username", adminDisableUser(db, logger))
+	api.GET("/admin/user", adminGetUser(pg, mc, logger))
+	api.DELETE("/admin/user/:username", adminDisableUser(pg, logger))
 
-	api.GET("/admin/coupon", adminGetCoupon(db, logger))
-	api.GET("/admin/coupon/:id", adminGetCouponDetail(db, logger))
-	api.POST("/admin/coupon", adminAddCoupon(db, logger))
-	api.PATCH("/admin/coupon/:id", adminEditCoupon(db, logger))
-	api.DELETE("/admin/coupon/:id", adminDeleteCoupon(db, logger))
+	api.GET("/admin/coupon", adminGetCoupon(pg, logger))
+	api.GET("/admin/coupon/:id", adminGetCouponDetail(pg, logger))
+	api.POST("/admin/coupon", adminAddCoupon(pg, logger))
+	api.PATCH("/admin/coupon/:id", adminEditCoupon(pg, logger))
+	api.DELETE("/admin/coupon/:id", adminDeleteCoupon(pg, logger))
 
-	api.GET("/admin/report", adminGetReport(db, mc, logger))
+	api.GET("/admin/report", adminGetReport(pg, mc, logger))
 
 	// user
-	api.GET("/user/info", userGetInfo(db, logger))
-	api.PATCH("/user/info", userEditInfo(db, logger))
-	api.POST("/user/info/upload", userUploadAvatar(db, logger))
-	api.POST("/user/security/password", userEditPassword(db, logger))
+	api.GET("/user/info", userGetInfo(pg, logger))
+	api.PATCH("/user/info", userEditInfo(pg, logger))
+	api.POST("/user/info/upload", userUploadAvatar(pg, logger))
+	api.POST("/user/security/password", userEditPassword(pg, logger))
 
-	api.GET("/user/security/credit_card", userGetCreditCard(db, logger))
-	api.PATCH("/user/security/credit_card", userUpdateCreditCard(db, logger))
+	api.GET("/user/security/credit_card", userGetCreditCard(pg, logger))
+	api.PATCH("/user/security/credit_card", userUpdateCreditCard(pg, logger))
 
 	// general
-	api.GET("/shop/:seller_name", getShopInfo(db, mc, logger)) // user
-	api.GET("/shop/:seller_name/coupon", getShopCoupon(db, logger))
-	api.GET("/shop/:seller_name/search", searchShopProduct(db, logger))
+	api.GET("/shop/:seller_name", getShopInfo(pg, mc, logger)) // user
+	api.GET("/shop/:seller_name/coupon", getShopCoupon(pg, logger))
+	api.GET("/shop/:seller_name/search", searchShopProduct(pg, logger))
 
-	api.GET("/tag/:id", getTagInfo(db, logger))
+	api.GET("/tag/:id", getTagInfo(pg, logger))
 
-	api.GET("/search", search(db, logger)) // search both product and shop
-	api.GET("/search/shop", searchShopByName(db, logger))
+	api.GET("/search", search(pg, logger)) // search both product and shop
+	api.GET("/search/shop", searchShopByName(pg, logger))
 
-	api.GET("/news", getNews(db, logger))
-	api.GET("/news/:id", getNewsDetail(db, logger))
-	api.GET("/discover", getDiscover(db, mc, logger))
-	api.GET("/popular", getPopular(db, mc, logger))
+	api.GET("/news", getNews(pg, logger))
+	api.GET("/news/:id", getNewsDetail(pg, logger))
+	api.GET("/discover", getDiscover(pg, mc, logger))
+	api.GET("/popular", getPopular(pg, mc, logger))
 
-	api.GET("/product/:id", getProductInfo(db, mc, logger))
+	api.GET("/product/:id", getProductInfo(pg, mc, logger))
 
 	// buyer
-	api.GET("/buyer/order", buyerGetOrderHistory(db, mc, logger))
-	api.GET("/buyer/order/:id", buyerGetOrderDetail(db, mc, logger))
+	api.GET("/buyer/order", buyerGetOrderHistory(pg, mc, logger))
+	api.GET("/buyer/order/:id", buyerGetOrderDetail(pg, mc, logger))
 
-	api.GET("/buyer/cart", buyerGetCart(db, mc, logger))
-	api.POST("/buyer/cart/product/:id", buyerAddProductToCart(db, logger)) // since the cart might not exist yet
-	api.GET("/buyer/cart/:cart_id/coupon", buyerGetCoupon(db, logger))
-	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart(db, logger))
-	api.PATCH("/buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart(db, logger))
-	api.DELETE("/buyer/cart/:cart_id/product/:product_id", buyerDeleteProductFromCart(db, logger)) // this is simply edit quantity to 0
-	api.DELETE("/buyer/cart/:cart_id/coupon/:coupon_id", buyerDeleteCouponFromCart(db, logger))
+	api.GET("/buyer/cart", buyerGetCart(pg, mc, logger)) // include product and coupon
+	api.POST("/buyer/cart/:cart_id/product/:product_id", buyerAddProductToCart(pg, logger))
+	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyerAddCouponToCart(pg, logger))
+	api.PATCH("buyer/cart/:cart_id/product/:product_id", buyerEditProductInCart(pg, logger))
+	api.DELETE("/buyer/:cart_id/product/:product_id", buyerDeleteProductFromCart(pg, logger))
+	api.DELETE("/buyer/cart/:cart_id/coupon/:coupon_id", buyerDeleteCouponFromCart(pg, logger))
 
-	api.GET("/buyer/cart/:cart_id/checkout", buyerGetCheckout(db, logger))
-	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(db, logger))
+	api.GET("/buyer/cart/:cart_id/checkout", buyerGetCheckout(pg, logger))
+	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(pg, logger))
 
 	// seller
-	api.GET("/seller/info", sellerGetShopInfo(db, mc, logger))
-	api.PATCH("/seller/info", sellerEditInfo(db, mc, logger))
-	api.GET("/seller/tag", sellerGetTag(db, logger))  // search available tag
-	api.POST("/seller/tag", sellerAddTag(db, logger)) // add tag for shop
+	api.GET("/seller/info", sellerGetShopInfo(pg, mc, logger))
+	api.PATCH("/seller/info", sellerEditInfo(pg, mc, logger))
+	api.GET("/seller/tag", sellerGetTag(pg, logger))  // search available tag
+	api.POST("/seller/tag", sellerAddTag(pg, logger)) // add tag for shop
 
-	api.GET("/seller/coupon", sellerGetShopCoupon(db, logger))
-	api.GET("/seller/coupon/:id", sellerGetCouponDetail(db, logger))
-	api.POST("/seller/coupon", sellerAddCoupon(db, logger))
-	api.PATCH("/seller/coupon/:id", sellerEditCoupon(db, logger))
-	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon(db, logger))
-	api.POST("/seller/coupon/:id/tag", sellerAddCouponTag(db, logger))
-	api.DELETE("/seller/coupon/:id/tag", sellerDeleteCouponTag(db, logger))
+	api.GET("/seller/coupon", sellerGetShopCoupon(pg, logger))
+	api.GET("/seller/coupon/:id", sellerGetCouponDetail(pg, logger))
+	api.POST("/seller/coupon", sellerAddCoupon(pg, logger))
+	api.PATCH("/seller/coupon/:id", sellerEditCoupon(pg, logger))
+	api.DELETE("/seller/coupon/:id", sellerDeleteCoupon(pg, logger))
+	api.POST("/seller/coupon/:id/tag", sellerAddCouponTag(pg, logger))
+	api.DELETE("/seller/coupon/:id/tag", sellerDeleteCouponTag(pg, logger))
 
-	api.GET("/seller/order", sellerGetOrder(db, mc, logger))
-	api.GET("/seller/order/:id", sellerGetOrderDetail(db, mc, logger))
-	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(db, logger))
+	api.GET("/seller/order", sellerGetOrder(pg, mc, logger))
+	api.GET("/seller/order/:id", sellerGetOrderDetail(pg, mc, logger))
+	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(pg, logger))
 
-	api.GET("/seller/report/:year/:month", sellerGetReportDetail(db, mc, logger))
+	api.GET("/seller/report/:year/:month", sellerGetReportDetail(pg, mc, logger))
 
-	api.GET("/seller/product", sellerListProduct(db, mc, logger))
-	api.POST("/seller/product", sellerAddProduct(db, mc, logger))
-	api.GET("/seller/product/:id", sellerGetProductDetail(db, mc, logger))
-	api.PATCH("/seller/product/:id", sellerEditProduct(db, mc, logger))
-	api.POST("/seller/product/:id/tag", sellerAddProductTag(db, logger))
-	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(db, logger))
-	api.DELETE("/seller/product/:id", sellerDeleteProduct(db, logger))
+	api.GET("/seller/product", sellerListProduct(pg, mc, logger))
+	api.POST("/seller/product", sellerAddProduct(pg, mc, logger))
+	api.GET("/seller/product/:id", sellerGetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:id", sellerEditProduct(pg, mc, logger))
+	api.POST("/seller/product/:id/tag", sellerAddProductTag(pg, logger))
+	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(pg, logger))
+	api.DELETE("/seller/product/:id", sellerDeleteProduct(pg, logger))
 
 }
