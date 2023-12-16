@@ -67,7 +67,7 @@ LIMIT $2
 
 type SellerBestSellProductParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
+	Limit      int64  `json:"limit"`
 	Year       int32  `json:"year"`
 	Month      int32  `json:"month"`
 }
@@ -237,8 +237,8 @@ LIMIT $2 OFFSET $3
 
 type SellerGetCouponParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
-	Offset     int32  `json:"offset"`
+	Limit      int64  `json:"limit"`
+	Offset     int64  `json:"offset"`
 }
 
 type SellerGetCouponRow struct {
@@ -413,8 +413,8 @@ LIMIT $2 OFFSET $3
 
 type SellerGetOrderParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
-	Offset     int32  `json:"offset"`
+	Limit      int64  `json:"limit"`
+	Offset     int64  `json:"offset"`
 }
 
 type SellerGetOrderRow struct {
@@ -927,8 +927,8 @@ LIMIT $2 OFFSET $3
 
 type SellerProductListParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
-	Offset     int32  `json:"offset"`
+	Limit      int64  `json:"limit"`
+	Offset     int64  `json:"offset"`
 }
 
 type SellerProductListRow struct {
@@ -1017,7 +1017,7 @@ LIMIT $3
 type SellerSearchTagParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
 	Name       string `json:"name"`
-	Limit      int32  `json:"limit"`
+	Limit      int64  `json:"limit"`
 }
 
 type SellerSearchTagRow struct {

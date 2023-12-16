@@ -797,6 +797,41 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
+  router.PrettierProductSearchResult:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  router.PrettierSearchResult:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/router.PrettierProductSearchResult'
+        type: array
+      shops:
+        items:
+          $ref: '#/definitions/router.PrettierProductSearchResult'
+        type: array
+    type: object
+  router.PrettierShopSearchResult:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      seller_name:
+        type: string
+    type: object
   router.ProductQuantity:
     properties:
       quantity:
@@ -1043,7 +1078,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Edit global coupon.
+      description: Edit global coupon. All the coupon properties are required.
       parameters:
       - description: Coupon ID
         in: path
@@ -1547,6 +1582,7 @@ paths:
       - default: 10
         description: limit
         in: query
+        maximum: 20
         name: limit
         type: integer
       produces:
@@ -1690,18 +1726,73 @@ paths:
       - application/json
       description: Search for products and shops
       parameters:
-      - description: search word
+      - description: search query
         in: query
         name: q
         required: true
         type: string
+      - description: price lower bound
+        in: query
+        name: minPrice
+        type: number
+      - description: price upper bound
+        in: query
+        name: maxPrice
+        type: number
+      - description: stock lower bound
+        in: query
+        name: minStock
+        type: integer
+      - description: stock upper bound
+        in: query
+        name: maxStock
+        type: integer
+      - description: has coupon
+        in: query
+        name: haveCoupon
+        type: boolean
+      - description: sort by
+        enum:
+        - '"price"'
+        - '"stock"'
+        - '"sales"'
+        - '"relevancy"'
+        in: query
+        name: sortBy
+        type: string
+      - description: sorting order
+        enum:
+        - '"asc"'
+        - '"desc"'
+        in: query
+        name: order
+        type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.PrettierSearchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search for Products and Shops
       tags:
       - Search
@@ -1716,13 +1807,34 @@ paths:
         name: q
         required: true
         type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/router.PrettierShopSearchResult'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search for Shops by Name
       tags:
       - Search
@@ -2668,6 +2780,7 @@ paths:
       - default: 10
         description: limit
         in: query
+        maximum: 20
         name: limit
         type: integer
       produces:
@@ -2711,6 +2824,7 @@ paths:
       - default: 10
         description: limit
         in: query
+        maximum: 20
         name: limit
         type: integer
       produces:
@@ -2748,19 +2862,74 @@ paths:
         in: path
         name: seller_name
         required: true
-        type: integer
-      - description: search word
+        type: string
+      - description: search query
         in: query
         name: q
         required: true
         type: string
+      - description: price lower bound
+        in: query
+        name: minPrice
+        type: number
+      - description: price upper bound
+        in: query
+        name: maxPrice
+        type: number
+      - description: stock lower bound
+        in: query
+        name: minStock
+        type: integer
+      - description: stock upper bound
+        in: query
+        name: maxStock
+        type: integer
+      - description: has coupon
+        in: query
+        name: haveCoupon
+        type: boolean
+      - description: sort by
+        enum:
+        - '"price"'
+        - '"stock"'
+        - '"sales"'
+        - '"relevancy"'
+        in: query
+        name: sortBy
+        type: string
+      - description: sorting order
+        enum:
+        - '"asc"'
+        - '"desc"'
+        in: query
+        name: order
+        type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/router.PrettierProductSearchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search Shop Products
       tags:
       - Shop

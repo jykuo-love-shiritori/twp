@@ -12,7 +12,8 @@ import (
 )
 
 const getProductInfo = `-- name: GetProductInfo :one
-SELECT "id",
+SELECT
+    "id",
     "name",
     "description",
     "price",
@@ -20,8 +21,10 @@ SELECT "id",
     "expire_date",
     "stock",
     "sales"
-FROM "product"
-WHERE "id" = $1
+FROM
+    "product"
+WHERE
+    "id" = $1
     AND "enabled" = TRUE
 `
 
@@ -54,31 +57,42 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 
 const getProductsFromNearByShop = `-- name: GetProductsFromNearByShop :many
 WITH nearby_shop AS (
-    SELECT S."id" AS "id"
-    FROM "shop" S
-    WHERE S."enabled" = TRUE
+    SELECT
+        S."id" AS "id"
+    FROM
+        "shop" S
+    WHERE
+        S."enabled" = TRUE
         AND (
-            SELECt COUNT("product"."id")
-            FROM "product"
-            WHERE "product"."shop_id" = S."id"
-                AND "product"."enabled" = TRUE
-        ) >= 1
-    ORDER BY RANDOM() -- implement distance in future
-    LIMIT 1
+            SELECT
+                COUNT("product"."id")
+            FROM
+                "product"
+            WHERE
+                "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE) >= 1
+        ORDER BY
+            RANDOM() -- implement distance in future
+        LIMIT 1
 )
-SELECT "id",
+SELECT
+    "id",
     "name",
     "description",
     "price",
     "image_id" AS "image_url",
     "sales"
-FROM "product"
-WHERE "shop_id" = (
-        SELECT "id"
-        FROM nearby_shop
-    )
+FROM
+    "product"
+WHERE
+    "shop_id" =(
+        SELECT
+            "id"
+        FROM
+            nearby_shop)
     AND "enabled" = TRUE
-ORDER BY "sales" DESC
+ORDER BY
+    "sales" DESC
 LIMIT 4
 `
 
@@ -120,35 +134,47 @@ func (q *Queries) GetProductsFromNearByShop(ctx context.Context) ([]GetProductsF
 
 const getProductsFromPopularShop = `-- name: GetProductsFromPopularShop :many
 WITH popular_shop AS (
-    SELECT S."id" AS "id"
-    FROM "shop" S,
+    SELECT
+        S."id" AS "id"
+    FROM
+        "shop" S,
         "order_history" O
-    WHERE S."id" = O."shop_id"
+    WHERE
+        S."id" = O."shop_id"
         AND S."enabled" = TRUE
-        AND O."created_at" >= (NOW() - (INTERVAL '1 month'))
+        AND O."created_at" >=(NOW() -(INTERVAL '1 month'))
         AND (
-            SELECt COUNT("product"."id")
-            FROM "product"
-            WHERE "product"."shop_id" = S."id"
-                AND "product"."enabled" = TRUE
-        ) >= 1
-    GROUP BY S."id"
-    ORDER BY COUNT(O."id") DESC
-    LIMIT 1
+            SELECT
+                COUNT("product"."id")
+            FROM
+                "product"
+            WHERE
+                "product"."shop_id" = S."id"
+                AND "product"."enabled" = TRUE) >= 1
+        GROUP BY
+            S."id"
+        ORDER BY
+            COUNT(O."id") DESC
+        LIMIT 1
 )
-SELECT "id",
+SELECT
+    "id",
     "name",
     "description",
     "price",
     "image_id" AS "image_url",
     "sales"
-FROM "product"
-WHERE "shop_id" = (
-        SELECT "id"
-        FROM popular_shop
-    )
+FROM
+    "product"
+WHERE
+    "shop_id" =(
+        SELECT
+            "id"
+        FROM
+            popular_shop)
     AND "enabled" = TRUE
-ORDER BY "sales" DESC
+ORDER BY
+    "sales" DESC
 LIMIT 4
 `
 
@@ -189,21 +215,25 @@ func (q *Queries) GetProductsFromPopularShop(ctx context.Context) ([]GetProducts
 }
 
 const getRandomProducts = `-- name: GetRandomProducts :many
-SELECT "id",
+SELECT
+    "id",
     "name",
     "description",
     "price",
     "image_id" AS "image_url",
     "sales"
-FROM "product"
-WHERE "enabled" = TRUE
-ORDER BY "image_id" -- random but stable
+FROM
+    "product"
+WHERE
+    "enabled" = TRUE
+ORDER BY
+    "image_id" -- random but stable
 LIMIT $1 OFFSET $2
 `
 
 type GetRandomProductsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
 }
 
 type GetRandomProductsRow struct {
@@ -243,9 +273,12 @@ func (q *Queries) GetRandomProducts(ctx context.Context, arg GetRandomProductsPa
 }
 
 const getSellerNameByShopID = `-- name: GetSellerNameByShopID :one
-SELECT "seller_name"
-FROM "shop"
-WHERE "id" = $1
+SELECT
+    "seller_name"
+FROM
+    "shop"
+WHERE
+    "id" = $1
 `
 
 func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, error) {
@@ -256,7 +289,8 @@ func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, 
 }
 
 const getShopCoupons = `-- name: GetShopCoupons :many
-SELECT "id",
+SELECT
+    "id",
     "type",
     "scope",
     "name",
@@ -264,17 +298,20 @@ SELECT "id",
     "discount",
     "start_date",
     "expire_date"
-FROM "coupon"
-WHERE "shop_id" = $1
+FROM
+    "coupon"
+WHERE
+    "shop_id" = $1
     OR "scope" = 'global'
-ORDER BY "id" ASC
+ORDER BY
+    "id" ASC
 LIMIT $2 OFFSET $3
 `
 
 type GetShopCouponsParams struct {
 	ShopID pgtype.Int4 `json:"shop_id"`
-	Limit  int32       `json:"limit"`
-	Offset int32       `json:"offset"`
+	Limit  int64       `json:"limit"`
+	Offset int64       `json:"offset"`
 }
 
 type GetShopCouponsRow struct {
@@ -318,12 +355,15 @@ func (q *Queries) GetShopCoupons(ctx context.Context, arg GetShopCouponsParams) 
 }
 
 const getShopInfo = `-- name: GetShopInfo :one
-SELECT "seller_name",
+SELECT
+    "seller_name",
     "image_id" AS "image_url",
     "name",
     "description"
-FROM "shop"
-WHERE "seller_name" = $1
+FROM
+    "shop"
+WHERE
+    "seller_name" = $1
     AND "enabled" = TRUE
 `
 
@@ -347,7 +387,8 @@ func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopIn
 }
 
 const getShopProducts = `-- name: GetShopProducts :many
-SELECT P."id",
+SELECT
+    P."id",
     P."name",
     P."description",
     P."price",
@@ -355,19 +396,22 @@ SELECT P."id",
     P."expire_date",
     P."stock",
     P."sales"
-FROM "product" P,
+FROM
+    "product" P,
     "shop" S
-WHERE S."seller_name" = $1
+WHERE
+    S."seller_name" = $1
     AND P."shop_id" = S."id"
     AND P."enabled" = TRUE
-ORDER BY P."sales" DESC
+ORDER BY
+    P."sales" DESC
 LIMIT $2 OFFSET $3
 `
 
 type GetShopProductsParams struct {
 	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
-	Offset     int32  `json:"offset"`
+	Limit      int64  `json:"limit"`
+	Offset     int64  `json:"offset"`
 }
 
 type GetShopProductsRow struct {
@@ -411,10 +455,13 @@ func (q *Queries) GetShopProducts(ctx context.Context, arg GetShopProductsParams
 }
 
 const getTagInfo = `-- name: GetTagInfo :one
-SELECT "id",
+SELECT
+    "id",
     "name"
-FROM "tag"
-WHERE "id" = $1
+FROM
+    "tag"
+WHERE
+    "id" = $1
 `
 
 type GetTagInfoRow struct {
@@ -429,10 +476,206 @@ func (q *Queries) GetTagInfo(ctx context.Context, id int32) (GetTagInfoRow, erro
 	return i, err
 }
 
+const searchProducts = `-- name: SearchProducts :many
+SELECT
+    "id",
+    "name",
+    "price",
+    "image_url",
+    "sales"
+FROM
+    search_products($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+`
+
+type SearchProductsParams struct {
+	Query     string         `json:"query"`
+	MinPrice  pgtype.Numeric `json:"min_price"`
+	MaxPrice  pgtype.Numeric `json:"max_price"`
+	MinStock  pgtype.Int4    `json:"min_stock"`
+	MaxStock  pgtype.Int4    `json:"max_stock"`
+	HasCoupon pgtype.Bool    `json:"has_coupon"`
+	SortBy    string         `json:"sort_by"`
+	Order     string         `json:"order"`
+	Offset    int32          `json:"offset"`
+	Limit     int32          `json:"limit"`
+}
+
+type SearchProductsRow struct {
+	ID       pgtype.Int4    `json:"id"`
+	Name     string         `json:"name"`
+	Price    pgtype.Numeric `json:"price"`
+	ImageUrl string         `json:"image_url"`
+	Sales    pgtype.Int4    `json:"sales"`
+}
+
+func (q *Queries) SearchProducts(ctx context.Context, arg SearchProductsParams) ([]SearchProductsRow, error) {
+	rows, err := q.db.Query(ctx, searchProducts,
+		arg.Query,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.MinStock,
+		arg.MaxStock,
+		arg.HasCoupon,
+		arg.SortBy,
+		arg.Order,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchProductsRow{}
+	for rows.Next() {
+		var i SearchProductsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Price,
+			&i.ImageUrl,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchProductsByShop = `-- name: SearchProductsByShop :many
+WITH shop_id AS (
+    SELECT
+        "id"
+    FROM
+        "shop"
+    WHERE
+        "seller_name" = $1
+        AND "enabled" = TRUE
+)
+SELECT
+    "id",
+    "name",
+    "price",
+    "image_url",
+    "sales"
+FROM
+    search_products($2,(
+            SELECT
+                "id"
+            FROM shop_id), $3, $4, $5, $6, $7, $8, $9, $10, $11)
+`
+
+type SearchProductsByShopParams struct {
+	SellerName string         `json:"seller_name" param:"seller_name"`
+	Query      string         `json:"query"`
+	MinPrice   pgtype.Numeric `json:"min_price"`
+	MaxPrice   pgtype.Numeric `json:"max_price"`
+	MinStock   pgtype.Int4    `json:"min_stock"`
+	MaxStock   pgtype.Int4    `json:"max_stock"`
+	HasCoupon  pgtype.Bool    `json:"has_coupon"`
+	SortBy     string         `json:"sort_by"`
+	Order      string         `json:"order"`
+	Offset     int32          `json:"offset"`
+	Limit      int32          `json:"limit"`
+}
+
+type SearchProductsByShopRow struct {
+	ID       pgtype.Int4    `json:"id"`
+	Name     string         `json:"name"`
+	Price    pgtype.Numeric `json:"price"`
+	ImageUrl string         `json:"image_url"`
+	Sales    pgtype.Int4    `json:"sales"`
+}
+
+func (q *Queries) SearchProductsByShop(ctx context.Context, arg SearchProductsByShopParams) ([]SearchProductsByShopRow, error) {
+	rows, err := q.db.Query(ctx, searchProductsByShop,
+		arg.SellerName,
+		arg.Query,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.MinStock,
+		arg.MaxStock,
+		arg.HasCoupon,
+		arg.SortBy,
+		arg.Order,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchProductsByShopRow{}
+	for rows.Next() {
+		var i SearchProductsByShopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Price,
+			&i.ImageUrl,
+			&i.Sales,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchShops = `-- name: SearchShops :many
+SELECT
+    "name",
+    "seller_name",
+    "image_url"
+FROM
+    search_shop($1, $2, $3)
+`
+
+type SearchShopsParams struct {
+	Query  string `json:"query"`
+	Offset int32  `json:"offset"`
+	Limit  int32  `json:"limit"`
+}
+
+type SearchShopsRow struct {
+	Name       string `json:"name"`
+	SellerName string `json:"seller_name"`
+	ImageUrl   string `json:"image_url"`
+}
+
+func (q *Queries) SearchShops(ctx context.Context, arg SearchShopsParams) ([]SearchShopsRow, error) {
+	rows, err := q.db.Query(ctx, searchShops, arg.Query, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchShopsRow{}
+	for rows.Next() {
+		var i SearchShopsRow
+		if err := rows.Scan(&i.Name, &i.SellerName, &i.ImageUrl); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const shopExists = `-- name: ShopExists :one
-SELECT "id"
-FROM "shop" AS s
-WHERE s."seller_name" = $1
+SELECT
+    "id"
+FROM
+    "shop" AS s
+WHERE
+    s."seller_name" = $1
     AND s."enabled" = TRUE
 `
 

@@ -182,7 +182,7 @@ type PrettierCoupon struct { // for swagger
 }
 
 // @Summary		Admin Edit Coupon
-// @Description	Edit global coupon.
+// @Description	Edit global coupon. All the coupon properties are required.
 // @Tags			Admin, Coupon
 // @Accept			json
 // @Produce		json

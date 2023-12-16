@@ -13,7 +13,7 @@ import (
 )
 
 const addCoupon = `-- name: AddCoupon :one
-INSERT INTO "coupon" (
+INSERT INTO "coupon"(
         "type",
         "scope",
         "name",
@@ -78,24 +78,6 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 	return i, err
 }
 
-const addCouponTags = `-- name: AddCouponTags :execrows
-INSERT INTO "coupon_tag"("coupon_id", "tag_id")
-VALUES ($1, $2::int []) ON CONFLICT ("coupon_id", "tag_id") DO NOTHING
-`
-
-type AddCouponTagsParams struct {
-	CouponID int32   `json:"coupon_id" param:"id"`
-	TagID    []int32 `json:"tag_id"`
-}
-
-func (q *Queries) AddCouponTags(ctx context.Context, arg AddCouponTagsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, addCouponTags, arg.CouponID, arg.TagID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const couponExists = `-- name: CouponExists :one
 SELECT EXISTS (
         SELECT 1
@@ -126,9 +108,9 @@ func (q *Queries) DeleteCoupon(ctx context.Context, id int32) (int64, error) {
 }
 
 const disableProductsFromShop = `-- name: DisableProductsFromShop :execrows
-UPDATE "product" AS p
-SET p."enabled" = FALSE
-WHERE p."shop_id" = $1
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" = $1
 `
 
 func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (int64, error) {
@@ -141,14 +123,14 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (in
 
 const disableShop = `-- name: DisableShop :execrows
 WITH disable_shop AS (
-    UPDATE "shop" AS s
-    SET s."enabled" = FALSE
-    WHERE s."seller_name" = $1
-    RETURNING s."id"
+    UPDATE "shop"
+    SET "enabled" = FALSE
+    WHERE "seller_name" = $1
+    RETURNING "id"
 )
-UPDATE "product" AS p
-SET p."enabled" = FALSE
-WHERE p."shop_id" =(
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" =(
         SELECT "id"
         FROM disable_shop
     )
@@ -260,9 +242,9 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (EditCou
 }
 
 const enabledShop = `-- name: EnabledShop :execrows
-UPDATE "shop" AS s
-SET s."enabled" = TRUE
-WHERE s."seller_name" = $1
+UPDATE "shop"
+SET "enabled" = TRUE
+WHERE "seller_name" = $1
 `
 
 func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, error) {
@@ -271,40 +253,6 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, er
 		return 0, err
 	}
 	return result.RowsAffected(), nil
-}
-
-const getCouponTags = `-- name: GetCouponTags :many
-SELECT "tag_id",
-    "name"
-FROM "coupon_tag" AS CT,
-    "tag" AS T
-WHERE CT."coupon_id" = $1
-    AND CT."tag_id" = T."id"
-`
-
-type GetCouponTagsRow struct {
-	TagID int32  `json:"tag_id"`
-	Name  string `json:"name"`
-}
-
-func (q *Queries) GetCouponTags(ctx context.Context, couponID int32) ([]GetCouponTagsRow, error) {
-	rows, err := q.db.Query(ctx, getCouponTags, couponID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetCouponTagsRow{}
-	for rows.Next() {
-		var i GetCouponTagsRow
-		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getGlobalCouponDetail = `-- name: GetGlobalCouponDetail :one
@@ -364,8 +312,8 @@ LIMIT $1 OFFSET $2
 `
 
 type GetGlobalCouponsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
 }
 
 type GetGlobalCouponsRow struct {
@@ -432,7 +380,7 @@ WHERE S."id" = O."shop_id"
     AND O."status" = 'paid'
     AND O."created_at" < CAST(
         (
-            CAST($1::TEXT AS TIMESTAMPTZ) + (INTERVAL '1 month')
+            CAST($1::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')
         ) AS TIMESTAMPTZ
     )
     AND O."created_at" >= CAST($1::TEXT AS TIMESTAMPTZ)
@@ -481,7 +429,7 @@ FROM "order_history"
 WHERE "status" = 'paid'
     AND "created_at" < CAST(
         (
-            CAST($1::TEXT AS TIMESTAMPTZ) + (INTERVAL '1 month')
+            CAST($1::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')
         ) AS TIMESTAMPTZ
     )
     AND "created_at" >= CAST($1::TEXT AS TIMESTAMPTZ)
@@ -523,8 +471,8 @@ LIMIT $1 OFFSET $2
 `
 
 type GetUsersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
 }
 
 type GetUsersRow struct {
@@ -565,27 +513,4 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]GetUsersR
 		return nil, err
 	}
 	return items, nil
-}
-
-const validateTags = `-- name: ValidateTags :one
-SELECT NOT EXISTS (
-        SELECT 1
-        FROM "tag" AS T,
-            "coupon" AS C
-        WHERE T."id" != ANY($1::int [])
-            AND C."id" = $2
-            AND T."shop_id" = C."shop_id"
-    )
-`
-
-type ValidateTagsParams struct {
-	TagID    []int32 `json:"tag_id"`
-	CouponID int32   `json:"coupon_id" param:"id"`
-}
-
-func (q *Queries) ValidateTags(ctx context.Context, arg ValidateTagsParams) (bool, error) {
-	row := q.db.QueryRow(ctx, validateTags, arg.TagID, arg.CouponID)
-	var not_exists bool
-	err := row.Scan(&not_exists)
-	return not_exists, err
 }

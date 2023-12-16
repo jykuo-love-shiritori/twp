@@ -135,9 +135,9 @@ type AddProductToCartParams struct {
 
 // check product enabled ⬆️
 // insert product into cart (new or existed)⬇️
-func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int32, error) {
+func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int64, error) {
 	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.ID, arg.Quantity)
-	var total_quantity int32
+	var total_quantity int64
 	err := row.Scan(&total_quantity)
 	return total_quantity, err
 }
@@ -694,8 +694,8 @@ LIMIT $3
 
 type GetOrderHistoryParams struct {
 	Username string `json:"username"`
-	Offset   int32  `json:"offset"`
-	Limit    int32  `json:"limit"`
+	Offset   int64  `json:"offset"`
+	Limit    int64  `json:"limit"`
 }
 
 type GetOrderHistoryRow struct {

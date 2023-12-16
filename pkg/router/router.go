@@ -82,12 +82,12 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	// general
 	api.GET("/shop/:seller_name", getShopInfo(pg, mc, logger)) // user
 	api.GET("/shop/:seller_name/coupon", getShopCoupon(pg, logger))
-	api.GET("/shop/:seller_name/search", searchShopProduct(pg, logger))
+	api.GET("/shop/:seller_name/search", searchShopProduct(pg, mc, logger))
 
 	api.GET("/tag/:id", getTagInfo(pg, logger))
 
-	api.GET("/search", search(pg, logger)) // search both product and shop
-	api.GET("/search/shop", searchShopByName(pg, logger))
+	api.GET("/search", search(pg, mc, logger)) // search both product and shop
+	api.GET("/search/shop", searchShopByName(pg, mc, logger))
 
 	api.GET("/news", getNews(pg, logger))
 	api.GET("/news/:id", getNewsDetail(pg, logger))

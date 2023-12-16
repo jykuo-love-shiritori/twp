@@ -210,7 +210,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Edit global coupon.",
+                "description": "Edit global coupon. All the coupon properties are required.",
                 "consumes": [
                     "application/json"
                 ],
@@ -964,6 +964,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1185,18 +1186,97 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search word",
+                        "description": "search query",
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "price lower bound",
+                        "name": "minPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "price upper bound",
+                        "name": "maxPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock lower bound",
+                        "name": "minStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock upper bound",
+                        "name": "maxStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "has coupon",
+                        "name": "haveCoupon",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"price\"",
+                            "\"stock\"",
+                            "\"sales\"",
+                            "\"relevancy\""
+                        ],
+                        "type": "string",
+                        "description": "sort by",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"asc\"",
+                            "\"desc\""
+                        ],
+                        "type": "string",
+                        "description": "sorting order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.PrettierSearchResult"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -1222,14 +1302,44 @@ const docTemplate = `{
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/router.PrettierShopSearchResult"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -2610,6 +2720,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -2675,6 +2786,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -2730,7 +2842,7 @@ const docTemplate = `{
                 "summary": "Search Shop Products",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Seller username",
                         "name": "seller_name",
                         "in": "path",
@@ -2738,18 +2850,97 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "search word",
+                        "description": "search query",
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "price lower bound",
+                        "name": "minPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "price upper bound",
+                        "name": "maxPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock lower bound",
+                        "name": "minStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock upper bound",
+                        "name": "maxStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "has coupon",
+                        "name": "haveCoupon",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"price\"",
+                            "\"stock\"",
+                            "\"sales\"",
+                            "\"relevancy\""
+                        ],
+                        "type": "string",
+                        "description": "sort by",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"asc\"",
+                            "\"desc\""
+                        ],
+                        "type": "string",
+                        "description": "sorting order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/router.PrettierProductSearchResult"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -4317,6 +4508,60 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "router.PrettierProductSearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "router.PrettierSearchResult": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/router.PrettierProductSearchResult"
+                    }
+                },
+                "shops": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/router.PrettierProductSearchResult"
+                    }
+                }
+            }
+        },
+        "router.PrettierShopSearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
                 }
             }
         },

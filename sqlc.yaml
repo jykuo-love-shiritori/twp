@@ -3,6 +3,8 @@ sql:
   - engine: "postgresql"
     queries: "db/queries"
     schema: "db/migrations"
+    database:
+      uri: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
     gen:
       go:
         emit_json_tags: true

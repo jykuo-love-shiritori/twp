@@ -124,7 +124,7 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 func sellerGetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var tagPerPage int32 = 20
+		var tagPerPage int64 = 20
 
 		var param db.SellerSearchTagParams
 		if err := c.Bind(&param); err != nil {
