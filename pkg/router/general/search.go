@@ -1,6 +1,7 @@
 package general
 
 import (
+	"errors"
 	"math/big"
 	"net/http"
 
@@ -11,6 +12,58 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
+
+type searchParams struct {
+	Q          string `query:"q"`
+	MinPrice   int32  `query:"minPrice"`
+	MaxPrice   int32  `query:"maxPrice"`
+	HaveCoupon bool   `query:"haveCoupon"`
+	SortBy     string `query:"sortBy"`
+	Order      string `query:"order"`
+	common.QueryParams
+}
+
+func (q *searchParams) Validate() error {
+	if q.Q == "" {
+		return errors.New("search query is empty")
+	}
+	if q.MinPrice < 0 || q.MaxPrice < 0 || q.MinPrice > q.MaxPrice {
+		return errors.New("invalid price range")
+	}
+	if q.SortBy != "" && q.SortBy != "price" && q.SortBy != "stock" && q.SortBy != "sales" && q.SortBy != "relevancy" {
+		return errors.New("invalid sort by")
+	}
+	if q.Order != "" && q.Order != "asc" && q.Order != "desc" {
+		return errors.New("invalid order")
+	}
+	return q.QueryParams.Validate()
+}
+
+func newSearchParams() searchParams {
+	return searchParams{HaveCoupon: false, SortBy: "relevancy", Order: "asc", QueryParams: common.NewQueryParams(0, 10)}
+}
+
+type PrettierProductSearchResult struct {
+	Id       int32  `json:"id"`
+	Name     string `json:"name"`
+	Price    int32  `json:"price"`
+	Stock    int32  `json:"stock"`
+	ImageUrl string `json:"image_url"`
+}
+type PrettierShopSearchResult struct {
+	Id         int32  `json:"id"`
+	Name       string `json:"name"`
+	SellerName string `json:"seller_name"`
+	ImageUrl   string `json:"image_url"`
+}
+type PrettierSearchResult struct {
+	Products []PrettierProductSearchResult `json:"products"`
+	Shops    []PrettierProductSearchResult `json:"shops"`
+}
+type searchResult struct {
+	Products []db.SearchProductsRow `json:"products"`
+	Shops    []db.SearchShopsRow    `json:"shops"`
+}
 
 // @Summary		Search Shop Products
 // @Description	Search products within a shop by seller username
@@ -44,25 +97,9 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if err := q.QueryParams.Validate(); err != nil {
-			logger.Errorw("failed to validate query parameter", "error", err)
-			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
-		}
-		if q.Q == "" {
-			logger.Errorw("search query is empty")
-			return echo.NewHTTPError(http.StatusBadRequest, "search query is empty")
-		}
-		if q.MinPrice < 0 || q.MaxPrice < 0 || q.MinPrice > q.MaxPrice {
-			logger.Errorw("invalid price range")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid price range")
-		}
-		if q.SortBy != "" && q.SortBy != "price" && q.SortBy != "stock" && q.SortBy != "sales" && q.SortBy != "relevancy" {
-			logger.Errorw("invalid sort by")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid sort by")
-		}
-		if q.Order != "" && q.Order != "asc" && q.Order != "desc" {
-			logger.Errorw("invalid order")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid order")
+		if err := q.Validate(); err != nil {
+			logger.Errorw("failed to validate query parameter", "error", err.Error())
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		dbq := db.SearchProductsByShopParams{
 			SellerName: seller_name,
@@ -84,20 +121,22 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			SortBy: q.SortBy,
 			Order:  q.Order,
 		}
-		if c.QueryParam("minPrice") == "" {
-			dbq.MinPrice.Valid = false
+		paramMap := map[string]interface{}{
+			"minPrice":   &dbq.MinPrice,
+			"maxPrice":   &dbq.MaxPrice,
+			"minStock":   &dbq.MinStock,
+			"maxStock":   &dbq.MaxStock,
+			"haveCoupon": &dbq.HasCoupon,
 		}
-		if c.QueryParam("maxPrice") == "" {
-			dbq.MaxPrice.Valid = false
-		}
-		if c.QueryParam("minStock") == "" {
-			dbq.MinStock.Valid = false
-		}
-		if c.QueryParam("maxStock") == "" {
-			dbq.MaxStock.Valid = false
-		}
-		if c.QueryParam("haveCoupon") == "" {
-			dbq.HasCoupon.Valid = false
+		for k, v := range paramMap {
+			if c.QueryParam(k) == "" {
+				switch val := v.(type) {
+				case *pgtype.Numeric:
+					val.Valid = false
+				case *pgtype.Bool:
+					val.Valid = false
+				}
+			}
 		}
 		products, err := pg.Queries.SearchProductsByShop(c.Request().Context(), dbq)
 		if err != nil {
@@ -109,42 +148,6 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 		}
 		return c.JSON(http.StatusOK, products)
 	}
-}
-
-type searchParams struct {
-	Q          string `query:"q"`
-	MinPrice   int32  `query:"minPrice"`
-	MaxPrice   int32  `query:"maxPrice"`
-	HaveCoupon bool   `query:"haveCoupon"`
-	SortBy     string `query:"sortBy"`
-	Order      string `query:"order"`
-	common.QueryParams
-}
-
-func newSearchParams() searchParams {
-	return searchParams{HaveCoupon: false, SortBy: "relevancy", Order: "asc", QueryParams: common.NewQueryParams(0, 10)}
-}
-
-type PrettierProductSearchResult struct {
-	Id       int32  `json:"id"`
-	Name     string `json:"name"`
-	Price    int32  `json:"price"`
-	Stock    int32  `json:"stock"`
-	ImageUrl string `json:"image_url"`
-}
-type PrettierShopSearchResult struct {
-	Id         int32  `json:"id"`
-	Name       string `json:"name"`
-	SellerName string `json:"seller_name"`
-	ImageUrl   string `json:"image_url"`
-}
-type PrettierSearchResult struct {
-	Products []PrettierProductSearchResult `json:"products"`
-	Shops    []PrettierProductSearchResult `json:"shops"`
-}
-type searchResult struct {
-	Products []db.SearchProductsRow `json:"products"`
-	Shops    []db.SearchShopsRow    `json:"shops"`
 }
 
 // @Summary		Search for Products and Shops
@@ -173,25 +176,9 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 			logger.Errorw("failed to bind query parameter", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if err := q.QueryParams.Validate(); err != nil {
-			logger.Errorw("failed to validate query parameter", "error", err)
-			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
-		}
-		if q.Q == "" {
-			logger.Errorw("search query is empty")
-			return echo.NewHTTPError(http.StatusBadRequest, "search query is empty")
-		}
-		if q.MinPrice < 0 || q.MaxPrice < 0 || q.MinPrice > q.MaxPrice {
-			logger.Errorw("invalid price range")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid price range")
-		}
-		if q.SortBy != "" && q.SortBy != "price" && q.SortBy != "stock" && q.SortBy != "sales" && q.SortBy != "relevancy" {
-			logger.Errorw("invalid sort by")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid sort by")
-		}
-		if q.Order != "" && q.Order != "asc" && q.Order != "desc" {
-			logger.Errorw("invalid order")
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid order")
+		if err := q.Validate(); err != nil {
+			logger.Errorw("failed to validate query parameter", "error", err.Error())
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		dbq := db.SearchProductsParams{
 			Offset: int32(q.Offset),
@@ -212,20 +199,22 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 			SortBy: q.SortBy,
 			Order:  q.Order,
 		}
-		if c.QueryParam("minPrice") == "" {
-			dbq.MinPrice.Valid = false
+		paramMap := map[string]interface{}{
+			"minPrice":   &dbq.MinPrice,
+			"maxPrice":   &dbq.MaxPrice,
+			"minStock":   &dbq.MinStock,
+			"maxStock":   &dbq.MaxStock,
+			"haveCoupon": &dbq.HasCoupon,
 		}
-		if c.QueryParam("maxPrice") == "" {
-			dbq.MaxPrice.Valid = false
-		}
-		if c.QueryParam("minStock") == "" {
-			dbq.MinStock.Valid = false
-		}
-		if c.QueryParam("maxStock") == "" {
-			dbq.MaxStock.Valid = false
-		}
-		if c.QueryParam("haveCoupon") == "" {
-			dbq.HasCoupon.Valid = false
+		for k, v := range paramMap {
+			if c.QueryParam(k) == "" {
+				switch val := v.(type) {
+				case *pgtype.Numeric:
+					val.Valid = false
+				case *pgtype.Bool:
+					val.Valid = false
+				}
+			}
 		}
 		var sr searchResult
 		var err error
