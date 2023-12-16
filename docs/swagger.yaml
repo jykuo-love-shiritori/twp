@@ -1,5 +1,33 @@
 basePath: /api
 definitions:
+  admin.PrettierCoupon:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      end_date:
+        type: string
+      name:
+        type: string
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  admin.adminReport:
+    properties:
+      month:
+        type: integer
+      sellers:
+        items:
+          $ref: '#/definitions/db.GetTopSellerRow'
+        type: array
+      total:
+        type: integer
+      year:
+        type: integer
+    type: object
   auth.signupParams:
     properties:
       email:
@@ -14,6 +42,74 @@ definitions:
       username:
         example: john
         type: string
+    type: object
+  buyer.Cart:
+    properties:
+      cartInfo:
+        $ref: '#/definitions/db.GetCartRow'
+      coupons:
+        items:
+          $ref: '#/definitions/db.GetCouponsFromCartRow'
+        type: array
+      products:
+        items:
+          $ref: '#/definitions/db.GetProductFromCartRow'
+        type: array
+    type: object
+  buyer.OrderDetail:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/db.GetOrderDetailRow'
+        type: array
+      info:
+        $ref: '#/definitions/db.GetOrderInfoRow'
+    type: object
+  buyer.PaymentMethod:
+    properties:
+      creditCard:
+        type: object
+    type: object
+  buyer.ProductQuantity:
+    properties:
+      quantity:
+        type: integer
+    type: object
+  buyer.checkout:
+    properties:
+      coupons:
+        items:
+          $ref: '#/definitions/buyer.couponDiscount'
+        type: array
+      payments:
+        items:
+          type: integer
+        type: array
+      shipment:
+        type: integer
+      subtotal:
+        type: integer
+      total:
+        type: integer
+      total_discount:
+        type: integer
+    type: object
+  buyer.couponDiscount:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      discount_value:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   common.News:
     properties:
@@ -748,56 +844,7 @@ definitions:
     properties:
       message: {}
     type: object
-  pgtype.Int4:
-    properties:
-      int32:
-        type: integer
-      valid:
-        type: boolean
-    type: object
-  router.Cart:
-    properties:
-      cartInfo:
-        $ref: '#/definitions/db.GetCartRow'
-      coupons:
-        items:
-          $ref: '#/definitions/db.GetCouponsFromCartRow'
-        type: array
-      products:
-        items:
-          $ref: '#/definitions/db.GetProductFromCartRow'
-        type: array
-    type: object
-  router.OrderDetail:
-    properties:
-      details:
-        items:
-          $ref: '#/definitions/db.GetOrderDetailRow'
-        type: array
-      info:
-        $ref: '#/definitions/db.GetOrderInfoRow'
-    type: object
-  router.PaymentMethod:
-    properties:
-      creditCard:
-        type: object
-    type: object
-  router.PrettierCoupon:
-    properties:
-      description:
-        type: string
-      discount:
-        type: number
-      end_date:
-        type: string
-      name:
-        type: string
-      start_date:
-        type: string
-      type:
-        $ref: '#/definitions/db.CouponType'
-    type: object
-  router.PrettierProductSearchResult:
+  general.PrettierProductSearchResult:
     properties:
       id:
         type: integer
@@ -810,18 +857,18 @@ definitions:
       stock:
         type: integer
     type: object
-  router.PrettierSearchResult:
+  general.PrettierSearchResult:
     properties:
       products:
         items:
-          $ref: '#/definitions/router.PrettierProductSearchResult'
+          $ref: '#/definitions/general.PrettierProductSearchResult'
         type: array
       shops:
         items:
-          $ref: '#/definitions/router.PrettierProductSearchResult'
+          $ref: '#/definitions/general.PrettierProductSearchResult'
         type: array
     type: object
-  router.PrettierShopSearchResult:
+  general.PrettierShopSearchResult:
     properties:
       id:
         type: integer
@@ -832,79 +879,7 @@ definitions:
       seller_name:
         type: string
     type: object
-  router.ProductQuantity:
-    properties:
-      quantity:
-        type: integer
-    type: object
-  router.adminReport:
-    properties:
-      month:
-        type: integer
-      sellers:
-        items:
-          $ref: '#/definitions/db.GetTopSellerRow'
-        type: array
-      total:
-        type: integer
-      year:
-        type: integer
-    type: object
-  router.checkout:
-    properties:
-      coupons:
-        items:
-          $ref: '#/definitions/router.couponDiscount'
-        type: array
-      payments:
-        items:
-          type: integer
-        type: array
-      shipment:
-        type: integer
-      subtotal:
-        type: integer
-      total:
-        type: integer
-      total_discount:
-        type: integer
-    type: object
-  router.couponDetail:
-    properties:
-      coupon_info:
-        $ref: '#/definitions/db.SellerGetCouponDetailRow'
-      tags:
-        items:
-          $ref: '#/definitions/db.SellerGetCouponTagRow'
-        type: array
-    type: object
-  router.couponDiscount:
-    properties:
-      description:
-        type: string
-      discount:
-        type: number
-      discount_value:
-        type: integer
-      id:
-        type: integer
-      name:
-        type: string
-      scope:
-        $ref: '#/definitions/db.CouponScope'
-      type:
-        $ref: '#/definitions/db.CouponType'
-    type: object
-  router.orderDetail:
-    properties:
-      order_info:
-        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
-      products:
-        items:
-          $ref: '#/definitions/db.SellerGetOrderDetailRow'
-        type: array
-    type: object
-  router.popular:
+  general.popular:
     properties:
       local_products:
         items:
@@ -915,6 +890,40 @@ definitions:
           $ref: '#/definitions/db.GetProductsFromPopularShopRow'
         type: array
     type: object
+  general.shopInfo:
+    properties:
+      info:
+        $ref: '#/definitions/db.GetShopInfoRow'
+      products:
+        items:
+          $ref: '#/definitions/db.GetShopProductsRow'
+        type: array
+    type: object
+  pgtype.Int4:
+    properties:
+      int32:
+        type: integer
+      valid:
+        type: boolean
+    type: object
+  router.couponDetail:
+    properties:
+      coupon_info:
+        $ref: '#/definitions/db.SellerGetCouponDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.SellerGetCouponTagRow'
+        type: array
+    type: object
+  router.orderDetail:
+    properties:
+      order_info:
+        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
+      products:
+        items:
+          $ref: '#/definitions/db.SellerGetOrderDetailRow'
+        type: array
+    type: object
   router.productDetail:
     properties:
       product_info:
@@ -922,15 +931,6 @@ definitions:
       tags:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
-        type: array
-    type: object
-  router.shopInfo:
-    properties:
-      info:
-        $ref: '#/definitions/db.GetShopInfoRow'
-      products:
-        items:
-          $ref: '#/definitions/db.GetShopProductsRow'
         type: array
     type: object
 externalDocs:
@@ -1090,7 +1090,7 @@ paths:
         name: coupon
         required: true
         schema:
-          $ref: '#/definitions/router.PrettierCoupon'
+          $ref: '#/definitions/admin.PrettierCoupon'
       produces:
       - application/json
       responses:
@@ -1125,7 +1125,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.adminReport'
+            $ref: '#/definitions/admin.adminReport'
         "400":
           description: Bad Request
           schema:
@@ -1213,7 +1213,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/router.Cart'
+              $ref: '#/definitions/buyer.Cart'
             type: array
         "400":
           description: Bad Request
@@ -1242,7 +1242,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.checkout'
+            $ref: '#/definitions/buyer.checkout'
         "400":
           description: Bad Request
           schema:
@@ -1270,7 +1270,7 @@ paths:
         name: payment_method
         required: true
         schema:
-          $ref: '#/definitions/router.PaymentMethod'
+          $ref: '#/definitions/buyer.PaymentMethod'
       produces:
       - application/json
       responses:
@@ -1449,7 +1449,7 @@ paths:
         name: quantity
         required: true
         schema:
-          $ref: '#/definitions/router.ProductQuantity'
+          $ref: '#/definitions/buyer.ProductQuantity'
       produces:
       - application/json
       responses:
@@ -1485,7 +1485,7 @@ paths:
         name: quantity
         required: true
         schema:
-          $ref: '#/definitions/router.ProductQuantity'
+          $ref: '#/definitions/buyer.ProductQuantity'
       produces:
       - application/json
       responses:
@@ -1555,7 +1555,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.OrderDetail'
+            $ref: '#/definitions/buyer.OrderDetail'
         "400":
           description: Bad Request
           schema:
@@ -1677,7 +1677,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/router.popular'
+              $ref: '#/definitions/general.popular'
             type: array
         "500":
           description: Internal Server Error
@@ -1784,7 +1784,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.PrettierSearchResult'
+            $ref: '#/definitions/general.PrettierSearchResult'
         "400":
           description: Bad Request
           schema:
@@ -1825,7 +1825,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/router.PrettierShopSearchResult'
+              $ref: '#/definitions/general.PrettierShopSearchResult'
             type: array
         "400":
           description: Bad Request
@@ -2789,7 +2789,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.shopInfo'
+            $ref: '#/definitions/general.shopInfo'
         "400":
           description: Bad Request
           schema:
@@ -2921,7 +2921,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.PrettierProductSearchResult'
+            $ref: '#/definitions/general.PrettierProductSearchResult'
         "400":
           description: Bad Request
           schema:

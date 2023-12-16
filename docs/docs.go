@@ -236,7 +236,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.PrettierCoupon"
+                            "$ref": "#/definitions/admin.PrettierCoupon"
                         }
                     }
                 ],
@@ -286,7 +286,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.adminReport"
+                            "$ref": "#/definitions/admin.adminReport"
                         }
                     },
                     "400": {
@@ -416,7 +416,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/router.Cart"
+                                "$ref": "#/definitions/buyer.Cart"
                             }
                         }
                     },
@@ -463,7 +463,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.ProductQuantity"
+                            "$ref": "#/definitions/buyer.ProductQuantity"
                         }
                     }
                 ],
@@ -513,7 +513,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.checkout"
+                            "$ref": "#/definitions/buyer.checkout"
                         }
                     },
                     "400": {
@@ -557,7 +557,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.PaymentMethod"
+                            "$ref": "#/definitions/buyer.PaymentMethod"
                         }
                     }
                 ],
@@ -821,7 +821,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.ProductQuantity"
+                            "$ref": "#/definitions/buyer.ProductQuantity"
                         }
                     }
                 ],
@@ -923,7 +923,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.OrderDetail"
+                            "$ref": "#/definitions/buyer.OrderDetail"
                         }
                     },
                     "400": {
@@ -1107,7 +1107,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/router.popular"
+                                "$ref": "#/definitions/general.popular"
                             }
                         }
                     },
@@ -1263,7 +1263,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.PrettierSearchResult"
+                            "$ref": "#/definitions/general.PrettierSearchResult"
                         }
                     },
                     "400": {
@@ -1325,7 +1325,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/router.PrettierShopSearchResult"
+                                "$ref": "#/definitions/general.PrettierShopSearchResult"
                             }
                         }
                     },
@@ -2732,7 +2732,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.shopInfo"
+                            "$ref": "#/definitions/general.shopInfo"
                         }
                     },
                     "400": {
@@ -2927,7 +2927,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.PrettierProductSearchResult"
+                            "$ref": "#/definitions/general.PrettierProductSearchResult"
                         }
                     },
                     "400": {
@@ -3299,6 +3299,49 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "admin.PrettierCoupon": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "admin.adminReport": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "integer"
+                },
+                "sellers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetTopSellerRow"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
         "auth.signupParams": {
             "type": "object",
             "properties": {
@@ -3317,6 +3360,111 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "john"
+                }
+            }
+        },
+        "buyer.Cart": {
+            "type": "object",
+            "properties": {
+                "cartInfo": {
+                    "$ref": "#/definitions/db.GetCartRow"
+                },
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponsFromCartRow"
+                    }
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductFromCartRow"
+                    }
+                }
+            }
+        },
+        "buyer.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetOrderDetailRow"
+                    }
+                },
+                "info": {
+                    "$ref": "#/definitions/db.GetOrderInfoRow"
+                }
+            }
+        },
+        "buyer.PaymentMethod": {
+            "type": "object",
+            "properties": {
+                "creditCard": {
+                    "type": "object"
+                }
+            }
+        },
+        "buyer.ProductQuantity": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "buyer.checkout": {
+            "type": "object",
+            "properties": {
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/buyer.couponDiscount"
+                    }
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "buyer.couponDiscount": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "discount_value": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -4435,83 +4583,7 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "pgtype.Int4": {
-            "type": "object",
-            "properties": {
-                "int32": {
-                    "type": "integer"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "router.Cart": {
-            "type": "object",
-            "properties": {
-                "cartInfo": {
-                    "$ref": "#/definitions/db.GetCartRow"
-                },
-                "coupons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetCouponsFromCartRow"
-                    }
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetProductFromCartRow"
-                    }
-                }
-            }
-        },
-        "router.OrderDetail": {
-            "type": "object",
-            "properties": {
-                "details": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetOrderDetailRow"
-                    }
-                },
-                "info": {
-                    "$ref": "#/definitions/db.GetOrderInfoRow"
-                }
-            }
-        },
-        "router.PaymentMethod": {
-            "type": "object",
-            "properties": {
-                "creditCard": {
-                    "type": "object"
-                }
-            }
-        },
-        "router.PrettierCoupon": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
-        "router.PrettierProductSearchResult": {
+        "general.PrettierProductSearchResult": {
             "type": "object",
             "properties": {
                 "id": {
@@ -4531,24 +4603,24 @@ const docTemplate = `{
                 }
             }
         },
-        "router.PrettierSearchResult": {
+        "general.PrettierSearchResult": {
             "type": "object",
             "properties": {
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/router.PrettierProductSearchResult"
+                        "$ref": "#/definitions/general.PrettierProductSearchResult"
                     }
                 },
                 "shops": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/router.PrettierProductSearchResult"
+                        "$ref": "#/definitions/general.PrettierProductSearchResult"
                     }
                 }
             }
         },
-        "router.PrettierShopSearchResult": {
+        "general.PrettierShopSearchResult": {
             "type": "object",
             "properties": {
                 "id": {
@@ -4565,60 +4637,45 @@ const docTemplate = `{
                 }
             }
         },
-        "router.ProductQuantity": {
+        "general.popular": {
             "type": "object",
             "properties": {
-                "quantity": {
-                    "type": "integer"
+                "local_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromNearByShopRow"
+                    }
+                },
+                "popular_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
+                    }
                 }
             }
         },
-        "router.adminReport": {
+        "general.shopInfo": {
             "type": "object",
             "properties": {
-                "month": {
-                    "type": "integer"
+                "info": {
+                    "$ref": "#/definitions/db.GetShopInfoRow"
                 },
-                "sellers": {
+                "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.GetTopSellerRow"
+                        "$ref": "#/definitions/db.GetShopProductsRow"
                     }
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "year": {
-                    "type": "integer"
                 }
             }
         },
-        "router.checkout": {
+        "pgtype.Int4": {
             "type": "object",
             "properties": {
-                "coupons": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/router.couponDiscount"
-                    }
-                },
-                "payments": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "shipment": {
+                "int32": {
                     "type": "integer"
                 },
-                "subtotal": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
-                },
-                "total_discount": {
-                    "type": "integer"
+                "valid": {
+                    "type": "boolean"
                 }
             }
         },
@@ -4636,32 +4693,6 @@ const docTemplate = `{
                 }
             }
         },
-        "router.couponDiscount": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "discount_value": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "scope": {
-                    "$ref": "#/definitions/db.CouponScope"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "router.orderDetail": {
             "type": "object",
             "properties": {
@@ -4676,23 +4707,6 @@ const docTemplate = `{
                 }
             }
         },
-        "router.popular": {
-            "type": "object",
-            "properties": {
-                "local_products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetProductsFromNearByShopRow"
-                    }
-                },
-                "popular_products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
-                    }
-                }
-            }
-        },
         "router.productDetail": {
             "type": "object",
             "properties": {
@@ -4703,20 +4717,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
-                    }
-                }
-            }
-        },
-        "router.shopInfo": {
-            "type": "object",
-            "properties": {
-                "info": {
-                    "$ref": "#/definitions/db.GetShopInfoRow"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.GetShopProductsRow"
                     }
                 }
             }
