@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"mime/multipart"
+	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -48,8 +48,27 @@ func String2IntArray(str string) ([]int32, error) {
 }
 func GetFileName(file *multipart.FileHeader) string {
 	id := uuid.New()
-	parts := strings.Split(file.Filename, ".")
-	fileType := parts[len(parts)-1]
-	newFileName := id.String() + "." + fileType
+	newFileName := id.String() + filepath.Ext(file.Filename)
 	return newFileName
+}
+
+func FileMimeFrom(fileName string) string {
+	switch filepath.Ext(fileName) {
+	case ".html":
+		return "text/html"
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".svg":
+		return "image/svg+xml"
+	case ".pdf":
+		return "application/pdf"
+	default:
+		return "application/octet-stream" // default content type
+	}
 }

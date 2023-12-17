@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/minio/minio-go/v7"
 
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -97,6 +98,8 @@ func (mc MC) RemoveFile(ctx context.Context, fileName string) error {
 }
 func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
 	reqParams := make(url.Values)
+	reqParams.Set("response-content-type", common.FileMimeFrom(fileName))
+
 	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, fileName, time.Second*24*60*60, reqParams)
 	if err != nil {
 		//default image if can find image by uuid
