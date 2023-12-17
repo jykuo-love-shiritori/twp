@@ -48,7 +48,8 @@ INSERT INTO "user" (
         "email",
         "address",
         "role",
-        "credit_card"
+        "credit_card",
+        "enabled"
     )
 VALUES (
         $1,
@@ -57,7 +58,8 @@ VALUES (
         $4,
         $5,
         'customer',
-        '{}'
+        '{}',
+        TRUE
     );
 -- name: UserExists :one
 SELECT EXISTS (
@@ -66,3 +68,31 @@ SELECT EXISTS (
         WHERE "username" = $1
             OR "email" = $2
     );
+
+-- user can enter both username and email to verify
+-- but writing "usernameOrEmail" is too long
+-- name: FindUserInfoAndPassword :one
+SELECT "username",
+    "role",
+    "password"
+FROM "user"
+WHERE "username" = $1
+    OR "email" = $1;
+
+-- name: SetRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = @refresh_token,
+    "refresh_token_expire_date" = @expire_date
+WHERE "username" = @username;
+
+-- name: FindUserByRefreshToken :one
+SELECT "username",
+    "role"
+FROM "user"
+WHERE "refresh_token" = @refresh_token
+    AND "refresh_token_expire_date" > NOW();
+
+-- name: DeleteRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = NULL
+WHERE "refresh_token" = @refresh_token;

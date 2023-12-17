@@ -37,7 +37,13 @@ const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
             </div>
           </div>
         </Col>
-        <Col xs={3} md={3} xl={4} className='center' style={{ borderLeft: '2px dashed #AAAAAA' }}>
+        <Col
+          xs={3}
+          md={3}
+          xl={4}
+          className='center'
+          style={{ borderLeft: '2px dashed rgba(255, 255, 255, 0.67)' }}
+        >
           <div>
             <div className='center' style={{ fontSize: '20px', fontWeight: '500', color: 'white' }}>
               exp

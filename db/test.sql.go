@@ -554,7 +554,7 @@ INSERT INTO "user" (
         "enabled"
     )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled
+RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
 `
 
 type TestInsertUserParams struct {
@@ -598,6 +598,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.CreditCard,
 		&i.RefreshToken,
 		&i.Enabled,
+		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }
