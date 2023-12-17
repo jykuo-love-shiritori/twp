@@ -265,10 +265,10 @@ LIMIT $2 OFFSET $3;
 -- name: SellerCheckTags :one
 SELECT NOT EXISTS (
         SELECT 1
-        FROM unnest(sqlc.slice('tags')::INT []) as t
+        FROM unnest(@tags::INT []) t
             LEFT JOIN "tag" ON t = "tag"."id"
             LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
-        WHERE "tag"."id" = NULL
+        WHERE "tag"."id" IS NULL
             OR s."seller_name" != $1
     );
 -- name: SellerInsertProductTags :exec

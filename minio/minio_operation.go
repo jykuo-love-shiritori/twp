@@ -15,6 +15,7 @@ import (
 type MC struct {
 	mcp        *minio.Client
 	BucketName string
+	Hostname   string
 }
 
 func NewMINIO() (*MC, error) {
@@ -33,8 +34,11 @@ func NewMINIO() (*MC, error) {
 	if err != nil {
 		return nil, err
 	}
-	mc := &MC{mcp: mcp, BucketName: os.Getenv("MINIO_BUCKET_NAME")}
-
+	mc := &MC{
+		mcp:        mcp,
+		BucketName: os.Getenv("MINIO_BUCKET_NAME"),
+		Hostname:   os.Getenv("MINIO_PRESIGNED_URL_HOST"),
+	}
 	return mc, nil
 }
 
@@ -98,5 +102,7 @@ func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
 		//default image if can find image by uuid
 		return ""
 	}
+	//overwrite minio host
+	presignedURL.Host = mc.Hostname
 	return presignedURL.String()
 }

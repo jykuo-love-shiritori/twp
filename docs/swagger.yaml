@@ -1300,7 +1300,7 @@ paths:
       - default: 10
         description: limit
         in: query
-        minimum: 20
+        maximum: 20
         name: limit
         required: true
         type: integer
@@ -1396,47 +1396,13 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/coupon/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete coupon for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller delete coupon
-      tags:
-      - Seller
-      - Shop
-      - Coupon
+  /seller/coupon/{coupon_id}:
     get:
       description: Get coupon detail by ID for shop.
       parameters:
       - description: Coupon ID
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: integer
       produces:
@@ -1466,7 +1432,7 @@ paths:
       parameters:
       - description: Coupon ID
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: integer
       - description: Coupon type
@@ -1528,7 +1494,7 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/coupon/{id}/tag:
+  /seller/coupon/{coupon_id}/tag:
     delete:
       consumes:
       - application/json
@@ -1536,7 +1502,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: string
       - description: add tag id
@@ -1577,7 +1543,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: id
+        name: coupon_id
         required: true
         type: string
       - description: add tag id
@@ -1607,6 +1573,41 @@ paths:
       - Shop
       - Coupon
       - Tag
+  /seller/coupon/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: coupon_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
   /seller/info:
     get:
       description: Get shop info, includes user picture, name, description.
@@ -2400,11 +2401,11 @@ paths:
         name: email
         required: true
         type: string
-      - description: image id
+      - description: image file
         in: formData
         name: image
         required: true
-        type: string
+        type: file
       produces:
       - application/json
       responses:

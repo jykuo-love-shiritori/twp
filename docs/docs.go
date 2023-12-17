@@ -1018,7 +1018,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "minimum": 20,
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1156,7 +1156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{id}": {
+        "/seller/coupon/{coupon_id}": {
             "get": {
                 "description": "Get coupon detail by ID for shop.",
                 "produces": [
@@ -1172,7 +1172,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     }
@@ -1186,56 +1186,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller delete coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1266,7 +1216,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     },
@@ -1351,7 +1301,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{id}/tag": {
+        "/seller/coupon/{coupon_id}/tag": {
             "post": {
                 "description": "Add tag on coupon",
                 "consumes": [
@@ -1371,7 +1321,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     },
@@ -1425,7 +1375,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "id",
+                        "name": "coupon_id",
                         "in": "path",
                         "required": true
                     },
@@ -1437,6 +1387,58 @@ const docTemplate = `{
                         "schema": {
                             "type": "integer"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/seller/coupon/{id}": {
+            "delete": {
+                "description": "Delete coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller delete coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "coupon_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2634,8 +2636,8 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "image id",
+                        "type": "file",
+                        "description": "image file",
                         "name": "image",
                         "in": "formData",
                         "required": true

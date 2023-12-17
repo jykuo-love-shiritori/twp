@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
@@ -199,7 +200,7 @@ func sellerAddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
 // @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
-// @Param			limit	query	int	true	"limit"			default(10)	minimum(20)
+// @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -234,11 +235,11 @@ func sellerGetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 // @Description	Get coupon detail by ID for shop.
 // @Tags			Seller, Shop, Coupon
 // @Produce		json
-// @Param			id	path		int	true	"Coupon ID"
-// @success		200	{object}	CouponDetail
-// @Failure		400	{object}	echo.HTTPError
-// @Failure		500	{object}	echo.HTTPError
-// @Router			/seller/coupon/{id} [get]
+// @Param			coupon_id	path		int	true	"Coupon ID"
+// @success		200			{object}	CouponDetail
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/seller/coupon/{coupon_id} [get]
 func sellerGetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -293,8 +294,15 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), db.SellerCheckTagsParams{SellerName: username, Tags: param.Tags})
-		if err != nil || !valid {
+		if err != nil {
 			logger.Error(valid, err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if !valid {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), db.SellerInsertCouponParams{
@@ -323,13 +331,13 @@ func sellerAddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on coupon
 // @Tags			Seller, Shop, Coupon,Tag
 // @Accept			json
-// @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	int		true	"add tag id"
+// @Param			coupon_id	path	string	true	"coupon id"
+// @Param			tag_id		body	int		true	"add tag id"
 // @Produce		json
 // @success		200	{object}	db.CouponTag
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/seller/coupon/{id}/tag [post]
+// @Router			/seller/coupon/{coupon_id}/tag [post]
 func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -354,7 +362,7 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Seller, Shop, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			id			path		int		true	"Coupon ID"
+// @Param			coupon_id	path		int		true	"Coupon ID"
 // @Param			type		body		string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
 // @Param			name		body		string	true	"name of coupon"
 // @Param			description	body		string	true	"description of coupon"
@@ -364,7 +372,7 @@ func sellerAddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @success		200			{object}	db.SellerUpdateCouponInfoRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
-// @Router			/seller/coupon/{id} [patch]
+// @Router			/seller/coupon/{coupon_id} [patch]
 func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -374,6 +382,10 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
 		coupon, err := pg.Queries.SellerUpdateCouponInfo(c.Request().Context(), param)
@@ -388,7 +400,7 @@ func sellerEditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete coupon
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			id	path	int	true	"Coupon ID"
+// @Param			coupon_id	path	int	true	"Coupon ID"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"
@@ -423,15 +435,15 @@ func sellerDeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete coupon tag
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon,Tag
-// @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	int		true	"add tag id"
+// @Param			coupon_id	path	string	true	"coupon id"
+// @Param			tag_id		body	int		true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/seller/coupon/{id}/tag [delete]
+// @Router			/seller/coupon/{coupon_id}/tag [delete]
 func sellerDeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -720,6 +732,10 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		//check expire time
+		if param.ExpireDate.Time.Before(time.Now()) {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
 		// formData is string so have to manually convert sting to int array
 		tags, err := common.String2IntArray(c.FormValue("tags"))
 		if err != nil {
@@ -727,8 +743,12 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), db.SellerCheckTagsParams{SellerName: username, Tags: tags})
-		if err != nil || !valid {
-			logger.Error(valid, err)
+		// valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), tags)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if !valid {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 
@@ -816,6 +836,10 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 		}
 		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
 			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(time.Now()) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		product, err := pg.Queries.SellerUpdateProductInfo(c.Request().Context(), param)

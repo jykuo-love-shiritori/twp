@@ -118,10 +118,10 @@ func (q *Queries) SellerBestSellProduct(ctx context.Context, arg SellerBestSellP
 const sellerCheckTags = `-- name: SellerCheckTags :one
 SELECT NOT EXISTS (
         SELECT 1
-        FROM unnest($2::INT []) as t
+        FROM unnest($2::INT []) t
             LEFT JOIN "tag" ON t = "tag"."id"
             LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
-        WHERE "tag"."id" = NULL
+        WHERE "tag"."id" IS NULL
             OR s."seller_name" != $1
     )
 `

@@ -1,10 +1,12 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -42,7 +44,7 @@ func userGetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Param			name	formData	string	true	"name of coupon"
 // @Param			address	formData	string	true	"user address"
 // @Param			email	formData	string	true	"email"
-// @Param			image	formData	string	true	"image id"
+// @Param			image	formData	file	true	"image file"
 // @Accept			json
 // @Produce		json
 // @success		200	{object}	db.UserUpdateInfoRow
@@ -60,15 +62,19 @@ func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handl
 		}
 		fileHeader, err := c.FormFile("image")
 		//if have file then store in minio
-		if fileHeader != nil && err == nil {
-			ImageID, err := mc.PutFile(c.Request().Context(), fileHeader)
+		if err == nil {
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			param.ImageID = ImageID
-		} else {
+			param.ImageID = imageID
+		} else if errors.Is(err, http.ErrMissingFile) {
+			//use the origin image
 			param.ImageID = ""
+		} else {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		param.Username = username
 		user, err := pg.Queries.UserUpdateInfo(c.Request().Context(), param)
