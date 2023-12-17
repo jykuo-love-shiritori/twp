@@ -317,7 +317,7 @@ definitions:
         type: string
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -328,7 +328,7 @@ definitions:
         type: string
       id:
         $ref: '#/definitions/pgtype.Int4'
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -336,8 +336,6 @@ definitions:
         type: number
       quantity:
         type: integer
-      version:
-        $ref: '#/definitions/pgtype.Int4'
     type: object
   db.SellerGetOrderHistoryRow:
     properties:
@@ -345,7 +343,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       shipment:
         type: integer
@@ -360,7 +358,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       shipment:
         type: integer
@@ -373,7 +371,7 @@ definitions:
     properties:
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -422,7 +420,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -446,7 +444,7 @@ definitions:
         type: boolean
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -489,7 +487,7 @@ definitions:
         type: string
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -519,7 +517,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -536,7 +534,7 @@ definitions:
         type: string
       email:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -547,7 +545,7 @@ definitions:
         type: string
       email:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -558,7 +556,7 @@ definitions:
         type: string
       email:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -573,24 +571,6 @@ definitions:
         type: integer
       valid:
         type: boolean
-    type: object
-  router.CouponDetail:
-    properties:
-      coupon_info:
-        $ref: '#/definitions/db.SellerGetCouponDetailRow'
-      tags:
-        items:
-          $ref: '#/definitions/db.SellerGetCouponTagRow'
-        type: array
-    type: object
-  router.OrderDetail:
-    properties:
-      order_info:
-        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
-      products:
-        items:
-          $ref: '#/definitions/db.SellerGetOrderDetailRow'
-        type: array
     type: object
   router.PrettierCoupon:
     properties:
@@ -607,7 +587,25 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  router.ProductDetail:
+  seller.CouponDetail:
+    properties:
+      coupon_info:
+        $ref: '#/definitions/db.SellerGetCouponDetailRow'
+      tags:
+        items:
+          $ref: '#/definitions/db.SellerGetCouponTagRow'
+        type: array
+    type: object
+  seller.OrderDetail:
+    properties:
+      order_info:
+        $ref: '#/definitions/db.SellerGetOrderHistoryRow'
+      products:
+        items:
+          $ref: '#/definitions/db.SellerGetOrderDetailRow'
+        type: array
+    type: object
+  seller.ProductDetail:
     properties:
       product_info:
         $ref: '#/definitions/db.SellerGetProductDetailRow'
@@ -1411,7 +1409,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.CouponDetail'
+            $ref: '#/definitions/seller.CouponDetail'
         "400":
           description: Bad Request
           schema:
@@ -1780,7 +1778,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.OrderDetail'
+            $ref: '#/definitions/seller.OrderDetail'
         "400":
           description: Bad Request
           schema:
@@ -1948,7 +1946,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.ProductDetail'
+            $ref: '#/definitions/seller.ProductDetail'
         "400":
           description: Bad Request
           schema:

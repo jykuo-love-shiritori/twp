@@ -1181,7 +1181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.CouponDetail"
+                            "$ref": "#/definitions/seller.CouponDetail"
                         }
                     },
                     "400": {
@@ -1719,7 +1719,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.OrderDetail"
+                            "$ref": "#/definitions/seller.OrderDetail"
                         }
                     },
                     "400": {
@@ -1913,7 +1913,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.ProductDetail"
+                            "$ref": "#/definitions/seller.ProductDetail"
                         }
                     },
                     "400": {
@@ -3279,7 +3279,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3296,7 +3296,7 @@ const docTemplate = `{
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3307,9 +3307,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                },
-                "version": {
-                    "$ref": "#/definitions/pgtype.Int4"
                 }
             }
         },
@@ -3322,7 +3319,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "shipment": {
@@ -3345,7 +3342,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "shipment": {
@@ -3365,7 +3362,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3440,7 +3437,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3477,7 +3474,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3543,7 +3540,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3589,7 +3586,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3615,7 +3612,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3632,7 +3629,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3649,7 +3646,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3671,34 +3668,6 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
-                }
-            }
-        },
-        "router.CouponDetail": {
-            "type": "object",
-            "properties": {
-                "coupon_info": {
-                    "$ref": "#/definitions/db.SellerGetCouponDetailRow"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.SellerGetCouponTagRow"
-                    }
-                }
-            }
-        },
-        "router.OrderDetail": {
-            "type": "object",
-            "properties": {
-                "order_info": {
-                    "$ref": "#/definitions/db.SellerGetOrderHistoryRow"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/db.SellerGetOrderDetailRow"
-                    }
                 }
             }
         },
@@ -3725,7 +3694,35 @@ const docTemplate = `{
                 }
             }
         },
-        "router.ProductDetail": {
+        "seller.CouponDetail": {
+            "type": "object",
+            "properties": {
+                "coupon_info": {
+                    "$ref": "#/definitions/db.SellerGetCouponDetailRow"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerGetCouponTagRow"
+                    }
+                }
+            }
+        },
+        "seller.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "order_info": {
+                    "$ref": "#/definitions/db.SellerGetOrderHistoryRow"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerGetOrderDetailRow"
+                    }
+                }
+            }
+        },
+        "seller.ProductDetail": {
             "type": "object",
             "properties": {
                 "product_info": {
