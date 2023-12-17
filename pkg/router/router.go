@@ -13,6 +13,8 @@ import (
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/router/seller"
+	"github.com/jykuo-love-shiritori/twp/pkg/router/user"
 )
 
 //	@title			twp API
@@ -71,12 +73,12 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.GET("/admin/report", adminGetReport(pg, logger))
 
 	// user
-	api.GET("/user/info", userGetInfo(pg, mc, logger))
-	api.PATCH("/user/info", userEditInfo(pg, mc, logger))
-	api.POST("/user/security/password", userEditPassword(pg, logger))
+	api.GET("/user/info", user.GetInfo(pg, mc, logger))
+	api.PATCH("/user/info", user.EditInfo(pg, mc, logger))
+	api.POST("/user/security/password", user.EditPassword(pg, logger))
 
-	api.GET("/user/security/credit_card", userGetCreditCard(pg, logger))
-	api.PATCH("/user/security/credit_card", userUpdateCreditCard(pg, logger))
+	api.GET("/user/security/credit_card", user.GetCreditCard(pg, logger))
+	api.PATCH("/user/security/credit_card", user.UpdateCreditCard(pg, logger))
 
 	// general
 	api.GET("/shop/:seller_name", getShopInfo(pg, logger)) // user
@@ -109,39 +111,39 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.POST("/buyer/cart/:cart_id/checkout", buyerCheckout(pg, logger))
 
 	// seller
-	api.GET("/seller/info", sellerGetShopInfo(pg, mc, logger))
-	api.PATCH("/seller/info", sellerEditInfo(pg, mc, logger))
-	api.GET("/seller/tag", sellerGetTag(pg, logger))  // search available tag
-	api.POST("/seller/tag", sellerAddTag(pg, logger)) // add tag for shop
+	api.GET("/seller/info", seller.GetShopInfo(pg, mc, logger))
+	api.PATCH("/seller/info", seller.EditInfo(pg, mc, logger))
+	api.GET("/seller/tag", seller.GetTag(pg, logger))  // search available tag
+	api.POST("/seller/tag", seller.AddTag(pg, logger)) // add tag for shop
 
-	api.GET("/seller/coupon", sellerGetShopCoupon(pg, logger))
+	api.GET("/seller/coupon", seller.GetShopCoupon(pg, logger))
 	//sqlc only take one path param tag overwrite
-	api.GET("/seller/coupon/:coupon_id", sellerGetCouponDetail(pg, logger))
-	api.POST("/seller/coupon", sellerAddCoupon(pg, logger))
-	api.PATCH("/seller/coupon/:coupon_id", sellerEditCoupon(pg, logger))
-	api.DELETE("/seller/coupon/:coupon_id", sellerDeleteCoupon(pg, logger))
-	api.POST("/seller/coupon/:coupon_id/tag", sellerAddCouponTag(pg, logger))
-	api.DELETE("/seller/coupon/:coupon_id/tag", sellerDeleteCouponTag(pg, logger))
+	api.GET("/seller/coupon/:coupon_id", seller.GetCouponDetail(pg, logger))
+	api.POST("/seller/coupon", seller.AddCoupon(pg, logger))
+	api.PATCH("/seller/coupon/:coupon_id", seller.EditCoupon(pg, logger))
+	api.DELETE("/seller/coupon/:coupon_id", seller.DeleteCoupon(pg, logger))
+	api.POST("/seller/coupon/:coupon_id/tag", seller.AddCouponTag(pg, logger))
+	api.DELETE("/seller/coupon/:coupon_id/tag", seller.DeleteCouponTag(pg, logger))
 
-	api.GET("/seller/order", sellerGetOrder(pg, mc, logger))
-	api.GET("/seller/order/:id", sellerGetOrderDetail(pg, mc, logger))
-	api.PATCH("/seller/order/:id", sellerUpdateOrderStatus(pg, logger))
+	api.GET("/seller/order", seller.GetOrder(pg, mc, logger))
+	api.GET("/seller/order/:id", seller.GetOrderDetail(pg, mc, logger))
+	api.PATCH("/seller/order/:id", seller.UpdateOrderStatus(pg, logger))
 
-	api.GET("/seller/report/:year/:month", sellerGetReportDetail(pg, mc, logger))
+	api.GET("/seller/report/:year/:month", seller.GetReportDetail(pg, mc, logger))
 
-	api.GET("/seller/product", sellerListProduct(pg, mc, logger))
-	api.POST("/seller/product", sellerAddProduct(pg, mc, logger))
-	api.GET("/seller/product/:product_id", sellerGetProductDetail(pg, mc, logger))
-	api.PATCH("/seller/product/:product_id", sellerEditProduct(pg, mc, logger))
-	api.POST("/seller/product/:product_id/tag", sellerAddProductTag(pg, logger))
-	api.DELETE("/seller/product/:product_id/tag", sellerDeleteProductTag(pg, logger))
-	api.DELETE("/seller/product/:product_id", sellerDeleteProduct(pg, logger))
+	api.GET("/seller/product", seller.ListProduct(pg, mc, logger))
+	api.POST("/seller/product", seller.AddProduct(pg, mc, logger))
+	api.GET("/seller/product/:product_id", seller.GetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:product_id", seller.EditProduct(pg, mc, logger))
+	api.POST("/seller/product/:product_id/tag", seller.AddProductTag(pg, logger))
+	api.DELETE("/seller/product/:product_id/tag", seller.DeleteProductTag(pg, logger))
+	api.DELETE("/seller/product/:product_id", seller.DeleteProduct(pg, logger))
 
-	api.GET("/seller/product", sellerListProduct(pg, mc, logger))
-	api.POST("/seller/product", sellerAddProduct(pg, mc, logger))
-	api.GET("/seller/product/:id", sellerGetProductDetail(pg, mc, logger))
-	api.PATCH("/seller/product/:id", sellerEditProduct(pg, mc, logger))
-	api.POST("/seller/product/:id/tag", sellerAddProductTag(pg, logger))
-	api.DELETE("/seller/product/:id/tag", sellerDeleteProductTag(pg, logger))
-	api.DELETE("/seller/product/:id", sellerDeleteProduct(pg, logger))
+	api.GET("/seller/product", seller.ListProduct(pg, mc, logger))
+	api.POST("/seller/product", seller.AddProduct(pg, mc, logger))
+	api.GET("/seller/product/:id", seller.GetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:id", seller.EditProduct(pg, mc, logger))
+	api.POST("/seller/product/:id/tag", seller.AddProductTag(pg, logger))
+	api.DELETE("/seller/product/:id/tag", seller.DeleteProductTag(pg, logger))
+	api.DELETE("/seller/product/:id", seller.DeleteProduct(pg, logger))
 }

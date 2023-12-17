@@ -1,4 +1,4 @@
-package router
+package user
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ type updatePasswordParams struct {
 // @success		200	{object}	db.UserGetInfoRow
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/info [get]
-func userGetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
@@ -51,7 +51,7 @@ func userGetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/info [patch]
-func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -61,7 +61,7 @@ func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handl
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
-		//if have file then store in minio
+		//if have file then store in miniopkg/router/seller
 		if err == nil {
 			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
 			if err != nil {
@@ -99,7 +99,7 @@ func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handl
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/security/password [post]
-func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		var param updatePasswordParams
@@ -138,7 +138,7 @@ func userEditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Success		200	{object}	json.RawMessage
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/security/credit_card [get]
-func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
@@ -161,7 +161,7 @@ func userGetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
 // @Router			/user/security/credit_card [patch]
-func userUpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+func UpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 		var param db.UserUpdateCreditCardParams

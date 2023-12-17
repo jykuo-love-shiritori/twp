@@ -1,0 +1,359 @@
+package seller
+
+import (
+	"errors"
+	"net/http"
+	"time"
+
+	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
+)
+
+type ProductDetail struct {
+	ProductInfo db.SellerGetProductDetailRow `json:"product_info"`
+	Tags        []db.SellerGetProductTagRow  `json:"tags"`
+}
+
+// @Summary		Seller get product
+// @Description	Delete product for shop.
+// @Tags			Seller, Shop, Product
+// @Accept			json
+// @Produce		json
+// @Param			id	path		int	true	"Product ID"
+// @Success		200	{object}	ProductDetail
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product/{id} [get]
+func GetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var err error
+		var username string = "user1"
+		var param db.SellerGetProductDetailParams
+
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		param.SellerName = username
+
+		var result ProductDetail
+		result.ProductInfo, err = pg.Queries.SellerGetProductDetail(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		result.Tags, err = pg.Queries.SellerGetProductTag(c.Request().Context(), db.SellerGetProductTagParams{SellerName: username, ProductID: param.ID})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		result.ProductInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), result.ProductInfo.ImageUrl)
+		return c.JSON(http.StatusOK, result)
+	}
+}
+
+// @Summary		Seller get product
+// @Description	seller get product
+// @Tags			Seller, Shop, Product
+// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
+// @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		db.SellerProductListRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product [get]
+func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var requestParam common.QueryParams
+		if err := c.Bind(&requestParam); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if requestParam.Validate() != nil {
+			logger.Errorw("invalid query parameter", "offset", requestParam.Offset, "limit", requestParam.Limit)
+			return echo.NewHTTPError(http.StatusBadRequest, "offset or limit is invalid")
+		}
+		param := db.SellerProductListParams{SellerName: username, Limit: requestParam.Limit, Offset: requestParam.Offset}
+		productsRow, err := pg.Queries.SellerProductList(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		for i := range productsRow {
+			productsRow[i].ImageUrl = mc.GetFileURL(c.Request().Context(), productsRow[i].ImageUrl)
+		}
+		return c.JSON(http.StatusOK, productsRow)
+	}
+}
+
+// @Summary		Seller add product
+// @Description	Add product for shop.
+// @Tags			Seller, Shop, Product
+// @Param			name		formData	string	true	"name of product"
+// @Param			description	formData	string	true	"description of product"
+// @Param			price		formData	number	false	"price"
+// @Param			image		formData	file	true	"image id"
+// @Param			expire_date	formData	time	true	"expire date"
+// @Param			stock		formData	int		true	"stock"
+// @Param			enabled		formData	time	true	"enabled"
+// @Param			tags		formData	[]int32	true	"init tags"
+// @Accept			mpfd
+// @Produce		json
+// @Success		200	{object}	db.SellerInsertProductRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product [post]
+func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var param db.SellerInsertProductParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		// fail to bind the pgtype.decimal have to manually load with scan function
+		if err := param.Price.Scan(c.FormValue("price")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		// fail to bind the pgtype.timestamptz have to manually load scan function
+		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(time.Now()) {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		// formData is string so have to manually convert sting to int array
+		tags, err := common.String2IntArray(c.FormValue("tags"))
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), db.SellerCheckTagsParams{SellerName: username, Tags: tags})
+		// valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), tags)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if !valid {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+
+		//add product must have image
+		fileHeader, err := c.FormFile("image")
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//put file to minio
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		param.ImageID = ImageID
+		param.SellerName = username
+		product, err := pg.Queries.SellerInsertProduct(c.Request().Context(), param)
+		if err != nil {
+			if param.ImageID != "" {
+				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
+				if err != nil {
+					logger.Error(err)
+					return echo.NewHTTPError(http.StatusInternalServerError)
+				}
+			}
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		err = pg.Queries.SellerInsertProductTags(c.Request().Context(), db.SellerInsertProductTagsParams{ProductID: product.ID, Tags: tags})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
+		return c.JSON(http.StatusOK, product)
+	}
+}
+
+// @Summary		Seller edit product
+// @Description	Edit product for shop.
+// @Tags			Seller, Shop, Product
+// @Accept			mpfd
+// @Produce		json
+// @Param			id			path		int		true	"Product ID"
+// @Param			name		formData	string	true	"name of product"
+// @Param			description	formData	string	true	"description of product"
+// @Param			price		formData	number	false	"price"
+// @Param			image		formData	file	true	"image file"
+// @Param			expire_date	formData	time	true	"expire date"
+// @Param			stock		formData	int		true	"stock"
+// @Param			enabled		formData	time	true	"enabled"
+// @Success		200			{object}	db.SellerUpdateProductInfoRow
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/seller/product/{id} [patch]
+func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var param db.SellerUpdateProductInfoParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		fileHeader, err := c.FormFile("image")
+		if err == nil {
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+			if err != nil {
+				logger.Error(err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			param.ImageID = imageID
+		} else if errors.Is(err, http.ErrMissingFile) {
+			//use the origin image
+			param.ImageID = ""
+		} else {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		param.SellerName = username
+		if err := param.Price.Scan(c.FormValue("price")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(time.Now()) {
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		product, err := pg.Queries.SellerUpdateProductInfo(c.Request().Context(), param)
+		if err != nil {
+			if param.ImageID != "" {
+				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
+				if err != nil {
+					logger.Error(err)
+					return echo.NewHTTPError(http.StatusInternalServerError)
+				}
+			}
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
+		return c.JSON(http.StatusOK, product)
+	}
+}
+
+// @Summary		Seller delete product
+// @Description	Delete product for shop.
+// @Tags			Seller, Shop, Product
+// @Accept			json
+// @Produce		json
+// @Param			id	path		int		true	"Product ID"
+// @Success		200	{string}	string	"success"
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product/{id} [delete]
+func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var param db.SellerDeleteProductParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+
+		}
+		param.SellerName = username
+		effectRow, err := pg.Queries.SellerDeleteProduct(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if effectRow == 0 {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
+		return c.JSON(http.StatusOK, constants.SUCCESS)
+
+	}
+}
+
+// @Summary		Seller add product tag
+// @Description	Add tag on product
+// @Tags			Seller, Shop, Product,Tag
+// @Accept			json
+// @Param			id		path	string	true	"product id"
+// @Param			tag_id	body	int		true	"add tag id"
+// @Produce		json
+// @Success		200	{object}	db.ProductTag
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product/{id}/tag [post]
+func AddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var param db.SellerInsertProductTagParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		param.SellerName = username
+		productTag, err := pg.Queries.SellerInsertProductTag(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		return c.JSON(http.StatusOK, productTag)
+	}
+}
+
+// @Summary		Seller delete product tag
+// @Description	Delete product for shop.
+// @Tags			Seller, Shop, Coupon
+// @Param			id		path	int	true	"product id"
+// @Param			tag_id	body	int	true	"add tag id"
+// @Accept			json
+// @Produce		json
+// @Success		200	{string}	string	"success"
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		404	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/product/{id}/tag [delete]
+func DeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var username string = "user1"
+
+		var param db.SellerDeleteProductTagParams
+		if err := c.Bind(&param); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+
+		}
+		param.SellerName = username
+		effectRow, err := pg.Queries.SellerDeleteProductTag(c.Request().Context(), param)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if effectRow == 0 {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusNotFound)
+		}
+		return c.JSON(http.StatusOK, constants.SUCCESS)
+	}
+}
