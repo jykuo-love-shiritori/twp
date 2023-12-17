@@ -33,7 +33,7 @@ func userGetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		user.ImageID = mc.GetFileURL(c.Request().Context(), user.ImageID)
+		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -83,7 +83,7 @@ func userEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handl
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
-		user.ImageID = mc.GetFileURL(c.Request().Context(), user.ImageID)
+		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }

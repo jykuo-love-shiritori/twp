@@ -165,16 +165,16 @@ const userGetInfo = `-- name: UserGetInfo :one
 SELECT "name",
     "email",
     "address",
-    "image_id"
+    "image_id" as "image_url"
 FROM "user" u
 WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	Name    string `form:"name" json:"name"`
-	Email   string `form:"email" json:"email"`
-	Address string `form:"address" json:"address"`
-	ImageID string `json:"image_id" swaggertype:"string"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
@@ -184,7 +184,7 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 		&i.Name,
 		&i.Email,
 		&i.Address,
-		&i.ImageID,
+		&i.ImageUrl,
 	)
 	return i, err
 }
@@ -234,7 +234,7 @@ WHERE "username" = $1
 RETURNING "name",
     "email",
     "address",
-    "image_id"
+    "image_id" as "image_url"
 `
 
 type UserUpdateInfoParams struct {
@@ -246,10 +246,10 @@ type UserUpdateInfoParams struct {
 }
 
 type UserUpdateInfoRow struct {
-	Name    string `form:"name" json:"name"`
-	Email   string `form:"email" json:"email"`
-	Address string `form:"address" json:"address"`
-	ImageID string `json:"image_id" swaggertype:"string"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
@@ -265,7 +265,7 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 		&i.Name,
 		&i.Email,
 		&i.Address,
-		&i.ImageID,
+		&i.ImageUrl,
 	)
 	return i, err
 }
@@ -277,7 +277,7 @@ WHERE "username" = $1
 RETURNING "name",
     "email",
     "address",
-    "image_id"
+    "image_id" as "image_url"
 `
 
 type UserUpdatePasswordParams struct {
@@ -286,10 +286,10 @@ type UserUpdatePasswordParams struct {
 }
 
 type UserUpdatePasswordRow struct {
-	Name    string `form:"name" json:"name"`
-	Email   string `form:"email" json:"email"`
-	Address string `form:"address" json:"address"`
-	ImageID string `json:"image_id" swaggertype:"string"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
@@ -299,7 +299,7 @@ func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePassword
 		&i.Name,
 		&i.Email,
 		&i.Address,
-		&i.ImageID,
+		&i.ImageUrl,
 	)
 	return i, err
 }

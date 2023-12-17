@@ -1,6 +1,6 @@
 -- name: SellerGetInfo :one
 SELECT "name",
-    "image_id",
+    "image_id" as "image_url",
     "description",
     "enabled"
 FROM "shop"
@@ -16,7 +16,7 @@ SET "image_id" = CASE
     "enabled" = COALESCE($4, "enabled")
 WHERE "seller_name" = $1
 RETURNING "name",
-    "image_id",
+    "image_id" as "image_url",
     "description",
     "enabled";
 -- name: SellerSearchTag :many
@@ -143,7 +143,7 @@ WHERE c."id" = $2
     );
 -- name: SellerGetOrder :many
 SELECT "id",
-    "image_id",
+    "image_id" as "image_url",
     "shipment",
     "total_price",
     "status",
@@ -158,7 +158,7 @@ ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3;
 -- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
-    "order_history"."image_id",
+    "order_history"."image_id" as "image_url",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
@@ -168,7 +168,11 @@ FROM "order_history"
 WHERE shop.seller_name = $1
     AND order_history.id = $2;
 -- name: SellerGetOrderDetail :many
-SELECT product_archive.*,
+SELECT product_archive."id",
+    product_archive."name",
+    product_archive."description",
+    product_archive."price",
+    product_archive."image_id" as "image_url",
     order_detail.quantity
 FROM "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
@@ -198,7 +202,7 @@ RETURNING oh."id",
 SELECT order_detail.product_id,
     product_archive.name,
     product_archive.price,
-    product_archive.image_id,
+    product_archive.image_id as "image_url",
     SUM(order_detail.quantity) AS total_quantity,
     SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
     COUNT(order_history.id) AS order_count
@@ -240,7 +244,7 @@ WHERE shop.seller_name = $1
     )::INT = sqlc.arg('year')::INT;
 -- name: SellerGetProductDetail :one
 SELECT p."name",
-    p."image_id",
+    p."image_id" as "image_url",
     p."price",
     p."sales",
     p."stock",
@@ -252,7 +256,7 @@ WHERE s.seller_name = $1
 -- name: SellerProductList :many
 SELECT p."id",
     p."name",
-    p."image_id",
+    p."image_id" as "image_url",
     p."price",
     p."sales",
     p."stock",
@@ -311,7 +315,7 @@ RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" as "image_url",
     "expire_date",
     "edit_date",
     "stock",
@@ -342,7 +346,7 @@ RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" as "image_url",
     "expire_date",
     "edit_date",
     "stock",

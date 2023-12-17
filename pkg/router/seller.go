@@ -61,7 +61,7 @@ func sellerGetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		shopInfo.ImageID = mc.GetFileURL(c.Request().Context(), shopInfo.ImageID)
+		shopInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), shopInfo.ImageUrl)
 		return c.JSON(http.StatusOK, shopInfo)
 	}
 }
@@ -117,7 +117,7 @@ func sellerEditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		shopInfo.ImageID = mc.GetFileURL(c.Request().Context(), shopInfo.ImageID)
+		shopInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), shopInfo.ImageUrl)
 
 		return c.JSON(http.StatusOK, shopInfo)
 	}
@@ -501,7 +501,7 @@ func sellerGetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orders {
-			orders[i].ImageID = mc.GetFileURL(c.Request().Context(), orders[i].ImageID)
+			orders[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -540,9 +540,9 @@ func sellerGetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) ec
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.OrderInfo.ImageID = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ImageID)
+		result.OrderInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ImageUrl)
 		for i := range result.Products {
-			result.Products[i].ImageID = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageID)
+			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -615,7 +615,7 @@ func sellerGetReportDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) e
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result.Products {
-			result.Products[i].ImageID = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageID)
+			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -654,7 +654,7 @@ func sellerGetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) 
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.ProductInfo.ImageID = mc.GetFileURL(c.Request().Context(), result.ProductInfo.ImageID)
+		result.ProductInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), result.ProductInfo.ImageUrl)
 		return c.JSON(http.StatusOK, result)
 	}
 }
@@ -690,7 +690,7 @@ func sellerListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range productsRow {
-			productsRow[i].ImageID = mc.GetFileURL(c.Request().Context(), productsRow[i].ImageID)
+			productsRow[i].ImageUrl = mc.GetFileURL(c.Request().Context(), productsRow[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, productsRow)
 	}
@@ -783,7 +783,7 @@ func sellerAddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		product.ImageID = mc.GetFileURL(c.Request().Context(), product.ImageID)
+		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
 		return c.JSON(http.StatusOK, product)
 	}
 }
@@ -854,7 +854,7 @@ func sellerEditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		product.ImageID = mc.GetFileURL(c.Request().Context(), product.ImageID)
+		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
 		return c.JSON(http.StatusOK, product)
 	}
 }
