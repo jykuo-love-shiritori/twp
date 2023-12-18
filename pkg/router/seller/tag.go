@@ -26,6 +26,7 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var param db.SellerSearchTagParams
 		param.Name = c.QueryParam("name")
 		if param.Name == "" || common.HasRegexSpecialChars(param.Name) {
+			logger.Errorw("search tag name is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
@@ -62,6 +63,7 @@ func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		}
 		if param.Name == "" || common.HasRegexSpecialChars(param.Name) {
+			logger.Errorw("tag name is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
@@ -71,6 +73,7 @@ func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if have {
+			logger.Errorw("tag name not unique")
 			return echo.NewHTTPError(http.StatusConflict)
 		}
 		tag, err := pg.Queries.SellerInsertTag(c.Request().Context(), db.SellerInsertTagParams(param))

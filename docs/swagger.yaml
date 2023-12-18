@@ -1352,6 +1352,7 @@ paths:
       - description: discount
         in: body
         name: discount
+        required: true
         schema:
           type: number
       - description: start date
@@ -1458,6 +1459,7 @@ paths:
       - description: discount
         in: body
         name: discount
+        required: true
         schema:
           type: number
       - description: start date
@@ -1642,7 +1644,6 @@ paths:
       - description: image file
         in: formData
         name: image
-        required: true
         type: file
       - description: update description
         in: formData
@@ -1856,6 +1857,7 @@ paths:
       - description: price
         in: formData
         name: price
+        required: true
         type: number
       - description: image id
         in: formData
@@ -1983,11 +1985,11 @@ paths:
       - description: price
         in: formData
         name: price
+        required: true
         type: number
       - description: image file
         in: formData
         name: image
-        required: true
         type: file
       - description: stock
         in: formData

@@ -1093,6 +1093,7 @@
                         "description": "discount",
                         "name": "discount",
                         "in": "body",
+                        "required": true,
                         "schema": {
                             "type": "number"
                         }
@@ -1250,6 +1251,7 @@
                         "description": "discount",
                         "name": "discount",
                         "in": "body",
+                        "required": true,
                         "schema": {
                             "type": "number"
                         }
@@ -1521,8 +1523,7 @@
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -1829,7 +1830,8 @@
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
@@ -2014,14 +2016,14 @@
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",

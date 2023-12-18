@@ -98,7 +98,7 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Tags			Seller, Shop, Product
 // @Param			name		formData	string	true	"name of product"
 // @Param			description	formData	string	true	"description of product"
-// @Param			price		formData	number	false	"price"
+// @Param			price		formData	number	true	"price"
 // @Param			image		formData	file	true	"image id"
 // @Param			expire_date	formData	time	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
@@ -131,6 +131,17 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 		}
 		//check expire time
 		if param.ExpireDate.Time.Before(time.Now()) {
+			logger.Errorw("expire date is invalid")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check Price range
+		if v, err := param.Price.Float64Value(); err != nil || v.Float64 < 0 {
+			logger.Errorw("price is invalid")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check stock
+		if param.Stock < 0 {
+			logger.Errorw("stock is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		// formData is string so have to manually convert sting to int array
@@ -140,12 +151,12 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), db.SellerCheckTagsParams{SellerName: username, Tags: tags})
-		// valid, err := pg.Queries.SellerCheckTags(c.Request().Context(), tags)
 		if err != nil {
 			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if !valid {
+			logger.Errorw("tags is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 
@@ -193,8 +204,8 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 // @Param			id			path		int		true	"Product ID"
 // @Param			name		formData	string	true	"name of product"
 // @Param			description	formData	string	true	"description of product"
-// @Param			price		formData	number	false	"price"
-// @Param			image		formData	file	true	"image file"
+// @Param			price		formData	number	true	"price"
+// @Param			image		formData	file	false	"image file"
 // @Param			expire_date	formData	time	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
 // @Param			enabled		formData	time	true	"enabled"
@@ -209,6 +220,24 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 		var param db.SellerUpdateProductInfoParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := param.Price.Scan(c.FormValue("price")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check Price range
+		if v, err := param.Price.Float64Value(); err != nil || v.Float64 < 0 {
+			logger.Errorw("price is invalid")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check expire time
+		if param.ExpireDate.Time.Before(time.Now()) {
+			logger.Errorw("expire date is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
@@ -227,18 +256,6 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		param.SellerName = username
-		if err := param.Price.Scan(c.FormValue("price")); err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-		}
-		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusBadRequest)
-		}
-		//check expire time
-		if param.ExpireDate.Time.Before(time.Now()) {
-			return echo.NewHTTPError(http.StatusBadRequest)
-		}
 		product, err := pg.Queries.SellerUpdateProductInfo(c.Request().Context(), param)
 		if err != nil {
 			if param.ImageID != "" {
@@ -284,7 +301,6 @@ func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if effectRow == 0 {
-			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
@@ -351,7 +367,6 @@ func DeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if effectRow == 0 {
-			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)

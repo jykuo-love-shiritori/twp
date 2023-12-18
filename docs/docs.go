@@ -1099,6 +1099,7 @@ const docTemplate = `{
                         "description": "discount",
                         "name": "discount",
                         "in": "body",
+                        "required": true,
                         "schema": {
                             "type": "number"
                         }
@@ -1256,6 +1257,7 @@ const docTemplate = `{
                         "description": "discount",
                         "name": "discount",
                         "in": "body",
+                        "required": true,
                         "schema": {
                             "type": "number"
                         }
@@ -1527,8 +1529,7 @@ const docTemplate = `{
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -1835,7 +1836,8 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
@@ -2020,14 +2022,14 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "integer",

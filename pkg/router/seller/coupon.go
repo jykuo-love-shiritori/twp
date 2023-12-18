@@ -106,7 +106,7 @@ func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			type		body	string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
 // @Param			name		body	string	true	"name of coupon"
 // @Param			description	body	string	true	"description of coupon"
-// @Param			discount	body	number	false	"discount"
+// @Param			discount	body	number	true	"discount"
 // @Param			start_date	body	time	true	"start date"
 // @Param			expire_date	body	time	true	"expire date"
 // @Param			tags		body	[]int32	true	"init tags"
@@ -130,10 +130,17 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if !valid {
+			logger.Errorw("tags is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//check expire time
 		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
+			logger.Errorw("expire date or start date is invalid")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check discount value
+		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || v.Float64 > 100 {
+			logger.Errorw("discount is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		coupon, err := pg.Queries.SellerInsertCoupon(c.Request().Context(), db.SellerInsertCouponParams{
@@ -167,7 +174,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Param			type		body		string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
 // @Param			name		body		string	true	"name of coupon"
 // @Param			description	body		string	true	"description of coupon"
-// @Param			discount	body		number	false	"discount"
+// @Param			discount	body		number	true	"discount"
 // @Param			start_date	body		time	true	"start date"
 // @Param			expire_date	body		time	true	"expire date"
 // @success		200			{object}	db.SellerUpdateCouponInfoRow
@@ -186,6 +193,12 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		//check expire time
 		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
+			logger.Errorw("expire date or start date is invalid")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		//check discount value
+		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || v.Float64 > 100 {
+			logger.Errorw("discount is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		param.SellerName = username
@@ -226,7 +239,6 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if effectRow == 0 {
-			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
@@ -292,7 +304,6 @@ func DeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		if effectRow == 0 {
-			logger.Error(err)
 			return echo.NewHTTPError(http.StatusNotFound)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)

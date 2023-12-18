@@ -46,7 +46,7 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Tags			Seller, Shop
 // @Accept			mpfd
 // @Param			name		formData	string	true	"update shop name"	minlength(6)
-// @Param			image		formData	file	true	"image file"
+// @Param			image		formData	file	false	"image file"
 // @Param			description	formData	string	true	"update description"
 // @Param			enabled		formData	bool	true	"update enabled status"
 // @Produce		json
@@ -63,6 +63,16 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+
+		if enabled := c.FormValue("enabled"); enabled == "" {
+			logger.Errorw("enabled cant be empty")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if param.Name == "" || param.Description == "" {
+			logger.Errorw("columns cant be empty")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
 			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
