@@ -32,7 +32,7 @@ type checkout struct {
 }
 
 func getShipmentFee(total int32) int32 {
-	return int32(math.Log(float64(total)))
+	return int32(10 * math.Exp(0.05*float64(total)))
 }
 func getDiscountValue(price float64, discount float64, couponType db.CouponType) int32 {
 	switch couponType {
@@ -80,16 +80,20 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		// sort to make customer get most discount
 		sort.Slice(products, func(i, j int) bool {
 			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
 		})
+		// calculate subtotal and get tags and counts
 		for _, product := range products {
+			// each product can have its coupon
 			productCount[product.ProductID] = product.Quantity
 			price, err := product.Price.Float64Value()
 			if err != nil {
 				logger.Errorw("failed to get price", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			// calculate subtotal
 			result.Subtotal += int32(price.Float64 * float64(product.Quantity))
 			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
 			if err != nil {
@@ -99,16 +103,15 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			productTag[product.ProductID] = NewTagSet(tags)
 		}
 		result.Shipment = getShipmentFee(result.Subtotal)
-
-		var params db.GetCouponsFromCartParams
-		params.CartID = cartID
-		params.Username = username
-		coupons, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), params)
+		coupons, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{
+			Username: username,
+			CartID:   cartID,
+		})
 		if err != nil {
 			logger.Errorw("failed to get coupons from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-
+		// sort to make customer get most discount
 		sort.Slice(coupons, func(i, j int) bool {
 			if coupons[i].Type == coupons[j].Type {
 				return coupons[i].Discount.Int.Cmp(coupons[j].Discount.Int) > 0
@@ -118,7 +121,8 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		totalDiscount := int32(0)
 		for _, coupon := range coupons {
-			var cp couponDiscount = couponDiscount{
+			// init couponDiscount for returning
+			var cd couponDiscount = couponDiscount{
 				ID:          coupon.ID,
 				Name:        coupon.Name,
 				Type:        coupon.Type,
@@ -130,11 +134,12 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				logger.Errorw("failed to get discount", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			cp.Discount = discount.Float64
-			if cp.Type == db.CouponTypeShipping {
-				cp.DiscountValue = result.Shipment * (int32(cp.Discount / 100))
-				totalDiscount += cp.DiscountValue
-				result.Coupons = append(result.Coupons, cp)
+			cd.Discount = discount.Float64
+			// if coupon is shipping coupon, calculate discount and continue
+			if cd.Type == db.CouponTypeShipping {
+				cd.DiscountValue = result.Shipment * (int32(cd.Discount / 100))
+				totalDiscount += cd.DiscountValue
+				result.Coupons = append(result.Coupons, cd)
 				continue
 			}
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
@@ -143,25 +148,26 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			couponTags := NewTagSet(tags)
+			// match coupon with product
 			for _, product := range products {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
 				if productTag[product.ProductID].Intersect(couponTags) {
-					productCount[product.ProductID] -= 1
+					productCount[product.ProductID] -= 1 // decrease product count
 					price, err := product.Price.Float64Value()
 					if err != nil {
 						logger.Errorw("failed to get price", "error", err)
 						return echo.NewHTTPError(http.StatusInternalServerError)
 					}
-					logger.Infow("match coupon", "product_id", product.ProductID, "coupon_id", coupon.ID, "discount", cp.Discount, "price", price.Float64)
-					cp.DiscountValue = getDiscountValue(price.Float64, cp.Discount, cp.Type)
+					cd.DiscountValue = getDiscountValue(price.Float64, cd.Discount, cd.Type)
 				}
 			}
-			totalDiscount += cp.DiscountValue
-			result.Coupons = append(result.Coupons, cp)
+			totalDiscount += cd.DiscountValue
+			result.Coupons = append(result.Coupons, cd)
 		}
 		result.TotalDiscount = totalDiscount
+		// make it geq 0
 		result.Total = max(0, result.Subtotal+result.Shipment-result.TotalDiscount)
 		result.Payments, err = pg.Queries.GetCreditCard(c.Request().Context(), username)
 		if err != nil {
@@ -207,6 +213,18 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		} else if !valid {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid payment")
 		}
+		valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
+			Username: username,
+			CartID:   cartID,
+		})
+		if err != nil {
+			logger.Errorw("failed to validate product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if !valid {
+			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
+		}
+		// all the following logic is basically same as the GetCheckout
+		// the only diff is that we need to update product version and no return
 		products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartID)
 		if err != nil {
 			logger.Errorw("failed to get product from cart", "error", err)
@@ -302,8 +320,7 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 		}
 		total := max(0, int32(subtotal)+shipment-totalDiscount)
-		// if total < 0, get achievement “There is nothing more expensive than something free”
-
+		//  if total < 0, consider get achievement “There is nothing more expensive than something free”
 		if err := pg.Queries.Checkout(c.Request().Context(),
 			db.CheckoutParams{
 				Username:   username,

@@ -70,12 +70,12 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		productTag := make(map[int32]*tagSet)
 		for _, product := range cartProduct {
 			productCount[product.ProductID] = product.Quantity
-			arr, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
 			if err != nil {
 				logger.Errorw("failed to get product tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			productTag[product.ProductID] = NewTagSet(arr)
+			productTag[product.ProductID] = NewTagSet(tags)
 		}
 		shippingFlag := false
 		// sort CartCoupon by type (percentage => fixed), discount (high => low)
@@ -85,7 +85,7 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 			return cartCoupon[i].Type < cartCoupon[j].Type
 		})
-		// all the coupon in cart should be eligible
+		// match coupon to cart's product, all the coupon in cart should be eligible
 		for _, coupon := range cartCoupon {
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
 			if err != nil {
@@ -107,34 +107,32 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				}
 			}
 		}
-
+		// check usable coupon eligibility
 		for _, usable := range usableCoupon {
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), usable.ID)
 			if err != nil {
 				logger.Errorw("failed to get coupon tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			// one shipping coupon per cart
 			if usable.Type == db.CouponTypeShipping && shippingFlag {
 				continue
 			}
 			couponTags := NewTagSet(tags)
-			// Check if the coupon is valid for any of the products in the cart
+			// global coupon is always usable beside duplicate shipping coupon
 			if usable.Scope == db.CouponScopeGlobal {
 				result = append(result, usable)
 				continue
 			}
-			matchFlag := false
+			// match coupon to cart's product
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
 				if productTag[product.ProductID].Intersect(couponTags) {
-					matchFlag = true
+					result = append(result, usable)
 					break
 				}
-			}
-			if matchFlag {
-				result = append(result, usable)
 			}
 		}
 		return c.JSON(http.StatusOK, result)
@@ -168,6 +166,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		productCount := make(map[int32]int32)
 		productTag := make(map[int32]*tagSet)
+		// init productCount and productTag
 		for _, product := range cartProduct {
 			productCount[product.ProductID] = product.Quantity
 			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
@@ -177,11 +176,13 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 		}
+		// get coupon in cart
 		cartCoupon, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{Username: username, CartID: param.CartID})
 		if err != nil {
 			logger.Errorw("failed to get coupon", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		// one shipping coupon per cart
 		shippingFlag := false
 		// sort CartCoupon by type (percentage => fixed), discount (high => low)
 		sort.Slice(cartCoupon, func(i, j int) bool {
@@ -190,8 +191,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 			return cartCoupon[i].Type < cartCoupon[j].Type
 		})
-		// all the coupon in cart should be eligible
-		// match coupons to its product
+		// match coupons to its product, the product count would be reduced if matched
 		for _, coupon := range cartCoupon {
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
 			if err != nil {
@@ -228,8 +228,8 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		couponTag := NewTagSet(tags)
+		// global coupon is always usable beside duplicate shipping coupon
 		couponValid := couponDetail.Scope == db.CouponScopeGlobal
-
 		for _, product := range cartProduct {
 			if productCount[product.ProductID] == 0 {
 				continue
@@ -242,6 +242,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if !couponValid {
 			return echo.NewHTTPError(http.StatusBadRequest, "coupon not valid for any product in cart")
 		}
+		// if coupon is valid, add it to cart
 		rows, err := pg.Queries.AddCouponToCart(c.Request().Context(), param)
 		if err != nil {
 			logger.Errorw("failed to add coupon to cart", "error", err)
