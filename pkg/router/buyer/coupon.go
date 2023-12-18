@@ -10,8 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// numericToFloat64 converts a pgtype.Numeric to a float64.
-
 type tagSet struct {
 	Set map[int32]bool
 }
