@@ -1,6 +1,7 @@
 package general
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -144,7 +145,7 @@ func GetProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 		}
 		result, err := pg.Queries.GetProductInfo(c.Request().Context(), id)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusNotFound, "Product Not Found")
 			}
 			logger.Errorw("failed to get product info", "error", err)

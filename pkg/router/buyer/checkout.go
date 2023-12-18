@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"math"
 	"net/http"
+	"sort"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
@@ -34,6 +34,15 @@ type checkout struct {
 func getShipmentFee(total int32) int32 {
 	return int32(math.Log(float64(total)))
 }
+func getDiscountValue(price float64, discount float64, couponType db.CouponType) int32 {
+	switch couponType {
+	case db.CouponTypePercentage:
+		return int32(price * discount / 100)
+	case db.CouponTypeFixed:
+		return min(int32(discount), int32(price))
+	}
+	return 0
+}
 
 // @Summary		Buyer Get Checkout
 // @Description	Get all checkout data
@@ -53,19 +62,42 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to parse cart_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		// this will validate cart and product legitimacy
-		subtotal, err := pg.Queries.GetCartSubtotal(c.Request().Context(),
-			db.GetCartSubtotalParams{
-				Username: username,
-				CartID:   cartID})
+		// this will validate product stock and cart legitimacy
+		valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
+			Username: username,
+			CartID:   cartID,
+		})
 		if err != nil {
-			if err == pgx.ErrNoRows {
-				return echo.NewHTTPError(http.StatusBadRequest, "there might have some product are not available now")
-			}
-			logger.Errorw("failed to get cart subtotal", "error", err)
+			logger.Errorw("failed to validate product in cart", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if !valid {
+			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
+		}
+		productCount := make(map[int32]int32)
+		productTag := make(map[int32]*tagSet)
+		products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartID)
+		if err != nil {
+			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.Subtotal = int32(subtotal)
+		sort.Slice(products, func(i, j int) bool {
+			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
+		})
+		for _, product := range products {
+			productCount[product.ProductID] = product.Quantity
+			price, err := product.Price.Float64Value()
+			if err != nil {
+				logger.Errorw("failed to get price", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			result.Subtotal += int32(price.Float64 * float64(product.Quantity))
+			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			if err != nil {
+				logger.Errorw("failed to get product tag", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			productTag[product.ProductID] = NewTagSet(tags)
+		}
 		result.Shipment = getShipmentFee(result.Subtotal)
 
 		var params db.GetCouponsFromCartParams
@@ -76,8 +108,14 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get coupons from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		couponPercentageFlag := false
-		couponShippingFlag := false
+
+		sort.Slice(coupons, func(i, j int) bool {
+			if coupons[i].Type == coupons[j].Type {
+				return coupons[i].Discount.Int.Cmp(coupons[j].Discount.Int) > 0
+			}
+			return coupons[i].Type < coupons[j].Type
+		})
+
 		totalDiscount := int32(0)
 		for _, coupon := range coupons {
 			var cp couponDiscount = couponDiscount{
@@ -93,24 +131,32 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			cp.Discount = discount.Float64
-			switch coupon.Type {
-			case db.CouponTypePercentage:
-				if couponPercentageFlag {
-					logger.Errorw("multiple percentage coupon", "error", err)
-					return echo.NewHTTPError(http.StatusBadRequest, "multiple percentage coupon")
+			if cp.Type == db.CouponTypeShipping {
+				cp.DiscountValue = result.Shipment * (int32(cp.Discount / 100))
+				totalDiscount += cp.DiscountValue
+				result.Coupons = append(result.Coupons, cp)
+				continue
+			}
+			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
+			if err != nil {
+				logger.Errorw("failed to get coupon tag", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			couponTags := NewTagSet(tags)
+			for _, product := range products {
+				if productCount[product.ProductID] == 0 {
+					continue
 				}
-				couponPercentageFlag = true
-				cp.DiscountValue = int32(float64(result.Subtotal) * discount.Float64 / 100)
-			case db.CouponTypeFixed:
-				cp.DiscountValue = int32(discount.Float64)
-			case db.CouponTypeShipping:
-				if couponShippingFlag {
-					logger.Errorw("multiple shipping coupon", "error", err)
-					return echo.NewHTTPError(http.StatusBadRequest, "multiple shipping coupon")
+				if productTag[product.ProductID].Intersect(couponTags) {
+					productCount[product.ProductID] -= 1
+					price, err := product.Price.Float64Value()
+					if err != nil {
+						logger.Errorw("failed to get price", "error", err)
+						return echo.NewHTTPError(http.StatusInternalServerError)
+					}
+					logger.Infow("match coupon", "product_id", product.ProductID, "coupon_id", coupon.ID, "discount", cp.Discount, "price", price.Float64)
+					cp.DiscountValue = getDiscountValue(price.Float64, cp.Discount, cp.Type)
 				}
-				couponShippingFlag = true
-				cp.DiscountValue = int32(float64(result.Shipment) * (discount.Float64 / 100.0))
-
 			}
 			totalDiscount += cp.DiscountValue
 			result.Coupons = append(result.Coupons, cp)
@@ -136,7 +182,7 @@ type PaymentMethod struct {
 // @Accept			json
 // @Produce		json
 // @param			cart_id			path		int				true	"Cart ID"
-// @Param			payment_method	body		PaymentMethod	true	"Payment"
+// @Param			payment_method	body		PaymentMethod	true	"Payment" Example
 // @Success		200				{string}	string			constants.SUCCESS
 // @Failure		400				{object}	echo.HTTPError
 // @Failure		500				{object}	echo.HTTPError
@@ -166,68 +212,97 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		sort.Slice(products, func(i, j int) bool {
+			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
+		})
+		subtotal := int32(0)
+		productCount := make(map[int32]int32)
+		productTag := make(map[int32]*tagSet)
+		// calculate subtotal and get tags and counts
 		for _, product := range products {
-			if product.Quantity > product.Stock {
-				return echo.NewHTTPError(http.StatusBadRequest, "some product out of stock")
-			}
 			err := pg.Queries.UpdateProductVersion(c.Request().Context(), product.ProductID)
 			if err != nil {
 				logger.Errorw("failed to update product version", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
+			price, err := product.Price.Float64Value()
+			if err != nil {
+				logger.Errorw("failed to get price", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			subtotal += int32(price.Float64 * float64(product.Quantity))
+			productCount[product.ProductID] = product.Quantity
+			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			if err != nil {
+				logger.Errorw("failed to get product tag", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			productTag[product.ProductID] = NewTagSet(tags)
 		}
 		// this will validate cart and product legitimacy
-		subtotal, err := pg.Queries.GetCartSubtotal(c.Request().Context(),
-			db.GetCartSubtotalParams{
-				CartID:   cartID,
-				Username: username})
-		if err != nil {
-			if err == pgx.ErrNoRows {
-				return echo.NewHTTPError(http.StatusBadRequest, "there might have some product are not available now")
-			}
-			logger.Errorw("failed to get cart subtotal", "error", err)
+		if valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
+			Username: username,
+			CartID:   cartID,
+		}); err != nil {
+			logger.Errorw("failed to validate product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if !valid {
+			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
 		}
 		shipment := getShipmentFee(int32(subtotal))
 		var params db.GetCouponsFromCartParams
 		params.CartID = cartID
 		params.Username = username
-
-		// this will validate coupon legitimacy
 		coupons, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), params)
 		if err != nil {
 			logger.Errorw("failed to get coupons from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		couponPercentageFlag := false
-		couponShippingFlag := false
+		// sort to make customer get most discount
+		sort.Slice(coupons, func(i, j int) bool {
+			if coupons[i].Type == coupons[j].Type {
+				return coupons[i].Discount.Int.Cmp(coupons[j].Discount.Int) > 0
+			}
+			return coupons[i].Type < coupons[j].Type
+		})
+
 		totalDiscount := int32(0)
+		// match coupon with product
 		for _, coupon := range coupons {
 			discount, err := coupon.Discount.Float64Value()
 			if err != nil {
 				logger.Errorw("failed to get discount", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			switch coupon.Type {
-			case db.CouponTypePercentage:
-				if couponPercentageFlag {
-					logger.Errorw("multiple percentage coupon", "error", err)
-					return echo.NewHTTPError(http.StatusBadRequest, "multiple percentage coupon")
+			dc := discount.Float64
+			if coupon.Type == db.CouponTypeShipping {
+				totalDiscount += shipment * (int32(dc / 100))
+				continue
+			}
+			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
+			if err != nil {
+				logger.Errorw("failed to get coupon tag", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			couponTags := NewTagSet(tags)
+			for _, product := range products {
+				if productCount[product.ProductID] == 0 {
+					continue
 				}
-				couponPercentageFlag = true
-				totalDiscount += int32(float64(subtotal) * discount.Float64 / 100)
-			case db.CouponTypeFixed:
-				totalDiscount += int32(discount.Float64)
-			case db.CouponTypeShipping:
-				if couponShippingFlag {
-					logger.Errorw("multiple shipping coupon", "error", err)
-					return echo.NewHTTPError(http.StatusBadRequest, "multiple shipping coupon")
+				if productTag[product.ProductID].Intersect(couponTags) {
+					productCount[product.ProductID] -= 1
+					price, err := product.Price.Float64Value()
+					if err != nil {
+						logger.Errorw("failed to get price", "error", err)
+						return echo.NewHTTPError(http.StatusInternalServerError)
+					}
+					totalDiscount += getDiscountValue(price.Float64, dc, coupon.Type)
+					break
 				}
-				totalDiscount += int32(float64(shipment) * (discount.Float64 / 100.0))
-				couponShippingFlag = true
 			}
 		}
-		total := max(0, int32(subtotal)+shipment-totalDiscount) // if total < 0 => get achievement "🤑"
+		total := max(0, int32(subtotal)+shipment-totalDiscount)
+		// if total < 0, get achievement “There is nothing more expensive than something free”
 
 		if err := pg.Queries.Checkout(c.Request().Context(),
 			db.CheckoutParams{

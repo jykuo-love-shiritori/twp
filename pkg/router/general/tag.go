@@ -1,6 +1,7 @@
 package general
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -29,7 +30,7 @@ func GetTagInfo(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		result, err := pg.Queries.GetTagInfo(c.Request().Context(), id)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusNotFound, "Tag Not Found")
 			}
 			logger.Errorw("failed to get tag info", "error", err)

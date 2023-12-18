@@ -95,14 +95,13 @@ existed_cart AS (
             FROM valid_product
         )
 ),
-cart_id AS (
+cart_id AS ( 
     SELECT "id"
     FROM new_cart
     UNION ALL
     SELECT "id"
     FROM existed_cart
-    LIMIT 1
-), -- create new cart if not exists ⬆️
+), 
 insert_product AS (
     INSERT INTO "cart_product" ("cart_id", "product_id", "quantity")
     SELECT (
@@ -134,7 +133,6 @@ type AddProductToCartParams struct {
 }
 
 // check product enabled ⬆️
-// insert product into cart (new or existed)⬇️
 func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartParams) (int64, error) {
 	row := q.db.QueryRow(ctx, addProductToCart, arg.Username, arg.ID, arg.Quantity)
 	var total_quantity int64
@@ -373,37 +371,6 @@ func (q *Queries) GetCart(ctx context.Context, username string) ([]GetCartRow, e
 	return items, nil
 }
 
-const getCartSubtotal = `-- name: GetCartSubtotal :one
-SELECT SUM(P."price" * CP."quantity")::int AS "subtotal"
-FROM "cart_product" AS CP,
-    "product" AS P,
-    "cart" AS C,
-    "user" AS U
-WHERE C."id" = CP."cart_id"
-    AND CP."product_id" = P."id"
-    AND C."id" = $2
-    AND C."user_id" = U."id"
-    AND U."username" = $1
-    AND NOT EXISTS (
-        SELECT 1
-        FROM "product" AS P
-        WHERE P."id" = CP."product_id"
-            AND P."enabled" = FALSE
-    )
-`
-
-type GetCartSubtotalParams struct {
-	Username string `json:"username"`
-	CartID   int32  `json:"cart_id" param:"cart_id"`
-}
-
-func (q *Queries) GetCartSubtotal(ctx context.Context, arg GetCartSubtotalParams) (int32, error) {
-	row := q.db.QueryRow(ctx, getCartSubtotal, arg.Username, arg.CartID)
-	var subtotal int32
-	err := row.Scan(&subtotal)
-	return subtotal, err
-}
-
 const getCouponDetail = `-- name: GetCouponDetail :one
 SELECT "id",
     "type",
@@ -507,32 +474,26 @@ func (q *Queries) GetCouponFromCart(ctx context.Context, arg GetCouponFromCartPa
 }
 
 const getCouponTag = `-- name: GetCouponTag :many
-SELECT "tag_id",
-    "name"
+SELECT "tag_id"
 FROM "coupon_tag" AS CT,
     "tag" AS T
 WHERE CT."coupon_id" = $1
     AND CT."tag_id" = T."id"
 `
 
-type GetCouponTagRow struct {
-	TagID int32  `json:"tag_id"`
-	Name  string `json:"name"`
-}
-
-func (q *Queries) GetCouponTag(ctx context.Context, couponID int32) ([]GetCouponTagRow, error) {
+func (q *Queries) GetCouponTag(ctx context.Context, couponID int32) ([]int32, error) {
 	rows, err := q.db.Query(ctx, getCouponTag, couponID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetCouponTagRow{}
+	items := []int32{}
 	for rows.Next() {
-		var i GetCouponTagRow
-		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
+		var tag_id int32
+		if err := rows.Scan(&tag_id); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, tag_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -853,33 +814,27 @@ func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetPr
 }
 
 const getProductTag = `-- name: GetProductTag :many
-SELECT "tag_id",
-    "name"
+SELECT "tag_id"
 FROM "product_tag" AS PT,
     "tag" AS T
 WHERE PT."product_id" = $1
     AND PT."tag_id" = T."id"
 `
 
-type GetProductTagRow struct {
-	TagID int32  `json:"tag_id"`
-	Name  string `json:"name"`
-}
-
 // returning the number of products in any cart for US-SC-2 in SRS ⬆️
-func (q *Queries) GetProductTag(ctx context.Context, productID int32) ([]GetProductTagRow, error) {
+func (q *Queries) GetProductTag(ctx context.Context, productID int32) ([]int32, error) {
 	rows, err := q.db.Query(ctx, getProductTag, productID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetProductTagRow{}
+	items := []int32{}
 	for rows.Next() {
-		var i GetProductTagRow
-		if err := rows.Scan(&i.TagID, &i.Name); err != nil {
+		var tag_id int32
+		if err := rows.Scan(&tag_id); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, tag_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -1068,6 +1023,35 @@ type ValidatePaymentParams struct {
 
 func (q *Queries) ValidatePayment(ctx context.Context, arg ValidatePaymentParams) (bool, error) {
 	row := q.db.QueryRow(ctx, validatePayment, arg.Username, arg.CreditCard)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const validateProductsInCart = `-- name: ValidateProductsInCart :one
+SELECT EXISTS (
+        SELECT 1
+        FROM "cart_product" AS CP,
+            "product" AS P,
+            "cart" AS C,
+            "user" AS U
+        WHERE C."id" = CP."cart_id"
+            AND CP."product_id" = P."id"
+            AND C."id" = $2
+            AND C."user_id" = U."id"
+            AND U."username" = $1
+            AND P."enabled" = TRUE
+            AND CP."quantity" <= P."stock"
+    )
+`
+
+type ValidateProductsInCartParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+func (q *Queries) ValidateProductsInCart(ctx context.Context, arg ValidateProductsInCartParams) (bool, error) {
+	row := q.db.QueryRow(ctx, validateProductsInCart, arg.Username, arg.CartID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err

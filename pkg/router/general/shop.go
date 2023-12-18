@@ -1,6 +1,7 @@
 package general
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -47,7 +48,7 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			return echo.NewHTTPError(http.StatusBadRequest, "query parameter is invalid")
 		}
 		if _, err := pg.Queries.ShopExists(c.Request().Context(), sellerName); err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusNotFound, "Shop Not Found")
 			}
 			logger.Errorw("failed to check shop exists", "error", err)
@@ -105,7 +106,7 @@ func GetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		shop_id, err := pg.Queries.ShopExists(c.Request().Context(), seller_name)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusNotFound, "Shop Not Found")
 			}
 			logger.Errorw("failed to check shop exists", "error", err)

@@ -105,7 +105,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 
 	api.GET("/buyer/cart", buyer.GetCart(pg, mc, logger)) // include product and coupon
 	api.GET("/buyer/cart/:cart_id/coupon", buyer.GetCoupon(pg, logger))
-	api.POST("/buyer/cart/:cart_id/product/:product_id", buyer.AddProductToCart(pg, logger))
+	api.POST("/buyer/cart/product/:id", buyer.AddProductToCart(pg, logger))
 	api.POST("/buyer/cart/:cart_id/coupon/:coupon_id", buyer.AddCouponToCart(pg, logger))
 	api.PATCH("/buyer/cart/:cart_id/product/:product_id", buyer.EditProductInCart(pg, logger))
 	api.DELETE("/buyer/cart/:cart_id/product/:product_id", buyer.DeleteProductFromCart(pg, logger))

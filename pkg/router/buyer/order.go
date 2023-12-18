@@ -1,6 +1,7 @@
 package buyer
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -73,7 +74,7 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			db.GetOrderInfoParams{
 				Username: username,
 				OrderID:  orderID}); err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusBadRequest)
 			}
 			logger.Errorw("failed to get order info", "error", err)

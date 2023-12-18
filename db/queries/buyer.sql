@@ -248,15 +248,13 @@ existed_cart AS (
             FROM valid_product
         )
 ),
-cart_id AS (
+cart_id AS ( 
     SELECT "id"
     FROM new_cart
     UNION ALL
     SELECT "id"
     FROM existed_cart
-    LIMIT 1
-), -- create new cart if not exists ⬆️
--- insert product into cart (new or existed)⬇️
+), 
 insert_product AS (
     INSERT INTO "cart_product" ("cart_id", "product_id", "quantity")
     SELECT (
@@ -282,16 +280,14 @@ WHERE U."username" = $1
 
 -- returning the number of products in any cart for US-SC-2 in SRS ⬆️
 -- name: GetProductTag :many
-SELECT "tag_id",
-    "name"
+SELECT "tag_id"
 FROM "product_tag" AS PT,
     "tag" AS T
 WHERE PT."product_id" = $1
     AND PT."tag_id" = T."id";
 
 -- name: GetCouponTag :many
-SELECT "tag_id",
-    "name"
+SELECT "tag_id"
 FROM "coupon_tag" AS CT,
     "tag" AS T
 WHERE CT."coupon_id" = $1
@@ -323,22 +319,20 @@ WHERE U."username" = $1
     )
     AND CO."id" = $2;
 
--- name: GetCartSubtotal :one
-SELECT SUM(P."price" * CP."quantity")::int AS "subtotal"
-FROM "cart_product" AS CP,
-    "product" AS P,
-    "cart" AS C,
-    "user" AS U
-WHERE C."id" = CP."cart_id"
-    AND CP."product_id" = P."id"
-    AND C."id" = @cart_id
-    AND C."user_id" = U."id"
-    AND U."username" = $1
-    AND NOT EXISTS (
+-- name: ValidateProductsInCart :one
+SELECT EXISTS (
         SELECT 1
-        FROM "product" AS P
-        WHERE P."id" = CP."product_id"
-            AND P."enabled" = FALSE
+        FROM "cart_product" AS CP,
+            "product" AS P,
+            "cart" AS C,
+            "user" AS U
+        WHERE C."id" = CP."cart_id"
+            AND CP."product_id" = P."id"
+            AND C."id" = @cart_id
+            AND C."user_id" = U."id"
+            AND U."username" = $1
+            AND P."enabled" = TRUE
+            AND CP."quantity" <= P."stock"
     );
 
 -- name: DeleteCouponFromCart :execrows

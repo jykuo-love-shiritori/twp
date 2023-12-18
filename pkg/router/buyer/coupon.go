@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
@@ -13,14 +12,25 @@ import (
 
 // numericToFloat64 converts a pgtype.Numeric to a float64.
 
-func numericToFloat64(n pgtype.Numeric) (float64, error) {
-	f, err := n.Float64Value()
-	return f.Float64, err
+type tagSet struct {
+	Set map[int32]bool
 }
 
-type couponV2 struct {
-	db.GetCouponsFromCartRow
-	DiscountFloat float64
+func NewTagSet(tags []int32) *tagSet {
+	t := &tagSet{}
+	t.Set = make(map[int32]bool)
+	for _, tag := range tags {
+		t.Set[tag] = true
+	}
+	return t
+}
+func (t *tagSet) Intersect(other *tagSet) bool {
+	for k := range t.Set {
+		if other.Set[k] {
+			return true
+		}
+	}
+	return false
 }
 
 // @Summary		Buyer Get usable coupon of cart/shop
@@ -59,35 +69,27 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		productCount := make(map[int32]int32)
-		productTag := make(map[int32][]db.GetProductTagRow)
+		productTag := make(map[int32]*tagSet)
 		for _, product := range cartProduct {
 			productCount[product.ProductID] = product.Quantity
-			productTag[product.ProductID], err = pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			arr, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
 			if err != nil {
 				logger.Errorw("failed to get product tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-		}
-		var cartCouponV2 []couponV2
-		for _, coupon := range cartCoupon {
-			discount, err := numericToFloat64(coupon.Discount)
-			if err != nil {
-				logger.Errorw("failed to get discount", "error", err)
-				return echo.NewHTTPError(http.StatusInternalServerError)
-			}
-			cartCouponV2 = append(cartCouponV2, couponV2{GetCouponsFromCartRow: coupon, DiscountFloat: discount})
+			productTag[product.ProductID] = NewTagSet(arr)
 		}
 		shippingFlag := false
 		// sort CartCoupon by type (percentage => fixed), discount (high => low)
-		sort.Slice(cartCouponV2, func(i, j int) bool {
-			if cartCouponV2[i].Type == cartCouponV2[j].Type {
-				return cartCouponV2[i].DiscountFloat > cartCouponV2[j].DiscountFloat
+		sort.Slice(cartCoupon, func(i, j int) bool {
+			if cartCoupon[i].Type == cartCoupon[j].Type {
+				return cartCoupon[i].Discount.Int.Cmp(cartCoupon[j].Discount.Int) == 1
 			}
-			return cartCouponV2[i].Type < cartCouponV2[j].Type
+			return cartCoupon[i].Type < cartCoupon[j].Type
 		})
 		// all the coupon in cart should be eligible
-		for _, coupon := range cartCouponV2 {
-			couponTag, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
+		for _, coupon := range cartCoupon {
+			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
 			if err != nil {
 				logger.Errorw("failed to get coupon tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -96,24 +98,20 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				shippingFlag = true
 				continue
 			}
-		outerLoop:
+			couponTags := NewTagSet(tags)
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				for _, ct := range couponTag {
-					for _, pt := range productTag[product.ProductID] {
-						if ct.TagID == pt.TagID {
-							productCount[product.ProductID] -= 1
-							break outerLoop
-						}
-					}
+				if productTag[product.ProductID].Intersect(couponTags) {
+					productCount[product.ProductID] -= 1
+					break
 				}
 			}
 		}
 
 		for _, usable := range usableCoupon {
-			couponTag, err := pg.Queries.GetCouponTag(c.Request().Context(), usable.ID)
+			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), usable.ID)
 			if err != nil {
 				logger.Errorw("failed to get coupon tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -121,25 +119,20 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			if usable.Type == db.CouponTypeShipping && shippingFlag {
 				continue
 			}
-
+			couponTags := NewTagSet(tags)
 			// Check if the coupon is valid for any of the products in the cart
 			if usable.Scope == db.CouponScopeGlobal {
 				result = append(result, usable)
 				continue
 			}
 			matchFlag := false
-		outerLoop2:
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				for _, ct := range couponTag {
-					for _, pt := range productTag[product.ProductID] {
-						if ct.TagID == pt.TagID {
-							matchFlag = true
-							break outerLoop2
-						}
-					}
+				if productTag[product.ProductID].Intersect(couponTags) {
+					matchFlag = true
+					break
 				}
 			}
 			if matchFlag {
@@ -176,10 +169,11 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		productCount := make(map[int32]int32)
-		productTag := make(map[int32][]db.GetProductTagRow)
+		productTag := make(map[int32]*tagSet)
 		for _, product := range cartProduct {
 			productCount[product.ProductID] = product.Quantity
-			productTag[product.ProductID], err = pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			tags, err := pg.Queries.GetProductTag(c.Request().Context(), product.ProductID)
+			productTag[product.ProductID] = NewTagSet(tags)
 			if err != nil {
 				logger.Errorw("failed to get product tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -190,27 +184,18 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get coupon", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		var cartCouponV2 []couponV2
-		for _, coupon := range cartCoupon {
-			discount, err := numericToFloat64(coupon.Discount)
-			if err != nil {
-				logger.Errorw("failed to get discount", "error", err)
-				return echo.NewHTTPError(http.StatusInternalServerError)
-			}
-			cartCouponV2 = append(cartCouponV2, couponV2{GetCouponsFromCartRow: coupon, DiscountFloat: discount})
-		}
 		shippingFlag := false
 		// sort CartCoupon by type (percentage => fixed), discount (high => low)
-		sort.Slice(cartCouponV2, func(i, j int) bool {
-			if cartCouponV2[i].Type == cartCouponV2[j].Type {
-				return cartCouponV2[i].DiscountFloat > cartCouponV2[j].DiscountFloat
+		sort.Slice(cartCoupon, func(i, j int) bool {
+			if cartCoupon[i].Type == cartCoupon[j].Type {
+				return cartCoupon[i].Discount.Int.Cmp(cartCoupon[j].Discount.Int) == 1
 			}
-			return cartCouponV2[i].Type < cartCouponV2[j].Type
+			return cartCoupon[i].Type < cartCoupon[j].Type
 		})
 		// all the coupon in cart should be eligible
 		// match coupons to its product
-		for _, coupon := range cartCouponV2 {
-			couponTag, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
+		for _, coupon := range cartCoupon {
+			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
 			if err != nil {
 				logger.Errorw("failed to get coupon tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -219,18 +204,14 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				shippingFlag = true
 				continue
 			}
-		outerLoop:
+			couponTags := NewTagSet(tags)
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				for _, ct := range couponTag {
-					for _, pt := range productTag[product.ProductID] {
-						if ct.TagID == pt.TagID {
-							productCount[product.ProductID] -= 1
-							break outerLoop
-						}
-					}
+				if productTag[product.ProductID].Intersect(couponTags) {
+					productCount[product.ProductID] -= 1
+					break
 				}
 			}
 		}
@@ -243,25 +224,21 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if couponDetail.Type == db.CouponTypeShipping && shippingFlag {
 			return echo.NewHTTPError(http.StatusBadRequest, "multiple shipping coupon")
 		}
-		couponTag, err := pg.Queries.GetCouponTag(c.Request().Context(), param.CouponID)
+		tags, err := pg.Queries.GetCouponTag(c.Request().Context(), param.CouponID)
 		if err != nil {
 			logger.Errorw("failed to get coupon tag", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		couponTag := NewTagSet(tags)
 		couponValid := couponDetail.Scope == db.CouponScopeGlobal
 
-	outerLoop2:
 		for _, product := range cartProduct {
 			if productCount[product.ProductID] == 0 {
 				continue
 			}
-			for _, ct := range couponTag {
-				for _, pt := range productTag[product.ProductID] {
-					if ct.TagID == pt.TagID {
-						couponValid = true
-						break outerLoop2
-					}
-				}
+			if productTag[product.ProductID].Intersect(couponTag) {
+				couponValid = true
+				break
 			}
 		}
 		if !couponValid {
