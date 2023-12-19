@@ -212,14 +212,8 @@ FROM "order_detail"
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INTEGER = sqlc.arg('year')::INT
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INTEGER = sqlc.arg('month')::INT
+    AND order_history."created_at" > sqlc.arg('time')
+    AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month'
 GROUP BY product_archive.id,
     product_archive.description,
     product_archive.name,
@@ -234,14 +228,8 @@ SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
 FROM order_history
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INT = sqlc.arg('month')::INT
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INT = sqlc.arg('year')::INT;
+    AND order_history."created_at" > sqlc.arg('time')
+    AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month';
 -- name: SellerGetProductDetail :one
 SELECT p."name",
     p."image_id" as "image_url",

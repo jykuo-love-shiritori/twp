@@ -1733,9 +1733,23 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "expire date",
+                        "name": "expire_date",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     },
@@ -1918,9 +1932,23 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
+                        "type": "string",
+                        "description": "expire date",
+                        "name": "expire_date",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     }

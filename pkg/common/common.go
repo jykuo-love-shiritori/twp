@@ -36,7 +36,7 @@ func HasRegexSpecialChars(input string) bool {
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
 }
-func GetFileName(file *multipart.FileHeader) string {
+func GetEncodeName(file *multipart.FileHeader) string {
 	id := uuid.New()
 	newFileName := id.String() + filepath.Ext(file.Filename)
 	return newFileName
@@ -56,6 +56,8 @@ func FileMimeFrom(fileName string) string {
 		return "image/jpeg"
 	case ".svg":
 		return "image/svg+xml"
+	case ".gif":
+		return "image/gif"
 	case ".pdf":
 		return "application/pdf"
 	default:

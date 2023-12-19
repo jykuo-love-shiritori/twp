@@ -100,9 +100,9 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Param			description	formData	string	true	"description of product"
 // @Param			price		formData	number	true	"price"
 // @Param			image		formData	file	true	"image id"
-// @Param			expire_date	formData	time	true	"expire date"
+// @Param			expire_date	formData	string	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	time	true	"enabled"
+// @Param			enabled		formData	string	true	"enabled"
 // @Param			tags		formData	[]int32	true	"init tags"
 // @Accept			mpfd
 // @Produce		json
@@ -124,8 +124,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		// fail to bind the pgtype.timestamptz have to manually load scan function
-		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
+		if err := echo.FormFieldBinder(c).Time("expire_date", &param.ExpireDate.Time, time.RFC3339).BindError(); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -167,7 +166,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//put file to minio
-		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -206,9 +205,9 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 // @Param			description	formData	string	true	"description of product"
 // @Param			price		formData	number	true	"price"
 // @Param			image		formData	file	false	"image file"
-// @Param			expire_date	formData	time	true	"expire date"
+// @Param			expire_date	formData	string	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	time	true	"enabled"
+// @Param			enabled		formData	string	true	"enabled"
 // @Success		200			{object}	db.SellerUpdateProductInfoRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
@@ -226,7 +225,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if err := param.ExpireDate.Scan(c.FormValue("expire_date")); err != nil {
+		if err := echo.FormFieldBinder(c).Time("expire_date", &param.ExpireDate.Time, time.RFC3339).BindError(); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -242,7 +241,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 		}
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)

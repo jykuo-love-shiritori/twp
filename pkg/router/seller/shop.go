@@ -3,7 +3,9 @@ package seller
 import (
 	"errors"
 	"net/http"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
@@ -11,10 +13,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type ReportDetailParam struct {
-	Year  int32 `json:"year" param:"year"`
-	Month int32 `json:"month" param:"month"`
-}
 type ReportDetail struct {
 	Products []db.SellerBestSellProductRow `json:"products"`
 	Report   db.SellerReportRow            `json:"report"`
@@ -75,7 +73,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetFileName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -112,8 +110,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Description	Get report detail by year and month for shop.
 // @Tags			Seller, Shop, Report
 // @Produce		json
-// @Param			year	path		int	true	"Year"
-// @Param			month	path		int	true	"Month"
+// @Param			time	query		int	true	"time"
 // @Success		200		{object}	db.SellerInsertCouponRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
@@ -122,19 +119,20 @@ func GetReportDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Ha
 	return func(c echo.Context) error {
 		var err error
 		var username string = "user1"
-		var param ReportDetailParam
-		if err := c.Bind(&param); err != nil {
+		inputTime := pgtype.Timestamptz{}
+		if err := echo.QueryParamsBinder(c).Time("time", &inputTime.Time, time.RFC3339).BindError(); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-
+		inputTime.Time = time.Date(inputTime.Time.Year(), inputTime.Time.Month(), 0, 0, 0, 0, 0, inputTime.Time.Location())
+		inputTime.Valid = true
 		var result ReportDetail
-		result.Report, err = pg.Queries.SellerReport(c.Request().Context(), db.SellerReportParams{SellerName: username, Month: param.Month, Year: param.Year})
+		result.Report, err = pg.Queries.SellerReport(c.Request().Context(), db.SellerReportParams{SellerName: username, Time: inputTime})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.Products, err = pg.Queries.SellerBestSellProduct(c.Request().Context(), db.SellerBestSellProductParams{SellerName: username, Month: param.Month, Year: param.Year, Limit: 3})
+		result.Products, err = pg.Queries.SellerBestSellProduct(c.Request().Context(), db.SellerBestSellProductParams{SellerName: username, Time: inputTime, Limit: 3})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

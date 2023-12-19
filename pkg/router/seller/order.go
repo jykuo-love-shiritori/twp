@@ -104,7 +104,7 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 // @Success		200				{object}	db.SellerUpdateOrderStatusRow
 // @Failure		400				{object}	echo.HTTPError
 // @Failure		500				{object}	echo.HTTPError
-// @Router			/seller/order [patch]
+// @Router			/seller/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -118,7 +118,7 @@ func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
 		// paid > shipped > delivered > (cancelled || finished)
-		if !((param.CurrentStatus == "paid" && param.SetStatus == "shipped") || (param.CurrentStatus == "shipped" && param.SetStatus == "delivered")) {
+		if !((param.CurrentStatus == db.OrderStatusPaid && param.SetStatus == db.OrderStatusShipped) || (param.CurrentStatus == db.OrderStatusShipped && param.SetStatus == db.OrderStatusDelivered)) {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		order, err := pg.Queries.SellerUpdateOrderStatus(c.Request().Context(), param)

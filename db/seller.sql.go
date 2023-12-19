@@ -47,14 +47,8 @@ FROM "order_detail"
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INTEGER = $3::INT
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INTEGER = $4::INT
+    AND order_history."created_at" > $3
+    AND order_history."created_at" < $3 + INTERVAL '1 month'
 GROUP BY product_archive.id,
     product_archive.description,
     product_archive.name,
@@ -66,10 +60,9 @@ LIMIT $2
 `
 
 type SellerBestSellProductParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	Limit      int32  `json:"limit"`
-	Year       int32  `json:"year"`
-	Month      int32  `json:"month"`
+	SellerName string             `json:"seller_name" param:"seller_name"`
+	Limit      int32              `json:"limit"`
+	Time       pgtype.Timestamptz `json:"time" swaggertype:"string"`
 }
 
 type SellerBestSellProductRow struct {
@@ -83,12 +76,7 @@ type SellerBestSellProductRow struct {
 }
 
 func (q *Queries) SellerBestSellProduct(ctx context.Context, arg SellerBestSellProductParams) ([]SellerBestSellProductRow, error) {
-	rows, err := q.db.Query(ctx, sellerBestSellProduct,
-		arg.SellerName,
-		arg.Limit,
-		arg.Year,
-		arg.Month,
-	)
+	rows, err := q.db.Query(ctx, sellerBestSellProduct, arg.SellerName, arg.Limit, arg.Time)
 	if err != nil {
 		return nil, err
 	}
@@ -1030,20 +1018,13 @@ SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
 FROM order_history
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INT = $2::INT
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INT = $3::INT
+    AND order_history."created_at" > $2
+    AND order_history."created_at" < $2 + INTERVAL '1 month'
 `
 
 type SellerReportParams struct {
-	SellerName string `json:"seller_name" param:"seller_name"`
-	Month      int32  `json:"month"`
-	Year       int32  `json:"year"`
+	SellerName string             `json:"seller_name" param:"seller_name"`
+	Time       pgtype.Timestamptz `json:"time" swaggertype:"string"`
 }
 
 type SellerReportRow struct {
@@ -1052,7 +1033,7 @@ type SellerReportRow struct {
 }
 
 func (q *Queries) SellerReport(ctx context.Context, arg SellerReportParams) (SellerReportRow, error) {
-	row := q.db.QueryRow(ctx, sellerReport, arg.SellerName, arg.Month, arg.Year)
+	row := q.db.QueryRow(ctx, sellerReport, arg.SellerName, arg.Time)
 	var i SellerReportRow
 	err := row.Scan(&i.TotalIncome, &i.OrderCount)
 	return i, err

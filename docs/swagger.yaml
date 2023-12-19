@@ -1806,11 +1806,21 @@ paths:
         name: image
         required: true
         type: file
+      - description: expire date
+        in: formData
+        name: expire_date
+        required: true
+        type: string
       - description: stock
         in: formData
         name: stock
         required: true
         type: integer
+      - description: enabled
+        in: formData
+        name: enabled
+        required: true
+        type: string
       - collectionFormat: csv
         description: init tags
         in: formData
@@ -1933,11 +1943,21 @@ paths:
         in: formData
         name: image
         type: file
+      - description: expire date
+        in: formData
+        name: expire_date
+        required: true
+        type: string
       - description: stock
         in: formData
         name: stock
         required: true
         type: integer
+      - description: enabled
+        in: formData
+        name: enabled
+        required: true
+        type: string
       produces:
       - application/json
       responses:
