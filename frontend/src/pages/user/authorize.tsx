@@ -33,6 +33,7 @@ const Authorize = () => {
     const result = await resp.json();
 
     const redirect_uri = searchParams.get('redirect_uri');
+    console.log(redirect_uri);
     if (!redirect_uri) {
       alert('No redirect uri set');
       return;
