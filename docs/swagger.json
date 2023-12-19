@@ -483,149 +483,6 @@
                 }
             }
         },
-        "/buyer/cart/{cart_id}/checkout": {
-            "get": {
-                "description": "Get all checkout data",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Get Checkout",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/buyer.checkout"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Checkout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Checkout",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Payment",
-                        "name": "payment_method",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/buyer.PaymentMethod"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/buyer/cart/{cart_id}/coupon": {
-            "get": {
-                "description": "Buyer get usable coupon of cart/shop",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Cart",
-                    "Coupon"
-                ],
-                "summary": "Buyer Get usable coupon of cart/shop",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.GetUsableCouponsRow"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/buyer/cart/{cart_id}/coupon/{coupon_id}": {
             "post": {
                 "description": "Add coupon to cart",
@@ -824,6 +681,149 @@
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{id}/checkout": {
+            "get": {
+                "description": "Get all checkout data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Get Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/buyer.checkout"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payment",
+                        "name": "payment_method",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/buyer.PaymentMethod"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{id}/coupon": {
+            "get": {
+                "description": "Buyer get usable coupon of cart/shop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart",
+                    "Coupon"
+                ],
+                "summary": "Buyer Get usable coupon of cart/shop",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetUsableCouponsRow"
+                            }
                         }
                     },
                     "400": {
@@ -3394,7 +3394,7 @@
         "buyer.PaymentMethod": {
             "type": "object",
             "properties": {
-                "creditCard": {
+                "credit_card": {
                     "type": "object"
                 }
             }
