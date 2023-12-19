@@ -42,6 +42,11 @@ const Login = () => {
   });
 
   const login = async () => {
+    if (import.meta.env.VITE_SKIP_AUTH) {
+      navigate('/');
+      return;
+    }
+
     const { isSuccess } = await refetch();
 
     if (isSuccess) {
