@@ -1,7 +1,6 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useQuery } from '@tanstack/react-query';
 
 import Footer from '@components/Footer';
 import RegisterImgUrl from '@assets/images/register.jpg';
@@ -15,59 +14,35 @@ interface SignupProps {
 }
 
 const Signup = () => {
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
     console.log(data);
 
-    // these worked
-    // const response = await fetch('/api/signup', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-    // console.log(response);
+    if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
+      console.log('username should only contain letters and numbers');
+      return;
+    }
+    if (
+      !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
+    ) {
+      console.log(
+        'password should contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+      );
+      return;
+    }
 
-    //these not worked
-    const result = useQuery({
-      queryKey: ['signup'],
-      queryFn: async () => {
-        const response = await fetch('/api/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-          throw new Error('singup failed');
-        }
-        return response.json();
+    const response = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      refetchOnWindowFocus: false,
-      enabled: false,
-      retry: false,
+      body: JSON.stringify(data),
     });
-
-    // if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
-    //   console.log('username should only contain letters and numbers');
-    //   return;
-    // }
-    // if (
-    //   !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
-    // ) {
-    //   console.log(
-    //     'password should contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-    //   );
-    //   return;
-    // }
-
-    console.log('fetch...');
-    await result.refetch();
-    if (result.isSuccess) {
-      console.log('signup success');
-      console.log(result.data);
+    if (!response.ok) {
+      console.log(response.statusText);
+    } else {
+      navigate('/login');
     }
   };
 
