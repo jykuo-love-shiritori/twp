@@ -5,6 +5,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import Footer from '@components/Footer';
 import RegisterImgUrl from '@assets/images/register.jpg';
 import FormItem from '@components/FormItem';
+import WarningModal from '@components/WarningModal';
+import { useState } from 'react';
 
 interface SignupProps {
   email: string;
@@ -15,20 +17,25 @@ interface SignupProps {
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [show, setShow] = useState<boolean>(false);
+  const [warningText, setWarningText] = useState<string>('');
+
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
     console.log(data);
 
     if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
-      console.log('username should only contain letters and numbers');
+      setWarningText('username should only contain letters and numbers\n');
+      setShow(true);
       return;
     }
     if (
       !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
     ) {
-      console.log(
-        'password should contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+      setWarningText(
+        'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
       );
+      setShow(true);
       return;
     }
 
@@ -118,6 +125,8 @@ const Signup = () => {
         </Row>
       </div>
       <Footer />
+
+      <WarningModal show={show} onHide={() => setShow(false)} text={warningText} />
     </div>
   );
 };
