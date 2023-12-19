@@ -202,7 +202,7 @@ type CartProduct struct {
 }
 
 type Coupon struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"shop_id"`
@@ -214,7 +214,7 @@ type Coupon struct {
 }
 
 type CouponTag struct {
-	CouponID int32 `json:"coupon_id" param:"coupon_id"`
+	CouponID int32 `json:"coupon_id" param:"id"`
 	TagID    int32 `json:"tag_id"`
 }
 
@@ -237,7 +237,7 @@ type OrderHistory struct {
 }
 
 type Product struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `form:"name" json:"name"`
@@ -262,7 +262,7 @@ type ProductArchive struct {
 
 type ProductTag struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id" param:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 }
 
 type Shop struct {

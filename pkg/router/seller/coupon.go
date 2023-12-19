@@ -30,8 +30,8 @@ type InsertCouponParams struct {
 // @Summary		Seller get shop coupon
 // @Description	Get all coupons for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
-// @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
+// @Param			offset	query	int	true	"offset"	default(0)	minimum(0)
+// @Param			limit	query	int	true	"limit"		default(10)	maximum(20)
 // @Produce		json
 // @success		200	{array}		db.SellerGetCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -66,11 +66,11 @@ func GetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Get coupon detail by ID for shop.
 // @Tags			Seller, Shop, Coupon
 // @Produce		json
-// @Param			coupon_id	path		int	true	"Coupon ID"
-// @success		200			{object}	CouponDetail
-// @Failure		400			{object}	echo.HTTPError
-// @Failure		500			{object}	echo.HTTPError
-// @Router			/seller/coupon/{coupon_id} [get]
+// @Param			id	path		int	true	"Coupon ID"
+// @success		200	{object}	CouponDetail
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/seller/coupon/{id} [get]
 func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -103,13 +103,7 @@ func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller add coupon
 // @Description	Add coupon for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			type		body	string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
-// @Param			name		body	string	true	"name of coupon"
-// @Param			description	body	string	true	"description of coupon"
-// @Param			discount	body	number	true	"discount"
-// @Param			start_date	body	time	true	"start date"
-// @Param			expire_date	body	time	true	"expire date"
-// @Param			tags		body	[]int32	true	"init tags"
+// @Param			coupon	body	InsertCouponParams	true	"coupon"
 // @Produce		json
 // @success		200	{object}	db.SellerInsertCouponRow
 // @Failure		400	{object}	echo.HTTPError
@@ -139,7 +133,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//check discount value
-		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || v.Float64 > 100 {
+		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {
 			logger.Errorw("discount is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -170,17 +164,12 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Seller, Shop, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			coupon_id	path		int		true	"Coupon ID"
-// @Param			type		body		string	true	"Coupon type"	Enums('percentage', 'fixed', 'shipping')
-// @Param			name		body		string	true	"name of coupon"
-// @Param			description	body		string	true	"description of coupon"
-// @Param			discount	body		number	true	"discount"
-// @Param			start_date	body		time	true	"start date"
-// @Param			expire_date	body		time	true	"expire date"
-// @success		200			{object}	db.SellerUpdateCouponInfoRow
-// @Failure		400			{object}	echo.HTTPError
-// @Failure		500			{object}	echo.HTTPError
-// @Router			/seller/coupon/{coupon_id} [patch]
+// @Param			id		path		int					true	"Coupon ID"
+// @Param			coupon	body		InsertCouponParams	true	"coupon"
+// @success		200		{object}	db.SellerUpdateCouponInfoRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
+// @Router			/seller/coupon/{id} [patch]
 func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -197,7 +186,7 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//check discount value
-		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || v.Float64 > 100 {
+		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {
 			logger.Errorw("discount is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -214,7 +203,7 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete coupon
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			coupon_id	path	int	true	"Coupon ID"
+// @Param			id	path	int	true	"Coupon ID"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"
@@ -249,13 +238,13 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on coupon
 // @Tags			Seller, Shop, Coupon,Tag
 // @Accept			json
-// @Param			coupon_id	path	string	true	"coupon id"
-// @Param			tag_id		body	int		true	"add tag id"
+// @Param			id		path	string	true	"coupon id"
+// @Param			tag_id	body	int		true	"add tag id"
 // @Produce		json
 // @success		200	{object}	db.CouponTag
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/seller/coupon/{coupon_id}/tag [post]
+// @Router			/seller/coupon/{id}/tag [post]
 func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
@@ -278,15 +267,15 @@ func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete coupon tag
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon,Tag
-// @Param			coupon_id	path	string	true	"coupon id"
-// @Param			tag_id		body	int		true	"add tag id"
+// @Param			id		path	string	true	"coupon id"
+// @Param			tag_id	body	int		true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
-// @Router			/seller/coupon/{coupon_id}/tag [delete]
+// @Router			/seller/coupon/{id}/tag [delete]
 func DeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"

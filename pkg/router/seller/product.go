@@ -59,8 +59,8 @@ func GetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 // @Summary		Seller get product
 // @Description	seller get product
 // @Tags			Seller, Shop, Product
-// @Param			offset	query	int	true	"offset page"	default(0)	minimum(0)
-// @Param			limit	query	int	true	"limit"			default(10)	maximum(20)
+// @Param			offset	query	int	true	"offset"	default(0)	minimum(0)
+// @Param			limit	query	int	true	"limit"		default(10)	maximum(20)
 // @Accept			json
 // @Produce		json
 // @Success		200	{array}		db.SellerProductListRow
@@ -145,8 +145,8 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		// formData is string so have to manually convert sting to int array
-		tags, err := common.String2IntArray(c.FormValue("tags"))
-		if err != nil {
+		tags := []int32{}
+		if err := echo.FormFieldBinder(c).BindWithDelimiter("tags", &tags, ",").BindError(); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}

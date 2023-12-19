@@ -596,6 +596,25 @@ definitions:
           $ref: '#/definitions/db.SellerGetCouponTagRow'
         type: array
     type: object
+  seller.InsertCouponParams:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      name:
+        type: string
+      start_date:
+        type: string
+      tags:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   seller.OrderDetail:
     properties:
       order_info:
@@ -1289,7 +1308,7 @@ paths:
       description: Get all coupons for shop.
       parameters:
       - default: 0
-        description: offset page
+        description: offset
         in: query
         minimum: 0
         name: offset
@@ -1327,54 +1346,12 @@ paths:
     post:
       description: Add coupon for shop.
       parameters:
-      - description: Coupon type
+      - description: coupon
         in: body
-        name: type
+        name: coupon
         required: true
         schema:
-          enum:
-          - '''percentage'''
-          - '''fixed'''
-          - '''shipping'''
-          type: string
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: description of coupon
-        in: body
-        name: description
-        required: true
-        schema:
-          type: string
-      - description: discount
-        in: body
-        name: discount
-        required: true
-        schema:
-          type: number
-      - description: start date
-        in: body
-        name: start_date
-        required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
-      - description: init tags
-        in: body
-        name: tags
-        required: true
-        schema:
-          items:
-            type: integer
-          type: array
+          $ref: '#/definitions/seller.InsertCouponParams'
       produces:
       - application/json
       responses:
@@ -1395,13 +1372,47 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/coupon/{coupon_id}:
+  /seller/coupon/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller delete coupon
+      tags:
+      - Seller
+      - Shop
+      - Coupon
     get:
       description: Get coupon detail by ID for shop.
       parameters:
       - description: Coupon ID
         in: path
-        name: coupon_id
+        name: id
         required: true
         type: integer
       produces:
@@ -1431,49 +1442,15 @@ paths:
       parameters:
       - description: Coupon ID
         in: path
-        name: coupon_id
+        name: id
         required: true
         type: integer
-      - description: Coupon type
+      - description: coupon
         in: body
-        name: type
+        name: coupon
         required: true
         schema:
-          enum:
-          - '''percentage'''
-          - '''fixed'''
-          - '''shipping'''
-          type: string
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: description of coupon
-        in: body
-        name: description
-        required: true
-        schema:
-          type: string
-      - description: discount
-        in: body
-        name: discount
-        required: true
-        schema:
-          type: number
-      - description: start date
-        in: body
-        name: start_date
-        required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/seller.InsertCouponParams'
       produces:
       - application/json
       responses:
@@ -1494,7 +1471,7 @@ paths:
       - Seller
       - Shop
       - Coupon
-  /seller/coupon/{coupon_id}/tag:
+  /seller/coupon/{id}/tag:
     delete:
       consumes:
       - application/json
@@ -1502,7 +1479,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: coupon_id
+        name: id
         required: true
         type: string
       - description: add tag id
@@ -1543,7 +1520,7 @@ paths:
       parameters:
       - description: coupon id
         in: path
-        name: coupon_id
+        name: id
         required: true
         type: string
       - description: add tag id
@@ -1573,41 +1550,6 @@ paths:
       - Shop
       - Coupon
       - Tag
-  /seller/coupon/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete coupon for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: coupon_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller delete coupon
-      tags:
-      - Seller
-      - Shop
-      - Coupon
   /seller/info:
     get:
       description: Get shop info, includes user picture, name, description.
@@ -1804,7 +1746,7 @@ paths:
       description: seller get product
       parameters:
       - default: 0
-        description: offset page
+        description: offset
         in: query
         minimum: 0
         name: offset

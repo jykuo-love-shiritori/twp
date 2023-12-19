@@ -1,7 +1,6 @@
 package common
 
 import (
-	"encoding/json"
 	"errors"
 	"mime/multipart"
 	"path/filepath"
@@ -36,15 +35,6 @@ func HasRegexSpecialChars(input string) bool {
 	regexPattern := `[.*+?()|{}\\^$]`
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
-}
-
-func String2IntArray(str string) ([]int32, error) {
-	var array []int32
-	err := json.Unmarshal([]byte(str), &array)
-	if err != nil {
-		return nil, err
-	}
-	return array, nil
 }
 func GetFileName(file *multipart.FileHeader) string {
 	id := uuid.New()

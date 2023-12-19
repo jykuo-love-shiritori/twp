@@ -29,7 +29,7 @@ WHERE
 `
 
 type GetProductInfoRow struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Name        string             `form:"name" json:"name"`
 	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
@@ -94,7 +94,7 @@ type GetShopCouponsParams struct {
 }
 
 type GetShopCouponsRow struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	Name        string             `json:"name"`

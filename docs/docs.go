@@ -1012,7 +1012,7 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
@@ -1064,74 +1064,12 @@ const docTemplate = `{
                 "summary": "Seller add coupon",
                 "parameters": [
                     {
-                        "description": "Coupon type",
-                        "name": "type",
+                        "description": "coupon",
+                        "name": "coupon",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "init tags",
-                        "name": "tags",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/seller.InsertCouponParams"
                         }
                     }
                 ],
@@ -1157,7 +1095,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{coupon_id}": {
+        "/seller/coupon/{id}": {
             "get": {
                 "description": "Get coupon detail by ID for shop.",
                 "produces": [
@@ -1173,7 +1111,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1187,6 +1125,56 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller delete coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1217,67 +1205,17 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Coupon ID",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Coupon type",
-                        "name": "type",
+                        "description": "coupon",
+                        "name": "coupon",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/seller.InsertCouponParams"
                         }
                     }
                 ],
@@ -1303,7 +1241,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/coupon/{coupon_id}/tag": {
+        "/seller/coupon/{id}/tag": {
             "post": {
                 "description": "Add tag on coupon",
                 "consumes": [
@@ -1323,7 +1261,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1377,7 +1315,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "coupon id",
-                        "name": "coupon_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     },
@@ -1389,58 +1327,6 @@ const docTemplate = `{
                         "schema": {
                             "type": "integer"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/coupon/{id}": {
-            "delete": {
-                "description": "Delete coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller delete coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "coupon_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -1764,7 +1650,7 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
@@ -3707,6 +3593,35 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/db.SellerGetCouponTagRow"
                     }
+                }
+            }
+        },
+        "seller.InsertCouponParams": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },

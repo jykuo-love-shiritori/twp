@@ -118,12 +118,12 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 
 	api.GET("/seller/coupon", seller.GetShopCoupon(pg, logger))
 	//sqlc only take one path param tag overwrite
-	api.GET("/seller/coupon/:coupon_id", seller.GetCouponDetail(pg, logger))
+	api.GET("/seller/coupon/:id", seller.GetCouponDetail(pg, logger))
 	api.POST("/seller/coupon", seller.AddCoupon(pg, logger))
-	api.PATCH("/seller/coupon/:coupon_id", seller.EditCoupon(pg, logger))
-	api.DELETE("/seller/coupon/:coupon_id", seller.DeleteCoupon(pg, logger))
-	api.POST("/seller/coupon/:coupon_id/tag", seller.AddCouponTag(pg, logger))
-	api.DELETE("/seller/coupon/:coupon_id/tag", seller.DeleteCouponTag(pg, logger))
+	api.PATCH("/seller/coupon/:id", seller.EditCoupon(pg, logger))
+	api.DELETE("/seller/coupon/:id", seller.DeleteCoupon(pg, logger))
+	api.POST("/seller/coupon/:id/tag", seller.AddCouponTag(pg, logger))
+	api.DELETE("/seller/coupon/:id/tag", seller.DeleteCouponTag(pg, logger))
 
 	api.GET("/seller/order", seller.GetOrder(pg, mc, logger))
 	api.GET("/seller/order/:id", seller.GetOrderDetail(pg, mc, logger))
@@ -133,11 +133,11 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 
 	api.GET("/seller/product", seller.ListProduct(pg, mc, logger))
 	api.POST("/seller/product", seller.AddProduct(pg, mc, logger))
-	api.GET("/seller/product/:product_id", seller.GetProductDetail(pg, mc, logger))
-	api.PATCH("/seller/product/:product_id", seller.EditProduct(pg, mc, logger))
-	api.POST("/seller/product/:product_id/tag", seller.AddProductTag(pg, logger))
-	api.DELETE("/seller/product/:product_id/tag", seller.DeleteProductTag(pg, logger))
-	api.DELETE("/seller/product/:product_id", seller.DeleteProduct(pg, logger))
+	api.GET("/seller/product/:id", seller.GetProductDetail(pg, mc, logger))
+	api.PATCH("/seller/product/:id", seller.EditProduct(pg, mc, logger))
+	api.POST("/seller/product/:id/tag", seller.AddProductTag(pg, logger))
+	api.DELETE("/seller/product/:id/tag", seller.DeleteProductTag(pg, logger))
+	api.DELETE("/seller/product/:id", seller.DeleteProduct(pg, logger))
 
 	api.GET("/seller/product", seller.ListProduct(pg, mc, logger))
 	api.POST("/seller/product", seller.AddProduct(pg, mc, logger))

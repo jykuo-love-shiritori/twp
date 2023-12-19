@@ -199,7 +199,7 @@ RETURNING id, type, scope, shop_id, name, description, discount, start_date, exp
 `
 
 type TestInsertCouponParams struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"shop_id"`
@@ -245,7 +245,7 @@ RETURNING coupon_id, tag_id
 
 type TestInsertCouponTagParams struct {
 	TagID    int32 `json:"tag_id"`
-	CouponID int32 `json:"coupon_id" param:"coupon_id"`
+	CouponID int32 `json:"coupon_id" param:"id"`
 }
 
 func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponTagParams) (CouponTag, error) {
@@ -371,7 +371,7 @@ RETURNING id, version, shop_id, name, description, price, image_id, expire_date,
 `
 
 type TestInsertProductParams struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `form:"name" json:"name"`
@@ -467,7 +467,7 @@ RETURNING tag_id, product_id
 
 type TestInsertProductTagParams struct {
 	TagID     int32 `json:"tag_id"`
-	ProductID int32 `json:"product_id" param:"product_id"`
+	ProductID int32 `json:"product_id" param:"id"`
 }
 
 func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProductTagParams) (ProductTag, error) {
