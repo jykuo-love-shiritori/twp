@@ -39,7 +39,13 @@ func EditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		if param.Quantity == 0 {
-			exec, err := pg.Queries.DeleteProductFromCart(c.Request().Context(),
+			tx, err := pg.NewTx(c.Request().Context())
+			defer tx.Rollback(c.Request().Context()) //nolint:errcheck
+			if err != nil {
+				logger.Errorw("failed to create transaction", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			exec, err := pg.Queries.WithTx(tx).DeleteProductFromCart(c.Request().Context(),
 				db.DeleteProductFromCartParams{
 					Username:  username,
 					CartID:    param.CartID,
@@ -53,11 +59,15 @@ func EditProductInCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusBadRequest)
 			}
 			// delete empty cart
-			if err := pg.Queries.DeleteEmptyCart(c.Request().Context(), db.DeleteEmptyCartParams{
+			if err := pg.Queries.WithTx(tx).DeleteEmptyCart(c.Request().Context(), db.DeleteEmptyCartParams{
 				Username: username,
 				CartID:   param.CartID,
 			}); err != nil {
 				logger.Errorw("failed to delete empty cart", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+			if err := tx.Commit(c.Request().Context()); err != nil {
+				logger.Errorw("failed to commit transaction", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			return c.JSON(http.StatusOK, constants.SUCCESS)

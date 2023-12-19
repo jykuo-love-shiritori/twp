@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -26,6 +27,13 @@ func NewDB() (*DB, error) {
 	q := New(pool)
 
 	return &DB{Queries: q, pool: pool}, nil
+}
+func (db *DB) NewTx(ctx context.Context) (pgx.Tx, error) {
+	tx, err := db.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return tx, nil
 }
 
 func (db *DB) Close() {
