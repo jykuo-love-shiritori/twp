@@ -492,6 +492,17 @@ definitions:
       name:
         type: string
     type: object
+  db.SellerUpdateOrderStatusParams:
+    properties:
+      current_status:
+        $ref: '#/definitions/db.OrderStatus'
+      id:
+        type: integer
+      seller_name:
+        type: string
+      set_status:
+        $ref: '#/definitions/db.OrderStatus'
+    type: object
   db.SellerUpdateOrderStatusRow:
     properties:
       created_at:
@@ -632,6 +643,18 @@ definitions:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
         type: array
+    type: object
+  seller.TagParams:
+    properties:
+      tag_id:
+        type: integer
+    type: object
+  user.updatePasswordParams:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -1487,7 +1510,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -1528,7 +1551,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -1656,56 +1679,6 @@ paths:
       - Seller
       - Shop
       - Order
-    patch:
-      description: seller update orders status.
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: order current status
-        in: body
-        name: current_status
-        required: true
-        schema:
-          enum:
-          - '''pending'''
-          - '''paid'''
-          - '''shipped'''
-          - '''delivered'''
-          - '''cancelled'''
-          type: string
-      - description: order set status
-        in: body
-        name: set_status
-        required: true
-        schema:
-          enum:
-          - '''pending'''
-          - '''paid'''
-          - '''shipped'''
-          - '''delivered'''
-          - '''cancelled'''
-          type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.SellerUpdateOrderStatusRow'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller update order status
-      tags:
-      - Seller
-      - Shop
-      - Order
   /seller/order/{id}:
     get:
       description: Get order detail by ID for shop.
@@ -1735,6 +1708,38 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Seller get order detail
+      tags:
+      - Seller
+      - Shop
+      - Order
+    patch:
+      description: seller update orders status.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: order current status
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/db.SellerUpdateOrderStatusParams'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerUpdateOrderStatusRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller update order status
       tags:
       - Seller
       - Shop
@@ -1994,7 +1999,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2034,7 +2039,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2060,14 +2065,9 @@ paths:
     get:
       description: Get report detail by year and month for shop.
       parameters:
-      - description: Year
-        in: path
-        name: year
-        required: true
-        type: integer
-      - description: Month
-        in: path
-        name: month
+      - description: time
+        in: query
+        name: time
         required: true
         type: integer
       produces:
@@ -2417,9 +2417,7 @@ paths:
         name: credit_card
         required: true
         schema:
-          items:
-            type: integer
-          type: array
+          type: object
       produces:
       - application/json
       responses:
@@ -2446,18 +2444,12 @@ paths:
       - application/json
       description: Change user password
       parameters:
-      - description: current password
+      - description: password
         in: body
-        name: current_password
+        name: password
         required: true
         schema:
-          type: string
-      - description: new password
-        in: body
-        name: new_password
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/user.updatePasswordParams'
       produces:
       - application/json
       responses:

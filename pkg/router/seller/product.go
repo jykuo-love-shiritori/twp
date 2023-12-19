@@ -311,8 +311,8 @@ func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on product
 // @Tags			Seller, Shop, Product,Tag
 // @Accept			json
-// @Param			id		path	string	true	"product id"
-// @Param			tag_id	body	int		true	"add tag id"
+// @Param			id		path	string		true	"product id"
+// @Param			tag_id	body	TagParams	true	"add tag id"
 // @Produce		json
 // @Success		200	{object}	db.ProductTag
 // @Failure		400	{object}	echo.HTTPError
@@ -340,8 +340,8 @@ func AddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete product tag
 // @Description	Delete product for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			id		path	int	true	"product id"
-// @Param			tag_id	body	int	true	"add tag id"
+// @Param			id		path	int			true	"product id"
+// @Param			tag_id	body	TagParams	true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"

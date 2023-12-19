@@ -1271,7 +1271,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1325,7 +1325,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1509,76 +1509,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "seller update orders status.",
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Order"
-                ],
-                "summary": "Seller update order status",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "order current status",
-                        "name": "current_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "order set status",
-                        "name": "set_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
             }
         },
         "/seller/order/{id}": {
@@ -1617,6 +1547,53 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "seller update orders status.",
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller update order status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "order current status",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateOrderStatusParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -2005,7 +1982,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2058,7 +2035,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2105,16 +2082,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Year",
-                        "name": "year",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Month",
-                        "name": "month",
-                        "in": "path",
+                        "description": "time",
+                        "name": "time",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -2631,10 +2601,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "type": "object"
                         }
                     }
                 ],
@@ -2678,21 +2645,12 @@ const docTemplate = `{
                 "summary": "User Edit Password",
                 "parameters": [
                     {
-                        "description": "current password",
-                        "name": "current_password",
+                        "description": "password",
+                        "name": "password",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "new password",
-                        "name": "new_password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/user.updatePasswordParams"
                         }
                     }
                 ],
@@ -3464,6 +3422,23 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerUpdateOrderStatusParams": {
+            "type": "object",
+            "properties": {
+                "current_status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "set_status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                }
+            }
+        },
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
@@ -3678,6 +3653,25 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
                     }
+                }
+            }
+        },
+        "seller.TagParams": {
+            "type": "object",
+            "properties": {
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.updatePasswordParams": {
+            "type": "object",
+            "properties": {
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
                 }
             }
         }

@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+type TagParams struct {
+	TagID int32 `json:"tag_id"`
+}
+
 // @Summary		Seller get available tag
 // @Description	Get all available tags for shop.
 // @Tags			Seller, Shop, Tag
@@ -45,7 +49,7 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag for shop.
 // @Tags			Seller, Shop, Tag
 // @Accept			json
-// @Param			name	body	string	true	"insert tag"	minlength(1)
+// @Param			name	body	TagParams	true	"insert tag"	minlength(1)
 // @Produce		json
 // @success		200	{object}	db.SellerInsertTagRow
 // @Failure		400	{object}	echo.HTTPError

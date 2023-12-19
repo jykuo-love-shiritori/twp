@@ -1,8 +1,10 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
+	"net/mail"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
@@ -60,6 +62,12 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+
+		//check email format
+		if _, err := mail.ParseAddress(param.Email); err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
 		fileHeader, err := c.FormFile("image")
 		//if have file then store in miniopkg/router/seller
 		if err == nil {
@@ -91,8 +99,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Summary		User Edit Password
 // @Description	Change user password
 // @Tags			User
-// @Param			current_password	body	string	true	"current password"
-// @Param			new_password		body	string	true	"new password"
+// @Param			password	body	updatePasswordParams	true	"password"
 // @Accept			json
 // @Produce		json
 // @success		200	{object}	db.UserUpdatePasswordRow
@@ -107,6 +114,8 @@ func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		//todo check password strong
+
 		currentPassword, err := pg.Queries.UserGetPassword(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
@@ -156,7 +165,7 @@ func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			CreditCard
 // @Accept			json
 // @Produce		json
-// @Param			credit_card	body		json.RawMessage	true	"Credit Card"
+// @Param			credit_card	body		interface{}	true	"Credit Card"
 // @Success		200			{object}	json.RawMessage
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
@@ -164,14 +173,13 @@ func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func UpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
-		var param db.UserUpdateCreditCardParams
+		var param json.RawMessage
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param.Username = username
-		credit_cards, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), param)
+		credit_cards, err := pg.Queries.UserUpdateCreditCard(c.Request().Context(), db.UserUpdateCreditCardParams{Username: username, CreditCard: param})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

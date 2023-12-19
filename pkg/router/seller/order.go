@@ -98,12 +98,11 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 // @Summary		Seller update order status
 // @Description	seller update orders status.
 // @Tags			Seller, Shop, Order
-// @Param			id				path		int		true	"Order ID"
-// @Param			current_status	body		string	true	"order current status"	Enums('pending','paid','shipped','delivered','cancelled')
-// @Param			set_status		body		string	true	"order set status"		Enums('pending','paid','shipped','delivered','cancelled')
-// @Success		200				{object}	db.SellerUpdateOrderStatusRow
-// @Failure		400				{object}	echo.HTTPError
-// @Failure		500				{object}	echo.HTTPError
+// @Param			id		path		int									true	"Order ID"
+// @Param			param	body		db.SellerUpdateOrderStatusParams	true	"order current status"
+// @Success		200		{object}	db.SellerUpdateOrderStatusRow
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
 // @Router			/seller/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {

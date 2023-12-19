@@ -239,7 +239,7 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Tags			Seller, Shop, Coupon,Tag
 // @Accept			json
 // @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	int		true	"add tag id"
+// @Param			tag_id	body	TagParams		true	"add tag id"
 // @Produce		json
 // @success		200	{object}	db.CouponTag
 // @Failure		400	{object}	echo.HTTPError
@@ -268,7 +268,7 @@ func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon,Tag
 // @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	int		true	"add tag id"
+// @Param			tag_id	body	TagParams		true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"
