@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import CouponItemTemplate from './CouponItemTemplate';
-import TButton from './TButton';
+import CouponItemTemplate from '@components/CouponItemTemplate';
+import TButton from '@components/TButton';
 
 interface WrapCouponProps {
   data: {

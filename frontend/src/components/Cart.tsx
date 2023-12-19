@@ -10,10 +10,10 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import CartProduct from '@components/CartProduct';
 import sellerInfo from '@pages/user/seller/sellerInfo.json';
 import UserItem from '@components/UserItem';
-import TButton from './TButton';
-import CouponItemTemplate from './CouponItemTemplate';
-import CheckoutItem from './CheckoutItem';
-import CheckoutItemCoupon from './CheckoutItemCoupon';
+import TButton from '@components/TButton';
+import CouponItemTemplate from '@components/CouponItemTemplate';
+import CheckoutItem from '@components/CheckoutItem';
+import CheckoutItemCoupon from '@components/CheckoutItemCoupon';
 
 interface Props {
   data: CartProps;
