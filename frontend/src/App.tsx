@@ -43,7 +43,9 @@ import AdminReport from '@pages/user/admin/allReports';
 import AdminReportEach from '@pages/user/admin/allReports/[adminReportID]';
 import SellerReport from '@pages/user/seller/allReports';
 import SellerReportEach from '@pages/user/seller/allReports/[sellerReportID]';
+import Callback from '@pages/user/callback';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
+import ProtectedBoundary from '@components/ProtectedBoundary';
 
 function App() {
   return (
@@ -53,12 +55,72 @@ function App() {
         <Route path='/authorize' element={<Authorize />} />
         <Route path='/signup' element={<Signup />} />
 
-        <Route path='/' element={<Layout />}>
-          {/* global-parts ============================================== */}
-          <Route index element={<Home />} />
-          <Route path='/' element={<Home />} />
-          <Route path='/news'>
-            <Route path=':news_id' element={<EachNews />} />
+        <Route path='/callback' element={<Callback />} />
+
+        <Route path='/' element={<ProtectedBoundary />}>
+          <Route path='/' element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path='/' element={<Home />} />
+            <Route path='/news'>
+              <Route path=':news_id' element={<EachNews />} />
+            </Route>
+            <Route path='/discover' element={<Discover />} />
+            <Route path='/user' element={<User />}>
+              <Route index element={<Info />} />
+              <Route path='/user/info' element={<Info />} />
+              <Route path='/user/security' element={<Security />} />
+              <Route path='/user/security/password' element={<Password />} />
+              <Route path='/user/security/manageCreditCard' element={<CreditCard />} />
+              <Route path='/user/security/manageCreditCard/newCard' element={<NewCard />} />
+              <Route path='/user/buyer/order' element={<History />} />
+            </Route>
+            <Route path='/user/buyer/order'>
+              <Route path=':history_id' element={<HistoryEach />} />
+            </Route>
+
+            <Route path='/user/seller' element={<Seller />}>
+              <Route path='/user/seller/info' element={<NotFound />} />
+              <Route path='/user/seller/manageProducts' element={<Products />} />
+              <Route path='/user/seller/manageCoupons' element={<NotFound />} />
+              <Route path='/user/seller/orders' element={<SellerShipment />} />
+              <Route path='/user/seller/reports' element={<NotFound />} />
+            </Route>
+
+            <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
+            <Route path='/user/seller/manageProducts'>
+              <Route path=':goods_id' element={<EachSellerGoods />} />
+            </Route>
+
+            <Route path='/sellerID' element={<UserViewShop />}>
+              <Route index element={<Shop />} />
+              <Route path='/sellerID/shop' element={<Shop />} />
+              <Route path='/sellerID/coupons' element={<NotFound />} />
+            </Route>
+
+            <Route path='sellerID/shop'>
+              <Route path=':goods_id' element={<EachGoods />} />
+            </Route>
+
+            <Route path='/user/seller/order'>
+              <Route path=':history_id' element={<HistoryEach />} />
+            </Route>
+
+            <Route path='/buyer/cart' element={<Cart />} />
+
+            <Route path='/admin' element={<Admin />}>
+              <Route index element={<ManageUser />} />
+              <Route path='/admin/manageUser' element={<ManageUser />} />
+              {/* <Route path='/admin/manageCoupons' element={<ManageCoupon />} /> */}
+              {/* <Route path='/admin/report' element={<AdminReport />} /> */}
+            </Route>
+
+            <Route path='/search?' element={<SearchNotFound />} />
+
+            <Route path='*' element={<NotFound />} />
+            <Route path='/forbidden' element={<Forbidden />} />
+            <Route path='/unauthorized' element={<Unauthorized />} />
+
+            <Route path='/APItest' element={<APItest />} />
           </Route>
           <Route path='/discover' element={<Discover />} />
           <Route path='/search?' element={<SearchNotFound />} />

@@ -10,6 +10,7 @@ import GoodsItem from '@components/GoodsItem';
 
 import newsData from '@pages/home/newsData.json';
 import goodsData from '@pages/discover/goodsData.json';
+import { useAuth } from '@lib/Auth';
 
 import TitleImgUrl from '@assets/images/title.png';
 import NewsImgUrl1 from '@assets/images/news1.jpg';
@@ -17,6 +18,10 @@ import NewsImgUrl2 from '@assets/images/news2.jpg';
 import NewsImgUrl3 from '@assets/images/news3.jpg';
 
 const Home = () => {
+  const token = useAuth();
+
+  // TODO: remove this when integrating with backend
+  console.log(token);
   return (
     <div>
       <div className='home'>

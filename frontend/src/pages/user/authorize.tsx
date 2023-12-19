@@ -1,6 +1,6 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useState, FormEventHandler } from 'react';
 
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
@@ -8,8 +8,43 @@ import PasswordItem from '@components/PasswordItem';
 import LoginImgUrl from '@assets/images/login.jpg';
 
 const Authorize = () => {
+  const [searchParams] = useSearchParams();
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+
+  const authUrl = '/api/oauth/authorize';
+
+  const submitForm: FormEventHandler = async (e) => {
+    e.preventDefault();
+
+    const body = Object.fromEntries([...searchParams.entries()]);
+    body['email'] = email;
+    body['password'] = password;
+
+    const resp = await fetch(authUrl, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    const result = await resp.json();
+
+    const redirect_uri = searchParams.get('redirect_uri');
+    if (!redirect_uri) {
+      alert('No redirect uri set');
+      return;
+    }
+
+    const url = new URL(redirect_uri);
+    url.searchParams.set('state', result.state);
+    url.searchParams.set('code', result.code);
+
+    window.location.href = url.toString();
+  };
+
   return (
     <div>
       <div style={{ backgroundColor: 'var(--bg)', width: '100%' }}>
@@ -26,17 +61,22 @@ const Authorize = () => {
           <Col xs={12} md={6} style={{ padding: '10% 10% 10% 10%' }}>
             <Row>
               <Col xs={12}>
-                <div className='title center'> Log in</div>
-                <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                  <InfoItem text='Email Address' isMore={false} value={email} setValue={setEmail} />
-                  <PasswordItem text='Password' value={password} setValue={setPassword} />
-                </div>
-              </Col>
+                <form onSubmit={submitForm}>
+                  <div className='title center'> Log in</div>
+                  <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
+                    <InfoItem
+                      text='Email Address'
+                      isMore={false}
+                      value={email}
+                      setValue={setEmail}
+                    />
+                    <PasswordItem text='Password' value={password} setValue={setPassword} />
+                  </div>
 
-              <Col xs={12}>
-                <Button className='before_button white'>
-                  <div className='center white_word pointer'>Log in</div>
-                </Button>
+                  <Button className='before_button white' type='submit'>
+                    <div className='center white_word pointer'>Log in</div>
+                  </Button>
+                </form>
 
                 <div className='center' style={{ fontSize: '12px' }}></div>
                 <br />

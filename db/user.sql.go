@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"encoding/json"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addUser = `-- name: AddUser :exec
@@ -18,7 +20,8 @@ INSERT INTO "user" (
         "email",
         "address",
         "role",
-        "credit_card"
+        "credit_card",
+        "enabled"
     )
 VALUES (
         $1,
@@ -27,7 +30,8 @@ VALUES (
         $4,
         $5,
         'customer',
-        '{}'
+        '{}',
+        TRUE
     )
 `
 
@@ -47,6 +51,79 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 		arg.Email,
 		arg.Address,
 	)
+	return err
+}
+
+const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = NULL
+WHERE "refresh_token" = $1
+`
+
+func (q *Queries) DeleteRefreshToken(ctx context.Context, refreshToken string) error {
+	_, err := q.db.Exec(ctx, deleteRefreshToken, refreshToken)
+	return err
+}
+
+const findUserByRefreshToken = `-- name: FindUserByRefreshToken :one
+SELECT "username",
+    "role"
+FROM "user"
+WHERE "refresh_token" = $1
+    AND "refresh_token_expire_date" > NOW()
+`
+
+type FindUserByRefreshTokenRow struct {
+	Username string   `json:"username"`
+	Role     RoleType `json:"role"`
+}
+
+func (q *Queries) FindUserByRefreshToken(ctx context.Context, refreshToken string) (FindUserByRefreshTokenRow, error) {
+	row := q.db.QueryRow(ctx, findUserByRefreshToken, refreshToken)
+	var i FindUserByRefreshTokenRow
+	err := row.Scan(&i.Username, &i.Role)
+	return i, err
+}
+
+const findUserInfoAndPassword = `-- name: FindUserInfoAndPassword :one
+SELECT "username",
+    "role",
+    "password"
+FROM "user"
+WHERE "username" = $1
+    OR "email" = $1
+`
+
+type FindUserInfoAndPasswordRow struct {
+	Username string   `json:"username"`
+	Role     RoleType `json:"role"`
+	Password string   `json:"password"`
+}
+
+// user can enter both username and email to verify
+// but writing "usernameOrEmail" is too long
+func (q *Queries) FindUserInfoAndPassword(ctx context.Context, username string) (FindUserInfoAndPasswordRow, error) {
+	row := q.db.QueryRow(ctx, findUserInfoAndPassword, username)
+	var i FindUserInfoAndPasswordRow
+	err := row.Scan(&i.Username, &i.Role, &i.Password)
+	return i, err
+}
+
+const setRefreshToken = `-- name: SetRefreshToken :exec
+UPDATE "user"
+SET "refresh_token" = $1,
+    "refresh_token_expire_date" = $2
+WHERE "username" = $3
+`
+
+type SetRefreshTokenParams struct {
+	RefreshToken string             `json:"refresh_token"`
+	ExpireDate   pgtype.Timestamptz `json:"expire_date"`
+	Username     string             `json:"username"`
+}
+
+func (q *Queries) SetRefreshToken(ctx context.Context, arg SetRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, setRefreshToken, arg.RefreshToken, arg.ExpireDate, arg.Username)
 	return err
 }
 

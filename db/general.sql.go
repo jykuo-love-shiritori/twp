@@ -30,12 +30,12 @@ WHERE
 
 type GetProductInfoRow struct {
 	ID          int32              `json:"id" param:"product_id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
 }
 
@@ -149,8 +149,8 @@ WHERE
 type GetShopInfoRow struct {
 	SellerName  string `json:"seller_name" param:"seller_name"`
 	ImageID     string `json:"image_id" swaggertype:"string"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `form:"name" json:"name"`
+	Description string `form:"description" json:"description"`
 }
 
 func (q *Queries) GetShopInfo(ctx context.Context, sellerName string) (GetShopInfoRow, error) {

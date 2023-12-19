@@ -240,15 +240,15 @@ type Product struct {
 	ID          int32              `json:"id" param:"product_id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
-	Stock       int32              `json:"stock"`
+	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
-	Enabled     bool               `json:"enabled"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 type ProductArchive struct {
@@ -269,9 +269,9 @@ type Shop struct {
 	ID          int32  `json:"id"`
 	SellerName  string `json:"seller_name" param:"seller_name"`
 	ImageID     string `json:"image_id" swaggertype:"string"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Enabled     bool   `json:"enabled"`
+	Name        string `form:"name" json:"name"`
+	Description string `form:"description" json:"description"`
+	Enabled     bool   `form:"enabled" json:"enabled"`
 }
 
 type Tag struct {
@@ -281,15 +281,16 @@ type Tag struct {
 }
 
 type User struct {
-	ID           int32           `json:"id" param:"id"`
-	Username     string          `json:"username"`
-	Password     string          `json:"password"`
-	Name         string          `json:"name"`
-	Email        string          `json:"email"`
-	Address      string          `json:"address"`
-	ImageID      string          `json:"image_id" swaggertype:"string"`
-	Role         RoleType        `json:"role"`
-	CreditCard   json.RawMessage `json:"credit_card"`
-	RefreshToken string          `json:"refresh_token"`
-	Enabled      bool            `json:"enabled"`
+	ID                     int32              `json:"id" param:"id"`
+	Username               string             `json:"username"`
+	Password               string             `json:"password"`
+	Name                   string             `json:"name"`
+	Email                  string             `json:"email"`
+	Address                string             `json:"address"`
+	ImageID                string             `json:"image_id" swaggertype:"string"`
+	Role                   RoleType           `json:"role"`
+	CreditCard             json.RawMessage    `json:"credit_card"`
+	RefreshToken           string             `json:"refresh_token"`
+	Enabled                bool               `json:"enabled"`
+	RefreshTokenExpireDate pgtype.Timestamptz `json:"refresh_token_expire_date"`
 }
