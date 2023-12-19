@@ -992,6 +992,37 @@ func (q *Queries) GetUsableCoupons(ctx context.Context, arg GetUsableCouponsPara
 	return items, nil
 }
 
+const updateOrderStatus = `-- name: UpdateOrderStatus :execrows
+UPDATE
+    "order_history"
+SET
+    "status" = $1
+WHERE
+    "id" = $2
+    AND "user_id" =(
+        SELECT
+            "id"
+        FROM
+            "user"
+        WHERE
+            "username" = $3)
+    AND "status" = 'delivered'
+`
+
+type UpdateOrderStatusParams struct {
+	Status   NullOrderStatus `json:"status"`
+	ID       pgtype.Int4     `json:"id"`
+	Username string          `json:"username"`
+}
+
+func (q *Queries) UpdateOrderStatus(ctx context.Context, arg UpdateOrderStatusParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateOrderStatus, arg.Status, arg.ID, arg.Username)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const updateProductFromCart = `-- name: UpdateProductFromCart :execrows
 UPDATE
     "cart_product" AS CP

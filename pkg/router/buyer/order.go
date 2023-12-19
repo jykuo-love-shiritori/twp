@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -89,5 +91,47 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			orderDetail.Details[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Details[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, orderDetail)
+	}
+}
+
+type OrderStatus struct {
+	Status  db.OrderStatus `json:"status"`
+	OrderID int32          `param:"id" json:"-"`
+}
+
+// @Summary	Buyer Update order status
+// @Description	Buyer Update order status
+// @Tags			Buyer, Order
+// @Produce		json
+// @Param			id	path		int	true	"Order ID"
+// @Param			status	body		OrderStatus	true	"Order status"
+// @Success		200	{string}	string constants.SUCCESS
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
+// @Router			/buyer/order/{id} [patch]
+func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		username := "Buyer"
+		param := db.UpdateOrderStatusParams{Username: username}
+		var status OrderStatus
+		if err := c.Bind(&status); err != nil {
+			logger.Errorw("failed to bind body parameter", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		param.Status = db.NullOrderStatus{OrderStatus: status.Status, Valid: true}
+		param.ID = pgtype.Int4{Int32: status.OrderID, Valid: true}
+		if param.Status.OrderStatus != db.OrderStatusCancelled && param.Status.OrderStatus != db.OrderStatusFinished {
+			logger.Errorw("invalid order status", "status", param.Status.OrderStatus)
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid order status")
+		}
+		logger.Infow("update order status", "param", param)
+		if rows, err := pg.Queries.UpdateOrderStatus(c.Request().Context(), param); err != nil {
+			logger.Errorw("failed to update order status", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		} else if rows == 0 {
+			logger.Errorw("failed to update order status", "error", "order not found")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
 }

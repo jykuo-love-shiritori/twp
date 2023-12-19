@@ -102,6 +102,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	// buyer
 	api.GET("/buyer/order", buyer.GetOrderHistory(pg, mc, logger))
 	api.GET("/buyer/order/:id", buyer.GetOrderDetail(pg, mc, logger))
+	api.PATCH("/buyer/order/:id", buyer.UpdateOrderStatus(pg, logger))
 
 	api.GET("/buyer/cart", buyer.GetCart(pg, mc, logger)) // include product and coupon
 	api.GET("/buyer/cart/:cart_id/coupon", buyer.GetCoupon(pg, logger))

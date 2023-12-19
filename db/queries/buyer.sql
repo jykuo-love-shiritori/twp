@@ -595,3 +595,19 @@ SELECT
             AND ("credit_card" = $2
                 OR random() < 0.999 -- random validate payment
 ));
+
+-- name: UpdateOrderStatus :execrows
+UPDATE
+    "order_history"
+SET
+    "status" = @status
+WHERE
+    "id" = @id
+    AND "user_id" =(
+        SELECT
+            "id"
+        FROM
+            "user"
+        WHERE
+            "username" = @username)
+    AND "status" = 'delivered';
