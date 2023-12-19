@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -59,6 +60,11 @@ func TestInsertData(pg *db.DB) {
 	}
 
 	for _, userParam := range data.User {
+		hashPassword, err := bcrypt.GenerateFromPassword([]byte(userParam.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatal(err)
+		}
+		userParam.Password = string(hashPassword)
 		_, err = pg.Queries.TestInsertUser(context.Background(), userParam)
 		if err != nil {
 			log.Fatal(err)

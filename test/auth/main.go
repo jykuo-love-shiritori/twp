@@ -14,12 +14,15 @@ func main() {
 	conf := &oauth2.Config{
 		ClientID: "twp",
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://localhost:8080/api/oauth/authorize",
+			AuthURL:  "http://localhost:5173/authorize",
 			TokenURL: "http://localhost:8080/api/oauth/token",
 		},
+		RedirectURL: "http://localhost:5173/callback",
 	}
 
 	verifier := oauth2.GenerateVerifier()
+
+	fmt.Println(verifier)
 
 	url := conf.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 	fmt.Printf("Visit the URL for the auth dialog: %v", url)
