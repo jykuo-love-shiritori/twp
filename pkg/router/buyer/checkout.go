@@ -32,7 +32,7 @@ type checkout struct {
 }
 
 func getShipmentFee(total int32) int32 {
-	return int32(10 * math.Exp(0.05*float64(total)))
+	return int32(10 * math.Log(100*float64(total)))
 }
 func getDiscountValue(price float64, discount float64, couponType db.CouponType) int32 {
 	switch couponType {
@@ -48,17 +48,17 @@ func getDiscountValue(price float64, discount float64, couponType db.CouponType)
 // @Description	Get all checkout data
 // @Tags			Buyer, Checkout
 // @Produce		json
-// @Param			cart_id	path		int	true	"Cart ID"
+// @Param			id	path		int	true	"Cart ID"
 // @Success		200		{object}	checkout
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
-// @Router			/buyer/cart/{cart_id}/checkout [get]
+// @Router			/buyer/cart/{id}/checkout [get]
 func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		result := checkout{Coupons: []couponDiscount{}}
 		var cartID int32
-		if err := echo.PathParamsBinder(c).Int32("cart_id", &cartID).BindError(); err != nil {
+		if err := echo.PathParamsBinder(c).Int32("id", &cartID).BindError(); err != nil {
 			logger.Errorw("failed to parse cart_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -161,6 +161,7 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 						return echo.NewHTTPError(http.StatusInternalServerError)
 					}
 					cd.DiscountValue = getDiscountValue(price.Float64, cd.Discount, cd.Type)
+					break
 				}
 			}
 			totalDiscount += cd.DiscountValue
@@ -179,7 +180,7 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 }
 
 type PaymentMethod struct {
-	CreditCard json.RawMessage `swaggertype:"object"`
+	CreditCard json.RawMessage `json:"credit_card" swaggertype:"object"`
 }
 
 // @Summary		Buyer Checkout
@@ -187,17 +188,17 @@ type PaymentMethod struct {
 // @Tags			Buyer, Checkout
 // @Accept			json
 // @Produce		json
-// @param			cart_id			path		int				true	"Cart ID"
+// @param			id			path		int				true	"Cart ID"
 // @Param			payment_method	body		PaymentMethod	true	"Payment" Example
 // @Success		200				{string}	string			constants.SUCCESS
 // @Failure		400				{object}	echo.HTTPError
 // @Failure		500				{object}	echo.HTTPError
-// @Router			/buyer/cart/{cart_id}/checkout [post]
+// @Router			/buyer/cart/{id}/checkout [post]
 func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		var cartID int32
-		if err := echo.PathParamsBinder(c).Int32("cart_id", &cartID).BindError(); err != nil {
+		if err := echo.PathParamsBinder(c).Int32("id", &cartID).BindError(); err != nil {
 			logger.Errorw("failed to parse cart_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}

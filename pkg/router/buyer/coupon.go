@@ -36,18 +36,18 @@ func (t *tagSet) Intersect(other *tagSet) bool {
 // @Tags			Buyer, Cart, Coupon
 // @Accept			json
 // @Produce		json
-// @Param			cart_id	path		int	true	"Cart ID"
+// @Param			id	path		int	true	"Cart ID"
 // @Success		200		{array}		db.GetUsableCouponsRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
-// @Router			/buyer/cart/{cart_id}/coupon [get]
+// @Router			/buyer/cart/{id}/coupon [get]
 func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		username := "Buyer"
 		var param db.GetUsableCouponsParams
 		param.Username = username
 		result := []db.GetUsableCouponsRow{}
-		if err := c.Bind(&param); err != nil {
+		if err := echo.PathParamsBinder(c).Int32("id", &param.CartID).BindError(); err != nil {
 			logger.Errorw("failed to bind coupon in cart", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
