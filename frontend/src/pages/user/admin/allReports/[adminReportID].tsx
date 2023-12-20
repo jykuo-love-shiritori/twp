@@ -33,12 +33,10 @@ const AdminReportEach = () => {
   };
 
   const { year, month } = useParams();
-  let data: Props | undefined;
-  adminReportData.findIndex((item) => {
-    if (item.year.toString() === year && item.month.toString() === month) {
-      data = item;
-    }
-  });
+
+  const data: Props | undefined = adminReportData.find(
+    (item) => item.year.toString() === year && item.month.toString() === month,
+  );
 
   if (data) {
     return (

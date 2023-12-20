@@ -33,12 +33,10 @@ const SellerReportEach = () => {
   };
 
   const { year, month } = useParams();
-  let data: Props | undefined;
-  reportData.findIndex((item) => {
-    if (item.year.toString() === year && item.month.toString() === month) {
-      data = item;
-    }
-  });
+
+  const data: Props | undefined = reportData.find(
+    (item) => item.year.toString() === year && item.month.toString() === month,
+  );
 
   if (data) {
     return (

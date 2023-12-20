@@ -8,12 +8,12 @@ const AdminReport = () => {
   const years = Array.from({ length: currentYear - 2019 }, (_, index) => 2020 + index);
   const months = Array.from({ length: 12 }, (_, index) => index + 1);
 
-  const [year, setYear] = useState(months[0]);
-  const [month, setMonth] = useState(years[0]);
+  const [year, setYear] = useState(years[0]);
+  const [month, setMonth] = useState(months[0]);
 
   return (
     <div style={{ padding: '5% 8% 10% 8% ' }}>
-      <h3>At what time would you like to view the report?</h3>
+      <h3>Select report period</h3>
       <hr className='hr' />
 
       <FormItem label='Year'>

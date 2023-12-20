@@ -21,12 +21,7 @@ const SellerItem = ({ id }: Input) => {
     background: 'var(--button_dark, #135142)',
   };
 
-  let data: Props | undefined;
-  sellersData.findIndex((item) => {
-    if (item.id === id) {
-      data = item;
-    }
-  });
+  const data: Props | undefined = sellersData.find((item) => item.id === id);
 
   if (data) {
     const userImgStyle = {
@@ -50,6 +45,8 @@ const SellerItem = ({ id }: Input) => {
         <TButton text='View Shop' />
       </div>
     );
+  } else {
+    return <div style={SellerItemStyle}>not found</div>;
   }
 };
 
