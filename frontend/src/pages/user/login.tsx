@@ -33,6 +33,7 @@ const generateChallenge = async (verifier: string) => {
 const Login = () => {
   const navigate = useNavigate();
   const authUrl = import.meta.env.VITE_AUTHORIZE_URL;
+  const skip_auth = import.meta.env.VITE_SKIP_AUTH === 'true';
 
   const { refetch } = useQuery({
     queryKey: ['refresh'],
@@ -42,7 +43,7 @@ const Login = () => {
   });
 
   const login = async () => {
-    if (import.meta.env.VITE_SKIP_AUTH) {
+    if (skip_auth) {
       navigate('/');
       return;
     }
