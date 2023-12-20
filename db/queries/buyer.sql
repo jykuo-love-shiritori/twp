@@ -119,7 +119,7 @@ FROM
 WHERE
     "id" = $1;
 
--- name: GetProductFromCart :many
+-- name: GetProductFromCartOrderByPriceDesc :many
 SELECT
     "product_id",
     "name",
@@ -133,7 +133,9 @@ FROM
     "product" AS P
 WHERE
     "cart_id" = $1
-    AND C."product_id" = P."id";
+    AND C."product_id" = P."id"
+ORDER BY
+    "price" DESC;
 
 -- name: UpdateProductFromCart :execrows
 UPDATE

@@ -61,7 +61,7 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get coupon", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		cartProduct, err := pg.Queries.GetProductFromCart(c.Request().Context(), param.CartID)
+		cartProduct, err := pg.Queries.GetProductFromCartOrderByPriceDesc(c.Request().Context(), param.CartID)
 		if err != nil {
 			logger.Errorw("failed to get product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -159,7 +159,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to parse cart_id or coupon_id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		cartProduct, err := pg.Queries.GetProductFromCart(c.Request().Context(), param.CartID)
+		cartProduct, err := pg.Queries.GetProductFromCartOrderByPriceDesc(c.Request().Context(), param.CartID)
 		if err != nil {
 			logger.Errorw("failed to get product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

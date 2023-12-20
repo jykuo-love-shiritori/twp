@@ -11,7 +11,7 @@ import (
 
 type Cart struct {
 	CartInfo db.GetCartRow
-	Products []db.GetProductFromCartRow
+	Products []db.GetProductFromCartOrderByPriceDescRow
 	Coupons  []db.GetCouponsFromCartRow
 }
 
@@ -35,7 +35,7 @@ func GetCart(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 		for _, cartInfo := range carts {
 			var cart Cart
 			var err error
-			cart.Products, err = pg.Queries.GetProductFromCart(c.Request().Context(), cartInfo.ID)
+			cart.Products, err = pg.Queries.GetProductFromCartOrderByPriceDesc(c.Request().Context(), cartInfo.ID)
 			if err != nil {
 				logger.Errorw("failed to get product in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)

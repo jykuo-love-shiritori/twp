@@ -831,7 +831,7 @@ func (q *Queries) GetOrderInfo(ctx context.Context, arg GetOrderInfoParams) (Get
 	return i, err
 }
 
-const getProductFromCart = `-- name: GetProductFromCart :many
+const getProductFromCartOrderByPriceDesc = `-- name: GetProductFromCartOrderByPriceDesc :many
 SELECT
     "product_id",
     "name",
@@ -846,9 +846,11 @@ FROM
 WHERE
     "cart_id" = $1
     AND C."product_id" = P."id"
+ORDER BY
+    "price" DESC
 `
 
-type GetProductFromCartRow struct {
+type GetProductFromCartOrderByPriceDescRow struct {
 	ProductID int32          `json:"product_id" param:"id"`
 	Name      string         `form:"name" json:"name"`
 	ImageUrl  string         `json:"image_url"`
@@ -858,15 +860,15 @@ type GetProductFromCartRow struct {
 	Enabled   bool           `form:"enabled" json:"enabled"`
 }
 
-func (q *Queries) GetProductFromCart(ctx context.Context, cartID int32) ([]GetProductFromCartRow, error) {
-	rows, err := q.db.Query(ctx, getProductFromCart, cartID)
+func (q *Queries) GetProductFromCartOrderByPriceDesc(ctx context.Context, cartID int32) ([]GetProductFromCartOrderByPriceDescRow, error) {
+	rows, err := q.db.Query(ctx, getProductFromCartOrderByPriceDesc, cartID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetProductFromCartRow{}
+	items := []GetProductFromCartOrderByPriceDescRow{}
 	for rows.Next() {
-		var i GetProductFromCartRow
+		var i GetProductFromCartOrderByPriceDescRow
 		if err := rows.Scan(
 			&i.ProductID,
 			&i.Name,

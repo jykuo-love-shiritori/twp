@@ -75,15 +75,12 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		productCount := make(map[int32]int32)
 		productTag := make(map[int32]*tagSet)
-		products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartID)
+		products, err := pg.Queries.GetProductFromCartOrderByPriceDesc(c.Request().Context(), cartID)
 		if err != nil {
 			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		// sort to make customer get most discount
-		sort.Slice(products, func(i, j int) bool {
-			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
-		})
 		// calculate subtotal and get tags and counts
 		for _, product := range products {
 			// each product can have its coupon
@@ -226,7 +223,7 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		// all the following logic is basically same as the GetCheckout
 		// the only diff is that we need to update product version and no return
-		products, err := pg.Queries.GetProductFromCart(c.Request().Context(), cartID)
+		products, err := pg.Queries.GetProductFromCartOrderByPriceDesc(c.Request().Context(), cartID)
 		if err != nil {
 			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -234,12 +231,17 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		sort.Slice(products, func(i, j int) bool {
 			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
 		})
+		tx, err := pg.NewTx(c.Request().Context())
+		if err != nil {
+			logger.Errorw("failed to create transaction", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 		subtotal := int32(0)
 		productCount := make(map[int32]int32)
 		productTag := make(map[int32]*tagSet)
 		// calculate subtotal and get tags and counts
 		for _, product := range products {
-			err := pg.Queries.UpdateProductVersion(c.Request().Context(), product.ProductID)
+			err := pg.Queries.WithTx(tx).UpdateProductVersion(c.Request().Context(), product.ProductID)
 			if err != nil {
 				logger.Errorw("failed to update product version", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -322,13 +324,17 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		total := max(0, int32(subtotal)+shipment-totalDiscount)
 		//  if total < 0, consider get achievement “There is nothing more expensive than something free”
-		if err := pg.Queries.Checkout(c.Request().Context(),
+		if err := pg.Queries.WithTx(tx).Checkout(c.Request().Context(),
 			db.CheckoutParams{
 				Username:   username,
 				Shipment:   shipment,
 				CartID:     cartID,
 				TotalPrice: total}); err != nil {
 			logger.Errorw("failed to checkout", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if err := tx.Commit(c.Request().Context()); err != nil {
+			logger.Errorw("failed to commit transaction", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
