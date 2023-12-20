@@ -68,7 +68,7 @@ const SellerReportEach = () => {
           <hr className='hr' />
           <Row>
             <Col xs={12} className='center_vertical'>
-              <h4>
+              <h4 style={{ paddingBottom: '10px' }}>
                 <b>Total sales revenue :</b>
               </h4>
             </Col>

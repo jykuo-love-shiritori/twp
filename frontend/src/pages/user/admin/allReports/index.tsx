@@ -1,33 +1,49 @@
 import { useState } from 'react';
-
+import Form from 'react-bootstrap/Form';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 
 const AdminReport = () => {
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth());
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2019 }, (_, index) => 2020 + index);
+  const months = Array.from({ length: 12 }, (_, index) => index + 1);
+
+  const [year, setYear] = useState(months[0]);
+  const [month, setMonth] = useState(years[0]);
+
   return (
-    <div style={{ padding: '10% 8% 10% 8% ' }}>
+    <div style={{ padding: '5% 8% 10% 8% ' }}>
       <h3>At what time would you like to view the report?</h3>
       <hr className='hr' />
+
       <FormItem label='Year'>
-        <input
-          type='text'
-          defaultValue={year}
-          onChange={(e) => {
-            setYear(parseInt(e.target.value));
-          }}
-        />
+        <Form.Select
+          aria-label='Year'
+          value={year}
+          onChange={(e) => setYear(parseInt(e.target.value))}
+        >
+          <option value=''>Select year</option>
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </Form.Select>
       </FormItem>
+
       <FormItem label='Month'>
-        <input
-          type='text'
-          defaultValue={month}
-          onChange={(e) => {
-            setMonth(parseInt(e.target.value));
-          }}
-        />
+        <Form.Select
+          aria-label='Month'
+          value={month}
+          onChange={(e) => setMonth(parseInt(e.target.value))}
+        >
+          <option>Select month</option>
+          {months.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </Form.Select>
       </FormItem>
       <TButton text='Confirm' action={`/admin/reports/${year}/${month}`} />
     </div>

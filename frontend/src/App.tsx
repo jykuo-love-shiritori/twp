@@ -79,11 +79,12 @@ function App() {
             </Route>
 
             <Route path='/user/seller' element={<Seller />}>
-              <Route path='/user/seller/info' element={<NotFound />} />
+              <Route index element={<SellerInfo />} />
+              <Route path='/user/seller/info' element={<SellerInfo />} />
               <Route path='/user/seller/manageProducts' element={<Products />} />
-              <Route path='/user/seller/manageCoupons' element={<NotFound />} />
+              <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />
               <Route path='/user/seller/orders' element={<SellerShipment />} />
-              <Route path='/user/seller/reports' element={<NotFound />} />
+              <Route path='/user/seller/reports' element={<SellerReport />} />
             </Route>
 
             <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
@@ -91,10 +92,15 @@ function App() {
               <Route path=':goods_id' element={<EachSellerGoods />} />
             </Route>
 
+            <Route path='/user/seller/manageCoupons'>
+              <Route path='new' element={<NewSellerCoupon />} />
+              <Route path=':coupon_id' element={<EachSellerCoupon />} />
+            </Route>
+
             <Route path='/sellerID' element={<UserViewShop />}>
               <Route index element={<Shop />} />
               <Route path='/sellerID/shop' element={<Shop />} />
-              <Route path='/sellerID/coupons' element={<NotFound />} />
+              <Route path='/sellerID/coupons' element={<SellerCoupons />} />
             </Route>
 
             <Route path='sellerID/shop'>
@@ -105,14 +111,29 @@ function App() {
               <Route path=':history_id' element={<HistoryEach />} />
             </Route>
 
+            <Route path='/user/seller/reports'>
+              <Route path=':year/:month' element={<SellerReportEach />} />
+            </Route>
+
             <Route path='/buyer/cart' element={<Cart />} />
 
             <Route path='/admin' element={<Admin />}>
               <Route index element={<ManageUser />} />
               <Route path='/admin/manageUser' element={<ManageUser />} />
-              {/* <Route path='/admin/manageCoupons' element={<ManageCoupon />} /> */}
-              {/* <Route path='/admin/report' element={<AdminReport />} /> */}
+              <Route path='/admin/manageCoupons' element={<ManageAdminCoupons />} />
+              <Route path='/admin/reports' element={<AdminReport />} />
             </Route>
+
+            <Route path='/admin/manageCoupons'>
+              <Route path='new' element={<NewAdminCoupon />} />
+              <Route path=':coupon_id' element={<EachAdminCoupon />} />
+            </Route>
+
+            <Route path='/admin/reports'>
+              <Route path=':year/:month' element={<AdminReportEach />} />
+            </Route>
+
+            <Route path='/coupons' element={<Coupons />} />
 
             <Route path='/search?' element={<SearchNotFound />} />
 
@@ -121,86 +142,6 @@ function App() {
             <Route path='/unauthorized' element={<Unauthorized />} />
 
             <Route path='/APItest' element={<APItest />} />
-          </Route>
-          <Route path='/discover' element={<Discover />} />
-          <Route path='/search?' element={<SearchNotFound />} />
-          <Route path='/coupons' element={<Coupons />} />
-
-          <Route path='*' element={<NotFound />} />
-          <Route path='/forbidden' element={<Forbidden />} />
-          <Route path='/unauthorized' element={<Unauthorized />} />
-
-          <Route path='/APItest' element={<APItest />} />
-
-          {/* user-parts ================================================ */}
-          <Route path='/user' element={<User />}>
-            <Route index element={<Info />} />
-            <Route path='/user/info' element={<Info />} />
-            <Route path='/user/security' element={<Security />} />
-            <Route path='/user/security/password' element={<Password />} />
-            <Route path='/user/security/manageCreditCard' element={<CreditCard />} />
-            <Route path='/user/security/manageCreditCard/newCard' element={<NewCard />} />
-            <Route path='/user/buyer/order' element={<History />} />
-          </Route>
-          <Route path='/user/buyer/order'>
-            <Route path=':history_id' element={<HistoryEach />} />
-          </Route>
-
-          {/* seller-parts =============================================== */}
-          <Route path='/user/seller' element={<Seller />}>
-            <Route index element={<SellerInfo />} />
-            <Route path='/user/seller/info' element={<SellerInfo />} />
-            <Route path='/user/seller/manageProducts' element={<Products />} />
-            <Route path='/user/seller/manageCoupons' element={<ManageSellerCoupons />} />
-            <Route path='/user/seller/orders' element={<SellerShipment />} />
-            <Route path='/user/seller/reports' element={<SellerReport />} />
-          </Route>
-
-          <Route path='/user/seller/manageProducts/new' element={<NewGoods />} />
-          <Route path='/user/seller/manageProducts'>
-            <Route path=':goods_id' element={<EachSellerGoods />} />
-          </Route>
-
-          <Route path='/user/seller/manageCoupons'>
-            <Route path='new' element={<NewSellerCoupon />} />
-            <Route path=':coupon_id' element={<EachSellerCoupon />} />
-          </Route>
-
-          <Route path='/sellerID' element={<UserViewShop />}>
-            <Route index element={<Shop />} />
-            <Route path='/sellerID/shop' element={<Shop />} />
-            <Route path='/sellerID/coupons' element={<SellerCoupons />} />
-          </Route>
-
-          <Route path='sellerID/shop'>
-            <Route path=':goods_id' element={<EachGoods />} />
-          </Route>
-
-          <Route path='/user/seller/order'>
-            <Route path=':history_id' element={<HistoryEach />} />
-          </Route>
-
-          <Route path='/user/seller/reports'>
-            <Route path=':year/:month' element={<SellerReportEach />} />
-          </Route>
-
-          <Route path='/buyer/cart' element={<Cart />} />
-
-          {/* admin-parts ================================================ */}
-          <Route path='/admin' element={<Admin />}>
-            <Route index element={<ManageUser />} />
-            <Route path='/admin/manageUser' element={<ManageUser />} />
-            <Route path='/admin/reports' element={<AdminReport />} />
-            <Route path='/admin/manageCoupons' element={<ManageAdminCoupons />} />
-          </Route>
-
-          <Route path='/admin/reports'>
-            <Route path=':year/:month' element={<AdminReportEach />} />
-          </Route>
-
-          <Route path='/admin/manageCoupons'>
-            <Route path='new' element={<NewAdminCoupon />} />
-            <Route path=':coupon_id' element={<EachAdminCoupon />} />
           </Route>
         </Route>
       </Routes>
