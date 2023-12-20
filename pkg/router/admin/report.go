@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/labstack/echo/v4"
@@ -42,8 +43,11 @@ func GetReport(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerF
 		year, month, day := t.Date()
 		result := adminReport{Year: int32(year), Month: int32(month)}
 		// set date's time to 00:00:00
-		formattedDate := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Format(time.RFC3339)
-		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), formattedDate)
+		formattedDate := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+		result.Sellers, err = pg.Queries.GetTopSeller(c.Request().Context(), pgtype.Timestamptz{
+			Time:  formattedDate,
+			Valid: true,
+		})
 		for i := range result.Sellers {
 			if result.Sellers[i].ImageUrl != "" {
 				result.Sellers[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Sellers[i].ImageUrl)
@@ -54,7 +58,10 @@ func GetReport(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerF
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		// get total amount by sum the total_sales of sellers
-		result.TotalAmount, err = pg.Queries.GetTotalSales(c.Request().Context(), date)
+		result.TotalAmount, err = pg.Queries.GetTotalSales(c.Request().Context(), pgtype.Timestamptz{
+			Time:  formattedDate,
+			Valid: true,
+		})
 		if err != nil {
 			logger.Errorw("failed to get total sales", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

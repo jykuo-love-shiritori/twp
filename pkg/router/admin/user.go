@@ -64,7 +64,7 @@ func DisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to disable user", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to disable user")
 		} else if execRows == 0 {
-			logger.Infow("user not found", "username", username)
+			logger.Errorw("user not found", "username", username)
 			return echo.NewHTTPError(http.StatusNotFound, "User not found")
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)

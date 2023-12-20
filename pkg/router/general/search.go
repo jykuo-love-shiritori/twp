@@ -2,7 +2,7 @@ package general
 
 import (
 	"errors"
-	"math/big"
+	"fmt"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -14,12 +14,12 @@ import (
 )
 
 type searchParams struct {
-	Q          string `query:"q"`
-	MinPrice   int32  `query:"minPrice"`
-	MaxPrice   int32  `query:"maxPrice"`
-	HaveCoupon bool   `query:"haveCoupon"`
-	SortBy     string `query:"sortBy"`
-	Order      string `query:"order"`
+	Q          string  `query:"q"`
+	MinPrice   float64 `query:"minPrice"`
+	MaxPrice   float64 `query:"maxPrice"`
+	HaveCoupon bool    `query:"haveCoupon"`
+	SortBy     string  `query:"sortBy"`
+	Order      string  `query:"order"`
 	common.QueryParams
 }
 
@@ -106,14 +106,6 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			Offset:     int32(q.Offset),
 			Limit:      int32(q.Limit),
 			Query:      q.Q,
-			MinPrice: pgtype.Numeric{
-				Int:   big.NewInt(int64(q.MinPrice)),
-				Valid: true,
-			},
-			MaxPrice: pgtype.Numeric{
-				Int:   big.NewInt(int64(q.MaxPrice)),
-				Valid: true,
-			},
 			HasCoupon: pgtype.Bool{
 				Bool:  q.HaveCoupon,
 				Valid: true,
@@ -121,6 +113,15 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			SortBy: q.SortBy,
 			Order:  q.Order,
 		}
+		if err := dbq.MinPrice.Scan(fmt.Sprintf("%f", q.MinPrice)); err != nil {
+			logger.Errorw("failed to scan minPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MaxPrice.Scan(fmt.Sprintf("%f", q.MaxPrice)); err != nil {
+			logger.Errorw("failed to scan maxPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+
 		paramMap := map[string]interface{}{
 			"minPrice":   &dbq.MinPrice,
 			"maxPrice":   &dbq.MaxPrice,
@@ -134,6 +135,8 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 				case *pgtype.Numeric:
 					val.Valid = false
 				case *pgtype.Bool:
+					val.Valid = false
+				case *pgtype.Int4:
 					val.Valid = false
 				}
 			}
@@ -184,20 +187,20 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 			Offset: int32(q.Offset),
 			Limit:  int32(q.Limit),
 			Query:  q.Q,
-			MinPrice: pgtype.Numeric{
-				Int:   big.NewInt(int64(q.MinPrice)),
-				Valid: true,
-			},
-			MaxPrice: pgtype.Numeric{
-				Int:   big.NewInt(int64(q.MaxPrice)),
-				Valid: true,
-			},
 			HasCoupon: pgtype.Bool{
 				Bool:  q.HaveCoupon,
 				Valid: true,
 			},
 			SortBy: q.SortBy,
 			Order:  q.Order,
+		}
+		if err := dbq.MinPrice.Scan(fmt.Sprintf("%f", q.MinPrice)); err != nil {
+			logger.Errorw("failed to scan minPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MaxPrice.Scan(fmt.Sprintf("%f", q.MaxPrice)); err != nil {
+			logger.Errorw("failed to scan maxPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		paramMap := map[string]interface{}{
 			"minPrice":   &dbq.MinPrice,
@@ -212,6 +215,8 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 				case *pgtype.Numeric:
 					val.Valid = false
 				case *pgtype.Bool:
+					val.Valid = false
+				case *pgtype.Int4:
 					val.Valid = false
 				}
 			}

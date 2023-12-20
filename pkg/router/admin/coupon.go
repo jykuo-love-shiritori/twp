@@ -61,7 +61,7 @@ func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to check coupon exist", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else if !exist {
-			logger.Infow("coupon not found", "id", id)
+			logger.Errorw("coupon not found", "id", id)
 			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
 		result, err := pg.Queries.GetGlobalCouponDetail(c.Request().Context(), id)
@@ -95,7 +95,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to parse discount", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
 		}
-		if discount.Float64 < 0 || discount.Float64 > 100 {
+		if discount.Float64 < 0 || (coupon.Type == db.CouponTypeFixed && discount.Float64 > 100) {
 			logger.Errorw("discount is invalid", "discount", discount)
 			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
@@ -141,7 +141,7 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to parse discount", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
 		}
-		if discount.Float64 < 0 || discount.Float64 > 100 {
+		if discount.Float64 < 0 || (coupon.Type == db.CouponTypePercentage && discount.Float64 > 100) {
 			logger.Errorw("discount is invalid", "discount", discount)
 			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
@@ -174,7 +174,7 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to delete coupon", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else if execRows == 0 {
-			logger.Infow("coupon not found", "id", id)
+			logger.Errorw("coupon not found", "id", id)
 			return echo.NewHTTPError(http.StatusNotFound, "Coupon not found")
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)

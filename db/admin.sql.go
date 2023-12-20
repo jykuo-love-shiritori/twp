@@ -409,8 +409,8 @@ FROM
 WHERE
     S."id" = O."shop_id"
     AND O."status" = 'paid'
-    AND O."created_at" < CAST((CAST($1::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')) AS TIMESTAMPTZ)
-    AND O."created_at" >= CAST($1::TEXT AS TIMESTAMPTZ)
+    AND O."created_at" BETWEEN $1
+    AND $1 + INTERVAL '1 month'
 GROUP BY
     S."seller_name",
     S."name",
@@ -427,7 +427,7 @@ type GetTopSellerRow struct {
 	TotalSales int64  `json:"total_sales"`
 }
 
-func (q *Queries) GetTopSeller(ctx context.Context, date string) ([]GetTopSellerRow, error) {
+func (q *Queries) GetTopSeller(ctx context.Context, date pgtype.Timestamptz) ([]GetTopSellerRow, error) {
 	rows, err := q.db.Query(ctx, getTopSeller, date)
 	if err != nil {
 		return nil, err
@@ -456,14 +456,14 @@ const getTotalSales = `-- name: GetTotalSales :one
 SELECT
     COALESCE(SUM("total_price"), 0)::INTEGER AS "total_sales"
 FROM
-    "order_history"
+    "order_history" O
 WHERE
     "status" = 'paid'
-    AND "created_at" < CAST((CAST($1::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')) AS TIMESTAMPTZ)
-    AND "created_at" >= CAST($1::TEXT AS TIMESTAMPTZ)
+    AND O."created_at" BETWEEN $1
+    AND $1 + INTERVAL '1 month'
 `
 
-func (q *Queries) GetTotalSales(ctx context.Context, date string) (int32, error) {
+func (q *Queries) GetTotalSales(ctx context.Context, date pgtype.Timestamptz) (int32, error) {
 	row := q.db.QueryRow(ctx, getTotalSales, date)
 	var total_sales int32
 	err := row.Scan(&total_sales)

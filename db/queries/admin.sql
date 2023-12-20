@@ -194,8 +194,8 @@ FROM
 WHERE
     S."id" = O."shop_id"
     AND O."status" = 'paid'
-    AND O."created_at" < CAST((CAST(@date::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')) AS TIMESTAMPTZ)
-    AND O."created_at" >= CAST(@date::TEXT AS TIMESTAMPTZ)
+    AND O."created_at" BETWEEN sqlc.arg('date')
+    AND sqlc.arg('date') + INTERVAL '1 month'
 GROUP BY
     S."seller_name",
     S."name",
@@ -208,8 +208,8 @@ LIMIT 3;
 SELECT
     COALESCE(SUM("total_price"), 0)::INTEGER AS "total_sales"
 FROM
-    "order_history"
+    "order_history" O
 WHERE
     "status" = 'paid'
-    AND "created_at" < CAST((CAST(@date::TEXT AS TIMESTAMPTZ) +(INTERVAL '1 month')) AS TIMESTAMPTZ)
-    AND "created_at" >= CAST(@date::TEXT AS TIMESTAMPTZ);
+    AND O."created_at" BETWEEN sqlc.arg('date')
+    AND sqlc.arg('date') + INTERVAL '1 month';

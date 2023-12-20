@@ -403,22 +403,19 @@ WHERE
 
 -- name: ValidateProductsInCart :one
 SELECT
-    EXISTS (
+    NOT EXISTS (
         SELECT
             1
         FROM
-            "cart_product" AS CP,
-            "product" AS P,
-            "cart" AS C,
-            "user" AS U
+            "cart_product" AS CP
+            JOIN "product" AS P ON CP."product_id" = P."id"
+            JOIN "cart" AS C ON C."id" = CP."cart_id"
+            JOIN "user" AS U ON C."user_id" = U."id"
         WHERE
-            C."id" = CP."cart_id"
-            AND CP."product_id" = P."id"
-            AND C."id" = @cart_id
-            AND C."user_id" = U."id"
-            AND U."username" = $1
-            AND P."enabled" = TRUE
-            AND CP."quantity" <= P."stock");
+            C."id" = @cart_id
+            AND U."username" = $1 --
+            AND (P."enabled" = FALSE
+                OR CP."quantity" > P."stock"));
 
 -- name: DeleteCouponFromCart :execrows
 DELETE FROM "cart_coupon" AS CC USING "cart" AS C, "user" AS U
