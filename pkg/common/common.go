@@ -7,21 +7,15 @@ import (
 	"regexp"
 
 	"github.com/google/uuid"
-	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 )
 
 type QueryParams struct {
-	Offset int32 `query:"offset"` // the start index of the query
-	Limit  int32 `query:"limit"`  // the number of the query
+	Offset int64 `query:"offset"` // the start index of the query
+	Limit  int64 `query:"limit"`  // the number of the query
 }
 
-type Cart struct {
-	Seller_name string
-	Products    []db.GetProductInCartRow
-}
-
-func NewQueryParams(offset int32, limit int32) QueryParams {
+func NewQueryParams(offset int64, limit int64) QueryParams {
 	return QueryParams{Offset: offset, Limit: limit}
 }
 

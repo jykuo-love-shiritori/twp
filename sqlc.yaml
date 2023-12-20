@@ -3,6 +3,8 @@ sql:
   - engine: "postgresql"
     queries: "db/queries"
     schema: "db/migrations"
+    database:
+      uri: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
     gen:
       go:
         emit_json_tags: true
@@ -49,6 +51,8 @@ sql:
           - column: shop.enabled
             go_struct_tag: form:"enabled"
 
+          - column: cart_product.product_id
+            go_struct_tag: param:"id"
           - column: coupon.discount
             go_struct_tag: swaggertype:"number"
           - column: coupon.start_date

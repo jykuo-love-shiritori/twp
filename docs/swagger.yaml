@@ -1,5 +1,33 @@
 basePath: /api
 definitions:
+  admin.PrettierCoupon:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      end_date:
+        type: string
+      name:
+        type: string
+      start_date:
+        type: string
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  admin.adminReport:
+    properties:
+      month:
+        type: integer
+      sellers:
+        items:
+          $ref: '#/definitions/db.GetTopSellerRow'
+        type: array
+      total:
+        type: integer
+      year:
+        type: integer
+    type: object
   auth.signupParams:
     properties:
       email:
@@ -15,13 +43,97 @@ definitions:
         example: john
         type: string
     type: object
-  common.Cart:
+  buyer.Cart:
     properties:
+      cartInfo:
+        $ref: '#/definitions/db.GetCartRow'
+      coupons:
+        items:
+          $ref: '#/definitions/db.GetSortedCouponsFromCartRow'
+        type: array
       products:
         items:
-          $ref: '#/definitions/db.GetProductInCartRow'
+          $ref: '#/definitions/db.GetProductFromCartOrderByPriceDescRow'
         type: array
-      seller_name:
+    type: object
+  buyer.OrderDetail:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/db.GetOrderDetailRow'
+        type: array
+      info:
+        $ref: '#/definitions/db.GetOrderInfoRow'
+    type: object
+  buyer.OrderStatus:
+    properties:
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+    type: object
+  buyer.PaymentMethod:
+    properties:
+      credit_card:
+        type: object
+    type: object
+  buyer.ProductQuantity:
+    properties:
+      quantity:
+        type: integer
+    type: object
+  buyer.checkout:
+    properties:
+      coupons:
+        items:
+          $ref: '#/definitions/buyer.couponDiscount'
+        type: array
+      payments:
+        items:
+          type: integer
+        type: array
+      shipment:
+        type: integer
+      subtotal:
+        type: integer
+      total:
+        type: integer
+      total_discount:
+        type: integer
+    type: object
+  buyer.couponDiscount:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      discount_value:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  common.News:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      image_id:
+        type: string
+      title:
+        type: string
+    type: object
+  common.NewsInfo:
+    properties:
+      id:
+        type: integer
+      image_id:
+        type: string
+      title:
         type: string
     type: object
   db.AddCouponParams:
@@ -36,8 +148,6 @@ definitions:
         type: string
       scope:
         $ref: '#/definitions/db.CouponScope'
-      shop_id:
-        $ref: '#/definitions/pgtype.Int4'
       start_date:
         type: string
       type:
@@ -106,7 +216,18 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.GetAnyCouponsRow:
+  db.GetCartRow:
+    properties:
+      id:
+        type: integer
+      seller_name:
+        type: string
+      shop_image_url:
+        type: string
+      shop_name:
+        type: string
+    type: object
+  db.GetGlobalCouponDetailRow:
     properties:
       description:
         type: string
@@ -125,7 +246,7 @@ definitions:
       type:
         $ref: '#/definitions/db.CouponType'
     type: object
-  db.GetCouponDetailRow:
+  db.GetGlobalCouponsRow:
     properties:
       description:
         type: string
@@ -143,6 +264,21 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/db.CouponType'
+    type: object
+  db.GetOrderDetailRow:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: integer
+      quantity:
+        type: integer
     type: object
   db.GetOrderHistoryRow:
     properties:
@@ -152,16 +288,51 @@ definitions:
         type: integer
       shipment:
         type: integer
+      shop_image_url:
+        type: string
+      shop_name:
+        type: string
+      status:
+        $ref: '#/definitions/db.OrderStatus'
+      thumbnail_url:
+        type: string
+      total_price:
+        type: integer
+    type: object
+  db.GetOrderInfoRow:
+    properties:
+      created_at:
+        type: string
+      discount:
+        type: integer
+      id:
+        type: integer
+      shipment:
+        type: integer
+      shop_image_url:
+        type: string
+      shop_name:
+        type: string
       status:
         $ref: '#/definitions/db.OrderStatus'
       total_price:
         type: integer
     type: object
-  db.GetProductInCartRow:
+  db.GetProductFromCartOrderByPriceDescRow:
     properties:
+      enabled:
+        type: boolean
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
       product_id:
         type: integer
       quantity:
+        type: integer
+      stock:
         type: integer
     type: object
   db.GetProductInfoRow:
@@ -172,7 +343,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -181,6 +352,51 @@ definitions:
       sales:
         type: integer
       stock:
+        type: integer
+    type: object
+  db.GetProductsFromNearByShopRow:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+    type: object
+  db.GetProductsFromPopularShopRow:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+    type: object
+  db.GetRandomProductsRow:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
         type: integer
     type: object
   db.GetShopCouponsRow:
@@ -206,12 +422,65 @@ definitions:
     properties:
       description:
         type: string
-      image_id:
+      image_url:
         type: string
       name:
         type: string
       seller_name:
         type: string
+    type: object
+  db.GetShopProductsRow:
+    properties:
+      description:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sales:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  db.GetSortedCouponsFromCartRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  db.GetSortedUsableCouponsRow:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   db.GetTagInfoRow:
     properties:
@@ -219,6 +488,17 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  db.GetTopSellerRow:
+    properties:
+      image_url:
+        type: string
+      name:
+        type: string
+      seller_name:
+        type: string
+      total_sales:
+        type: integer
     type: object
   db.GetUsersRow:
     properties:
@@ -232,6 +512,8 @@ definitions:
         type: string
       enabled:
         type: boolean
+      icon_url:
+        type: string
       name:
         type: string
       role:
@@ -578,27 +860,67 @@ definitions:
     properties:
       message: {}
     type: object
+  general.PrettierProductSearchResult:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  general.PrettierSearchResult:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/general.PrettierProductSearchResult'
+        type: array
+      shops:
+        items:
+          $ref: '#/definitions/general.PrettierProductSearchResult'
+        type: array
+    type: object
+  general.PrettierShopSearchResult:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      seller_name:
+        type: string
+    type: object
+  general.popular:
+    properties:
+      local_products:
+        items:
+          $ref: '#/definitions/db.GetProductsFromNearByShopRow'
+        type: array
+      popular_products:
+        items:
+          $ref: '#/definitions/db.GetProductsFromPopularShopRow'
+        type: array
+    type: object
+  general.shopInfo:
+    properties:
+      info:
+        $ref: '#/definitions/db.GetShopInfoRow'
+      products:
+        items:
+          $ref: '#/definitions/db.GetShopProductsRow'
+        type: array
+    type: object
   pgtype.Int4:
     properties:
       int32:
         type: integer
       valid:
         type: boolean
-    type: object
-  router.PrettierCoupon:
-    properties:
-      description:
-        type: string
-      discount:
-        type: number
-      end_date:
-        type: string
-      name:
-        type: string
-      start_date:
-        type: string
-      type:
-        $ref: '#/definitions/db.CouponType'
     type: object
   seller.CouponDetail:
     properties:
@@ -684,7 +1006,7 @@ info:
 paths:
   /admin/coupon:
     get:
-      description: Get all coupons (include shops' coupon).
+      description: Get all global coupons .
       parameters:
       - default: 0
         description: Begin index
@@ -703,7 +1025,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/db.GetAnyCouponsRow'
+              $ref: '#/definitions/db.GetGlobalCouponsRow'
             type: array
         "400":
           description: Bad Request
@@ -789,7 +1111,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.GetCouponDetailRow'
+            $ref: '#/definitions/db.GetGlobalCouponDetailRow'
         "400":
           description: Bad Request
           schema:
@@ -810,7 +1132,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Edit any coupon.
+      description: Edit global coupon. All the coupon properties are required.
       parameters:
       - description: Coupon ID
         in: path
@@ -822,7 +1144,7 @@ paths:
         name: coupon
         required: true
         schema:
-          $ref: '#/definitions/router.PrettierCoupon'
+          $ref: '#/definitions/admin.PrettierCoupon'
       produces:
       - application/json
       responses:
@@ -844,25 +1166,20 @@ paths:
       - Coupon
   /admin/report:
     get:
-      description: Get site report.
+      description: Get site report (top 3 sellers and total amount).
       parameters:
-      - description: Start date
+      - description: Start year/month
         in: query
-        name: start_date
-        required: true
-        type: string
-      - description: End date
-        in: query
-        name: end_date
+        name: date
         required: true
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: TODO
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/admin.adminReport'
         "400":
           description: Bad Request
           schema:
@@ -950,7 +1267,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/common.Cart'
+              $ref: '#/definitions/buyer.Cart'
             type: array
         "400":
           description: Bad Request
@@ -964,52 +1281,11 @@ paths:
       tags:
       - Buyer
       - Cart
-  /buyer/cart/{cart_id}/checkout:
-    get:
-      description: Get all checkout data
-      parameters:
-      - description: Cart ID
-        in: path
-        name: cart_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Get Checkout
-      tags:
-      - Buyer
-      - Checkout
-    post:
-      consumes:
-      - application/json
-      description: Checkout
-      parameters:
-      - description: Cart ID
-        in: path
-        name: cart_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Checkout
-      tags:
-      - Buyer
-      - Checkout
   /buyer/cart/{cart_id}/coupon/{coupon_id}:
     delete:
       consumes:
       - application/json
-      description: Delete coupon from cart
+      description: Delete coupon In cart
       parameters:
       - description: Cart ID
         in: path
@@ -1026,9 +1302,17 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-      summary: Buyer Delete Coupon From Cart
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Delete Coupon In Cart
       tags:
       - Buyer
       - Cart
@@ -1053,8 +1337,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Add Coupon To Cart
       tags:
       - Buyer
@@ -1081,8 +1373,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Delete Product From Cart
       tags:
       - Buyer
@@ -1090,7 +1390,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Edit product quantity in cart
+      description: Edit product quantity in cart (The product must be in the cart)
       parameters:
       - description: Cart ID
         in: path
@@ -1102,39 +1402,159 @@ paths:
         name: product_id
         required: true
         type: integer
+      - description: Quantity
+        in: body
+        name: quantity
+        required: true
+        schema:
+          $ref: '#/definitions/buyer.ProductQuantity'
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Edit Product In Cart
       tags:
       - Buyer
       - Cart
+  /buyer/cart/{id}/checkout:
+    get:
+      description: Get all checkout data
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/buyer.checkout'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Get Checkout
+      tags:
+      - Buyer
+      - Checkout
+    post:
+      consumes:
+      - application/json
+      description: Checkout
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payment
+        in: body
+        name: payment_method
+        required: true
+        schema:
+          $ref: '#/definitions/buyer.PaymentMethod'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Checkout
+      tags:
+      - Buyer
+      - Checkout
+  /buyer/cart/{id}/coupon:
+    get:
+      consumes:
+      - application/json
+      description: Buyer get usable coupon of cart/shop
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.GetSortedUsableCouponsRow'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Get usable coupon of cart/shop
+      tags:
+      - Buyer
+      - Cart
+      - Coupon
+  /buyer/cart/product/{id}:
     post:
       consumes:
       - application/json
       description: Add product to cart
       parameters:
-      - description: Cart ID
-        in: path
-        name: cart_id
-        required: true
-        type: integer
       - description: Product ID
         in: path
-        name: product_id
+        name: id
         required: true
         type: integer
+      - description: Quantity
+        in: body
+        name: quantity
+        required: true
+        schema:
+          $ref: '#/definitions/buyer.ProductQuantity'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-        "401":
-          description: Unauthorized
+          description: product quantity in cart
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Add Product To Cart
       tags:
       - Buyer
@@ -1188,9 +1608,50 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/buyer.OrderDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Buyer Get Order Detail
+      tags:
+      - Buyer
+      - Order
+    patch:
+      description: Buyer Update order status
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Order status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/buyer.OrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Buyer Update order status
       tags:
       - Buyer
       - Order
@@ -1199,13 +1660,31 @@ paths:
       consumes:
       - application/json
       description: Get discover content
+      parameters:
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/db.GetRandomProductsRow'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get Discover
       tags:
       - Discover
@@ -1220,8 +1699,14 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/common.NewsInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get News
       tags:
       - News
@@ -1241,8 +1726,16 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/common.News'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Get News Detail
       tags:
       - News
@@ -1259,6 +1752,28 @@ paths:
       summary: Logout
       tags:
       - Auth
+  /popular:
+    get:
+      consumes:
+      - application/json
+      description: Get discover content
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/general.popular'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Popular products and Local products
+      tags:
+      - Discover
+      - Product
   /product/{id}:
     get:
       consumes:
@@ -1298,18 +1813,73 @@ paths:
       - application/json
       description: Search for products and shops
       parameters:
-      - description: search word
+      - description: search query
         in: query
         name: q
         required: true
         type: string
+      - description: price lower bound
+        in: query
+        name: minPrice
+        type: number
+      - description: price upper bound
+        in: query
+        name: maxPrice
+        type: number
+      - description: stock lower bound
+        in: query
+        name: minStock
+        type: integer
+      - description: stock upper bound
+        in: query
+        name: maxStock
+        type: integer
+      - description: has coupon
+        in: query
+        name: haveCoupon
+        type: boolean
+      - description: sort by
+        enum:
+        - '"price"'
+        - '"stock"'
+        - '"sales"'
+        - '"relevancy"'
+        in: query
+        name: sortBy
+        type: string
+      - description: sorting order
+        enum:
+        - '"asc"'
+        - '"desc"'
+        in: query
+        name: order
+        type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/general.PrettierSearchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search for Products and Shops
       tags:
       - Search
@@ -1324,13 +1894,34 @@ paths:
         name: q
         required: true
         type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/general.PrettierShopSearchResult'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search for Shops by Name
       tags:
       - Search
@@ -2177,13 +2768,24 @@ paths:
         name: seller_name
         required: true
         type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.GetShopInfoRow'
+            $ref: '#/definitions/general.shopInfo'
         "400":
           description: Bad Request
           schema:
@@ -2218,6 +2820,7 @@ paths:
       - default: 10
         description: limit
         in: query
+        maximum: 20
         name: limit
         type: integer
       produces:
@@ -2255,19 +2858,74 @@ paths:
         in: path
         name: seller_name
         required: true
-        type: integer
-      - description: search word
+        type: string
+      - description: search query
         in: query
         name: q
         required: true
         type: string
+      - description: price lower bound
+        in: query
+        name: minPrice
+        type: number
+      - description: price upper bound
+        in: query
+        name: maxPrice
+        type: number
+      - description: stock lower bound
+        in: query
+        name: minStock
+        type: integer
+      - description: stock upper bound
+        in: query
+        name: maxStock
+        type: integer
+      - description: has coupon
+        in: query
+        name: haveCoupon
+        type: boolean
+      - description: sort by
+        enum:
+        - '"price"'
+        - '"stock"'
+        - '"sales"'
+        - '"relevancy"'
+        in: query
+        name: sortBy
+        type: string
+      - description: sorting order
+        enum:
+        - '"asc"'
+        - '"desc"'
+        in: query
+        name: order
+        type: string
+      - default: 0
+        description: Begin index
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: limit
+        in: query
+        maximum: 20
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
+          schema:
+            $ref: '#/definitions/general.PrettierProductSearchResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
       summary: Search Shop Products
       tags:
       - Shop

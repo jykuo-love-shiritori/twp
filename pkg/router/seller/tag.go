@@ -35,7 +35,7 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		param.SellerName = username
 		param.Name = "^" + param.Name
-		param.Limit = tagPerPage
+		param.Limit = int64(tagPerPage)
 		tags, err := pg.Queries.SellerSearchTag(c.Request().Context(), param)
 		if err != nil {
 			logger.Error(err)

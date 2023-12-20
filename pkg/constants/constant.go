@@ -1,5 +1,5 @@
 package constants
 
 const (
-	QUERY_LIMIT = 10
+	QUERY_LIMIT = 20 // 10 is too small
 )

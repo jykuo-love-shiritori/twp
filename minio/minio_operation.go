@@ -97,6 +97,9 @@ func (mc MC) RemoveFile(ctx context.Context, fileName string) error {
 	return nil
 }
 func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
+	if fileName == "" {
+		return ""
+	}
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-type", common.FileMimeFrom(fileName))
 
