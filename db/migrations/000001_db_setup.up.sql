@@ -6,11 +6,21 @@ CREATE TYPE "order_status" AS ENUM (
     'finished'
 );
 
-CREATE TYPE "coupon_type" AS ENUM ('percentage', 'fixed', 'shipping');
+CREATE TYPE "coupon_type" AS ENUM (
+    'percentage',
+    'fixed',
+    'shipping'
+);
 
-CREATE TYPE "coupon_scope" AS ENUM ('global', 'shop');
+CREATE TYPE "coupon_scope" AS ENUM (
+    'global',
+    'shop'
+);
 
-CREATE TYPE "role_type" AS ENUM ('admin', 'customer');
+CREATE TYPE "role_type" AS ENUM (
+    'admin',
+    'customer'
+);
 
 CREATE TABLE "cart" (
     "id" SERIAL PRIMARY KEY,
@@ -43,11 +53,7 @@ CREATE TABLE "order_detail" (
     "product_id" INT NOT NULL,
     "product_version" INT NOT NULL,
     "quantity" INT NOT NULL,
-    PRIMARY KEY (
-        "order_id",
-        "product_id",
-        "product_version"
-    )
+    PRIMARY KEY ("order_id", "product_id", "product_version")
 );
 
 CREATE TABLE "cart_coupon" (
@@ -137,58 +143,55 @@ CREATE TABLE "coupon_tag" (
 );
 
 ALTER TABLE "shop"
-ADD FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
+    ADD FOREIGN KEY ("seller_name") REFERENCES "user" ("username");
 
 ALTER TABLE "product"
-ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
 ALTER TABLE "coupon"
-ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
 
 ALTER TABLE "tag"
-ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "product_tag"
-ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "product_tag"
-ADD FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "coupon_tag"
-ADD FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "coupon_tag"
-ADD FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("tag_id") REFERENCES "tag" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
-ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart"
-ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart_product"
-ADD FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart_product"
-ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart_coupon"
-ADD FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("cart_id") REFERENCES "cart" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "cart_coupon"
-ADD FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
+    ADD FOREIGN KEY ("coupon_id") REFERENCES "coupon" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "order_detail"
-ADD FOREIGN KEY ("order_id") REFERENCES "order_history" ("id");
+    ADD FOREIGN KEY ("order_id") REFERENCES "order_history" ("id");
 
 ALTER TABLE "order_detail"
-ADD FOREIGN KEY (
-        "product_id",
-        "product_version"
-    ) REFERENCES "product_archive" ("id", "version");
+    ADD FOREIGN KEY ("product_id", "product_version") REFERENCES "product_archive" ("id", "version");
 
 ALTER TABLE "order_history"
-ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+    ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
 ALTER TABLE "order_history"
-ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
+    ADD FOREIGN KEY ("shop_id") REFERENCES "shop" ("id");
