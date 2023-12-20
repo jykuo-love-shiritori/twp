@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/minio/minio-go/v7"
 
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -15,6 +16,7 @@ import (
 type MC struct {
 	mcp        *minio.Client
 	BucketName string
+	Hostname   string
 }
 
 func NewMINIO() (*MC, error) {
@@ -33,8 +35,11 @@ func NewMINIO() (*MC, error) {
 	if err != nil {
 		return nil, err
 	}
-	mc := &MC{mcp: mcp, BucketName: os.Getenv("MINIO_BUCKET_NAME")}
-
+	mc := &MC{
+		mcp:        mcp,
+		BucketName: os.Getenv("MINIO_BUCKET_NAME"),
+		Hostname:   os.Getenv("MINIO_PRESIGNED_URL_HOST"),
+	}
 	return mc, nil
 }
 
@@ -93,10 +98,14 @@ func (mc MC) RemoveFile(ctx context.Context, fileName string) error {
 }
 func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
 	reqParams := make(url.Values)
+	reqParams.Set("response-content-type", common.FileMimeFrom(fileName))
+
 	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, fileName, time.Second*24*60*60, reqParams)
 	if err != nil {
 		//default image if can find image by uuid
 		return ""
 	}
+	//overwrite minio host
+	presignedURL.Host = mc.Hostname
 	return presignedURL.String()
 }

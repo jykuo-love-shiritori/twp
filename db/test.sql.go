@@ -199,7 +199,7 @@ RETURNING id, type, scope, shop_id, name, description, discount, start_date, exp
 `
 
 type TestInsertCouponParams struct {
-	ID          int32              `json:"id" param:"coupon_id"`
+	ID          int32              `json:"id" param:"id"`
 	Type        CouponType         `json:"type"`
 	Scope       CouponScope        `json:"scope"`
 	ShopID      pgtype.Int4        `json:"shop_id"`
@@ -371,7 +371,7 @@ RETURNING id, version, shop_id, name, description, price, image_id, expire_date,
 `
 
 type TestInsertProductParams struct {
-	ID          int32              `json:"id" param:"product_id"`
+	ID          int32              `json:"id" param:"id"`
 	Version     int32              `json:"version"`
 	ShopID      int32              `json:"shop_id"`
 	Name        string             `form:"name" json:"name"`
@@ -561,9 +561,9 @@ type TestInsertUserParams struct {
 	ID           int32           `json:"id" param:"id"`
 	Username     string          `json:"username"`
 	Password     string          `json:"password"`
-	Name         string          `json:"name"`
-	Email        string          `json:"email"`
-	Address      string          `json:"address"`
+	Name         string          `form:"name" json:"name"`
+	Email        string          `form:"email" json:"email"`
+	Address      string          `form:"address" json:"address"`
 	ImageID      string          `json:"image_id" swaggertype:"string"`
 	Role         RoleType        `json:"role"`
 	CreditCard   json.RawMessage `json:"credit_card"`
