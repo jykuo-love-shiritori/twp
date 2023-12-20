@@ -1410,13 +1410,13 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "minimum": 20,
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1462,73 +1462,12 @@ const docTemplate = `{
                 "summary": "Seller add coupon",
                 "parameters": [
                     {
-                        "description": "Coupon type",
-                        "name": "type",
+                        "description": "coupon",
+                        "name": "coupon",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "init tags",
-                        "name": "tags",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/seller.InsertCouponParams"
                         }
                     }
                 ],
@@ -1537,110 +1476,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/db.SellerInsertCouponRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/coupon/{coupon_id}": {
-            "patch": {
-                "description": "Edit coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller edit coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "coupon_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Coupon type",
-                        "name": "type",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
                         }
                     },
                     "400": {
@@ -1683,7 +1518,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponDetail"
+                            "$ref": "#/definitions/seller.CouponDetail"
                         }
                     },
                     "400": {
@@ -1749,6 +1584,59 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Edit coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller edit coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "coupon",
+                        "name": "coupon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/seller.InsertCouponParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/seller/coupon/{id}/tag": {
@@ -1781,7 +1669,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1835,7 +1723,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1925,8 +1813,7 @@ const docTemplate = `{
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -2020,76 +1907,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "seller update orders status.",
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Order"
-                ],
-                "summary": "Seller update order status",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "order status",
-                        "name": "current_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "order status",
-                        "name": "set_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
             }
         },
         "/seller/order/{id}": {
@@ -2117,7 +1934,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.orderDetail"
+                            "$ref": "#/definitions/seller.OrderDetail"
                         }
                     },
                     "400": {
@@ -2128,6 +1945,53 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "seller update orders status.",
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller update order status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "order current status",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/seller.OrderUpdateStatusParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -2161,7 +2025,7 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
@@ -2233,7 +2097,8 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
@@ -2298,6 +2163,50 @@ const docTemplate = `{
             }
         },
         "/seller/product/{id}": {
+            "get": {
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/seller.ProductDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -2388,12 +2297,19 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
                         "in": "formData"
                     },
                     {
                         "type": "string",
-                        "description": "image id",
-                        "name": "image_id",
+                        "description": "expire date",
+                        "name": "expire_date",
                         "in": "formData",
                         "required": true
                     },
@@ -2401,6 +2317,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     }
@@ -2457,7 +2380,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2510,7 +2433,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2542,52 +2465,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{product_id}": {
-            "get": {
-                "description": "Delete product for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product"
-                ],
-                "summary": "Seller get product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/router.productDetail"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/seller/report/{year}/{month}": {
             "get": {
                 "description": "Get report detail by year and month for shop.",
@@ -2603,16 +2480,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Year",
-                        "name": "year",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Month",
-                        "name": "month",
-                        "in": "path",
+                        "description": "time",
+                        "name": "time",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -2653,13 +2523,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "minLength": 1,
+                        "type": "string",
                         "description": "search tag name start with",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2702,13 +2570,12 @@ const docTemplate = `{
                 "summary": "Seller add tag",
                 "parameters": [
                     {
-                        "minLength": 1,
                         "description": "insert tag",
                         "name": "name",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/db.HaveTagNameParams"
                         }
                     }
                 ],
@@ -3084,40 +2951,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/avatar": {
-            "post": {
-                "description": "Upload user avatar",
-                "consumes": [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Upload Avatar",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Image to upload",
-                        "name": "img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/user/info": {
             "get": {
                 "description": "Get user information",
@@ -3160,31 +2993,32 @@ const docTemplate = `{
                 "summary": "User Edit Info",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "name of coupon",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "user address",
                         "name": "address",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
-                        "description": "image id",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3259,10 +3093,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "type": "object"
                         }
                     }
                 ],
@@ -3306,21 +3137,12 @@ const docTemplate = `{
                 "summary": "User Edit Password",
                 "parameters": [
                     {
-                        "description": "current password",
-                        "name": "current_password",
+                        "description": "password",
+                        "name": "password",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "new password",
-                        "name": "new_password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/user.updatePasswordParams"
                         }
                     }
                 ],
@@ -4142,6 +3964,17 @@ const docTemplate = `{
                 }
             }
         },
+        "db.HaveTagNameParams": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.OrderStatus": {
             "type": "string",
             "enum": [
@@ -4256,7 +4089,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4273,7 +4106,7 @@ const docTemplate = `{
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4284,9 +4117,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                },
-                "version": {
-                    "$ref": "#/definitions/pgtype.Int4"
                 }
             }
         },
@@ -4299,17 +4129,26 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
+                "thumbnail_url": {
+                    "type": "string"
+                },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },
@@ -4322,7 +4161,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "shipment": {
@@ -4342,7 +4181,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4417,7 +4256,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4454,7 +4293,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4520,7 +4359,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4566,7 +4405,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4586,13 +4425,13 @@ const docTemplate = `{
         "db.UserGetInfoRow": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4603,13 +4442,13 @@ const docTemplate = `{
         "db.UserUpdateInfoRow": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4626,10 +4465,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -4739,7 +4575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router.couponDetail": {
+        "seller.CouponDetail": {
             "type": "object",
             "properties": {
                 "coupon_info": {
@@ -4753,7 +4589,36 @@ const docTemplate = `{
                 }
             }
         },
-        "router.orderDetail": {
+        "seller.InsertCouponParams": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "seller.OrderDetail": {
             "type": "object",
             "properties": {
                 "order_info": {
@@ -4767,7 +4632,18 @@ const docTemplate = `{
                 }
             }
         },
-        "router.productDetail": {
+        "seller.OrderUpdateStatusParams": {
+            "type": "object",
+            "properties": {
+                "current_status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "seller.ProductDetail": {
             "type": "object",
             "properties": {
                 "product_info": {
@@ -4778,6 +4654,25 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
                     }
+                }
+            }
+        },
+        "seller.TagParams": {
+            "type": "object",
+            "properties": {
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.updatePasswordParams": {
+            "type": "object",
+            "properties": {
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
                 }
             }
         }

@@ -1,11 +1,10 @@
 package common
 
 import (
-	"encoding/json"
 	"errors"
 	"mime/multipart"
+	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
@@ -31,20 +30,31 @@ func HasRegexSpecialChars(input string) bool {
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
 }
-
-// c.FormValue("tags")
-func String2IntArray(str string) ([]int32, error) {
-	var array []int32
-	err := json.Unmarshal([]byte(str), &array)
-	if err != nil {
-		return nil, err
-	}
-	return array, nil
-}
-func GetFileName(file *multipart.FileHeader) string {
+func CreateUniqueFileName(file *multipart.FileHeader) string {
 	id := uuid.New()
-	parts := strings.Split(file.Filename, ".")
-	fileType := parts[len(parts)-1]
-	newFileName := id.String() + "." + fileType
+	newFileName := id.String() + filepath.Ext(file.Filename)
 	return newFileName
+}
+
+func FileMimeFrom(fileName string) string {
+	switch filepath.Ext(fileName) {
+	case ".html":
+		return "text/html"
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".svg":
+		return "image/svg+xml"
+	case ".gif":
+		return "image/gif"
+	case ".pdf":
+		return "application/pdf"
+	default:
+		return "application/octet-stream" // default content type
+	}
 }

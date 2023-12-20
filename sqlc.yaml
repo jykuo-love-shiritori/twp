@@ -37,6 +37,8 @@ sql:
           - column: product.price
           - column: product_tag.product_id
             go_struct_tag: param:"id"
+          - column: coupon_tag.coupon_id
+            go_struct_tag: param:"id"
           - column: shop.seller_name
             go_struct_tag: param:"seller_name"
           - column: cart.cart_id
@@ -81,10 +83,15 @@ sql:
             go_struct_tag: swaggertype:"string"
           - column: shop.image_id
             go_struct_tag: swaggertype:"string"
-            nullable: true
           - column: user.image_id
             go_struct_tag: swaggertype:"string"
-            nullable: true
+
+          - column: user.name
+            go_struct_tag: form:"name"
+          - column: user.address
+            go_struct_tag: form:"address"
+          - column: user.email
+            go_struct_tag: form:"email"
 
           # - column: coupon.shop_id
           #   go_struct_tag: json:"-"

@@ -38,9 +38,9 @@ VALUES (
 type AddUserParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Address  string `json:"address"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
 }
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
@@ -138,7 +138,7 @@ SELECT EXISTS (
 
 type UserExistsParams struct {
 	Username string `json:"username"`
-	Email    string `json:"email"`
+	Email    string `form:"email" json:"email"`
 }
 
 func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, error) {
@@ -164,17 +164,17 @@ func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.
 const userGetInfo = `-- name: UserGetInfo :one
 SELECT "name",
     "email",
-    "image_id",
-    "enabled"
+    "address",
+    "image_id" as "image_url"
 FROM "user" u
 WHERE u."username" = $1
 `
 
 type UserGetInfoRow struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	ImageID string `json:"image_id" swaggertype:"string"`
-	Enabled bool   `json:"enabled"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfoRow, error) {
@@ -183,8 +183,8 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 	err := row.Scan(
 		&i.Name,
 		&i.Email,
-		&i.ImageID,
-		&i.Enabled,
+		&i.Address,
+		&i.ImageUrl,
 	)
 	return i, err
 }
@@ -226,27 +226,30 @@ UPDATE "user"
 SET "name" = COALESCE($2, "name"),
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
-    "image_id" = COALESCE($5, "image_id")
+    "image_id" = CASE
+        WHEN $5::TEXT = '' THEN "image_id"
+        ELSE $5::TEXT
+    END
 WHERE "username" = $1
 RETURNING "name",
     "email",
-    "image_id",
-    "enabled"
+    "address",
+    "image_id" as "image_url"
 `
 
 type UserUpdateInfoParams struct {
 	Username string `json:"username"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Address  string `json:"address"`
-	ImageID  string `json:"image_id" swaggertype:"string"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageID  string `json:"image_id"`
 }
 
 type UserUpdateInfoRow struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	ImageID string `json:"image_id" swaggertype:"string"`
-	Enabled bool   `json:"enabled"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) (UserUpdateInfoRow, error) {
@@ -261,8 +264,8 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 	err := row.Scan(
 		&i.Name,
 		&i.Email,
-		&i.ImageID,
-		&i.Enabled,
+		&i.Address,
+		&i.ImageUrl,
 	)
 	return i, err
 }
@@ -274,8 +277,7 @@ WHERE "username" = $1
 RETURNING "name",
     "email",
     "address",
-    "image_id",
-    "enabled"
+    "image_id" as "image_url"
 `
 
 type UserUpdatePasswordParams struct {
@@ -284,11 +286,10 @@ type UserUpdatePasswordParams struct {
 }
 
 type UserUpdatePasswordRow struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	Address string `json:"address"`
-	ImageID string `json:"image_id" swaggertype:"string"`
-	Enabled bool   `json:"enabled"`
+	Name     string `form:"name" json:"name"`
+	Email    string `form:"email" json:"email"`
+	Address  string `form:"address" json:"address"`
+	ImageUrl string `json:"image_url" swaggertype:"string"`
 }
 
 func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePasswordParams) (UserUpdatePasswordRow, error) {
@@ -298,8 +299,7 @@ func (q *Queries) UserUpdatePassword(ctx context.Context, arg UserUpdatePassword
 		&i.Name,
 		&i.Email,
 		&i.Address,
-		&i.ImageID,
-		&i.Enabled,
+		&i.ImageUrl,
 	)
 	return i, err
 }

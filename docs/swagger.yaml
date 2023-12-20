@@ -521,6 +521,13 @@ definitions:
       username:
         type: string
     type: object
+  db.HaveTagNameParams:
+    properties:
+      name:
+        type: string
+      seller_name:
+        type: string
+    type: object
   db.OrderStatus:
     enum:
     - paid
@@ -599,7 +606,7 @@ definitions:
         type: string
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -610,7 +617,7 @@ definitions:
         type: string
       id:
         $ref: '#/definitions/pgtype.Int4'
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -618,8 +625,6 @@ definitions:
         type: number
       quantity:
         type: integer
-      version:
-        $ref: '#/definitions/pgtype.Int4'
     type: object
   db.SellerGetOrderHistoryRow:
     properties:
@@ -627,14 +632,20 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
-        type: string
       shipment:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
+      thumbnail_url:
+        type: string
       total_price:
         type: integer
+      user_id:
+        type: integer
+      user_image_url:
+        type: string
+      user_name:
+        type: string
     type: object
   db.SellerGetOrderRow:
     properties:
@@ -642,7 +653,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       shipment:
         type: integer
@@ -655,7 +666,7 @@ definitions:
     properties:
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -704,7 +715,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -728,7 +739,7 @@ definitions:
         type: boolean
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -771,7 +782,7 @@ definitions:
         type: string
       enabled:
         type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -801,7 +812,7 @@ definitions:
         type: string
       id:
         type: integer
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -814,22 +825,22 @@ definitions:
     type: object
   db.UserGetInfoRow:
     properties:
+      address:
+        type: string
       email:
         type: string
-      enabled:
-        type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
     type: object
   db.UserUpdateInfoRow:
     properties:
+      address:
+        type: string
       email:
         type: string
-      enabled:
-        type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -840,9 +851,7 @@ definitions:
         type: string
       email:
         type: string
-      enabled:
-        type: boolean
-      image_id:
+      image_url:
         type: string
       name:
         type: string
@@ -913,7 +922,7 @@ definitions:
       valid:
         type: boolean
     type: object
-  router.couponDetail:
+  seller.CouponDetail:
     properties:
       coupon_info:
         $ref: '#/definitions/db.SellerGetCouponDetailRow'
@@ -922,7 +931,26 @@ definitions:
           $ref: '#/definitions/db.SellerGetCouponTagRow'
         type: array
     type: object
-  router.orderDetail:
+  seller.InsertCouponParams:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      name:
+        type: string
+      start_date:
+        type: string
+      tags:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
+  seller.OrderDetail:
     properties:
       order_info:
         $ref: '#/definitions/db.SellerGetOrderHistoryRow'
@@ -931,7 +959,14 @@ definitions:
           $ref: '#/definitions/db.SellerGetOrderDetailRow'
         type: array
     type: object
-  router.productDetail:
+  seller.OrderUpdateStatusParams:
+    properties:
+      current_status:
+        $ref: '#/definitions/db.OrderStatus'
+      id:
+        type: integer
+    type: object
+  seller.ProductDetail:
     properties:
       product_info:
         $ref: '#/definitions/db.SellerGetProductDetailRow'
@@ -939,6 +974,18 @@ definitions:
         items:
           $ref: '#/definitions/db.SellerGetProductTagRow'
         type: array
+    type: object
+  seller.TagParams:
+    properties:
+      tag_id:
+        type: integer
+    type: object
+  user.updatePasswordParams:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -1884,7 +1931,7 @@ paths:
       description: Get all coupons for shop.
       parameters:
       - default: 0
-        description: offset page
+        description: offset
         in: query
         minimum: 0
         name: offset
@@ -1893,7 +1940,7 @@ paths:
       - default: 10
         description: limit
         in: query
-        minimum: 20
+        maximum: 20
         name: limit
         required: true
         type: integer
@@ -1922,53 +1969,12 @@ paths:
     post:
       description: Add coupon for shop.
       parameters:
-      - description: Coupon type
+      - description: coupon
         in: body
-        name: type
+        name: coupon
         required: true
         schema:
-          enum:
-          - '''percentage'''
-          - '''fixed'''
-          - '''shipping'''
-          type: string
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: description of coupon
-        in: body
-        name: description
-        required: true
-        schema:
-          type: string
-      - description: discount
-        in: body
-        name: discount
-        schema:
-          type: number
-      - description: start date
-        in: body
-        name: start_date
-        required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
-      - description: init tags
-        in: body
-        name: tags
-        required: true
-        schema:
-          items:
-            type: integer
-          type: array
+          $ref: '#/definitions/seller.InsertCouponParams'
       produces:
       - application/json
       responses:
@@ -1985,76 +1991,6 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Seller add coupon
-      tags:
-      - Seller
-      - Shop
-      - Coupon
-  /seller/coupon/{coupon_id}:
-    patch:
-      consumes:
-      - application/json
-      description: Edit coupon for shop.
-      parameters:
-      - description: Coupon ID
-        in: path
-        name: coupon_id
-        required: true
-        type: integer
-      - description: Coupon type
-        in: body
-        name: type
-        required: true
-        schema:
-          enum:
-          - '''percentage'''
-          - '''fixed'''
-          - '''shipping'''
-          type: string
-      - description: name of coupon
-        in: body
-        name: name
-        required: true
-        schema:
-          type: string
-      - description: description of coupon
-        in: body
-        name: description
-        required: true
-        schema:
-          type: string
-      - description: discount
-        in: body
-        name: discount
-        schema:
-          type: number
-      - description: start date
-        in: body
-        name: start_date
-        required: true
-        schema:
-          type: string
-      - description: expire date
-        in: body
-        name: expire_date
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller edit coupon
       tags:
       - Seller
       - Shop
@@ -2108,7 +2044,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/router.couponDetail'
+            $ref: '#/definitions/seller.CouponDetail'
         "400":
           description: Bad Request
           schema:
@@ -2118,6 +2054,42 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Seller get coupon detail
+      tags:
+      - Seller
+      - Shop
+      - Coupon
+    patch:
+      consumes:
+      - application/json
+      description: Edit coupon for shop.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: coupon
+        in: body
+        name: coupon
+        required: true
+        schema:
+          $ref: '#/definitions/seller.InsertCouponParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.SellerUpdateCouponInfoRow'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller edit coupon
       tags:
       - Seller
       - Shop
@@ -2138,7 +2110,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2179,7 +2151,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2237,7 +2209,6 @@ paths:
       - description: image file
         in: formData
         name: image
-        required: true
         type: file
       - description: update description
         in: formData
@@ -2308,6 +2279,39 @@ paths:
       - Seller
       - Shop
       - Order
+  /seller/order/{id}:
+    get:
+      description: Get order detail by ID for shop.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/seller.OrderDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get order detail
+      tags:
+      - Seller
+      - Shop
+      - Order
     patch:
       description: seller update orders status.
       parameters:
@@ -2316,30 +2320,12 @@ paths:
         name: id
         required: true
         type: integer
-      - description: order status
+      - description: order current status
         in: body
-        name: current_status
+        name: param
         required: true
         schema:
-          enum:
-          - '''pending'''
-          - '''paid'''
-          - '''shipped'''
-          - '''delivered'''
-          - '''cancelled'''
-          type: string
-      - description: order status
-        in: body
-        name: set_status
-        required: true
-        schema:
-          enum:
-          - '''pending'''
-          - '''paid'''
-          - '''shipped'''
-          - '''delivered'''
-          - '''cancelled'''
-          type: string
+          $ref: '#/definitions/seller.OrderUpdateStatusParams'
       responses:
         "200":
           description: OK
@@ -2358,39 +2344,6 @@ paths:
       - Seller
       - Shop
       - Order
-  /seller/order/{id}:
-    get:
-      description: Get order detail by ID for shop.
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.orderDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get order detail
-      tags:
-      - Seller
-      - Shop
-      - Order
   /seller/product:
     get:
       consumes:
@@ -2398,7 +2351,7 @@ paths:
       description: seller get product
       parameters:
       - default: 0
-        description: offset page
+        description: offset
         in: query
         minimum: 0
         name: offset
@@ -2451,6 +2404,7 @@ paths:
       - description: price
         in: formData
         name: price
+        required: true
         type: number
       - description: image id
         in: formData
@@ -2535,6 +2489,36 @@ paths:
       - Seller
       - Shop
       - Product
+    get:
+      consumes:
+      - application/json
+      description: Delete product for shop.
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/seller.ProductDetail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Seller get product
+      tags:
+      - Seller
+      - Shop
+      - Product
     patch:
       consumes:
       - multipart/form-data
@@ -2558,10 +2542,15 @@ paths:
       - description: price
         in: formData
         name: price
+        required: true
         type: number
-      - description: image id
+      - description: image file
         in: formData
-        name: image_id
+        name: image
+        type: file
+      - description: expire date
+        in: formData
+        name: expire_date
         required: true
         type: string
       - description: stock
@@ -2569,6 +2558,11 @@ paths:
         name: stock
         required: true
         type: integer
+      - description: enabled
+        in: formData
+        name: enabled
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2605,7 +2599,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2645,7 +2639,7 @@ paths:
         name: tag_id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2667,49 +2661,13 @@ paths:
       - Shop
       - Product
       - Tag
-  /seller/product/{product_id}:
-    get:
-      consumes:
-      - application/json
-      description: Delete product for shop.
-      parameters:
-      - description: Product ID
-        in: path
-        name: product_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/router.productDetail'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Seller get product
-      tags:
-      - Seller
-      - Shop
-      - Product
   /seller/report/{year}/{month}:
     get:
       description: Get report detail by year and month for shop.
       parameters:
-      - description: Year
-        in: path
-        name: year
-        required: true
-        type: integer
-      - description: Month
-        in: path
-        name: month
+      - description: time
+        in: query
+        name: time
         required: true
         type: integer
       produces:
@@ -2737,12 +2695,11 @@ paths:
       description: Get all available tags for shop.
       parameters:
       - description: search tag name start with
-        in: body
+        in: query
         minLength: 1
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       produces:
       - application/json
       responses:
@@ -2772,11 +2729,10 @@ paths:
       parameters:
       - description: insert tag
         in: body
-        minLength: 1
         name: name
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/db.HaveTagNameParams'
       produces:
       - application/json
       responses:
@@ -3034,29 +2990,6 @@ paths:
       summary: Get Tag Info
       tags:
       - Tag
-  /user/avatar:
-    post:
-      consumes:
-      - image/png
-      - image/jpeg
-      - image/gif
-      description: Upload user avatar
-      parameters:
-      - description: Image to upload
-        in: formData
-        name: img
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-      summary: User Upload Avatar
-      tags:
-      - User
   /user/info:
     get:
       consumes:
@@ -3082,23 +3015,25 @@ paths:
       description: Edit user information
       parameters:
       - description: name of coupon
-        in: body
+        in: formData
         name: name
         required: true
-        schema:
-          type: string
+        type: string
       - description: user address
-        in: body
+        in: formData
         name: address
         required: true
-        schema:
-          type: string
-      - description: image id
-        in: body
-        name: image_id
+        type: string
+      - description: email
+        in: formData
+        name: email
         required: true
-        schema:
-          type: string
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -3148,9 +3083,7 @@ paths:
         name: credit_card
         required: true
         schema:
-          items:
-            type: integer
-          type: array
+          type: object
       produces:
       - application/json
       responses:
@@ -3177,18 +3110,12 @@ paths:
       - application/json
       description: Change user password
       parameters:
-      - description: current password
+      - description: password
         in: body
-        name: current_password
+        name: password
         required: true
         schema:
-          type: string
-      - description: new password
-        in: body
-        name: new_password
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/user.updatePasswordParams'
       produces:
       - application/json
       responses:
