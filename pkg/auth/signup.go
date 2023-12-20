@@ -85,14 +85,7 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 
-		tx, err := pg.NewTx(ctx)
-		if err != nil {
-			logger.Error(err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		}
-		defer tx.Rollback(ctx) //nolint:errcheck
-
-		userExists, err := pg.Queries.WithTx(tx).UserExists(ctx, db.UserExistsParams{
+		userExists, err := pg.Queries.UserExists(ctx, db.UserExistsParams{
 			Username: params.Username,
 			Email:    params.Email,
 		})
@@ -119,6 +112,13 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+
+		tx, err := pg.NewTx(ctx)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		defer tx.Rollback(ctx) //nolint:errcheck
 
 		err = pg.Queries.WithTx(tx).AddUser(ctx, db.AddUserParams{
 			Username: params.Username,
