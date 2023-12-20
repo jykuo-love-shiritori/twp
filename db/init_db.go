@@ -29,11 +29,7 @@ func NewDB() (*DB, error) {
 	return &DB{Queries: q, pool: pool}, nil
 }
 func (db *DB) NewTx(ctx context.Context) (pgx.Tx, error) {
-	tx, err := db.pool.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return tx, nil
+	return db.pool.Begin(ctx)
 }
 
 func (db *DB) Close() {
