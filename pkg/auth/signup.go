@@ -31,6 +31,7 @@ type signupParams struct {
 func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error
+		ctx := c.Request().Context()
 		params := signupParams{}
 
 		err = c.Bind(&params)
@@ -39,7 +40,14 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 
-		userExists, err := pg.Queries.UserExists(c.Request().Context(), db.UserExistsParams{
+		tx, err := pg.NewTx(ctx)
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		defer tx.Rollback(ctx) //nolint:errcheck
+
+		userExists, err := pg.Queries.WithTx(tx).UserExists(ctx, db.UserExistsParams{
 			Username: params.Username,
 			Email:    params.Email,
 		})
@@ -63,12 +71,27 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
-		err = pg.Queries.AddUser(c.Request().Context(), db.AddUserParams{
+		err = pg.Queries.WithTx(tx).AddUser(ctx, db.AddUserParams{
 			Username: params.Username,
 			Password: string(hash),
 			Name:     params.Name,
 			Email:    params.Email,
 		})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		err = pg.Queries.WithTx(tx).AddShop(ctx, db.AddShopParams{
+			SellerName: params.Username,
+			Name:       params.Name,
+		})
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		err = tx.Commit(ctx)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
