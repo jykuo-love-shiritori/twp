@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"math"
 	"net/http"
-	"sort"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
@@ -100,7 +99,7 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			productTag[product.ProductID] = NewTagSet(tags)
 		}
 		result.Shipment = getShipmentFee(result.Subtotal)
-		coupons, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{
+		coupons, err := pg.Queries.GetSortedCouponsFromCart(c.Request().Context(), db.GetSortedCouponsFromCartParams{
 			Username: username,
 			CartID:   cartID,
 		})
@@ -108,13 +107,6 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get coupons from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// sort to make customer get most discount
-		sort.Slice(coupons, func(i, j int) bool {
-			if coupons[i].Type == coupons[j].Type {
-				return coupons[i].Discount.Int.Cmp(coupons[j].Discount.Int) > 0
-			}
-			return coupons[i].Type < coupons[j].Type
-		})
 
 		totalDiscount := int32(0)
 		for _, coupon := range coupons {
@@ -228,9 +220,6 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get product from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		sort.Slice(products, func(i, j int) bool {
-			return products[i].Price.Int.Cmp(products[j].Price.Int) > 0
-		})
 		tx, err := pg.NewTx(c.Request().Context())
 		if err != nil {
 			logger.Errorw("failed to create transaction", "error", err)
@@ -271,21 +260,14 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
 		}
 		shipment := getShipmentFee(int32(subtotal))
-		var params db.GetCouponsFromCartParams
+		var params db.GetSortedCouponsFromCartParams
 		params.CartID = cartID
 		params.Username = username
-		coupons, err := pg.Queries.GetCouponsFromCart(c.Request().Context(), params)
+		coupons, err := pg.Queries.GetSortedCouponsFromCart(c.Request().Context(), params)
 		if err != nil {
 			logger.Errorw("failed to get coupons from cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// sort to make customer get most discount
-		sort.Slice(coupons, func(i, j int) bool {
-			if coupons[i].Type == coupons[j].Type {
-				return coupons[i].Discount.Int.Cmp(coupons[j].Discount.Int) > 0
-			}
-			return coupons[i].Type < coupons[j].Type
-		})
 
 		totalDiscount := int32(0)
 		// match coupon with product

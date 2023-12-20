@@ -83,7 +83,7 @@ WHERE
     AND U."id" = C."user_id"
     AND C."shop_id" = S."id";
 
--- name: GetCouponFromCart :many
+-- name: GetSortedCouponsFromCart :many
 SELECT
     C."id",
     C."name",
@@ -102,7 +102,11 @@ WHERE
     AND U."id" = 🛒."user_id"
     AND 🛒."id" = @cart_id
     AND CC."cart_id" = 🛒."id"
-    AND CC."coupon_id" = C."id";
+    AND CC."coupon_id" = C."id"
+    AND NOW() BETWEEN C."start_date" AND C."expire_date"
+ORDER BY
+    "type" ASC,
+    "discount" DESC;
 
 -- name: GetCouponDetail :one
 SELECT
@@ -217,7 +221,7 @@ WHERE "id" =(
         FROM
             valid_cart);
 
--- name: GetUsableCoupons :many
+-- name: GetSortedUsableCoupons :many
 SELECT
     C."id",
     C."name",
@@ -245,7 +249,10 @@ WHERE
             "cart_coupon" AS CC
         WHERE
             CC."cart_id" = 🛒."id"
-            AND CC."coupon_id" = C."id");
+            AND CC."coupon_id" = C."id")
+ORDER BY
+    "type" ASC,
+    "discount" DESC;
 
 -- name: AddProductToCart :one
 WITH valid_product AS (

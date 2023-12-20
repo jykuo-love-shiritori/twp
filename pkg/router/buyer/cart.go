@@ -12,7 +12,7 @@ import (
 type Cart struct {
 	CartInfo db.GetCartRow
 	Products []db.GetProductFromCartOrderByPriceDescRow
-	Coupons  []db.GetCouponsFromCartRow
+	Coupons  []db.GetSortedCouponsFromCartRow
 }
 
 // @Summary		Buyer Get Cart
@@ -43,7 +43,7 @@ func GetCart(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 			for i := range cart.Products {
 				cart.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), cart.Products[i].ImageUrl)
 			}
-			cart.Coupons, err = pg.Queries.GetCouponsFromCart(c.Request().Context(), db.GetCouponsFromCartParams{Username: username, CartID: cartInfo.ID})
+			cart.Coupons, err = pg.Queries.GetSortedCouponsFromCart(c.Request().Context(), db.GetSortedCouponsFromCartParams{Username: username, CartID: cartInfo.ID})
 			if err != nil {
 				logger.Errorw("failed to get coupon in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)

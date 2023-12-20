@@ -461,71 +461,6 @@ func (q *Queries) GetCouponDetail(ctx context.Context, id int32) (GetCouponDetai
 	return i, err
 }
 
-const getCouponFromCart = `-- name: GetCouponFromCart :many
-SELECT
-    C."id",
-    C."name",
-    "type",
-    "scope",
-    "description",
-    "discount",
-    "expire_date"
-FROM
-    "cart_coupon" AS CC,
-    "coupon" AS C,
-    "cart" AS 🛒,
-    "user" AS U
-WHERE
-    U."username" = $1
-    AND U."id" = 🛒."user_id"
-    AND 🛒."id" = $2
-    AND CC."cart_id" = 🛒."id"
-    AND CC."coupon_id" = C."id"
-`
-
-type GetCouponFromCartParams struct {
-	Username string `json:"username"`
-	CartID   int32  `json:"cart_id" param:"cart_id"`
-}
-
-type GetCouponFromCartRow struct {
-	ID          int32              `json:"id" param:"id"`
-	Name        string             `json:"name"`
-	Type        CouponType         `json:"type"`
-	Scope       CouponScope        `json:"scope"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-}
-
-func (q *Queries) GetCouponFromCart(ctx context.Context, arg GetCouponFromCartParams) ([]GetCouponFromCartRow, error) {
-	rows, err := q.db.Query(ctx, getCouponFromCart, arg.Username, arg.CartID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetCouponFromCartRow{}
-	for rows.Next() {
-		var i GetCouponFromCartRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Type,
-			&i.Scope,
-			&i.Description,
-			&i.Discount,
-			&i.ExpireDate,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getCouponTag = `-- name: GetCouponTag :many
 SELECT
     "tag_id"
@@ -920,7 +855,76 @@ func (q *Queries) GetProductTag(ctx context.Context, productID int32) ([]int32, 
 	return items, nil
 }
 
-const getUsableCoupons = `-- name: GetUsableCoupons :many
+const getSortedCouponsFromCart = `-- name: GetSortedCouponsFromCart :many
+SELECT
+    C."id",
+    C."name",
+    "type",
+    "scope",
+    "description",
+    "discount",
+    "expire_date"
+FROM
+    "cart_coupon" AS CC,
+    "coupon" AS C,
+    "cart" AS 🛒,
+    "user" AS U
+WHERE
+    U."username" = $1
+    AND U."id" = 🛒."user_id"
+    AND 🛒."id" = $2
+    AND CC."cart_id" = 🛒."id"
+    AND CC."coupon_id" = C."id"
+    AND NOW() BETWEEN C."start_date" AND C."expire_date"
+ORDER BY
+    "type" ASC,
+    "discount" DESC
+`
+
+type GetSortedCouponsFromCartParams struct {
+	Username string `json:"username"`
+	CartID   int32  `json:"cart_id" param:"cart_id"`
+}
+
+type GetSortedCouponsFromCartRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `json:"name"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetSortedCouponsFromCart(ctx context.Context, arg GetSortedCouponsFromCartParams) ([]GetSortedCouponsFromCartRow, error) {
+	rows, err := q.db.Query(ctx, getSortedCouponsFromCart, arg.Username, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetSortedCouponsFromCartRow{}
+	for rows.Next() {
+		var i GetSortedCouponsFromCartRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Scope,
+			&i.Description,
+			&i.Discount,
+			&i.ExpireDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSortedUsableCoupons = `-- name: GetSortedUsableCoupons :many
 SELECT
     C."id",
     C."name",
@@ -949,14 +953,17 @@ WHERE
         WHERE
             CC."cart_id" = 🛒."id"
             AND CC."coupon_id" = C."id")
+ORDER BY
+    "type" ASC,
+    "discount" DESC
 `
 
-type GetUsableCouponsParams struct {
+type GetSortedUsableCouponsParams struct {
 	Username string `json:"username"`
 	CartID   int32  `json:"cart_id" param:"cart_id"`
 }
 
-type GetUsableCouponsRow struct {
+type GetSortedUsableCouponsRow struct {
 	ID          int32              `json:"id" param:"id"`
 	Name        string             `json:"name"`
 	Type        CouponType         `json:"type"`
@@ -966,15 +973,15 @@ type GetUsableCouponsRow struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 }
 
-func (q *Queries) GetUsableCoupons(ctx context.Context, arg GetUsableCouponsParams) ([]GetUsableCouponsRow, error) {
-	rows, err := q.db.Query(ctx, getUsableCoupons, arg.Username, arg.CartID)
+func (q *Queries) GetSortedUsableCoupons(ctx context.Context, arg GetSortedUsableCouponsParams) ([]GetSortedUsableCouponsRow, error) {
+	rows, err := q.db.Query(ctx, getSortedUsableCoupons, arg.Username, arg.CartID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetUsableCouponsRow{}
+	items := []GetSortedUsableCouponsRow{}
 	for rows.Next() {
-		var i GetUsableCouponsRow
+		var i GetSortedUsableCouponsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,

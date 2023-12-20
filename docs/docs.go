@@ -828,7 +828,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.GetUsableCouponsRow"
+                                "$ref": "#/definitions/db.GetSortedUsableCouponsRow"
                             }
                         }
                     },
@@ -3421,13 +3421,13 @@ const docTemplate = `{
                 "coupons": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.GetCouponsFromCartRow"
+                        "$ref": "#/definitions/db.GetSortedCouponsFromCartRow"
                     }
                 },
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.GetProductFromCartRow"
+                        "$ref": "#/definitions/db.GetProductFromCartOrderByPriceDescRow"
                     }
                 }
             }
@@ -3692,29 +3692,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetCouponsFromCartRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "scope": {
-                    "$ref": "#/definitions/db.CouponScope"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
         "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
@@ -3854,7 +3831,7 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetProductFromCartRow": {
+        "db.GetProductFromCartOrderByPriceDescRow": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -4053,6 +4030,58 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetSortedCouponsFromCartRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetSortedUsableCouponsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
         "db.GetTagInfoRow": {
             "type": "object",
             "properties": {
@@ -4078,32 +4107,6 @@ const docTemplate = `{
                 },
                 "total_sales": {
                     "type": "integer"
-                }
-            }
-        },
-        "db.GetUsableCouponsRow": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "scope": {
-                    "$ref": "#/definitions/db.CouponScope"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
