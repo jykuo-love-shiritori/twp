@@ -143,12 +143,12 @@ WHERE c."id" = $2
     );
 -- name: SellerGetOrder :many
 SELECT "id",
-    "image_id" as "image_url",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
-FROM "order_history"
+    oh."image_id" as "image_url",
+    oh."shipment",
+    oh."total_price",
+    oh."status",
+    oh."created_at"
+FROM "order_history" as oh
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
@@ -158,15 +158,19 @@ ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3;
 -- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
-    "order_history"."image_id" as "image_url",
+    "order_history"."image_id" as "thumbnail_url",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
-    "order_history"."created_at"
+    "order_history"."created_at",
+    "user"."id" as "user_id",
+    "user"."name" as "user_name",
+    "user"."image_id" as "user_image_url"
 FROM "order_history"
-    JOIN shop ON order_history.shop_id = shop.id
+    JOIN shop ON "order_history".shop_id = shop.id
+    JOIN "user" ON "order_history".user_id = "user"."id"
 WHERE shop.seller_name = $1
-    AND order_history.id = $2;
+    AND "order_history".id = $2;
 -- name: SellerGetOrderDetail :many
 SELECT product_archive."id",
     product_archive."name",

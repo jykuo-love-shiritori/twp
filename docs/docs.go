@@ -1581,7 +1581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateOrderStatusParams"
+                            "$ref": "#/definitions/seller.OrderUpdateStatusParams"
                         }
                     }
                 ],
@@ -2172,13 +2172,12 @@ const docTemplate = `{
                 "summary": "Seller add tag",
                 "parameters": [
                     {
-                        "minLength": 1,
                         "description": "insert tag",
                         "name": "name",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/db.HaveTagNameParams"
                         }
                     }
                 ],
@@ -3039,6 +3038,17 @@ const docTemplate = `{
                 }
             }
         },
+        "db.HaveTagNameParams": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.OrderStatus": {
             "type": "string",
             "enum": [
@@ -3193,17 +3203,26 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_url": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
+                "thumbnail_url": {
+                    "type": "string"
+                },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3422,23 +3441,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.SellerUpdateOrderStatusParams": {
-            "type": "object",
-            "properties": {
-                "current_status": {
-                    "$ref": "#/definitions/db.OrderStatus"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "seller_name": {
-                    "type": "string"
-                },
-                "set_status": {
-                    "$ref": "#/definitions/db.OrderStatus"
-                }
-            }
-        },
         "db.SellerUpdateOrderStatusRow": {
             "type": "object",
             "properties": {
@@ -3639,6 +3641,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/db.SellerGetOrderDetailRow"
                     }
+                }
+            }
+        },
+        "seller.OrderUpdateStatusParams": {
+            "type": "object",
+            "properties": {
+                "current_status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },

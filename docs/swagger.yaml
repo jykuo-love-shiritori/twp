@@ -239,6 +239,13 @@ definitions:
       username:
         type: string
     type: object
+  db.HaveTagNameParams:
+    properties:
+      name:
+        type: string
+      seller_name:
+        type: string
+    type: object
   db.OrderStatus:
     enum:
     - paid
@@ -343,14 +350,20 @@ definitions:
         type: string
       id:
         type: integer
-      image_url:
-        type: string
       shipment:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
+      thumbnail_url:
+        type: string
       total_price:
         type: integer
+      user_id:
+        type: integer
+      user_image_url:
+        type: string
+      user_name:
+        type: string
     type: object
   db.SellerGetOrderRow:
     properties:
@@ -492,17 +505,6 @@ definitions:
       name:
         type: string
     type: object
-  db.SellerUpdateOrderStatusParams:
-    properties:
-      current_status:
-        $ref: '#/definitions/db.OrderStatus'
-      id:
-        type: integer
-      seller_name:
-        type: string
-      set_status:
-        $ref: '#/definitions/db.OrderStatus'
-    type: object
   db.SellerUpdateOrderStatusRow:
     properties:
       created_at:
@@ -634,6 +636,13 @@ definitions:
         items:
           $ref: '#/definitions/db.SellerGetOrderDetailRow'
         type: array
+    type: object
+  seller.OrderUpdateStatusParams:
+    properties:
+      current_status:
+        $ref: '#/definitions/db.OrderStatus'
+      id:
+        type: integer
     type: object
   seller.ProductDetail:
     properties:
@@ -1725,7 +1734,7 @@ paths:
         name: param
         required: true
         schema:
-          $ref: '#/definitions/db.SellerUpdateOrderStatusParams'
+          $ref: '#/definitions/seller.OrderUpdateStatusParams'
       responses:
         "200":
           description: OK
@@ -2129,11 +2138,10 @@ paths:
       parameters:
       - description: insert tag
         in: body
-        minLength: 1
         name: name
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/db.HaveTagNameParams'
       produces:
       - application/json
       responses:

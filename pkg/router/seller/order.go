@@ -15,6 +15,11 @@ type OrderDetail struct {
 	Products  []db.SellerGetOrderDetailRow `json:"products"`
 }
 
+type OrderUpdateStatusParams struct {
+	ID            int32          `json:"id" param:"id"`
+	CurrentStatus db.OrderStatus `json:"current_status"`
+}
+
 // @Summary		Seller get order
 // @Description	Get all orders for shop.
 // @Tags			Seller, Shop, Order
@@ -87,7 +92,8 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.OrderInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ImageUrl)
+		result.OrderInfo.ThumbnailUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ThumbnailUrl)
+		result.OrderInfo.UserImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.UserImageUrl)
 		for i := range result.Products {
 			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
 		}
@@ -98,8 +104,8 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 // @Summary		Seller update order status
 // @Description	seller update orders status.
 // @Tags			Seller, Shop, Order
-// @Param			id		path		int									true	"Order ID"
-// @Param			param	body		db.SellerUpdateOrderStatusParams	true	"order current status"
+// @Param			id		path		int						true	"Order ID"
+// @Param			param	body		OrderUpdateStatusParams	true	"order current status"
 // @Success		200		{object}	db.SellerUpdateOrderStatusRow
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
@@ -108,19 +114,29 @@ func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var param db.SellerUpdateOrderStatusParams
+		var param OrderUpdateStatusParams
 		if err := c.Bind(&param); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		param.SellerName = username
 
 		// shop can only a prove the status traction {paid > shipped ,shipped > delivered}
 		// paid > shipped > delivered > (cancelled || finished)
-		if !((param.CurrentStatus == db.OrderStatusPaid && param.SetStatus == db.OrderStatusShipped) || (param.CurrentStatus == db.OrderStatusShipped && param.SetStatus == db.OrderStatusDelivered)) {
+		var NextStatus db.OrderStatus
+		switch param.CurrentStatus {
+		case db.OrderStatusPaid:
+			NextStatus = db.OrderStatusShipped
+		case db.OrderStatusShipped:
+			NextStatus = db.OrderStatusDelivered
+		default:
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		order, err := pg.Queries.SellerUpdateOrderStatus(c.Request().Context(), param)
+		order, err := pg.Queries.SellerUpdateOrderStatus(c.Request().Context(), db.SellerUpdateOrderStatusParams{
+			SellerName:    username,
+			ID:            param.ID,
+			CurrentStatus: param.CurrentStatus,
+			SetStatus:     NextStatus,
+		})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

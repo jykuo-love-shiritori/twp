@@ -407,12 +407,12 @@ func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerG
 
 const sellerGetOrder = `-- name: SellerGetOrder :many
 SELECT "id",
-    "image_id" as "image_url",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
-FROM "order_history"
+    oh."image_id" as "image_url",
+    oh."shipment",
+    oh."total_price",
+    oh."status",
+    oh."created_at"
+FROM "order_history" as oh
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
@@ -524,15 +524,19 @@ func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDe
 
 const sellerGetOrderHistory = `-- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
-    "order_history"."image_id" as "image_url",
+    "order_history"."image_id" as "thumbnail_url",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
-    "order_history"."created_at"
+    "order_history"."created_at",
+    "user"."id" as "user_id",
+    "user"."name" as "user_name",
+    "user"."image_id" as "user_image_url"
 FROM "order_history"
-    JOIN shop ON order_history.shop_id = shop.id
+    JOIN shop ON "order_history".shop_id = shop.id
+    JOIN "user" ON "order_history".user_id = "user"."id"
 WHERE shop.seller_name = $1
-    AND order_history.id = $2
+    AND "order_history".id = $2
 `
 
 type SellerGetOrderHistoryParams struct {
@@ -541,12 +545,15 @@ type SellerGetOrderHistoryParams struct {
 }
 
 type SellerGetOrderHistoryRow struct {
-	ID         int32              `json:"id" param:"id"`
-	ImageUrl   string             `json:"image_url"`
-	Shipment   int32              `json:"shipment"`
-	TotalPrice int32              `json:"total_price"`
-	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	ID           int32              `json:"id" param:"id"`
+	ThumbnailUrl string             `json:"thumbnail_url"`
+	Shipment     int32              `json:"shipment"`
+	TotalPrice   int32              `json:"total_price"`
+	Status       OrderStatus        `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	UserID       int32              `json:"user_id" param:"id"`
+	UserName     string             `form:"name" json:"user_name"`
+	UserImageUrl string             `json:"user_image_url" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderHistoryParams) (SellerGetOrderHistoryRow, error) {
@@ -554,11 +561,14 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 	var i SellerGetOrderHistoryRow
 	err := row.Scan(
 		&i.ID,
-		&i.ImageUrl,
+		&i.ThumbnailUrl,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
 		&i.CreatedAt,
+		&i.UserID,
+		&i.UserName,
+		&i.UserImageUrl,
 	)
 	return i, err
 }
