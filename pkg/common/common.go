@@ -36,7 +36,7 @@ func HasRegexSpecialChars(input string) bool {
 	re := regexp.MustCompile(regexPattern)
 	return re.MatchString(input)
 }
-func GetEncodeName(file *multipart.FileHeader) string {
+func CreateUniqueFileName(file *multipart.FileHeader) string {
 	id := uuid.New()
 	newFileName := id.String() + filepath.Ext(file.Filename)
 	return newFileName

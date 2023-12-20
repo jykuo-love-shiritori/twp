@@ -128,6 +128,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		param.ExpireDate.Valid = true
 		//check expire time
 		if param.ExpireDate.Time.Before(time.Now()) {
 			logger.Errorw("expire date is invalid")
@@ -166,7 +167,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//put file to minio
-		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -229,6 +230,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
+		param.ExpireDate.Valid = true
 		//check Price range
 		if v, err := param.Price.Float64Value(); err != nil || v.Float64 < 0 {
 			logger.Errorw("price is invalid")
@@ -241,7 +243,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 		}
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)

@@ -73,7 +73,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.GetEncodeName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
