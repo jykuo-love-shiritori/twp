@@ -53,17 +53,21 @@ const SellerReportEach = () => {
             {data.goods.map((item, index) => {
               return (
                 <Col xs={12} md={4} key={index}>
-                  <GoodsItem id={item.id} name={item.name} imgUrl={item.imgUrl} />
-                  <div className='center title_color'>
+                  <div className='center title_color' style={{ paddingTop: '30px' }}>
                     <h4>No. {index + 1}</h4>
                   </div>
-                  <div className='center'>TWD $ {item.amount}</div>
+                  <div className='center' style={{ paddingBottom: '30px' }}>
+                    TWD $ {item.amount}
+                  </div>
+
+                  <GoodsItem id={item.id} name={item.name} imgUrl={item.imgUrl} />
                 </Col>
               );
             })}
           </Row>
 
           <hr className='hr' />
+
           <Row>
             <Col xs={12} className='center_vertical'>
               <h4 style={{ paddingBottom: '10px' }}>

@@ -53,21 +53,24 @@ const AdminReportEach = () => {
             {data.sellers.map((item, index) => {
               return (
                 <Col xs={12} md={4} key={index}>
-                  {/* replace with user component */}
-                  <SellerItem id={item.id} />
-                  <div className='center title_color'>
+                  <div className='center title_color' style={{ paddingTop: '30px' }}>
                     <h4>No. {index + 1}</h4>
                   </div>
-                  <div className='center'>TWD $ {item.amount}</div>
+                  <div className='center' style={{ paddingBottom: '30px' }}>
+                    TWD $ {item.amount}
+                  </div>
+
+                  <SellerItem id={item.id} />
                 </Col>
               );
             })}
           </Row>
 
           <hr className='hr' />
+
           <Row>
             <Col xs={12} className='center_vertical'>
-              <h4 style={{ paddingBottom: '10px' }}>
+              <h4>
                 <b>Total sales revenue :</b>
               </h4>
             </Col>
