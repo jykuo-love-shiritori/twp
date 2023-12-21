@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import GoodsItem from '@components/GoodsItem';
 import { Props } from '@components/GoodsItem';
-import { CheckStatus } from '@lib/CheckStatus';
+import { CheckFetchStatus } from '@lib/Status';
 
 const Shop = () => {
-  const { status, data } = useQuery({
+  const { status, data: shopData } = useQuery({
     queryKey: ['shopsView'],
     queryFn: async () => {
       const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
@@ -22,7 +22,7 @@ const Shop = () => {
   });
 
   if (status != 'success') {
-    return <CheckStatus status={status} />;
+    return <CheckFetchStatus status={status} />;
   }
 
   return (
@@ -30,10 +30,10 @@ const Shop = () => {
       <div className='title'>All products</div>
       <hr className='hr' />
       <Row>
-        {data.map((d: Props, index: number) => {
+        {shopData.map((data: Props, index: number) => {
           return (
             <Col xs={6} md={3} key={index}>
-              <GoodsItem id={d.id} name={d.name} image_url={d.image_url} />
+              <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
             </Col>
           );
         })}

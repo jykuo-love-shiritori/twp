@@ -1,8 +1,8 @@
-type Props = {
+type FetchStatusProps = {
   status: 'pending' | 'error' | 'success';
 };
 
-export const CheckStatus = ({ status }: Props) => {
+export const CheckFetchStatus = ({ status }: FetchStatusProps) => {
   switch (status) {
     case 'pending':
       return <div>Loading...</div>;
