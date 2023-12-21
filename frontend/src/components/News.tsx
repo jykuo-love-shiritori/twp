@@ -5,11 +5,11 @@ import TButton from '@components/TButton';
 
 interface Props {
   id: number;
-  imgUrl: string;
+  image_url: string;
   title: string;
 }
 
-const News = ({ id, imgUrl, title }: Props) => {
+const News = ({ id, image_url, title }: Props) => {
   const NewsComponentStyle = {
     borderRadius: '52px',
     boxShadow: '6px 6px 15px 5px rgba(0, 0, 0, 0.15)',
@@ -21,7 +21,7 @@ const News = ({ id, imgUrl, title }: Props) => {
 
   return (
     <div>
-      <img src={imgUrl} style={NewsComponentStyle} />
+      <img src={image_url} style={NewsComponentStyle} />
 
       <div style={{ padding: '1% 10% 1% 10%' }} className='center'>
         <span>

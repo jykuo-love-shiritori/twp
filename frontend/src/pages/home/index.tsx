@@ -36,7 +36,7 @@ const Home = () => {
               <Col xs={12} md={4} key={index}>
                 <News
                   id={data.id}
-                  imgUrl={[NewsImgUrl3, NewsImgUrl2, NewsImgUrl1][index]}
+                  image_url={[NewsImgUrl3, NewsImgUrl2, NewsImgUrl1][index]}
                   title={data.title}
                 />
               </Col>
@@ -52,7 +52,7 @@ const Home = () => {
             if (data.id < 5) {
               return (
                 <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                  <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
                 </Col>
               );
             }
@@ -66,7 +66,7 @@ const Home = () => {
             if (data.id < 9 && data.id > 4) {
               return (
                 <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                  <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
                 </Col>
               );
             }

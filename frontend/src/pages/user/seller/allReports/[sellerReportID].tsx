@@ -60,7 +60,7 @@ const SellerReportEach = () => {
                     TWD $ {item.amount}
                   </div>
 
-                  <GoodsItem id={item.id} name={item.name} imgUrl={item.imgUrl} />
+                  <GoodsItem id={item.id} name={item.name} image_url={item.imgUrl} />
                 </Col>
               );
             })}
