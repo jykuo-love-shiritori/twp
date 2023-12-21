@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import TButton from '@components/TButton';
 import UserItem from '@components/UserItem';
 
-import historyData from '@pages/cart/boughtData.json';
+import historyData from '@pages/user/buyer/cart/boughtData.json';
 import goodsData from '@pages/discover/goodsData.json';
 
 const HistoryItem = ({ id, user }: { id: number; user: string }) => {

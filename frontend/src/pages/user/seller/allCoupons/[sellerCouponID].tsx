@@ -9,7 +9,7 @@ import CouponItemTemplate from '@components/CouponItemTemplate';
 
 interface CouponProps {
   id: number;
-  type: string; // 'percentage', 'fixed', 'shipping'
+  type: 'percentage' | 'fixed' | 'shipping';
   name: string;
   description: string;
   discount: number;
@@ -34,7 +34,7 @@ const EachSellerCoupon = () => {
   const { register, control, handleSubmit, watch, setValue } = useForm<CouponProps>({
     defaultValues: {
       id: 0,
-      type: '',
+      type: 'percentage',
       name: '',
       description: '',
       discount: 0,

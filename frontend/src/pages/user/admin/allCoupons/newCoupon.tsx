@@ -9,7 +9,7 @@ import CouponItemTemplate from '@components/CouponItemTemplate';
 
 interface CouponProps {
   id: number;
-  type: string; // 'percentage', 'fixed', 'shipping'
+  type: 'percentage' | 'fixed' | 'shipping';
   name: string;
   description: string;
   discount: number;

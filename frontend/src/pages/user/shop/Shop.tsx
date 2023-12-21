@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import GoodsItem from '@components/GoodsItem';
 import { Props } from '@components/GoodsItem';
+import { CheckStatus } from '@lib/CheckStatus';
 
 const Shop = () => {
-  const { isLoading, isError, data } = useQuery({
+  const { status, data } = useQuery({
     queryKey: ['shopsView'],
     queryFn: async () => {
       const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
@@ -20,15 +21,9 @@ const Shop = () => {
     },
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (status != 'success') {
+    return <CheckStatus status={status} />;
   }
-
-  if (isError) {
-    return <div>Error</div>;
-  }
-
-  console.log(data);
 
   return (
     <div>

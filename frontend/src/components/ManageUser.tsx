@@ -2,7 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 import UserTableRow from '@components/UserTableRow';
 import datas from '@pages/user/admin/UserData.json';
 import Pagination from '@components/Pagination';
-import UserTableHeader from './UserTableHeader';
+import UserTableHeader from '@components/UserTableHeader';
 
 const ManageUser = () => {
   return (
