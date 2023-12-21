@@ -47,7 +47,7 @@ const Callback = () => {
   }
 
   if (error) {
-    return <>error</>;
+    return <>Error</>;
   }
 
   if (data) {

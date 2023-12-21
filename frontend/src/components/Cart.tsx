@@ -7,7 +7,7 @@ import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useNavigate } from 'react-router-dom';
 
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import CartProduct from '@components/CartProduct';
 import sellerInfo from '@pages/user/seller/sellerInfo.json';
 import UserItem from '@components/UserItem';

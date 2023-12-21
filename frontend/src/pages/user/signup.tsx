@@ -22,8 +22,6 @@ const Signup = () => {
 
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
-    console.log(data);
-
     if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
       setWarningText('username should only contain letters and numbers\n');
       setShow(true);
@@ -47,7 +45,10 @@ const Signup = () => {
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      console.log(response.statusText);
+      const error = await response.json();
+      setWarningText(error.message);
+      setShow(true);
+      return;
     } else {
       navigate('/login');
     }
