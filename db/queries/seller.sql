@@ -1,6 +1,6 @@
 -- name: SellerGetInfo :one
 SELECT "name",
-    "image_id",
+    "image_id" as "image_url",
     "description",
     "enabled"
 FROM "shop"
@@ -16,7 +16,7 @@ SET "image_id" = CASE
     "enabled" = COALESCE($4, "enabled")
 WHERE "seller_name" = $1
 RETURNING "name",
-    "image_id",
+    "image_id" as "image_url",
     "description",
     "enabled";
 -- name: SellerSearchTag :many
@@ -143,12 +143,12 @@ WHERE c."id" = $2
     );
 -- name: SellerGetOrder :many
 SELECT "id",
-    "image_id",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
-FROM "order_history"
+    oh."image_id" as "image_url",
+    oh."shipment",
+    oh."total_price",
+    oh."status",
+    oh."created_at"
+FROM "order_history" as oh
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
@@ -158,17 +158,25 @@ ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3;
 -- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
-    "order_history"."image_id",
+    "order_history"."image_id" as "thumbnail_url",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
-    "order_history"."created_at"
+    "order_history"."created_at",
+    "user"."id" as "user_id",
+    "user"."name" as "user_name",
+    "user"."image_id" as "user_image_url"
 FROM "order_history"
-    JOIN shop ON order_history.shop_id = shop.id
+    JOIN shop ON "order_history".shop_id = shop.id
+    JOIN "user" ON "order_history".user_id = "user"."id"
 WHERE shop.seller_name = $1
-    AND order_history.id = $2;
+    AND "order_history".id = $2;
 -- name: SellerGetOrderDetail :many
-SELECT product_archive.*,
+SELECT product_archive."id",
+    product_archive."name",
+    product_archive."description",
+    product_archive."price",
+    product_archive."image_id" as "image_url",
     order_detail.quantity
 FROM "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
@@ -198,7 +206,7 @@ RETURNING oh."id",
 SELECT order_detail.product_id,
     product_archive.name,
     product_archive.price,
-    product_archive.image_id,
+    product_archive.image_id as "image_url",
     SUM(order_detail.quantity) AS total_quantity,
     SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
     COUNT(order_history.id) AS order_count
@@ -208,14 +216,8 @@ FROM "order_detail"
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INTEGER = sqlc.arg('year')::INT
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INTEGER = sqlc.arg('month')::INT
+    AND order_history."created_at" > sqlc.arg('time')
+    AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month'
 GROUP BY product_archive.id,
     product_archive.description,
     product_archive.name,
@@ -230,17 +232,11 @@ SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
 FROM order_history
     LEFT JOIN shop ON order_history.shop_id = shop.id
 WHERE shop.seller_name = $1
-    AND EXTRACT(
-        MONTH
-        FROM order_history."created_at"
-    )::INT = sqlc.arg('month')::INT
-    AND EXTRACT(
-        YEAR
-        FROM order_history."created_at"
-    )::INT = sqlc.arg('year')::INT;
+    AND order_history."created_at" > sqlc.arg('time')
+    AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month';
 -- name: SellerGetProductDetail :one
 SELECT p."name",
-    p."image_id",
+    p."image_id" as "image_url",
     p."price",
     p."sales",
     p."stock",
@@ -252,7 +248,7 @@ WHERE s.seller_name = $1
 -- name: SellerProductList :many
 SELECT p."id",
     p."name",
-    p."image_id",
+    p."image_id" as "image_url",
     p."price",
     p."sales",
     p."stock",
@@ -262,6 +258,21 @@ FROM "product" p
 WHERE s.seller_name = $1
 ORDER BY "sales" DESC
 LIMIT $2 OFFSET $3;
+-- name: SellerCheckTags :one
+SELECT NOT EXISTS (
+        SELECT 1
+        FROM unnest(@tags::INT []) t
+            LEFT JOIN "tag" ON t = "tag"."id"
+            LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
+        WHERE "tag"."id" IS NULL
+            OR s."seller_name" != $1
+    );
+-- name: SellerInsertProductTags :exec
+INSERT INTO "product_tag" ("product_id", "tag_id")
+VALUES ($1, unnest(@tags::INT []));
+-- name: SellerInsertCouponTags :exec
+INSERT INTO "coupon_tag" ("coupon_id", "tag_id")
+VALUES ($1, unnest(@tags::INT []));
 -- name: SellerInsertProduct :one
 INSERT INTO "product"(
         "version",
@@ -296,7 +307,7 @@ RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" as "image_url",
     "expire_date",
     "edit_date",
     "stock",
@@ -327,7 +338,7 @@ RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id",
+    "image_id" as "image_url",
     "expire_date",
     "edit_date",
     "stock",

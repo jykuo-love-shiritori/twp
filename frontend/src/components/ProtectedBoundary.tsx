@@ -7,7 +7,7 @@ import { TryRefresh } from '@lib/Auth';
 const ProtectedBoundary = () => {
   const { tokenRef } = useContext(AuthContext);
 
-  const skip_auth = import.meta.env.VITE_SKIP_AUTH;
+  const skip_auth = import.meta.env.VITE_SKIP_AUTH === 'true';
 
   const { isLoading, isError, data } = useQuery({
     queryKey: ['refresh'],

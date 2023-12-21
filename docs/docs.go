@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/admin/coupon": {
             "get": {
-                "description": "Get all coupons (include shops' coupon).",
+                "description": "Get all global coupons .",
                 "produces": [
                     "application/json"
                 ],
@@ -57,7 +57,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.GetAnyCouponsRow"
+                                "$ref": "#/definitions/db.GetGlobalCouponsRow"
                             }
                         }
                     },
@@ -146,7 +146,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetCouponDetailRow"
+                            "$ref": "#/definitions/db.GetGlobalCouponDetailRow"
                         }
                     },
                     "400": {
@@ -210,7 +210,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Edit any coupon.",
+                "description": "Edit global coupon. All the coupon properties are required.",
                 "consumes": [
                     "application/json"
                 ],
@@ -236,7 +236,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/router.PrettierCoupon"
+                            "$ref": "#/definitions/admin.PrettierCoupon"
                         }
                     }
                 ],
@@ -264,7 +264,7 @@ const docTemplate = `{
         },
         "/admin/report": {
             "get": {
-                "description": "Get site report.",
+                "description": "Get site report (top 3 sellers and total amount).",
                 "produces": [
                     "application/json"
                 ],
@@ -276,24 +276,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Start date",
-                        "name": "start_date",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "End date",
-                        "name": "end_date",
+                        "description": "Start year/month",
+                        "name": "date",
                         "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "TODO",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/admin.adminReport"
                         }
                     },
                     "400": {
@@ -423,7 +416,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/common.Cart"
+                                "$ref": "#/definitions/buyer.Cart"
                             }
                         }
                     },
@@ -442,37 +435,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/buyer/cart/{cart_id}/checkout": {
-            "get": {
-                "description": "Get all checkout data",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Checkout"
-                ],
-                "summary": "Buyer Get Checkout",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            },
+        "/buyer/cart/product/{id}": {
             "post": {
-                "description": "Checkout",
+                "description": "Add product to cart",
                 "consumes": [
                     "application/json"
                 ],
@@ -481,24 +446,45 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Buyer",
-                    "Checkout"
+                    "Cart"
                 ],
-                "summary": "Buyer Checkout",
+                "summary": "Buyer Add Product To Cart",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
+                        "description": "Product ID",
+                        "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Quantity",
+                        "name": "quantity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/buyer.ProductQuantity"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "product quantity in cart",
+                        "schema": {
+                            "type": "integer"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -536,15 +522,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             },
             "delete": {
-                "description": "Delete coupon from cart",
+                "description": "Delete coupon In cart",
                 "consumes": [
                     "application/json"
                 ],
@@ -556,7 +554,7 @@ const docTemplate = `{
                     "Cart",
                     "Coupon"
                 ],
-                "summary": "Buyer Delete Coupon From Cart",
+                "summary": "Buyer Delete Coupon In Cart",
                 "parameters": [
                     {
                         "type": "integer",
@@ -575,53 +573,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
         },
         "/buyer/cart/{cart_id}/product/{product_id}": {
-            "post": {
-                "description": "Add product to cart",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Buyer",
-                    "Cart"
-                ],
-                "summary": "Buyer Add Product To Cart",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "cart_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            },
             "delete": {
                 "description": "Delete product from cart",
                 "consumes": [
@@ -653,15 +625,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             },
             "patch": {
-                "description": "Edit product quantity in cart",
+                "description": "Edit product quantity in cart (The product must be in the cart)",
                 "consumes": [
                     "application/json"
                 ],
@@ -687,14 +671,178 @@ const docTemplate = `{
                         "name": "product_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Quantity",
+                        "name": "quantity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/buyer.ProductQuantity"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{id}/checkout": {
+            "get": {
+                "description": "Get all checkout data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Get Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/buyer.checkout"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Checkout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Checkout"
+                ],
+                "summary": "Buyer Checkout",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payment",
+                        "name": "payment_method",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/buyer.PaymentMethod"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/buyer/cart/{id}/coupon": {
+            "get": {
+                "description": "Buyer get usable coupon of cart/shop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Cart",
+                    "Coupon"
+                ],
+                "summary": "Buyer Get usable coupon of cart/shop",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetSortedUsableCouponsRow"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -773,10 +921,71 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/buyer.OrderDetail"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Buyer Update order status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyer",
+                    "Order"
+                ],
+                "summary": "Buyer Update order status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Order status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/buyer.OrderStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -795,32 +1004,38 @@ const docTemplate = `{
                     "Product"
                 ],
                 "summary": "Get Discover",
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "description": "Logout the current user",
-                "produces": [
-                    "application/json"
                 ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Logout",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.GetRandomProductsRow"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -840,10 +1055,19 @@ const docTemplate = `{
                 "summary": "Get News",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/common.NewsInfo"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -872,10 +1096,75 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.News"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/logout": {
+            "post": {
+                "description": "Logout the current user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
                         "description": "OK"
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/popular": {
+            "get": {
+                "description": "Get discover content",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Discover",
+                    "Product"
+                ],
+                "summary": "Get Popular products and Local products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/general.popular"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -946,18 +1235,97 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search word",
+                        "description": "search query",
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "price lower bound",
+                        "name": "minPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "price upper bound",
+                        "name": "maxPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock lower bound",
+                        "name": "minStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock upper bound",
+                        "name": "maxStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "has coupon",
+                        "name": "haveCoupon",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"price\"",
+                            "\"stock\"",
+                            "\"sales\"",
+                            "\"relevancy\""
+                        ],
+                        "type": "string",
+                        "description": "sort by",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"asc\"",
+                            "\"desc\""
+                        ],
+                        "type": "string",
+                        "description": "sorting order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/general.PrettierSearchResult"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -983,14 +1351,44 @@ const docTemplate = `{
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/general.PrettierShopSearchResult"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -1012,13 +1410,13 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "minimum": 20,
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -1064,73 +1462,12 @@ const docTemplate = `{
                 "summary": "Seller add coupon",
                 "parameters": [
                     {
-                        "description": "Coupon type",
-                        "name": "type",
+                        "description": "coupon",
+                        "name": "coupon",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "init tags",
-                        "name": "tags",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/seller.InsertCouponParams"
                         }
                     }
                 ],
@@ -1139,110 +1476,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/db.SellerInsertCouponRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/seller/coupon/{coupon_id}": {
-            "patch": {
-                "description": "Edit coupon for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Coupon"
-                ],
-                "summary": "Seller edit coupon",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Coupon ID",
-                        "name": "coupon_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Coupon type",
-                        "name": "type",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'percentage'",
-                                "'fixed'",
-                                "'shipping'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "name of coupon",
-                        "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "description of coupon",
-                        "name": "description",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "discount",
-                        "name": "discount",
-                        "in": "body",
-                        "schema": {
-                            "type": "number"
-                        }
-                    },
-                    {
-                        "description": "start date",
-                        "name": "start_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "expire date",
-                        "name": "expire_date",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
                         }
                     },
                     "400": {
@@ -1285,7 +1518,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.couponDetail"
+                            "$ref": "#/definitions/seller.CouponDetail"
                         }
                     },
                     "400": {
@@ -1351,6 +1584,59 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Edit coupon for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Seller edit coupon",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Coupon ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "coupon",
+                        "name": "coupon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/seller.InsertCouponParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateCouponInfoRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/seller/coupon/{id}/tag": {
@@ -1383,7 +1669,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1437,7 +1723,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -1527,8 +1813,7 @@ const docTemplate = `{
                         "type": "file",
                         "description": "image file",
                         "name": "image",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -1622,76 +1907,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "seller update orders status.",
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Order"
-                ],
-                "summary": "Seller update order status",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "order status",
-                        "name": "current_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    },
-                    {
-                        "description": "order status",
-                        "name": "set_status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "'pending'",
-                                "'paid'",
-                                "'shipped'",
-                                "'delivered'",
-                                "'cancelled'"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
             }
         },
         "/seller/order/{id}": {
@@ -1719,7 +1934,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/router.orderDetail"
+                            "$ref": "#/definitions/seller.OrderDetail"
                         }
                     },
                     "400": {
@@ -1730,6 +1945,53 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "seller update orders status.",
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Order"
+                ],
+                "summary": "Seller update order status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "order current status",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/seller.OrderUpdateStatusParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.SellerUpdateOrderStatusRow"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1763,7 +2025,7 @@ const docTemplate = `{
                         "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "offset page",
+                        "description": "offset",
                         "name": "offset",
                         "in": "query",
                         "required": true
@@ -1835,12 +2097,20 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
-                        "in": "formData"
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image id",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "image id",
-                        "name": "image",
+                        "description": "expire date",
+                        "name": "expire_date",
                         "in": "formData",
                         "required": true
                     },
@@ -1848,6 +2118,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     },
@@ -1886,6 +2163,50 @@ const docTemplate = `{
             }
         },
         "/seller/product/{id}": {
+            "get": {
+                "description": "Delete product for shop.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seller",
+                    "Shop",
+                    "Product"
+                ],
+                "summary": "Seller get product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/seller.ProductDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete product for shop.",
                 "consumes": [
@@ -1976,12 +2297,19 @@ const docTemplate = `{
                         "type": "number",
                         "description": "price",
                         "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
                         "in": "formData"
                     },
                     {
                         "type": "string",
-                        "description": "image id",
-                        "name": "image_id",
+                        "description": "expire date",
+                        "name": "expire_date",
                         "in": "formData",
                         "required": true
                     },
@@ -1989,6 +2317,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "stock",
                         "name": "stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "enabled",
+                        "name": "enabled",
                         "in": "formData",
                         "required": true
                     }
@@ -2045,7 +2380,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2098,7 +2433,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2130,52 +2465,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/product/{product_id}": {
-            "get": {
-                "description": "Delete product for shop.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Seller",
-                    "Shop",
-                    "Product"
-                ],
-                "summary": "Seller get product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/router.productDetail"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/seller/report/{year}/{month}": {
             "get": {
                 "description": "Get report detail by year and month for shop.",
@@ -2191,16 +2480,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Year",
-                        "name": "year",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Month",
-                        "name": "month",
-                        "in": "path",
+                        "description": "time",
+                        "name": "time",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -2241,13 +2523,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "minLength": 1,
+                        "type": "string",
                         "description": "search tag name start with",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2290,13 +2570,12 @@ const docTemplate = `{
                 "summary": "Seller add tag",
                 "parameters": [
                     {
-                        "minLength": 1,
                         "description": "insert tag",
                         "name": "name",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/db.HaveTagNameParams"
                         }
                     }
                 ],
@@ -2348,13 +2627,28 @@ const docTemplate = `{
                         "name": "seller_name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetShopInfoRow"
+                            "$ref": "#/definitions/general.shopInfo"
                         }
                     },
                     "400": {
@@ -2408,6 +2702,7 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "maximum": 20,
                         "type": "integer",
                         "default": 10,
                         "description": "limit",
@@ -2463,7 +2758,7 @@ const docTemplate = `{
                 "summary": "Search Shop Products",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Seller username",
                         "name": "seller_name",
                         "in": "path",
@@ -2471,18 +2766,97 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "search word",
+                        "description": "search query",
                         "name": "q",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "price lower bound",
+                        "name": "minPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "price upper bound",
+                        "name": "maxPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock lower bound",
+                        "name": "minStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "stock upper bound",
+                        "name": "maxStock",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "has coupon",
+                        "name": "haveCoupon",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"price\"",
+                            "\"stock\"",
+                            "\"sales\"",
+                            "\"relevancy\""
+                        ],
+                        "type": "string",
+                        "description": "sort by",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "\"asc\"",
+                            "\"desc\""
+                        ],
+                        "type": "string",
+                        "description": "sorting order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Begin index",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 20,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/general.PrettierProductSearchResult"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
                     }
                 }
             }
@@ -2577,40 +2951,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/avatar": {
-            "post": {
-                "description": "Upload user avatar",
-                "consumes": [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "User Upload Avatar",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Image to upload",
-                        "name": "img",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                }
-            }
-        },
         "/user/info": {
             "get": {
                 "description": "Get user information",
@@ -2653,31 +2993,32 @@ const docTemplate = `{
                 "summary": "User Edit Info",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "name of coupon",
                         "name": "name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "user address",
                         "name": "address",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
-                        "description": "image id",
-                        "name": "image_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image file",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2752,10 +3093,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "type": "object"
                         }
                     }
                 ],
@@ -2799,21 +3137,12 @@ const docTemplate = `{
                 "summary": "User Edit Password",
                 "parameters": [
                     {
-                        "description": "current password",
-                        "name": "current_password",
+                        "description": "password",
+                        "name": "password",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "new password",
-                        "name": "new_password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/user.updatePasswordParams"
                         }
                     }
                 ],
@@ -2841,6 +3170,49 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "admin.PrettierCoupon": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "admin.adminReport": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "integer"
+                },
+                "sellers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetTopSellerRow"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
         "auth.signupParams": {
             "type": "object",
             "properties": {
@@ -2862,16 +3234,146 @@ const docTemplate = `{
                 }
             }
         },
-        "common.Cart": {
+        "buyer.Cart": {
             "type": "object",
             "properties": {
+                "cartInfo": {
+                    "$ref": "#/definitions/db.GetCartRow"
+                },
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetSortedCouponsFromCartRow"
+                    }
+                },
                 "products": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.GetProductInCartRow"
+                        "$ref": "#/definitions/db.GetProductFromCartOrderByPriceDescRow"
+                    }
+                }
+            }
+        },
+        "buyer.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetOrderDetailRow"
                     }
                 },
-                "seller_name": {
+                "info": {
+                    "$ref": "#/definitions/db.GetOrderInfoRow"
+                }
+            }
+        },
+        "buyer.OrderStatus": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                }
+            }
+        },
+        "buyer.PaymentMethod": {
+            "type": "object",
+            "properties": {
+                "credit_card": {
+                    "type": "object"
+                }
+            }
+        },
+        "buyer.ProductQuantity": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "buyer.checkout": {
+            "type": "object",
+            "properties": {
+                "coupons": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/buyer.couponDiscount"
+                    }
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "subtotal": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_discount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "buyer.couponDiscount": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "discount_value": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "common.News": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.NewsInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -2893,9 +3395,6 @@ const docTemplate = `{
                 },
                 "scope": {
                     "$ref": "#/definitions/db.CouponScope"
-                },
-                "shop_id": {
-                    "$ref": "#/definitions/pgtype.Int4"
                 },
                 "start_date": {
                     "type": "string"
@@ -2998,7 +3497,24 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetAnyCouponsRow": {
+        "db.GetCartRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3027,7 +3543,7 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetCouponDetailRow": {
+        "db.GetGlobalCouponsRow": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3053,6 +3569,29 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetOrderDetailRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
                 }
             }
         },
@@ -3068,6 +3607,44 @@ const docTemplate = `{
                 "shipment": {
                     "type": "integer"
                 },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "thumbnail_url": {
+                    "type": "string"
+                },
+                "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetOrderInfoRow": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "shipment": {
+                    "type": "integer"
+                },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
@@ -3076,13 +3653,28 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetProductInCartRow": {
+        "db.GetProductFromCartOrderByPriceDescRow": {
             "type": "object",
             "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
                 "product_id": {
                     "type": "integer"
                 },
                 "quantity": {
+                    "type": "integer"
+                },
+                "stock": {
                     "type": "integer"
                 }
             }
@@ -3099,7 +3691,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3112,6 +3704,75 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetProductsFromNearByShopRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetProductsFromPopularShopRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetRandomProductsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
                     "type": "integer"
                 }
             }
@@ -3151,7 +3812,7 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3159,6 +3820,87 @@ const docTemplate = `{
                 },
                 "seller_name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.GetShopProductsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.GetSortedCouponsFromCartRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "db.GetSortedUsableCouponsRow": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },
@@ -3170,6 +3912,23 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "db.GetTopSellerRow": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "total_sales": {
+                    "type": "integer"
                 }
             }
         },
@@ -3191,6 +3950,9 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "icon_url": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3198,6 +3960,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/db.RoleType"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.HaveTagNameParams": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
                     "type": "string"
                 }
             }
@@ -3316,7 +4089,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3333,7 +4106,7 @@ const docTemplate = `{
                 "id": {
                     "$ref": "#/definitions/pgtype.Int4"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3344,9 +4117,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                },
-                "version": {
-                    "$ref": "#/definitions/pgtype.Int4"
                 }
             }
         },
@@ -3359,17 +4129,26 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
+                "thumbnail_url": {
+                    "type": "string"
+                },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3382,7 +4161,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "shipment": {
@@ -3402,7 +4181,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3477,7 +4256,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3514,7 +4293,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3580,7 +4359,7 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3626,7 +4405,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3646,13 +4425,13 @@ const docTemplate = `{
         "db.UserGetInfoRow": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3663,13 +4442,13 @@ const docTemplate = `{
         "db.UserUpdateInfoRow": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3686,10 +4465,7 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "enabled": {
-                    "type": "boolean"
-                },
-                "image_id": {
+                "image_url": {
                     "type": "string"
                 },
                 "name": {
@@ -3703,6 +4479,91 @@ const docTemplate = `{
                 "message": {}
             }
         },
+        "general.PrettierProductSearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "general.PrettierSearchResult": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/general.PrettierProductSearchResult"
+                    }
+                },
+                "shops": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/general.PrettierProductSearchResult"
+                    }
+                }
+            }
+        },
+        "general.PrettierShopSearchResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seller_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "general.popular": {
+            "type": "object",
+            "properties": {
+                "local_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromNearByShopRow"
+                    }
+                },
+                "popular_products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
+                    }
+                }
+            }
+        },
+        "general.shopInfo": {
+            "type": "object",
+            "properties": {
+                "info": {
+                    "$ref": "#/definitions/db.GetShopInfoRow"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetShopProductsRow"
+                    }
+                }
+            }
+        },
         "pgtype.Int4": {
             "type": "object",
             "properties": {
@@ -3714,30 +4575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "router.PrettierCoupon": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount": {
-                    "type": "number"
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/db.CouponType"
-                }
-            }
-        },
-        "router.couponDetail": {
+        "seller.CouponDetail": {
             "type": "object",
             "properties": {
                 "coupon_info": {
@@ -3751,7 +4589,36 @@ const docTemplate = `{
                 }
             }
         },
-        "router.orderDetail": {
+        "seller.InsertCouponParams": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
+        "seller.OrderDetail": {
             "type": "object",
             "properties": {
                 "order_info": {
@@ -3765,7 +4632,18 @@ const docTemplate = `{
                 }
             }
         },
-        "router.productDetail": {
+        "seller.OrderUpdateStatusParams": {
+            "type": "object",
+            "properties": {
+                "current_status": {
+                    "$ref": "#/definitions/db.OrderStatus"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "seller.ProductDetail": {
             "type": "object",
             "properties": {
                 "product_info": {
@@ -3776,6 +4654,25 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/db.SellerGetProductTagRow"
                     }
+                }
+            }
+        },
+        "seller.TagParams": {
+            "type": "object",
+            "properties": {
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user.updatePasswordParams": {
+            "type": "object",
+            "properties": {
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
                 }
             }
         }

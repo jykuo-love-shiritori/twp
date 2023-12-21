@@ -1,12 +1,13 @@
 import { Row, Col, Offcanvas, Modal } from 'react-bootstrap';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { useNavigate } from 'react-router-dom';
 
+import { RouteOnNotOK } from '@lib/Functions';
 import CartProduct from '@components/CartProduct';
 import sellerInfo from '@pages/user/seller/sellerInfo.json';
 import UserItem from '@components/UserItem';
@@ -85,22 +86,9 @@ const ContentStyle = {
   margin: '1% 4%',
 };
 
-const RouteOnError = (code: number) => {
-  const navigate = useNavigate();
-  switch (code) {
-    case 401:
-      navigate('/unauthorized');
-      break;
-    case 403:
-      navigate('/forbidden');
-      break;
-    case 404:
-      navigate('/notFound');
-      break;
-  }
-};
-
 const Cart = ({ data, onRefetch }: Props) => {
+  const navigate = useNavigate();
+
   // get the checkout detail
   // TODO: Buyer get checkout
   // GET /buyer/cart/:cart_id/checkout
@@ -113,9 +101,7 @@ const Cart = ({ data, onRefetch }: Props) => {
     queryKey: ['checkoutData'],
     queryFn: async () => {
       const response = await fetch('/resources/Checkout.json');
-      if (!response.ok) {
-        RouteOnError(response.status);
-      }
+      RouteOnNotOK(response, navigate);
       return response.json();
     },
     select: (data) => data as CheckoutProps,
@@ -145,9 +131,7 @@ const Cart = ({ data, onRefetch }: Props) => {
     queryKey: ['usableCouponData'],
     queryFn: async () => {
       const response = await fetch('/resources/UsableCoupons.json');
-      if (!response.ok) {
-        RouteOnError(response.status);
-      }
+      RouteOnNotOK(response, navigate);
       return response.json();
     },
     select: (data) => data as UsableCouponProps[],
