@@ -9,7 +9,7 @@
     "calories": "Approximately 180 calories per cupcake",
     "due_date": "For the ultimate experience, we recommend savoring the Strawberry Delight Cupcake within 2 days of purchase. This ensures that the cupcake remains at its freshest, guaranteeing a delightful treat.",
     "ingredients": "Moist vanilla cupcake, Creamy strawberry-infused frosting, Fresh, ripe strawberry garnish",
-    "imgUrl": "/placeholder/goods1.png",
+    "image_url": "/placeholder/goods1.png",
     "tags": [
       { "name": "tag1 test" },
       { "name": "tag2" },
@@ -34,7 +34,7 @@
     "calories": "Approximately 260 calories per serving",
     "due_date": "To experience the Coffee Bliss Berry Cake at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moisture, the cream remains silky, and the berries burst with freshness.",
     "ingredients": "Moist coffee-infused cake layers, Velvety vanilla cream filling, Plump blueberries, Chocolate adornments",
-    "imgUrl": "/placeholder/goods2.png",
+    "image_url": "/placeholder/goods2.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "OrganicChemistry" },
@@ -56,7 +56,7 @@
     "calories": "Approximately 350 calories per serving",
     "due_date": "To savor the Choco-Heaven Pancake Delight at its peak, we recommend enjoying it immediately after purchase. This ensures that the pancakes maintain their fluffiness, the ice cream remains creamy, and the marshmallows stay delightfully soft.",
     "ingredients": "Fluffy chocolate pancake stack, Creamy vanilla ice cream scoop, Miniature marshmallows",
-    "imgUrl": "/placeholder/goods3.png",
+    "image_url": "/placeholder/goods3.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "OrganicChemistry" },
@@ -91,7 +91,7 @@
     "calories": "Approximately 220 calories per serving",
     "due_date": "For the ultimate experience, we recommend savoring the Berrylicious Tart within 2 days of purchase. This ensures that the tart remains perfectly crisp, and the berries maintain their freshness.",
     "ingredients": "Flaky tart crust, Fresh strawberries, Plump raspberries",
-    "imgUrl": "/placeholder/goods4.png",
+    "image_url": "/placeholder/goods4.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "OrganicChemistry" },
@@ -109,7 +109,7 @@
     "calories": "Approximately 200 calories per serving",
     "due_date": "For the ultimate experience, we recommend savoring the Mocha Cookie Cupcake within 2 days of purchase. This ensures that the cupcake remains moist, the frosting remains velvety, and the cookie stays perfectly crisp.",
     "ingredients": "Rich coffee-infused cupcake, Luxurious cream frosting, Half of a delicious cookie",
-    "imgUrl": "/placeholder/goods5.png",
+    "image_url": "/placeholder/goods5.png",
     "tags": [{ "name": "ChemicalReactions" }, { "name": "PeriodicTable" }],
     "quantity": 0
   },
@@ -123,7 +123,7 @@
     "calories": "Approximately 60 calories per macaron",
     "due_date": "To experience the Blossom Bliss Macarons at their finest, we recommend savoring them within 3 days of purchase. This ensures that the macarons maintain their delicate texture and the flavors remain vibrant.",
     "ingredients": "Almond flour macaron shells, Sakura-infused cream, Strawberry filling",
-    "imgUrl": "/placeholder/goods6.png",
+    "image_url": "/placeholder/goods6.png",
     "tags": [
       { "name": "InorganicChemistry" },
       { "name": "ChemicalAnalysis" },
@@ -141,7 +141,7 @@
     "calories": "Approximately 180 calories per serving",
     "due_date": "To savor the Triple Berry Yogurt Delight at its peak, we recommend enjoying it within 3 days of purchase. This ensures that the berries remain fresh, the yogurt stays creamy, and the overall experience is delightful.",
     "ingredients": "Fresh strawberries at the bottom, Creamy yogurt in the middle, A medley of blueberries and raspberries on top",
-    "imgUrl": "/placeholder/goods7.png",
+    "image_url": "/placeholder/goods7.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "OrganicChemistry" },
@@ -163,7 +163,7 @@
     "calories": "Approximately 220 calories per serving",
     "due_date": "To experience the Berrylicious Vanilla Dream at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moistness, and the berries remain fresh and juicy.",
     "ingredients": "Vanilla cake base, Fresh strawberries, blueberries, raspberries, and blackberries",
-    "imgUrl": "/placeholder/goods8.png",
+    "image_url": "/placeholder/goods8.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "MedicinalChemistry" },
@@ -182,7 +182,7 @@
     "calories": "Approximately 180 calories per serving",
     "due_date": "To experience the Strawberry Panna Bliss at its peak, we recommend savoring it within 2 days of purchase. This ensures that the panna cotta remains perfectly silky, and the strawberries maintain their freshness.",
     "ingredients": "Silky panna cotta, Fresh, ripe strawberries",
-    "imgUrl": "/placeholder/goods9.png",
+    "image_url": "/placeholder/goods9.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "OrganicChemistry" },
@@ -204,7 +204,7 @@
     "calories": "Approximately 280 calories per serving",
     "due_date": "To experience the Berry-Choco Delight at its finest, we recommend savoring it within 3 days of purchase. This ensures that the cake retains its moisture and the frosting remains perfectly creamy.",
     "ingredients": "Moist chocolate cake layers, Creamy blackberry and blueberry-infused frosting",
-    "imgUrl": "/placeholder/goods10.png",
+    "image_url": "/placeholder/goods10.png",
     "tags": [
       { "name": "ChemicalReactions" },
       { "name": "MedicinalChemistry" },

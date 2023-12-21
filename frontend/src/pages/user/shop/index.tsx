@@ -19,7 +19,7 @@ const UserViewShop = () => {
           <Col xs={12} md={3} lg={2}>
             <Row className='user_icon'>
               <Col xs={12} className='center'>
-                <img src={userData.imgUrl} className='user_img' />
+                <img src={userData.image_url} className='user_img' />
               </Col>
               <Col xs={12}>
                 <div className='center'>

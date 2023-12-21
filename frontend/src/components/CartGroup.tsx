@@ -40,7 +40,7 @@ const CartGroup = () => {
             <Form.Check type={'checkbox'} />
           </Col>
           <Col xs={11}>
-            <UserItem img_path={sellerInfo.imgUrl} name={sellerInfo.name} />
+            <UserItem img_path={sellerInfo.image_url} name={sellerInfo.name} />
           </Col>
         </Row>
 

@@ -15,7 +15,7 @@ interface Input {
 
 interface Props extends Input {
   name: string;
-  imgUrl: string;
+  image_url: string;
   subtotal: number;
 }
 
@@ -25,7 +25,7 @@ const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input)
     quantity,
     updateTotal,
     name: '',
-    imgUrl: '',
+    image_url: '',
     subtotal: 0,
     isCart: false,
   };
@@ -38,14 +38,14 @@ const CartItem = ({ item_id, quantity, updateTotal, removeItem, isCart }: Input)
 
   if (matchingGood) {
     data.name = matchingGood.name;
-    data.imgUrl = matchingGood.imgUrl;
+    data.image_url = matchingGood.image_url;
     data.subtotal = matchingGood.price * data.quantity;
 
     return (
       <div className='cart_item' style={{ margin: '2% 0 2% 0' }}>
         <Row>
           <Col xs={4} md={1} className='center'>
-            <img src={data.imgUrl} style={{ width: '100%', borderRadius: '10px' }} />
+            <img src={data.image_url} style={{ width: '100%', borderRadius: '10px' }} />
           </Col>
           <Col xs={8} md={11} className='dark center_vertical'>
             <Row style={{ width: '100%' }}>

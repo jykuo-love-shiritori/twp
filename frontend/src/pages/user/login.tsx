@@ -1,7 +1,7 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link, createSearchParams, useNavigate } from 'react-router-dom';
 
-import LoginImgUrl from '@assets/images/login.jpg';
+import Loginimage_url from '@assets/images/login.jpg';
 
 import Footer from '@components/Footer';
 import { useQuery } from '@tanstack/react-query';
@@ -79,7 +79,7 @@ const Login = () => {
             <div
               className='flex-wrapper'
               style={{
-                background: `url(${LoginImgUrl}) no-repeat center center/cover`,
+                background: `url(${Loginimage_url}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>
