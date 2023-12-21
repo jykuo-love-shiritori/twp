@@ -24,7 +24,7 @@ interface Props {
   calories: string;
   due_date: string;
   ingredients: string;
-  imgUrl: string;
+  image_url: string;
   tags: Tag[];
   quantity: number;
 }
@@ -51,7 +51,7 @@ const EachGoods = () => {
     calories: '',
     due_date: '',
     ingredients: '',
-    imgUrl: '',
+    image_url: '',
     tags: [],
     quantity: 0,
   };
@@ -70,7 +70,7 @@ const EachGoods = () => {
         <Row>
           <Col xs={12} md={5} className='goods_bgW'>
             <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
-              <img src={data.imgUrl} style={{ borderRadius: '0 0 30px 0' }} />
+              <img src={data.image_url} style={{ borderRadius: '0 0 30px 0' }} />
 
               {/* tags, price and quantity */}
               <Row xs='auto'>

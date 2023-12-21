@@ -16,7 +16,7 @@ const Discover = () => {
           {goodsData.map((data, index) => {
             return (
               <Col xs={6} md={3} key={index}>
-                <GoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} />
+                <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
               </Col>
             );
           })}
