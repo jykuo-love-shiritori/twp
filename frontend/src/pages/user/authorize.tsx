@@ -1,7 +1,9 @@
 import { Button, Col, Row } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useState } from 'react';
 
+import WarningModal from '@components/WarningModal';
 import Footer from '@components/Footer';
 import LoginImgUrl from '@assets/images/login.jpg';
 import FormItem from '@components/FormItem';
@@ -13,6 +15,8 @@ interface FormProps {
 
 const Authorize = () => {
   const [searchParams] = useSearchParams();
+  const [show, setShow] = useState<boolean>(false);
+  const [warningText, setWarningText] = useState<string>('');
 
   const { register, handleSubmit } = useForm<FormProps>();
 
@@ -29,6 +33,12 @@ const Authorize = () => {
       body: JSON.stringify({ ...body, ...data }),
     });
     const result = await resp.json();
+
+    if (!resp.ok) {
+      setWarningText(result.message);
+      setShow(true);
+      return;
+    }
 
     const redirect_uri = searchParams.get('redirect_uri');
     if (!redirect_uri) {
@@ -103,6 +113,8 @@ const Authorize = () => {
         </Row>
       </div>
       <Footer />
+
+      <WarningModal show={show} text={warningText} onHide={() => setShow(false)} />
     </div>
   );
 };

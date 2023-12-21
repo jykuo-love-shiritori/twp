@@ -22,20 +22,19 @@ const Signup = () => {
 
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
-    // if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
-    //   setWarningText('username should only contain letters and numbers\n');
-    //   setShow(true);
-    //   return;
-    // }
-    // if (
-    //   !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
-    // ) {
-    //   setWarningText(
-    //     'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
-    //   );
-    //   setShow(true);
-    //   return;
-    // }
+    if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
+      setWarningText('username should only contain letters and numbers\n');
+      setShow(true);
+      return;
+    } else if (
+      !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
+    ) {
+      setWarningText(
+        'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
+      );
+      setShow(true);
+      return;
+    }
 
     const response = await fetch('/api/signup', {
       method: 'POST',
@@ -77,26 +76,13 @@ const Signup = () => {
                       <input type='email' {...register('email', { required: true })} />
                     </FormItem>
                     <FormItem label='username'>
-                      <input
-                        type='text'
-                        {...register('username', {
-                          required: true,
-                          pattern: /^[a-zA-Z0-9]{1,32}$/,
-                        })}
-                      />
+                      <input type='text' {...register('username', { required: true })} />
                     </FormItem>
                     <FormItem label='name'>
                       <input type='text' {...register('name', { required: true })} />
                     </FormItem>
                     <FormItem label='Password'>
-                      <input
-                        type='password'
-                        {...register('password', {
-                          required: true,
-                          pattern:
-                            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
-                        })}
-                      />
+                      <input type='password' {...register('password', { required: true })} />
                     </FormItem>
                   </div>
                 </Col>
