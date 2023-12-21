@@ -9,14 +9,14 @@ import { Link } from 'react-router-dom';
 interface Props {
   id: number;
   name: string;
-  imgUrl: string;
+  image_url: string;
   isIndex: boolean;
 }
 
-const SellerGoodsItem = ({ id, name, imgUrl, isIndex }: Props) => {
+const SellerGoodsItem = ({ id, name, image_url, isIndex }: Props) => {
   return (
     <div className='goods_item'>
-      <img src={imgUrl} style={{ borderRadius: '0 0 30px 0', width: '100%' }} />
+      <img src={image_url} style={{ borderRadius: '0 0 30px 0', width: '100%' }} />
       <div style={{ padding: '2% 7% 2% 7% ' }}>
         <p>
           {name.substring(0, 11)} {name.length > 13 ? '...' : ''}

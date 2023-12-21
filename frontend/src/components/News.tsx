@@ -6,14 +6,14 @@ import TButton from '@components/TButton';
 
 interface Props {
   id: number;
-  imgUrl: string;
+  image_url: string;
   title: string;
 }
 
-const News = ({ id, imgUrl, title }: Props) => {
+const News = ({ id, image_url, title }: Props) => {
   return (
     <div>
-      <img src={imgUrl} className='news_pic_c' />
+      <img src={image_url} className='news_pic_c' />
 
       <div style={{ padding: '1% 10% 1% 10%' }} className='center'>
         <span>

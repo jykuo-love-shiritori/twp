@@ -22,20 +22,20 @@ const Signup = () => {
 
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
-    if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
-      setWarningText('username should only contain letters and numbers\n');
-      setShow(true);
-      return;
-    }
-    if (
-      !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
-    ) {
-      setWarningText(
-        'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
-      );
-      setShow(true);
-      return;
-    }
+    // if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
+    //   setWarningText('username should only contain letters and numbers\n');
+    //   setShow(true);
+    //   return;
+    // }
+    // if (
+    //   !data.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/)
+    // ) {
+    //   setWarningText(
+    //     'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
+    //   );
+    //   setShow(true);
+    //   return;
+    // }
 
     const response = await fetch('/api/signup', {
       method: 'POST',
@@ -69,58 +69,71 @@ const Signup = () => {
           </Col>
           <Col xs={12} md={6} style={{ padding: '10% 10% 10% 10%' }}>
             <Row>
-              <Col xs={12}>
-                <div className='title center'>Sign up</div>
-                <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                  <form onSubmit={handleSubmit(OnFormOutput)}>
+              <form onSubmit={handleSubmit(OnFormOutput)}>
+                <Col xs={12}>
+                  <div className='title center'>Sign up</div>
+                  <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
                     <FormItem label='email'>
                       <input type='email' {...register('email', { required: true })} />
                     </FormItem>
                     <FormItem label='username'>
-                      <input type='text' {...register('username', { required: true })} />
+                      <input
+                        type='text'
+                        {...register('username', {
+                          required: true,
+                          pattern: /^[a-zA-Z0-9]{1,32}$/,
+                        })}
+                      />
                     </FormItem>
                     <FormItem label='name'>
                       <input type='text' {...register('name', { required: true })} />
                     </FormItem>
                     <FormItem label='Password'>
-                      <input type='password' {...register('password', { required: true })} />
+                      <input
+                        type='password'
+                        {...register('password', {
+                          required: true,
+                          pattern:
+                            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
+                        })}
+                      />
                     </FormItem>
-                  </form>
-                </div>
-              </Col>
+                  </div>
+                </Col>
 
-              <Col xs={12}>
-                <Button className='before_button white' onClick={handleSubmit(OnFormOutput)}>
-                  <div className='center white_word pointer'>Sign up</div>
-                </Button>
+                <Col xs={12}>
+                  <Button className='before_button white' type='submit'>
+                    <div className='center white_word pointer'>Sign up</div>
+                  </Button>
 
-                <div className='center' style={{ fontSize: '12px' }}>
-                  Sign up to agree to our Terms of Use and confirm that you've read our Privacy
-                  Policy.
-                </div>
-                <br />
+                  <div className='center' style={{ fontSize: '12px' }}>
+                    Sign up to agree to our Terms of Use and confirm that you've read our Privacy
+                    Policy.
+                  </div>
+                  <br />
 
-                <Row>
-                  <Col xs={4}>
-                    <hr style={{ color: 'white' }} />
-                  </Col>
-                  <Col xs={4} className='center'>
-                    <p>Or With</p>
-                  </Col>
-                  <Col xs={4}>
-                    <hr style={{ color: 'white' }} />
-                  </Col>
-                </Row>
+                  <Row>
+                    <Col xs={4}>
+                      <hr style={{ color: 'white' }} />
+                    </Col>
+                    <Col xs={4} className='center'>
+                      <p>Or With</p>
+                    </Col>
+                    <Col xs={4}>
+                      <hr style={{ color: 'white' }} />
+                    </Col>
+                  </Row>
 
-                <div className='center'>
-                  <span style={{ color: 'white' }}>Already have an account? &nbsp; </span>
-                  <span>
-                    <u>
-                      <Link to='/login'>Log in</Link>
-                    </u>
-                  </span>
-                </div>
-              </Col>
+                  <div className='center'>
+                    <span style={{ color: 'white' }}>Already have an account? &nbsp; </span>
+                    <span>
+                      <u>
+                        <Link to='/login'>Log in</Link>
+                      </u>
+                    </span>
+                  </div>
+                </Col>
+              </form>
             </Row>
           </Col>
         </Row>

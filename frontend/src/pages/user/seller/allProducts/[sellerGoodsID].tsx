@@ -25,7 +25,7 @@ interface Props {
   calories: string;
   due_date: string;
   ingredients: string;
-  imgUrl: string;
+  image_url: string;
   tags: Tag[];
   quantity: number;
 }
@@ -45,7 +45,7 @@ const EachSellerGoods = () => {
     calories: '',
     due_date: '',
     ingredients: '',
-    imgUrl: '',
+    image_url: '',
     tags: [],
     quantity: 0,
   };
@@ -70,7 +70,7 @@ const EachSellerGoods = () => {
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>(data.tags.map((tag) => tag.name));
   const [modification, setModification] = useState<boolean[]>(Array(data.tags.length).fill(false));
-  const [file, setFile] = useState<string | null>(data.imgUrl);
+  const [file, setFile] = useState<string | null>(data.image_url);
   const [name, setName] = useState<string>(data.name);
   const [price, setPrice] = useState<string>(data.price.toString());
   const [quantity, setQuality] = useState<string>(data.quantity.toString());

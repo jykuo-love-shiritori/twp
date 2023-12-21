@@ -1,6 +1,6 @@
 {
   "login": {
-    "imgUrl": "/images/login.jpg",
+    "image_url": "/images/login.jpg",
     "title": "Welcome Back!",
     "content": "We're thrilled to have you back with us.  It's always a pleasure to see familiar faces, and we're grateful for your continued support.",
     "subContent": "",
@@ -11,7 +11,7 @@
     "fillInformation": [{ "information": "Email Address" }, { "information": "Password" }]
   },
   "register": {
-    "imgUrl": "/images/register.jpg",
+    "image_url": "/images/register.jpg",
     "title": "Create an account",
     "content": "Unlock exclusive benefits by creating your account today.",
     "subContent": "Sign up to agree to our Terms of Use and confirm that you've read our Privacy Policy.",
