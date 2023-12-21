@@ -1,4 +1,4 @@
-import UserButton from './UserButton';
+import UserButton from '@components/UserButton';
 
 const SellerButtons = () => {
   return (

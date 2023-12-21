@@ -2,13 +2,13 @@ import { faFile, faMoneyBill, faTruck, faBox } from '@fortawesome/free-solid-svg
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 
-import CartItem from '@components/CartItem';
+import HistoryProduct from '@components/HistoryProduct';
 import NotFound from '@components/NotFound';
 import RecordStatus from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
 
 import goodsData from '@pages/discover/goodsData.json';
-import historyData from '@pages/cart/boughtData.json';
+import historyData from '@pages/user/buyer/cart/boughtData.json';
 
 const HistoryEach = () => {
   // get the id from router & find the record if the id matches
@@ -56,9 +56,18 @@ const HistoryEach = () => {
 
         <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
 
+        {/* TODO: change this to fetch data which have the right format */}
         {record?.items.map((data, index) => {
           return (
-            <CartItem item_id={data.item_id} quantity={data.quantity} isCart={false} key={index} />
+            <HistoryProduct
+              data={{
+                image_id: '/placeholder/goods1.png',
+                name: `${data.item_id}`,
+                price: 500,
+                quantity: 2,
+              }}
+              key={index}
+            />
           );
         })}
 
