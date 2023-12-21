@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Footer from '@components/Footer';
 import InfoItem from '@components/InfoItem';
 import PasswordItem from '@components/PasswordItem';
-import Registerimage_url from '@assets/images/register.jpg';
+import RegisterImgUrl from '@assets/images/register.jpg';
 
 const Signup = () => {
   const [name, setName] = useState<string>('');
@@ -21,7 +21,7 @@ const Signup = () => {
             <div
               className='flex-wrapper'
               style={{
-                background: `url(${Registerimage_url}) no-repeat center center/cover`,
+                background: `url(${RegisterImgUrl}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>

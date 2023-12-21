@@ -12,10 +12,10 @@ import newsData from '@pages/home/newsData.json';
 import goodsData from '@pages/discover/goodsData.json';
 import { useAuth } from '@lib/Auth';
 
-import Titleimage_url from '@assets/images/title.png';
-import Newsimage_url1 from '@assets/images/news1.jpg';
-import Newsimage_url2 from '@assets/images/news2.jpg';
-import Newsimage_url3 from '@assets/images/news3.jpg';
+import TitleImgUrl from '@assets/images/title.png';
+import NewsImgUrl1 from '@assets/images/news1.jpg';
+import NewsImgUrl2 from '@assets/images/news2.jpg';
+import NewsImgUrl3 from '@assets/images/news3.jpg';
 
 const Home = () => {
   const token = useAuth();
@@ -25,7 +25,7 @@ const Home = () => {
   return (
     <div>
       <div className='home'>
-        <img src={Titleimage_url} style={{ width: '100%' }}></img>
+        <img src={TitleImgUrl} style={{ width: '100%' }}></img>
       </div>
 
       <div style={{ padding: '1% 15% 1% 15%' }}>
@@ -36,7 +36,7 @@ const Home = () => {
               <Col xs={12} md={4} key={index}>
                 <News
                   id={data.id}
-                  image_url={[Newsimage_url1, Newsimage_url2, Newsimage_url3][index]}
+                  image_url={[NewsImgUrl1, NewsImgUrl2, NewsImgUrl3][index]}
                   title={data.title}
                 />
               </Col>

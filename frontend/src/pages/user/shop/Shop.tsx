@@ -11,7 +11,7 @@ const Shop = () => {
     queryFn: async () => {
       const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
         headers: {
-          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
       if (!response.ok) {
