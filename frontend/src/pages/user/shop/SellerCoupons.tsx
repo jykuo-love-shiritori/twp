@@ -2,6 +2,19 @@ import CouponItem from '@components/CouponItem';
 import { Col, Row } from 'react-bootstrap';
 import couponData from '@pages/coupon/couponData.json';
 
+interface CouponProps {
+  id: number;
+  type: 'percentage' | 'fixed' | 'shipping';
+  name: string;
+  description: string;
+  discount: number;
+  start_date: string;
+  expire_date: string;
+  tags: {
+    name: string;
+  }[];
+}
+
 const SellerCoupons = () => {
   return (
     <div>
@@ -16,7 +29,7 @@ const SellerCoupons = () => {
               {couponData.map((data, index) => {
                 return (
                   <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                    <CouponItem data={data} />
+                    <CouponItem data={data as CouponProps} />
                   </Col>
                 );
               })}
@@ -27,7 +40,7 @@ const SellerCoupons = () => {
               {couponData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem data={data} />
+                    <CouponItem data={data as CouponProps} />
                   </Col>
                 );
               })}

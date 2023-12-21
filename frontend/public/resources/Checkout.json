@@ -1,0 +1,26 @@
+{
+  "coupons": [
+    {
+      "description": "10% off on all products",
+      "discount": 10,
+      "discount_value": 10,
+      "id": 1,
+      "name": "SALE10",
+      "scope": "global",
+      "type": "percentage"
+    },
+    {
+      "description": "$5 off on shipping",
+      "discount": 5,
+      "discount_value": 5,
+      "id": 2,
+      "name": "SHIP5OFF",
+      "scope": "shop",
+      "type": "shipping"
+    }
+  ],
+  "shipment": 10,
+  "subtotal": 100,
+  "total": 95,
+  "total_discount": 5
+}

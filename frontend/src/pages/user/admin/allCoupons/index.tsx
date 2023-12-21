@@ -3,6 +3,19 @@ import CouponItem from '@components/CouponItem';
 import couponData from '@pages/coupon/couponData.json';
 import TButton from '@components/TButton';
 
+interface CouponProps {
+  id: number;
+  type: 'percentage' | 'fixed' | 'shipping';
+  name: string;
+  description: string;
+  discount: number;
+  start_date: string;
+  expire_date: string;
+  tags: {
+    name: string;
+  }[];
+}
+
 const ManageAdminCoupons = () => {
   return (
     <div>
@@ -51,7 +64,7 @@ const ManageAdminCoupons = () => {
               {couponData.map((data, index) => {
                 return (
                   <Col md={6} xl={4} key={index} style={{ padding: '2%' }}>
-                    <CouponItem data={data} />
+                    <CouponItem data={data as CouponProps} />
                   </Col>
                 );
               })}
@@ -62,7 +75,7 @@ const ManageAdminCoupons = () => {
               {couponData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem data={data} />
+                    <CouponItem data={data as CouponProps} />
                   </Col>
                 );
               })}

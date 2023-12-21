@@ -5,25 +5,23 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import CouponItemTemplate from './CouponItemTemplate';
-import TButton from './TButton';
+import CouponItemTemplate from '@components/CouponItemTemplate';
+import TButton from '@components/TButton';
 
-interface WrapCouponProps {
-  data: {
-    id: number;
-    type: string; // 'percentage', 'fixed', 'shipping'
+interface CouponProps {
+  id: number;
+  type: 'percentage' | 'fixed' | 'shipping';
+  name: string;
+  description: string;
+  discount: number;
+  start_date: string;
+  expire_date: string;
+  tags: {
     name: string;
-    description: string;
-    discount: number;
-    start_date: string;
-    expire_date: string;
-    tags: {
-      name: string;
-    }[];
-  };
+  }[];
 }
 
-const LinkCouponItem = ({ data }: WrapCouponProps) => {
+const LinkCouponItem = ({ data }: { data: CouponProps }) => {
   return (
     <Link className='none' to={`${window.location.pathname}/${data.id}`}>
       <div style={{ cursor: 'pointer' }}>
@@ -33,7 +31,7 @@ const LinkCouponItem = ({ data }: WrapCouponProps) => {
   );
 };
 
-const ModalCouponItem = ({ data }: WrapCouponProps) => {
+const ModalCouponItem = ({ data }: { data: CouponProps }) => {
   const [show, setShow] = useState(false);
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
@@ -113,7 +111,7 @@ const ModalCouponItem = ({ data }: WrapCouponProps) => {
   );
 };
 
-const CouponItem = ({ data }: WrapCouponProps) => {
+const CouponItem = ({ data }: { data: CouponProps }) => {
   // TODO: path.include 'seller/' change to 'seller' once implemented number [sellerID] on path
   return (
     <>
