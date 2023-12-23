@@ -638,6 +638,7 @@ SELECT
     s."name" AS "shop_name",
     s."image_id" AS "shop_image_url",
     O."image_id" AS "thumbnail_url",
+    OP."product_name",
     "shipment",
     "total_price",
     "status",
@@ -645,7 +646,21 @@ SELECT
 FROM
     "order_history" AS O,
     "user" AS U,
-    "shop" AS S
+    "shop" AS S,
+(
+        SELECT
+            PA."name" AS "product_name"
+        FROM
+            "order_history" AS OH,
+            "order_detail" AS OD,
+            "product_archive" AS PA
+        WHERE
+            OH."id" = OH."id"
+            AND OD."product_id" = PA."id"
+            AND OD."product_version" = PA."version"
+        ORDER BY
+            PA."price" DESC
+        LIMIT 1) AS OP
 WHERE
     U."username" = $1
     AND U."id" = O."user_id"
@@ -666,6 +681,7 @@ type GetOrderHistoryRow struct {
 	ShopName     string             `form:"name" json:"shop_name"`
 	ShopImageUrl string             `json:"shop_image_url" swaggertype:"string"`
 	ThumbnailUrl string             `json:"thumbnail_url"`
+	ProductName  string             `json:"product_name"`
 	Shipment     int32              `json:"shipment"`
 	TotalPrice   int32              `json:"total_price"`
 	Status       OrderStatus        `json:"status"`
@@ -686,6 +702,7 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 			&i.ShopName,
 			&i.ShopImageUrl,
 			&i.ThumbnailUrl,
+			&i.ProductName,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
@@ -1101,17 +1118,24 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version",
-        P."name",
-        P."description",
-        P."price",
-        P."image_id"
-    FROM
-        "product" AS P,
-        check_version AS CV
-    WHERE
-        P."id" = $1
-        AND CV."version_existed" = FALSE)
+        P."version" +(
+            SELECT
+                1
+            FROM
+                Check_version
+            WHERE
+                "product_existed" = TRUE
+                AND "version_existed" = FALSE),
+            P."name",
+            P."description",
+            P."price",
+            P."image_id"
+        FROM
+            "product" AS P,
+            check_version AS CV
+        WHERE
+            P."id" = $1
+            AND CV."version_existed" = FALSE)
 UPDATE
     "product"
 SET
@@ -1167,9 +1191,19 @@ SELECT
             JOIN "user" AS U ON C."user_id" = U."id"
         WHERE
             C."id" = $2
-            AND U."username" = $1 --
+            AND U."username" = $1
             AND (P."enabled" = FALSE
                 OR CP."quantity" > P."stock"))
+    AND EXISTS (
+        SELECT
+            1
+        FROM
+            "cart" AS C,
+            "user" AS U
+        WHERE
+            C."id" = $2
+            AND U."username" = $1
+            AND C."user_id" = U."id")
 `
 
 type ValidateProductsInCartParams struct {
@@ -1177,9 +1211,9 @@ type ValidateProductsInCartParams struct {
 	CartID   int32  `json:"cart_id" param:"cart_id"`
 }
 
-func (q *Queries) ValidateProductsInCart(ctx context.Context, arg ValidateProductsInCartParams) (bool, error) {
+func (q *Queries) ValidateProductsInCart(ctx context.Context, arg ValidateProductsInCartParams) (pgtype.Bool, error) {
 	row := q.db.QueryRow(ctx, validateProductsInCart, arg.Username, arg.CartID)
-	var not_exists bool
-	err := row.Scan(&not_exists)
-	return not_exists, err
+	var column_1 pgtype.Bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }

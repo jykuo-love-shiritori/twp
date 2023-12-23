@@ -4,6 +4,7 @@ SELECT
     s."name" AS "shop_name",
     s."image_id" AS "shop_image_url",
     O."image_id" AS "thumbnail_url",
+    OP."product_name",
     "shipment",
     "total_price",
     "status",
@@ -11,7 +12,21 @@ SELECT
 FROM
     "order_history" AS O,
     "user" AS U,
-    "shop" AS S
+    "shop" AS S,
+(
+        SELECT
+            PA."name" AS "product_name"
+        FROM
+            "order_history" AS OH,
+            "order_detail" AS OD,
+            "product_archive" AS PA
+        WHERE
+            OH."id" = OH."id"
+            AND OD."product_id" = PA."id"
+            AND OD."product_version" = PA."version"
+        ORDER BY
+            PA."price" DESC
+        LIMIT 1) AS OP
 WHERE
     U."username" = $1
     AND U."id" = O."user_id"
@@ -413,9 +428,19 @@ SELECT
             JOIN "user" AS U ON C."user_id" = U."id"
         WHERE
             C."id" = @cart_id
-            AND U."username" = $1 --
+            AND U."username" = $1
             AND (P."enabled" = FALSE
-                OR CP."quantity" > P."stock"));
+                OR CP."quantity" > P."stock"))
+    AND EXISTS (
+        SELECT
+            1
+        FROM
+            "cart" AS C,
+            "user" AS U
+        WHERE
+            C."id" = @cart_id
+            AND U."username" = $1
+            AND C."user_id" = U."id");
 
 -- name: DeleteCouponFromCart :execrows
 DELETE FROM "cart_coupon" AS CC USING "cart" AS C, "user" AS U
@@ -559,17 +584,24 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version",
-        P."name",
-        P."description",
-        P."price",
-        P."image_id"
-    FROM
-        "product" AS P,
-        check_version AS CV
-    WHERE
-        P."id" = $1
-        AND CV."version_existed" = FALSE)
+        P."version" +(
+            SELECT
+                1
+            FROM
+                Check_version
+            WHERE
+                "product_existed" = TRUE
+                AND "version_existed" = FALSE),
+            P."name",
+            P."description",
+            P."price",
+            P."image_id"
+        FROM
+            "product" AS P,
+            check_version AS CV
+        WHERE
+            P."id" = $1
+            AND CV."version_existed" = FALSE)
 UPDATE
     "product"
 SET
