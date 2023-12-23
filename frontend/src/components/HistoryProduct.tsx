@@ -18,7 +18,7 @@ const HistoryProduct = ({ data }: Props) => {
   return (
     <div className='cart_item ' style={{ margin: '2% 2%' }}>
       {/* layout on tablet, desktop */}
-      <div className='disappear_phone ' style={{ fontSize: '24px' }}>
+      <div className='disappear_phone'>
         <Row className='center_vertical dark' style={{ padding: '0' }}>
           <Col md={1} className='center'>
             <img src={data.image_id} style={{ width: 'max(40px, 90%)', borderRadius: '10px' }} />
@@ -27,7 +27,7 @@ const HistoryProduct = ({ data }: Props) => {
             {data.name}
           </Col>
           <Col md={3} className='center'>
-            x{data.quantity}
+            x {data.quantity}
           </Col>
           <Col md={3} className='right'>
             {data.price * data.quantity} NTD
@@ -36,7 +36,7 @@ const HistoryProduct = ({ data }: Props) => {
       </div>
 
       {/* layout on phone */}
-      <div className='disappear_tablet disappear_desktop' style={{ fontSize: '14px' }}>
+      <div className='disappear_tablet disappear_desktop'>
         <Row className='center_vertical dark'>
           <Col xs={4} className='center'>
             <img src={data.image_id} style={{ width: '90%', borderRadius: '10px' }} />

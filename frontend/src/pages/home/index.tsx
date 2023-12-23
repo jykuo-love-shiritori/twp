@@ -36,7 +36,7 @@ const Home = () => {
               <Col xs={12} md={4} key={index}>
                 <News
                   id={data.id}
-                  image_url={[NewsImgUrl1, NewsImgUrl2, NewsImgUrl3][index]}
+                  image_url={[NewsImgUrl3, NewsImgUrl2, NewsImgUrl1][index]}
                   title={data.title}
                 />
               </Col>

@@ -79,7 +79,7 @@ p {
   justify-content: left;
 }
 
-.flex-wrapper {
+.flex_wrapper {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
@@ -189,7 +189,7 @@ p {
     padding-top: 30px;
   }
 
-  .flex-wrapper {
+  .flex_wrapper {
     min-height: 50vh;
   }
 }
