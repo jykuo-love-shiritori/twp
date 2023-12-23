@@ -7,11 +7,9 @@ import { AuthContext } from '@components/AuthProvider';
 const Callback = () => {
   const [searchParams] = useSearchParams();
 
-  // TODO proper error handling
-  const code = searchParams.get('code') ?? '';
-
-  const state = localStorage.getItem('state') ?? '';
-  const verifier = localStorage.getItem('verifier') ?? '';
+  const code = searchParams.get('code');
+  const state = localStorage.getItem('state');
+  const verifier = localStorage.getItem('verifier');
 
   const { tokenRef } = useContext(AuthContext);
 
@@ -21,7 +19,6 @@ const Callback = () => {
     }
 
     const tokenUrl = '/api/oauth/token';
-
     const resp = await fetch(tokenUrl, {
       headers: {
         Accept: 'application/json',
@@ -33,21 +30,28 @@ const Callback = () => {
         code_verifier: verifier,
       }),
     });
-
     return (await resp.json()) as Token;
   };
 
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ['token'],
     queryFn: getToken,
+    enabled: false,
   });
 
+  if (!code || !state || !verifier) {
+    console.log('Missing code, state or verifier');
+    return <Navigate to='/login' replace={true} />;
+  }
+
+  refetch();
   if (isPending) {
     return <>Loading</>;
   }
 
   if (error) {
-    return <>Error</>;
+    console.log('failed to get token');
+    return <Navigate to='/login' replace={true} />;
   }
 
   if (data) {

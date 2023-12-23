@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useState } from 'react';
 
@@ -17,6 +17,7 @@ const Authorize = () => {
   const [searchParams] = useSearchParams();
   const [show, setShow] = useState<boolean>(false);
   const [warningText, setWarningText] = useState<string>('');
+  const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm<FormProps>();
 
@@ -35,8 +36,13 @@ const Authorize = () => {
     const result = await resp.json();
 
     if (!resp.ok) {
-      setWarningText(result.message);
-      setShow(true);
+      console.log(resp);
+      if (resp.status === 500) {
+        navigate('/login');
+      } else {
+        setWarningText(result.message);
+        setShow(true);
+      }
       return;
     }
 
