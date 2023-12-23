@@ -8,7 +8,7 @@ import goodsData from '@pages/discover/goodsData.json';
 
 const UserViewShop = () => {
   return (
-    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex-wrapper'>
+    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex_wrapper'>
       <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
         <div className='user_bg center'>
           <div style={{ padding: '6% 10% 6% 10%' }}>{userData.introduction}</div>

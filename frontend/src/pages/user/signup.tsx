@@ -19,7 +19,7 @@ const Signup = () => {
         <Row style={{ width: '100%', padding: '0', margin: '0' }}>
           <Col xs={12} md={6} style={{ padding: '0' }}>
             <div
-              className='flex-wrapper'
+              className='flex_wrapper'
               style={{
                 background: `url(${RegisterImgUrl}) no-repeat center center/cover`,
                 width: '100%',

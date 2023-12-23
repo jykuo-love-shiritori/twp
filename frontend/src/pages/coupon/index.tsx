@@ -24,7 +24,7 @@ const Coupons = () => {
             <Col className='title' style={{ padding: '0 0 1% 1%' }}>
               {data.owner}
             </Col>
-            <hr style={{ border: '1px solid white', borderRadius: '5px', opacity: '.5' }} />
+            <hr className='hr' />
             <div className='disappear_phone'>
               <Row>
                 {data.coupons.map((data, index) => {
