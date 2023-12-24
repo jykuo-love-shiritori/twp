@@ -5,12 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Functions';
 import { useQuery } from '@tanstack/react-query';
+import defaultImageUrl from '@assets/images/person.png';
 
 interface IShopInfo {
   name: string;
   description: string;
   enabled: boolean;
-  imageUrl: string;
+  image_url: string;
   image: File | null;
 }
 
@@ -42,7 +43,7 @@ const SellerInfo = () => {
       name: 'shop name',
       description: 'shop description',
       enabled: false,
-      imageUrl: '@assets/images/person.png',
+      image_url: defaultImageUrl,
       image: null,
     },
   });
@@ -138,7 +139,7 @@ const SellerInfo = () => {
                       ref={hiddenFileInput}
                     />
                     <img
-                      src={image ? image : getValues('imageUrl')}
+                      src={image ? image : getValues('image_url')}
                       style={userImgStyle}
                       onClick={handleIconClick}
                     />

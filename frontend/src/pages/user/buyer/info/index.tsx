@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import defaultImageUrl from '@assets/images/person.png';
 
 interface IBuyerInfo {
   name: string;
   email: string;
   address: string;
-  imageUrl: string;
+  image_url: string;
   image: File | null;
 }
 
@@ -39,7 +40,7 @@ const Info = () => {
   const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IBuyerInfo>({
     defaultValues: {
       name: 'username',
-      imageUrl: '@assets/images/person.png',
+      image_url: defaultImageUrl,
       address: 'an address',
       email: 'thisIsAnEmail@mail.com',
       image: null,
@@ -137,7 +138,7 @@ const Info = () => {
                       ref={hiddenFileInput}
                     />
                     <img
-                      src={image ?? getValues('imageUrl')}
+                      src={image ?? getValues('image_url')}
                       style={userImgStyle}
                       onClick={handleIconClick}
                     />
