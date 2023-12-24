@@ -1,13 +1,17 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Col, Row } from 'react-bootstrap';
 import TButton from '@components/TButton';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { RouteOnNotOK } from '@lib/Functions';
+import { useQuery } from '@tanstack/react-query';
 
-interface ShopInfoProps {
+interface IShopInfo {
   name: string;
-  image: File | undefined;
-  enabled: boolean;
   description: string;
+  enabled: boolean;
+  imageUrl: string;
+  image: File | null;
 }
 
 const SellerItemStyle = {
@@ -32,27 +36,74 @@ const labelStyle = {
 };
 
 const SellerInfo = () => {
-  //TODO: get the info from existing shop
-  const { register, handleSubmit, watch, setValue } = useForm<ShopInfoProps>({
+  const navigate = useNavigate();
+  const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IShopInfo>({
     defaultValues: {
       name: 'shop name',
-      image: undefined,
-      enabled: false,
       description: 'shop description',
+      enabled: false,
+      imageUrl: '@assets/images/person.png',
+      image: null,
     },
   });
-  const OnFormOutput: SubmitHandler<ShopInfoProps> = (data) => {
+  const OnFormOutput: SubmitHandler<IShopInfo> = async (data) => {
     console.log(data);
-    return data;
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('description ', data.description);
+    formData.append('enabled ', data.enabled.toString());
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    const resp = await fetch('/api/seller/info', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    for (const key of formData.entries()) {
+      console.log(key[0] + ', ' + key[1]);
+    }
+    if (!resp.ok) {
+      RouteOnNotOK(resp, navigate);
+    }
+    refetch();
   };
+
+  const {
+    data: fetchedData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['sellerGetShopInfo'],
+    queryFn: async () => {
+      const resp = await fetch('/api/seller/info', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!resp) {
+        RouteOnNotOK(resp, navigate);
+      }
+      return resp.json();
+    },
+    select: (data) => data as IShopInfo,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
 
   // icon upload thing
   const [image, setImage] = useState<string | undefined>(undefined);
   const iconOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      //TODO? check file type
-      setValue('image', e.target.files[0]);
-      setImage(URL.createObjectURL(e.target.files[0]));
+      if (!e.target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        alert('not an image');
+      } else {
+        setValue('image', e.target.files[0]);
+        setImage(URL.createObjectURL(e.target.files[0]));
+      }
     }
   };
   const hiddenFileInput = useRef<HTMLInputElement>(null);
@@ -61,6 +112,10 @@ const SellerInfo = () => {
       hiddenFileInput.current.click();
     }
   };
+
+  useEffect(() => {
+    reset({ ...fetchedData });
+  }, [fetchedData, isLoading, reset]);
 
   return (
     <div>
@@ -83,7 +138,7 @@ const SellerInfo = () => {
                       ref={hiddenFileInput}
                     />
                     <img
-                      src={image ? image : '/placeholder/person.png'}
+                      src={image ? image : getValues('imageUrl')}
                       style={userImgStyle}
                       onClick={handleIconClick}
                     />
@@ -107,7 +162,6 @@ const SellerInfo = () => {
               <Col xs={12} className='form_item_wrapper'>
                 <input type='text' {...register('name', { required: true })} />
               </Col>
-
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
                 Visibility
               </Col>
@@ -127,7 +181,6 @@ const SellerInfo = () => {
                   </Col>
                 </Row>
               </Col>
-
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
                 Description
               </Col>
