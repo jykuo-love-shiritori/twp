@@ -22,7 +22,7 @@ const Authorize = () => {
   const { register, handleSubmit } = useForm<FormProps>();
 
   const authUrl = '/api/oauth/authorize';
-  const body = Object.fromEntries([...searchParams.entries()]);
+  const body = Object.fromEntries(searchParams.entries());
 
   const submitForm: SubmitHandler<FormProps> = async (data) => {
     const resp = await fetch(authUrl, {

@@ -33,7 +33,7 @@ const Callback = () => {
     return (await resp.json()) as Token;
   };
 
-  const { isPending, error, data, refetch } = useQuery({
+  const { isPending, isError, data, refetch } = useQuery({
     queryKey: ['token'],
     queryFn: getToken,
     enabled: false,
@@ -49,7 +49,7 @@ const Callback = () => {
     return <>Loading</>;
   }
 
-  if (error) {
+  if (isError) {
     console.log('failed to get token');
     return <Navigate to='/login' replace={true} />;
   }

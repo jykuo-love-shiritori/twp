@@ -81,7 +81,7 @@ const Signup = () => {
                     <FormItem label='name'>
                       <input type='text' {...register('name', { required: true })} />
                     </FormItem>
-                    <FormItem label='Password'>
+                    <FormItem label='password'>
                       <input type='password' {...register('password', { required: true })} />
                     </FormItem>
                   </div>
