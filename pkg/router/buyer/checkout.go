@@ -48,9 +48,9 @@ func getDiscountValue(price float64, discount float64, couponType db.CouponType)
 // @Tags			Buyer, Checkout
 // @Produce		json
 // @Param			id	path		int	true	"Cart ID"
-// @Success		200		{object}	checkout
-// @Failure		400		{object}	echo.HTTPError
-// @Failure		500		{object}	echo.HTTPError
+// @Success		200	{object}	checkout
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/cart/{id}/checkout [get]
 func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -177,8 +177,8 @@ type PaymentMethod struct {
 // @Tags			Buyer, Checkout
 // @Accept			json
 // @Produce		json
-// @param			id			path		int				true	"Cart ID"
-// @Param			payment_method	body		PaymentMethod	true	"Payment" Example
+// @param			id				path		int				true	"Cart ID"
+// @Param			payment_method	body		PaymentMethod	true	"Payment"	Example
 // @Success		200				{string}	string			constants.SUCCESS
 // @Failure		400				{object}	echo.HTTPError
 // @Failure		500				{object}	echo.HTTPError

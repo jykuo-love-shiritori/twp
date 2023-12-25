@@ -43,7 +43,7 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Description	Edit shop name, description, visibility.
 // @Tags			Seller, Shop
 // @Accept			mpfd
-// @Param			name		formData	string	true	"update shop name"	minlength(6)
+// @Param			name		formData	string	true	"update shop name"
 // @Param			image		formData	file	false	"image file"
 // @Param			description	formData	string	true	"update description"
 // @Param			enabled		formData	bool	true	"update enabled status"
@@ -110,11 +110,11 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Description	Get report detail by year and month for shop.
 // @Tags			Seller, Shop, Report
 // @Produce		json
-// @Param			time	query		int	true	"time"
-// @Success		200		{object}	db.SellerInsertCouponRow
+// @Param			time	query		string	true	"time"
+// @Success		200		{object}	ReportDetail
 // @Failure		400		{object}	echo.HTTPError
 // @Failure		500		{object}	echo.HTTPError
-// @Router			/seller/report/{year}/{month} [get]
+// @Router			/seller/report [get]
 func GetReportDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error

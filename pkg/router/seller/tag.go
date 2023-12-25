@@ -9,8 +9,11 @@ import (
 	"go.uber.org/zap"
 )
 
-type TagParams struct {
+type GetTagParams struct {
 	TagID int32 `json:"tag_id"`
+}
+type TagParams struct {
+	Name string `json:"name"`
 }
 
 // @Summary		Seller get available tag
@@ -18,7 +21,7 @@ type TagParams struct {
 // @Tags			Seller, Shop, Tag
 // @Param			name	query	string	true	"search tag name start with"	minlength(1)
 // @Produce		json
-// @success		200	{array}		db.SellerSearchTagRow
+// @Success		200 {object}	db.SellerSearchTagRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/tag [get]
@@ -27,16 +30,14 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		var username string = "user1"
 		var tagPerPage int32 = 20
 
-		var param db.SellerSearchTagParams
+		var param TagParams
 		param.Name = c.QueryParam("name")
 		if param.Name == "" || common.HasRegexSpecialChars(param.Name) {
 			logger.Errorw("search tag name is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		param.SellerName = username
 		param.Name = "^" + param.Name
-		param.Limit = int64(tagPerPage)
-		tags, err := pg.Queries.SellerSearchTag(c.Request().Context(), param)
+		tags, err := pg.Queries.SellerSearchTag(c.Request().Context(), db.SellerSearchTagParams{SellerName: username, Name: param.Name, Limit: int64(tagPerPage)})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -49,9 +50,9 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag for shop.
 // @Tags			Seller, Shop, Tag
 // @Accept			json
-// @Param			name	body	db.HaveTagNameParams	true	"insert tag"
+// @Param			name	body	TagParams	true	"insert tag"
 // @Produce		json
-// @success		200	{object}	db.SellerInsertTagRow
+// @Success		200 {object}	db.SellerInsertTagRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		409	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
@@ -60,7 +61,7 @@ func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var username string = "user1"
 
-		var param db.HaveTagNameParams
+		var param TagParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
@@ -70,8 +71,7 @@ func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("tag name is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		param.SellerName = username
-		have, err := pg.Queries.HaveTagName(c.Request().Context(), param)
+		have, err := pg.Queries.HaveTagName(c.Request().Context(), db.HaveTagNameParams{SellerName: username, Name: param.Name})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("tag name not unique")
 			return echo.NewHTTPError(http.StatusConflict)
 		}
-		tag, err := pg.Queries.SellerInsertTag(c.Request().Context(), db.SellerInsertTagParams(param))
+		tag, err := pg.Queries.SellerInsertTag(c.Request().Context(), db.SellerInsertTagParams{SellerName: username, Name: param.Name})
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

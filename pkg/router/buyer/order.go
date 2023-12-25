@@ -99,15 +99,15 @@ type OrderStatus struct {
 	OrderID int32          `param:"id" json:"-"`
 }
 
-// @Summary	Buyer Update order status
+// @Summary		Buyer Update order status
 // @Description	Buyer Update order status
 // @Tags			Buyer, Order
 // @Produce		json
-// @Param			id	path		int	true	"Order ID"
+// @Param			id		path		int			true	"Order ID"
 // @Param			status	body		OrderStatus	true	"Order status"
-// @Success		200	{string}	string constants.SUCCESS
-// @Failure		400	{object}	echo.HTTPError
-// @Failure		500	{object}	echo.HTTPError
+// @Success		200		{string}	string		constants.SUCCESS
+// @Failure		400		{object}	echo.HTTPError
+// @Failure		500		{object}	echo.HTTPError
 // @Router			/buyer/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {

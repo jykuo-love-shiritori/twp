@@ -1802,7 +1802,6 @@ const docTemplate = `{
                 "summary": "Seller edit shop info",
                 "parameters": [
                     {
-                        "minLength": 6,
                         "type": "string",
                         "description": "update shop name",
                         "name": "name",
@@ -2465,7 +2464,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/seller/report/{year}/{month}": {
+        "/seller/report": {
             "get": {
                 "description": "Get report detail by year and month for shop.",
                 "produces": [
@@ -2479,7 +2478,7 @@ const docTemplate = `{
                 "summary": "Seller get report detail",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "time",
                         "name": "time",
                         "in": "query",
@@ -2490,7 +2489,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerInsertCouponRow"
+                            "$ref": "#/definitions/seller.ReportDetail"
                         }
                     },
                     "400": {
@@ -2534,10 +2533,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.SellerSearchTagRow"
-                            }
+                            "$ref": "#/definitions/db.SellerSearchTagRow"
                         }
                     },
                     "400": {
@@ -2575,7 +2571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.HaveTagNameParams"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -3159,6 +3155,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3233,6 +3235,9 @@ const docTemplate = `{
                     "example": "john"
                 }
             }
+        },
+        "big.Int": {
+            "type": "object"
         },
         "buyer.Cart": {
             "type": "object",
@@ -3964,17 +3969,6 @@ const docTemplate = `{
                 }
             }
         },
-        "db.HaveTagNameParams": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "seller_name": {
-                    "type": "string"
-                }
-            }
-        },
         "db.OrderStatus": {
             "type": "string",
             "enum": [
@@ -4013,6 +4007,32 @@ const docTemplate = `{
                 "RoleTypeAdmin",
                 "RoleTypeCustomer"
             ]
+        },
+        "db.SellerBestSellProductRow": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_count": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "total_quantity": {
+                    "type": "integer"
+                },
+                "total_sell": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                }
+            }
         },
         "db.SellerGetCouponDetailRow": {
             "type": "object",
@@ -4161,7 +4181,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_url": {
+                "name": {
+                    "type": "string"
+                },
+                "product_name": {
                     "type": "string"
                 },
                 "shipment": {
@@ -4170,14 +4193,23 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
+                "thumbnail_url": {
+                    "type": "string"
+                },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
                 }
             }
         },
         "db.SellerGetProductDetailRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
@@ -4310,6 +4342,17 @@ const docTemplate = `{
                 }
             }
         },
+        "db.SellerReportRow": {
+            "type": "object",
+            "properties": {
+                "order_count": {
+                    "type": "integer"
+                },
+                "total_income": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                }
+            }
+        },
         "db.SellerSearchTagRow": {
             "type": "object",
             "properties": {
@@ -4381,6 +4424,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
+                },
+                "thumbnail_url": {
+                    "type": "string"
                 },
                 "total_price": {
                     "type": "integer"
@@ -4564,11 +4610,44 @@ const docTemplate = `{
                 }
             }
         },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
         "pgtype.Int4": {
             "type": "object",
             "properties": {
                 "int32": {
                     "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Numeric": {
+            "type": "object",
+            "properties": {
+                "exp": {
+                    "type": "integer"
+                },
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "int": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "naN": {
+                    "type": "boolean"
                 },
                 "valid": {
                     "type": "boolean"
@@ -4657,11 +4736,25 @@ const docTemplate = `{
                 }
             }
         },
+        "seller.ReportDetail": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerBestSellProductRow"
+                    }
+                },
+                "report": {
+                    "$ref": "#/definitions/db.SellerReportRow"
+                }
+            }
+        },
         "seller.TagParams": {
             "type": "object",
             "properties": {
-                "tag_id": {
-                    "type": "integer"
+                "name": {
+                    "type": "string"
                 }
             }
         },

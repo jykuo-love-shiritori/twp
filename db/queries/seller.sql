@@ -142,18 +142,34 @@ WHERE c."id" = $2
             AND s."enabled" = true
     );
 -- name: SellerGetOrder :many
-SELECT "id",
-    oh."image_id" as "image_url",
+SELECT oh."id",
+    op."product_name",
+    oh."image_id" as "thumbnail_url",
     oh."shipment",
     oh."total_price",
     oh."status",
-    oh."created_at"
-FROM "order_history" as oh
+    oh."created_at",
+    u."name" AS "user_name",
+    u."image_id" AS "user_image_url"
+FROM "order_history" as oh,
+    "user" AS u,
+    (
+        SELECT pa."name" AS "product_name"
+        FROM "order_history" as oh,
+            "order_detail" AS od,
+            "product_archive" AS pa
+        WHERE oh."id" = od."order_id"
+            AND od."product_id" = pa."id"
+            AND od."product_version" = pa."version"
+        ORDER BY pa."price" DESC
+        LIMIT 1
+    ) AS op
 WHERE "shop_id" = (
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
     )
+    AND u."id" = oh."user_id"
 ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3;
 -- name: SellerGetOrderHistory :one
@@ -198,6 +214,7 @@ WHERE "shop_id" = (
     AND oh."id" = $2
     AND oh."status" = sqlc.arg(current_status)
 RETURNING oh."id",
+    oh."image_id" as "thumbnail_url",
     oh."shipment",
     oh."total_price",
     oh."status",
@@ -236,6 +253,7 @@ WHERE shop.seller_name = $1
     AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month';
 -- name: SellerGetProductDetail :one
 SELECT p."name",
+    p."description",
     p."image_id" as "image_url",
     p."price",
     p."sales",
