@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Functions';
 import { useQuery } from '@tanstack/react-query';
-import defaultImageUrl from '@assets/images/person.png';
+import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
 interface IShopInfo {
   name: string;

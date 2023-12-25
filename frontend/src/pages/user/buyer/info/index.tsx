@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import defaultImageUrl from '@assets/images/person.png';
+import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
 interface IBuyerInfo {
   name: string;
