@@ -27,6 +27,10 @@ const Password = () => {
       alert('passwords do not match');
       return;
     }
+    if (data.new_password === data.current_password) {
+      alert('new password cannot be the same as old password');
+      return;
+    }
     const resp = await fetch('/api/user/security/password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,11 +41,8 @@ const Password = () => {
     });
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
+      // TODO: change when another pr is merged
       const a = await resp.json();
-      console.log({
-        current_password: data.current_password,
-        new_password: data.new_password,
-      });
       alert(a.message);
     } else {
       navigate('/user/security');
