@@ -50,8 +50,8 @@ const SellerInfo = () => {
   const OnFormOutput: SubmitHandler<IShopInfo> = async (data) => {
     const formData = new FormData();
     formData.append('name', data.name);
-    formData.append('description ', data.description);
-    formData.append('enabled ', data.enabled.toString());
+    formData.append('description', data.description);
+    formData.append('enabled', data.enabled ? 'true' : 'false');
     if (data.image) {
       formData.append('image', data.image, data.image.name);
     }
@@ -63,15 +63,12 @@ const SellerInfo = () => {
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
     } else {
-      refetch();
+      alert('success');
+      navigate(0);
     }
   };
 
-  const {
-    data: fetchedData,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: fetchedData, isLoading } = useQuery({
     queryKey: ['sellerGetShopInfo'],
     queryFn: async () => {
       const resp = await fetch('/api/seller/info', {
