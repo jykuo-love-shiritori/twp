@@ -12,6 +12,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addShop = `-- name: AddShop :exec
+INSERT INTO "shop" (
+        "seller_name",
+        "image_id",
+        "name",
+        "description",
+        "enabled"
+    )
+VALUES(
+        $1,
+        NULL,
+        $2,
+        '',
+        FALSE
+    )
+`
+
+type AddShopParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Name       string `form:"name" json:"name"`
+}
+
+func (q *Queries) AddShop(ctx context.Context, arg AddShopParams) error {
+	_, err := q.db.Exec(ctx, addShop, arg.SellerName, arg.Name)
+	return err
+}
+
 const addUser = `-- name: AddUser :exec
 INSERT INTO "user" (
         "username",
