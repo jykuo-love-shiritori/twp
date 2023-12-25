@@ -275,8 +275,8 @@ const CouponItem = ({ data }: { data: ICouponItem }) => {
   // TODO: path.include 'seller/' change to 'seller' once implemented number [sellerID] on path
   return (
     <>
-      {window.location.pathname.includes('seller/') ||
-      window.location.pathname.includes('admin') ? (
+      {!window.location.pathname.includes('seller/') &&
+      !window.location.pathname.includes('admin') ? (
         <LinkCouponItem data={data} />
       ) : data.scope === 'global' ? (
         <ModalGlobalCouponItem data={data} />

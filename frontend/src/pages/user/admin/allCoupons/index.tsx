@@ -22,7 +22,7 @@ const ManageAdminCoupons = () => {
   const { data: fetchedData, status } = useQuery({
     queryKey: ['adminGetGlobalCoupons'],
     queryFn: async () => {
-      const resp = await fetch('/api/admin/coupons', {
+      const resp = await fetch('/api/admin/coupon?offset=0&limit=10', {
         method: 'GET',
         headers: {
           accept: 'application/json',
@@ -32,6 +32,7 @@ const ManageAdminCoupons = () => {
         RouteOnNotOK(resp, navigate);
       } else {
         const response = await resp.json();
+        console.log(response);
         return response;
       }
     },
@@ -41,6 +42,7 @@ const ManageAdminCoupons = () => {
   });
 
   if (status !== 'success') {
+    console.log(status);
     return <CheckFetchStatus status={status} />;
   }
 
