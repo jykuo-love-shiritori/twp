@@ -665,8 +665,6 @@ definitions:
         type: string
       id:
         type: integer
-      name:
-        type: string
       product_name:
         type: string
       shipment:
@@ -678,6 +676,8 @@ definitions:
       total_price:
         type: integer
       user_image_url:
+        type: string
+      user_name:
         type: string
     type: object
   db.SellerGetProductDetailRow:
@@ -2766,7 +2766,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerSearchTagRow'
+            items:
+              $ref: '#/definitions/db.SellerSearchTagRow'
+            type: array
         "400":
           description: Bad Request
           schema:

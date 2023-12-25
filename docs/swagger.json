@@ -2527,7 +2527,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerSearchTagRow"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.SellerSearchTagRow"
+                            }
                         }
                     },
                     "400": {
@@ -4175,9 +4178,6 @@
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "product_name": {
                     "type": "string"
                 },
@@ -4194,6 +4194,9 @@
                     "type": "integer"
                 },
                 "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }

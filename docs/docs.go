@@ -2533,7 +2533,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerSearchTagRow"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.SellerSearchTagRow"
+                            }
                         }
                     },
                     "400": {
@@ -4181,9 +4184,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "product_name": {
                     "type": "string"
                 },
@@ -4200,6 +4200,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
