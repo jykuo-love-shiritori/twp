@@ -639,34 +639,26 @@ SELECT
     s."image_id" AS "shop_image_url",
     O."image_id" AS "thumbnail_url",
     OP."product_name",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
+    O."shipment",
+    O."total_price",
+    O."status",
+    O."created_at"
 FROM
-    "order_history" AS O,
-    "user" AS U,
-    "shop" AS S,
-(
+    "order_history" AS O
+    INNER JOIN "user" AS U ON U."id" = O."user_id"
+    INNER JOIN "shop" AS S ON O."shop_id" = S."id"
+    LEFT JOIN (
         SELECT
+            OD."order_id",
             PA."name" AS "product_name"
         FROM
-            "order_history" AS OH,
-            "order_detail" AS OD,
-            "product_archive" AS PA
-        WHERE
-            OH."id" = OH."id"
-            AND OD."product_id" = PA."id"
-            AND OD."product_version" = PA."version"
-        ORDER BY
-            PA."price" DESC
-        LIMIT 1) AS OP
+            "order_detail" AS OD
+            INNER JOIN "product_archive" AS PA ON OD."product_id" = PA."id"
+                AND OD."product_version" = PA."version") AS OP ON O."id" = OP."order_id"
 WHERE
     U."username" = $1
-    AND U."id" = O."user_id"
-    AND O."shop_id" = S."id"
 ORDER BY
-    "created_at" ASC OFFSET $2
+    O."created_at" ASC OFFSET $2
 LIMIT $3
 `
 
@@ -1118,24 +1110,23 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version" +(
-            SELECT
-                1
-            FROM
-                Check_version
-            WHERE
-                "product_existed" = TRUE
-                AND "version_existed" = FALSE),
-            P."name",
-            P."description",
-            P."price",
-            P."image_id"
-        FROM
-            "product" AS P,
-            check_version AS CV
-        WHERE
-            P."id" = $1
-            AND CV."version_existed" = FALSE)
+        P."version" + COALESCE(0,(
+                SELECT
+                    1
+                FROM Check_version
+                WHERE
+                    "product_existed" = TRUE
+                    AND "version_existed" = FALSE)),
+        P."name",
+        P."description",
+        P."price",
+        P."image_id"
+    FROM
+        "product" AS P,
+        check_version AS CV
+    WHERE
+        P."id" = $1
+        AND CV."version_existed" = FALSE)
 UPDATE
     "product"
 SET
