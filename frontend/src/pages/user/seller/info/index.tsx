@@ -48,28 +48,23 @@ const SellerInfo = () => {
     },
   });
   const OnFormOutput: SubmitHandler<IShopInfo> = async (data) => {
-    console.log(data);
     const formData = new FormData();
     formData.append('name', data.name);
     formData.append('description ', data.description);
     formData.append('enabled ', data.enabled.toString());
     if (data.image) {
-      formData.append('image', data.image);
+      formData.append('image', data.image, data.image.name);
     }
     const resp = await fetch('/api/seller/info', {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: {},
       body: formData,
     });
-    for (const key of formData.entries()) {
-      console.log(key[0] + ', ' + key[1]);
-    }
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
+    } else {
+      refetch();
     }
-    refetch();
   };
 
   const {

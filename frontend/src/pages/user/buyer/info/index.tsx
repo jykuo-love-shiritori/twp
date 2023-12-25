@@ -47,7 +47,6 @@ const Info = () => {
     },
   });
   const OnFormOutput: SubmitHandler<IBuyerInfo> = async (data) => {
-    console.log(data);
     const formData = new FormData();
     formData.append('name', data.name);
     formData.append('email', data.email);
@@ -57,25 +56,17 @@ const Info = () => {
     }
     const resp = await fetch('/api/user/info', {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: {},
       body: formData,
     });
-    for (const key of formData.entries()) {
-      console.log(key[0] + ', ' + key[1]);
-    }
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
+    } else {
+      navigate(0);
     }
-    refetch();
   };
 
-  const {
-    data: fetchedData,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: fetchedData, isLoading } = useQuery({
     queryKey: ['userGetInfo'],
     queryFn: async () => {
       const resp = await fetch('/api/user/info', {
@@ -156,7 +147,7 @@ const Info = () => {
           <Col xs={12} md={6}>
             <Row>
               <Col xs={12} style={labelStyle}>
-                Userame
+                Username
               </Col>
               <Col xs={12} className='form_item_wrapper'>
                 <input type='text' {...register('name', { required: true })} />
