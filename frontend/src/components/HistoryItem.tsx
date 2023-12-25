@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import TButton from '@components/TButton';
 import UserItem from '@components/UserItem';
 
-import historyData from '@pages/cart/boughtData.json';
+import historyData from '@pages/user/buyer/cart/boughtData.json';
 import goodsData from '@pages/discover/goodsData.json';
 
 const HistoryItem = ({ id, user }: { id: number; user: string }) => {
@@ -42,7 +42,7 @@ const HistoryItem = ({ id, user }: { id: number; user: string }) => {
             />
           </Col>
           <Col xs={4} md={2} lg={1} className='center'>
-            <img src={firstItem?.imgUrl} style={{ width: '100%', borderRadius: '10px' }} />
+            <img src={firstItem?.image_url} style={{ width: '100%', borderRadius: '10px' }} />
           </Col>
           <Col xs={8} md={8} lg={9} className='center_vertical'>
             <Row style={{ width: '100%' }}>

@@ -7,7 +7,7 @@ import sellerData from '@pages/user/seller/sellerInfo.json';
 
 const Seller = () => {
   return (
-    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex-wrapper'>
+    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex_wrapper'>
       <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
         <div className='user_bg center' />
       </Col>
@@ -16,7 +16,7 @@ const Seller = () => {
           <Col xs={12} md={3} lg={2} style={{ padding: '0' }}>
             <Row className='user_icon'>
               <Col xs={12} className='center'>
-                <img src={sellerData.imgUrl} className='user_img' />
+                <img src={sellerData.image_url} className='user_img' />
               </Col>
               <Col xs={12} className='center'>
                 <h4>{sellerData.name}</h4>

@@ -28,7 +28,8 @@ func ValidateJwt(pg *db.DB, logger *zap.SugaredLogger) echo.MiddlewareFunc {
 
 			tokenString := strings.TrimPrefix(authorization, tokenPrefix)
 
-			token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+			claims := jwtCustomClaims{}
+			token, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 				return []byte(os.Getenv("TWP_JWT_SECRET")), nil
 			})
 			if err != nil {
@@ -39,6 +40,8 @@ func ValidateJwt(pg *db.DB, logger *zap.SugaredLogger) echo.MiddlewareFunc {
 			if !token.Valid {
 				return echo.NewHTTPError(http.StatusForbidden, "Token validation failed")
 			}
+
+			c.Set(authContextKey, claims.Username)
 
 			return next(c)
 		}
@@ -74,8 +77,10 @@ func IsRole(pg *db.DB, logger *zap.SugaredLogger, role db.RoleType) echo.Middlew
 			}
 
 			if role != claims.Role {
-				return echo.NewHTTPError(http.StatusForbidden, "Forbidden")
+				return echo.NewHTTPError(http.StatusForbidden)
 			}
+
+			c.Set(authContextKey, claims.Username)
 
 			return next(c)
 		}

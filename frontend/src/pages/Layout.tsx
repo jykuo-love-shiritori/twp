@@ -16,11 +16,15 @@ const Layout = () => {
 
   return (
     <div>
-      <NavBar />
-      <div className='body_down bg flex-wrapper'>
+      <div style={{ position: 'relative', zIndex: '10' }}>
+        <NavBar />
+      </div>
+      <div className='body_down bg flex_wrapper' style={{ position: 'relative', zIndex: '1' }}>
         <Outlet />
       </div>
-      <Footer />
+      <div style={{ position: 'relative', zIndex: '10' }}>
+        <Footer />
+      </div>
     </div>
   );
 };

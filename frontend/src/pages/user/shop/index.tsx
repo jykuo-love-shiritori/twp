@@ -8,7 +8,7 @@ import goodsData from '@pages/discover/goodsData.json';
 
 const UserViewShop = () => {
   return (
-    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex-wrapper'>
+    <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex_wrapper'>
       <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
         <div className='user_bg center'>
           <div style={{ padding: '6% 10% 6% 10%' }}>{userData.introduction}</div>
@@ -19,7 +19,7 @@ const UserViewShop = () => {
           <Col xs={12} md={3} lg={2}>
             <Row className='user_icon'>
               <Col xs={12} className='center'>
-                <img src={userData.imgUrl} className='user_img' />
+                <img src={userData.image_url} className='user_img' />
               </Col>
               <Col xs={12}>
                 <div className='center'>

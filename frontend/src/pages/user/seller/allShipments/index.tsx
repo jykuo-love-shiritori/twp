@@ -2,7 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 
 import HistoryItem from '@components/HistoryItem';
 
-import historyData from '@pages/cart/boughtData.json';
+import historyData from '@pages/user/buyer/cart/boughtData.json';
 
 const SellerShipment = () => {
   return (

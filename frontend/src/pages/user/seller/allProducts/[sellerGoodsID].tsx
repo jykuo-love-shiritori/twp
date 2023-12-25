@@ -25,7 +25,7 @@ interface Props {
   calories: string;
   due_date: string;
   ingredients: string;
-  imgUrl: string;
+  image_url: string;
   tags: Tag[];
   quantity: number;
 }
@@ -45,7 +45,7 @@ const EachSellerGoods = () => {
     calories: '',
     due_date: '',
     ingredients: '',
-    imgUrl: '',
+    image_url: '',
     tags: [],
     quantity: 0,
   };
@@ -70,7 +70,7 @@ const EachSellerGoods = () => {
   const [tag, setTag] = useState('');
   const [tagContainer, setTagContainer] = useState<string[]>(data.tags.map((tag) => tag.name));
   const [modification, setModification] = useState<boolean[]>(Array(data.tags.length).fill(false));
-  const [file, setFile] = useState<string | null>(data.imgUrl);
+  const [file, setFile] = useState<string | null>(data.image_url);
   const [name, setName] = useState<string>(data.name);
   const [price, setPrice] = useState<string>(data.price.toString());
   const [quantity, setQuality] = useState<string>(data.quantity.toString());
@@ -122,7 +122,7 @@ const EachSellerGoods = () => {
     <div style={{ padding: '55px 12% 0 12%' }}>
       <Row>
         <Col xs={12} md={5} className='goods_bgW'>
-          <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
+          <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div
               style={{
                 position: 'relative',

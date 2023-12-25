@@ -9,7 +9,7 @@ import CouponItemTemplate from '@components/CouponItemTemplate';
 
 interface CouponProps {
   id: number;
-  type: string; // 'percentage', 'fixed', 'shipping'
+  type: 'percentage' | 'fixed' | 'shipping';
   name: string;
   description: string;
   discount: number;
@@ -94,7 +94,7 @@ const NewAdminCoupon = () => {
         <Row>
           {/* left half */}
           <Col xs={12} md={5} className='goods_bgW'>
-            <div className='flex-wrapper' style={{ padding: '0 8% 10% 8%' }}>
+            <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
               {/* sample display */}
               <div style={{ padding: '15% 10%' }}>
                 <CouponItemTemplate data={getAllFields()} />

@@ -23,7 +23,12 @@ const Products = () => {
         {goodsData.map((data, index) => {
           return (
             <Col xs={6} md={3} key={index}>
-              <SellerGoodsItem id={data.id} name={data.name} imgUrl={data.imgUrl} isIndex={false} />
+              <SellerGoodsItem
+                id={data.id}
+                name={data.name}
+                image_url={data.image_url}
+                isIndex={false}
+              />
             </Col>
           );
         })}

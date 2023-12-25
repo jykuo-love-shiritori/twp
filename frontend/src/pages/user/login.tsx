@@ -33,6 +33,7 @@ const generateChallenge = async (verifier: string) => {
 const Login = () => {
   const navigate = useNavigate();
   const authUrl = import.meta.env.VITE_AUTHORIZE_URL;
+  const skip_auth = import.meta.env.VITE_SKIP_AUTH === 'true';
 
   const { refetch } = useQuery({
     queryKey: ['refresh'],
@@ -42,6 +43,11 @@ const Login = () => {
   });
 
   const login = async () => {
+    if (skip_auth) {
+      navigate('/');
+      return;
+    }
+
     const { isSuccess } = await refetch();
 
     if (isSuccess) {
@@ -77,7 +83,7 @@ const Login = () => {
         <Row style={{ width: '100%', padding: '0', margin: '0' }}>
           <Col xs={12} md={6} style={{ padding: '0' }}>
             <div
-              className='flex-wrapper'
+              className='flex_wrapper'
               style={{
                 background: `url(${LoginImgUrl}) no-repeat center center/cover`,
                 width: '100%',
