@@ -1,6 +1,6 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Functions';
 import { CheckFetchStatus } from '@lib/Status';
 import Pagination from '@components/Pagination';
@@ -27,23 +27,32 @@ interface IUser {
 
 const ManageUser = () => {
   const navigate = useNavigate();
-  const { data: fetchedData, status } = useQuery({
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    data: fetchedData,
+    status,
+    refetch,
+  } = useQuery({
     queryKey: ['adminGetUser'],
     queryFn: async () => {
-      const searchParams = new URLSearchParams({ offset: '0', limit: '10' });
       console.log('/api/admin/user?' + searchParams.toString());
       const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
         method: 'GET',
         headers: { accept: 'application/json' },
       });
       RouteOnNotOK(resp, navigate);
-      const response = await resp.json();
+      const response = [] as IUser[];
       return response;
     },
     select: (data) => data as IUser[],
     enabled: true,
     refetchOnWindowFocus: false,
   });
+
+  const refresh = () => {
+    refetch();
+    // navigate(0);
+  };
 
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
@@ -60,21 +69,18 @@ const ManageUser = () => {
         </Row>
         <UserTableHeader />
         {fetchedData.map((data, index) => (
-          <UserTableRow data={data} refresh={() => navigate(0)} key={index} />
+          <UserTableRow data={data} refresh={refresh} key={index} />
         ))}
       </div>
-      <div className='center' style={{ display: 'flex', flexDirection: 'row' }}>
-        <Row style={{ width: '100%', margin: '2% 0 2% 0 ' }}>
-          {/* pagination */}
-          <Col className='center' xl={6} xs={12}>
-            <Pagination currentPageInit={1} totalPage={10} />
-          </Col>
-          <Col className='disappear_desktop' xs={12} style={{ height: '1vh' }} />
-          {/* confirm button */}
-          <Col className='center' xl={6} xs={12}>
-            <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
-          </Col>
-        </Row>
+      <div
+        className='center'
+        style={{ display: 'flex', flexDirection: 'row', paddingBottom: '10px' }}
+      >
+        <Pagination
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          refresh={refresh}
+        />
       </div>
     </div>
   );
