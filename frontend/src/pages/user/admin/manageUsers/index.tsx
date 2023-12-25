@@ -1,10 +1,54 @@
 import { Col, Row } from 'react-bootstrap';
-import UserTableRow from '@components/UserTableRow';
-import datas from '@pages/user/admin/UserData.json';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { RouteOnNotOK } from '@lib/Functions';
+import { CheckFetchStatus } from '@lib/Status';
 import Pagination from '@components/Pagination';
+import UserTableRow from '@components/UserTableRow';
 import UserTableHeader from '@components/UserTableHeader';
 
+interface ICreditCard {
+  CVV: string;
+  name: string;
+  card_number: string;
+  expiry_date: string;
+}
+
+interface IUser {
+  address: string;
+  credit_card: [ICreditCard];
+  email: string;
+  enabled: true;
+  icon_url: string;
+  name: string;
+  role: string;
+  username: string;
+}
+
 const ManageUser = () => {
+  const navigate = useNavigate();
+  const { data: fetchedData, status } = useQuery({
+    queryKey: ['adminGetUser'],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({ offset: '0', limit: '10' });
+      console.log('/api/admin/user?' + searchParams.toString());
+      const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
+        method: 'GET',
+        headers: { accept: 'application/json' },
+      });
+      RouteOnNotOK(resp, navigate);
+      const response = await resp.json();
+      return response;
+    },
+    select: (data) => data as IUser[],
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flexGrow: '9' }}>
@@ -14,13 +58,9 @@ const ManageUser = () => {
             Manage Users
           </Col>
         </Row>
-
-        {/* table header */}
         <UserTableHeader />
-
-        {/* table body */}
-        {datas.map((data, index) => (
-          <UserTableRow data={data} key={index} />
+        {fetchedData.map((data, index) => (
+          <UserTableRow data={data} refresh={() => navigate(0)} key={index} />
         ))}
       </div>
       <div className='center' style={{ display: 'flex', flexDirection: 'row' }}>
@@ -30,7 +70,7 @@ const ManageUser = () => {
             <Pagination currentPageInit={1} totalPage={10} />
           </Col>
           <Col className='disappear_desktop' xs={12} style={{ height: '1vh' }} />
-          {/* comfirm buttom */}
+          {/* confirm button */}
           <Col className='center' xl={6} xs={12}>
             <div className='manage_user_confirm_button center center_vertical'>Confirm</div>
           </Col>
