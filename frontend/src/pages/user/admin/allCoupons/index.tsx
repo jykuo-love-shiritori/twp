@@ -1,22 +1,49 @@
 import { Col, Row } from 'react-bootstrap';
 import CouponItem from '@components/CouponItem';
-import couponData from '@pages/coupon/couponData.json';
 import TButton from '@components/TButton';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { RouteOnNotOK } from '@lib/Functions';
+import { CheckFetchStatus } from '@lib/Status';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
+interface ICoupon {
   description: string;
   discount: number;
-  start_date: string;
   expire_date: string;
-  tags: {
-    name: string;
-  }[];
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 const ManageAdminCoupons = () => {
+  const navigate = useNavigate();
+  const { data: fetchedData, status } = useQuery({
+    queryKey: ['adminGetGlobalCoupons'],
+    queryFn: async () => {
+      const resp = await fetch('/api/admin/coupons', {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        const response = await resp.json();
+        return response;
+      }
+    },
+    select: (data) => data as ICoupon[],
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
   return (
     <div>
       <Row>
@@ -61,10 +88,19 @@ const ManageAdminCoupons = () => {
         <Row>
           <div className='disappear_phone'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col md={6} xl={4} key={index} style={{ padding: '2%' }}>
-                    <CouponItem data={data as CouponProps} />
+                    <CouponItem
+                      data={{
+                        id: data.id,
+                        scope: data.scope,
+                        name: data.name,
+                        type: data.type,
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                      }}
+                    />
                   </Col>
                 );
               })}
@@ -72,10 +108,19 @@ const ManageAdminCoupons = () => {
           </div>
           <div className='disappear_desktop disappear_tablet'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem data={data as CouponProps} />
+                    <CouponItem
+                      data={{
+                        id: data.id,
+                        scope: data.scope,
+                        name: data.name,
+                        type: data.type,
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                      }}
+                    />
                   </Col>
                 );
               })}

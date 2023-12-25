@@ -1,19 +1,10 @@
 import { Row, Col } from 'react-bootstrap';
 
-interface CouponItemTemplate {
-  data: {
-    id: number;
-    type: 'percentage' | 'fixed' | 'shipping';
-    name: string;
-    description: string;
-    discount: number;
-    start_date?: string;
-    expire_date: string;
-    scope?: string;
-    tags?: {
-      name: string;
-    }[];
-  };
+interface ICouponItemTemplate {
+  name: string;
+  type: 'percentage' | 'fixed' | 'shipping';
+  discount: number;
+  expire_date: string;
 }
 
 const couponStyle = {
@@ -25,7 +16,7 @@ const couponStyle = {
   width: '100%',
 };
 
-const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
+const CouponItemTemplate = ({ data }: { data: ICouponItemTemplate }) => {
   return (
     <div style={{ ...couponStyle }}>
       <Row style={{ height: '100%', padding: '2% 0' }}>

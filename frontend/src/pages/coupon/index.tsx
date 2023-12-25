@@ -1,19 +1,19 @@
 import { Col, Row } from 'react-bootstrap';
 import AllCouponData from './AllCouponData.json';
-import CouponItem from '@components/CouponItem';
+// import CouponItem from '@components/CouponItem';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
-  description: string;
-  discount: number;
-  start_date: string;
-  expire_date: string;
-  tags: {
-    name: string;
-  }[];
-}
+// interface CouponProps {
+//   id: number;
+//   type: 'percentage' | 'fixed' | 'shipping';
+//   name: string;
+//   description: string;
+//   discount: number;
+//   start_date: string;
+//   expire_date: string;
+//   tags: {
+//     name: string;
+//   }[];
+// }
 
 const Coupons = () => {
   return (
@@ -27,10 +27,12 @@ const Coupons = () => {
             <hr className='hr' />
             <div className='disappear_phone'>
               <Row>
-                {data.coupons.map((data, index) => {
+                {data.coupons.map((coupon, index) => {
                   return (
                     <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                      <CouponItem data={data as CouponProps} />
+                      {/* TODO */}
+                      {/* <CouponItem data={data as CouponProps} /> */}
+                      {coupon.id}
                     </Col>
                   );
                 })}
@@ -38,10 +40,12 @@ const Coupons = () => {
             </div>
             <div className='disappear_desktop disappear_tablet'>
               <Row>
-                {data.coupons.map((data, index) => {
+                {data.coupons.map((coupon, index) => {
                   return (
                     <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                      <CouponItem data={data as CouponProps} />
+                      {/* TODO */}
+                      {/* <CouponItem data={data as CouponProps} /> */}
+                      {coupon.id}
                     </Col>
                   );
                 })}
