@@ -68,9 +68,7 @@ const EachSellerCoupon = () => {
     control,
     name: 'tags',
   });
-  const OnFormOutput: SubmitHandler<IShopCouponDetail> = (data) => {
-    return data;
-  };
+
   const watchAllFields = watch();
 
   const { data: initData, status: initStatus } = useQuery({
@@ -190,6 +188,74 @@ const EachSellerCoupon = () => {
     }
   };
 
+  const OnConfirm: SubmitHandler<IShopCouponDetail> = async (data) => {
+    const startDate = new Date(data.coupon_info.start_date);
+    const expDate = new Date(data.coupon_info.expire_date);
+    const today = new Date();
+    if (startDate < today) {
+      alert('Start date should be later than today');
+      return;
+    }
+    startDate.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+    if (startDate >= expDate) {
+      alert('Start date should be earlier than expire date');
+      return;
+    }
+    interface INewCoupon {
+      description: string;
+      discount: number;
+      expire_date: string;
+      name: string;
+      start_date: string;
+      tags: number[];
+      type: 'percentage' | 'fixed' | 'shipping';
+    }
+    const newCoupon: INewCoupon = {
+      description: data.coupon_info.description,
+      discount: data.coupon_info.discount,
+      expire_date: new Date(data.coupon_info.expire_date).toISOString(),
+      name: data.coupon_info.name,
+      start_date: new Date(data.coupon_info.start_date).toISOString(),
+      tags: data.tags.map((tag) => tag.tag_id),
+      type: data.coupon_info.type,
+    };
+    console.log(newCoupon);
+    const resp = await fetch(
+      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCoupon),
+      },
+    );
+    if (!resp.ok) {
+      console.log('error when updating coupon');
+    } else {
+      navigate('/user/seller/manageCoupons');
+    }
+  };
+
+  const OnDelete = async () => {
+    const resp = await fetch(
+      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
+      {
+        method: 'DELETE',
+        headers: {
+          accept: 'application/json',
+        },
+      },
+    );
+    if (!resp.ok) {
+      console.log('error when deleting coupon');
+    } else {
+      navigate('/user/seller/manageCoupons');
+    }
+  };
+
   useEffect(() => {
     if (initStatus === 'success') {
       const startDate = new Date(initData.coupon_info.start_date);
@@ -211,7 +277,7 @@ const EachSellerCoupon = () => {
 
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
-      <form onSubmit={handleSubmit(OnFormOutput)}>
+      <form onSubmit={handleSubmit(OnConfirm)}>
         <Row>
           {/* left half */}
           <Col xs={12} md={5} className='goods_bgW'>
@@ -263,8 +329,8 @@ const EachSellerCoupon = () => {
 
               {/* delete, comfirm button */}
               <div style={{ height: '50px' }} />
-              <TButton text='Delete Coupon' />
-              <TButton text='Confirm Changes' action={handleSubmit(OnFormOutput)} />
+              <TButton text='Delete Coupon' action={OnDelete} />
+              <TButton text='Confirm Changes' action={handleSubmit(OnConfirm)} />
             </div>
           </Col>
 
