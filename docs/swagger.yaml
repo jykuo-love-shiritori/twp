@@ -288,6 +288,8 @@ definitions:
         type: string
       id:
         type: integer
+      product_name:
+        type: string
       shipment:
         type: integer
       shop_image_url:

@@ -3612,6 +3612,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "product_name": {
+                    "type": "string"
+                },
                 "shipment": {
                     "type": "integer"
                 },
