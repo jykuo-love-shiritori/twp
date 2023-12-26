@@ -63,7 +63,6 @@ const SellerInfo = () => {
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
     } else {
-      alert('success');
       navigate(0);
     }
   };
