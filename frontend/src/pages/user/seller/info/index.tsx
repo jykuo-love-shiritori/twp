@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import TButton from '@components/TButton';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { useQuery } from '@tanstack/react-query';
 import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
