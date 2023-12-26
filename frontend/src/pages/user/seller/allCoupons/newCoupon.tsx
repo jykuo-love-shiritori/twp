@@ -145,7 +145,10 @@ const NewSellerCoupon = () => {
       alert('Start date should be earlier than expire date');
       return;
     }
-
+    if (data.coupon_info.type === 'percentage' && data.coupon_info.discount >= 100) {
+      alert('Discount should be less than 100%');
+      return;
+    }
     interface INewCoupon {
       description: string;
       discount: number;

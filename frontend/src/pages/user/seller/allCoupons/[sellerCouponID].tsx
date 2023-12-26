@@ -196,6 +196,10 @@ const EachSellerCoupon = () => {
       alert('Start date should be earlier than expire date');
       return;
     }
+    if (data.coupon_info.type === 'percentage' && data.coupon_info.discount >= 100) {
+      alert('Discount should be less than 100%');
+      return;
+    }
     interface INewCoupon {
       description: string;
       discount: number;
@@ -205,6 +209,7 @@ const EachSellerCoupon = () => {
       tags: number[];
       type: 'percentage' | 'fixed' | 'shipping';
     }
+    // I have no idea how discount get turned into string
     const newCoupon: INewCoupon = {
       description: data.coupon_info.description,
       discount: Number(data.coupon_info.discount),
