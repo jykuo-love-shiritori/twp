@@ -52,9 +52,9 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		for i := range orders {
-			orders[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ImageUrl)
-		}
+		// for i := range orders {
+		// 	orders[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ImageUrl)
+		// }
 		return c.JSON(http.StatusOK, orders)
 	}
 }
@@ -92,7 +92,7 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.OrderInfo.ThumbnailUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ThumbnailUrl)
+		// result.OrderInfo.ThumbnailUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ThumbnailUrl)
 		result.OrderInfo.UserImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.UserImageUrl)
 		for i := range result.Products {
 			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
