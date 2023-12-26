@@ -73,7 +73,6 @@ const Login = () => {
 
     const url = new URL(authUrl);
     url.search = searchParams.toString();
-
     window.location.href = url.toString();
   };
 

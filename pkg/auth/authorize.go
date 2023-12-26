@@ -1,8 +1,10 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -50,6 +52,9 @@ func Authorize(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 
 		result, err := pg.Queries.FindUserInfoAndPassword(c.Request().Context(), params.Email)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Wrong username, email, or password")
+		}
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)

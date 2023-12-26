@@ -15,9 +15,9 @@ import (
 // @Accept			json
 // @Produce		json
 // @Param			id	path		int	true	"Cart ID"
-// @Success		200		{array}		db.GetSortedUsableCouponsRow
-// @Failure		400		{object}	echo.HTTPError
-// @Failure		500		{object}	echo.HTTPError
+// @Success		200	{array}		db.GetSortedUsableCouponsRow
+// @Failure		400	{object}	echo.HTTPError
+// @Failure		500	{object}	echo.HTTPError
 // @Router			/buyer/cart/{id}/coupon [get]
 func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
