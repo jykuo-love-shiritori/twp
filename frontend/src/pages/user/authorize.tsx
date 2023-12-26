@@ -1,36 +1,50 @@
 import { Button, Col, Row } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
-import { useState, FormEventHandler } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useState } from 'react';
 
+import WarningModal from '@components/WarningModal';
 import Footer from '@components/Footer';
-import InfoItem from '@components/InfoItem';
-import PasswordItem from '@components/PasswordItem';
 import LoginImgUrl from '@assets/images/login.jpg';
+import FormItem from '@components/FormItem';
+
+interface FormProps {
+  email: string;
+  password: string;
+}
 
 const Authorize = () => {
   const [searchParams] = useSearchParams();
+  const [show, setShow] = useState<boolean>(false);
+  const [warningText, setWarningText] = useState<string>('');
+  const navigate = useNavigate();
 
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const { register, handleSubmit } = useForm<FormProps>();
 
   const authUrl = '/api/oauth/authorize';
+  const body = Object.fromEntries(searchParams.entries());
 
-  const submitForm: FormEventHandler = async (e) => {
-    e.preventDefault();
-
-    const body = Object.fromEntries([...searchParams.entries()]);
-    body['email'] = email;
-    body['password'] = password;
-
+  const submitForm: SubmitHandler<FormProps> = async (data) => {
     const resp = await fetch(authUrl, {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, ...data }),
     });
     const result = await resp.json();
+
+    if (!resp.ok) {
+      console.log(resp);
+      if (resp.status === 500) {
+        navigate('/login');
+      } else {
+        setWarningText(result.message);
+        setShow(true);
+      }
+      return;
+    }
 
     const redirect_uri = searchParams.get('redirect_uri');
     if (!redirect_uri) {
@@ -61,18 +75,16 @@ const Authorize = () => {
           <Col xs={12} md={6} style={{ padding: '10% 10% 10% 10%' }}>
             <Row>
               <Col xs={12}>
-                <form onSubmit={submitForm}>
+                <form onSubmit={handleSubmit(submitForm)}>
                   <div className='title center'> Log in</div>
                   <div style={{ padding: '10% 0 20% 0' }} className='white_word'>
-                    <InfoItem
-                      text='Email Address'
-                      isMore={false}
-                      value={email}
-                      setValue={setEmail}
-                    />
-                    <PasswordItem text='Password' value={password} setValue={setPassword} />
+                    <FormItem label='Email Address or Username'>
+                      <input type='text' {...register('email', { required: true })} />
+                    </FormItem>
+                    <FormItem label='Password'>
+                      <input type='password' {...register('password', { required: true })} />
+                    </FormItem>
                   </div>
-
                   <Button className='before_button white' type='submit'>
                     <div className='center white_word pointer'>Log in</div>
                   </Button>
@@ -107,6 +119,8 @@ const Authorize = () => {
         </Row>
       </div>
       <Footer />
+
+      <WarningModal show={show} text={warningText} onHide={() => setShow(false)} />
     </div>
   );
 };

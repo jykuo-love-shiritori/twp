@@ -4,20 +4,27 @@ SELECT
     s."name" AS "shop_name",
     s."image_id" AS "shop_image_url",
     O."image_id" AS "thumbnail_url",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
+    OP."product_name",
+    O."shipment",
+    O."total_price",
+    O."status",
+    O."created_at"
 FROM
-    "order_history" AS O,
-    "user" AS U,
-    "shop" AS S
+    "order_history" AS O
+    INNER JOIN "user" AS U ON U."id" = O."user_id"
+    INNER JOIN "shop" AS S ON O."shop_id" = S."id"
+    LEFT JOIN (
+        SELECT
+            OD."order_id",
+            PA."name" AS "product_name"
+        FROM
+            "order_detail" AS OD
+            INNER JOIN "product_archive" AS PA ON OD."product_id" = PA."id"
+                AND OD."product_version" = PA."version") AS OP ON O."id" = OP."order_id"
 WHERE
     U."username" = $1
-    AND U."id" = O."user_id"
-    AND O."shop_id" = S."id"
 ORDER BY
-    "created_at" ASC OFFSET $2
+    O."created_at" ASC OFFSET $2
 LIMIT $3;
 
 -- name: GetOrderInfo :one
@@ -413,9 +420,19 @@ SELECT
             JOIN "user" AS U ON C."user_id" = U."id"
         WHERE
             C."id" = @cart_id
-            AND U."username" = $1 --
+            AND U."username" = $1
             AND (P."enabled" = FALSE
-                OR CP."quantity" > P."stock"));
+                OR CP."quantity" > P."stock"))
+    AND EXISTS (
+        SELECT
+            1
+        FROM
+            "cart" AS C,
+            "user" AS U
+        WHERE
+            C."id" = @cart_id
+            AND U."username" = $1
+            AND C."user_id" = U."id");
 
 -- name: DeleteCouponFromCart :execrows
 DELETE FROM "cart_coupon" AS CC USING "cart" AS C, "user" AS U
@@ -559,7 +576,13 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version",
+        P."version" + COALESCE(0,(
+                SELECT
+                    1
+                FROM Check_version
+                WHERE
+                    "product_existed" = TRUE
+                    AND "version_existed" = FALSE)),
         P."name",
         P."description",
         P."price",
