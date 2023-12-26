@@ -633,11 +633,15 @@ FROM
         SELECT
             OD."order_id",
             PA."name" AS "product_name",
-            PA."image_id" AS "thumbnail_url"
+            PA."image_id" AS "thumbnail_url",
+            ROW_NUMBER() OVER (PARTITION BY OD."order_id" ORDER BY PA."price" DESC) AS rn
         FROM
             "order_detail" AS OD
             INNER JOIN "product_archive" AS PA ON OD."product_id" = PA."id"
-                AND OD."product_version" = PA."version") AS OP ON O."id" = OP."order_id"
+                AND OD."product_version" = PA."version"
+            ORDER BY
+                PA."price" DESC) AS OP ON O."id" = OP."order_id"
+    AND OP.rn = 1
 WHERE
     U."username" = $1
 ORDER BY
@@ -1093,13 +1097,13 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version" + COALESCE(0,(
-                SELECT
-                    1
-                FROM Check_version
-                WHERE
-                    "product_existed" = TRUE
-                    AND "version_existed" = FALSE)),
+        P."version" + COALESCE((
+            SELECT
+                1
+            FROM Check_version
+            WHERE
+                "product_existed" = TRUE
+                AND "version_existed" = FALSE), 0),
         P."name",
         P."description",
         P."price",
