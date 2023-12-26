@@ -1,21 +1,51 @@
-// import CouponItem from '@components/CouponItem';
 import { Col, Row } from 'react-bootstrap';
-import couponData from '@pages/coupon/couponData.json';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import CouponItem from '@components/CouponItem';
 
-// interface CouponProps {
-//   id: number;
-//   type: 'percentage' | 'fixed' | 'shipping';
-//   name: string;
-//   description: string;
-//   discount: number;
-//   start_date: string;
-//   expire_date: string;
-//   tags: {
-//     name: string;
-//   }[];
-// }
+interface ICoupon {
+  description: string;
+  discount: number;
+  expire_date: string;
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
+}
 
 const SellerCoupons = () => {
+  const navigate = useNavigate();
+
+  // TODO
+  // const {sellerName} = useParams();
+  const sellerName = 'user1';
+
+  const { data: fetchedData, status } = useQuery({
+    queryKey: ['GetShopCoupons'],
+    queryFn: async () => {
+      const resp = await fetch(`/api/shop/${sellerName}/coupon?offset=0&limit=10`, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        return await resp.json();
+      }
+    },
+    select: (data) => data as ICoupon[],
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
   return (
     <div>
       <Row>
@@ -26,12 +56,19 @@ const SellerCoupons = () => {
         <Row>
           <div className='disappear_phone'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                    {/* TODO */}
-                    {/* <CouponItem data={data as CouponProps} /> */}
-                    {data.id}
+                    <CouponItem
+                      data={{
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                        id: data.id,
+                        name: data.name,
+                        scope: data.scope,
+                        type: data.type,
+                      }}
+                    />
                   </Col>
                 );
               })}
@@ -39,12 +76,19 @@ const SellerCoupons = () => {
           </div>
           <div className='disappear_desktop disappear_tablet'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    {/* TODO */}
-                    {/* <CouponItem data={data as CouponProps} /> */}
-                    {data.id}
+                    <CouponItem
+                      data={{
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                        id: data.id,
+                        name: data.name,
+                        scope: data.scope,
+                        type: data.type,
+                      }}
+                    />
                   </Col>
                 );
               })}

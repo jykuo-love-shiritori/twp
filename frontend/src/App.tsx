@@ -5,7 +5,6 @@ import Home from '@pages/home';
 import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
-import Coupons from '@pages/coupon';
 import BuyerCarts from '@pages/user/buyer/cart';
 import User from '@pages/user/buyer';
 import Login from '@pages/user/login';
@@ -65,7 +64,6 @@ function App() {
               <Route path=':news_id' element={<EachNews />} />
             </Route>
             <Route path='/discover' element={<Discover />} />
-            <Route path='/coupons' element={<Coupons />} />
             <Route path='/user' element={<User />}>
               <Route index element={<Info />} />
               <Route path='/user/info' element={<Info />} />
@@ -133,8 +131,6 @@ function App() {
             <Route path='/admin/reports'>
               <Route path=':year/:month' element={<AdminReportEach />} />
             </Route>
-
-            <Route path='/coupons' element={<Coupons />} />
 
             <Route path='/search?' element={<SearchNotFound />} />
 
