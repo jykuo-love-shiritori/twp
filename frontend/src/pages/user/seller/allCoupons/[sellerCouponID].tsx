@@ -64,7 +64,7 @@ const EachSellerCoupon = () => {
         start_date: '',
         type: 'percentage',
       },
-      tags: [{ name: '', tag_id: 0 }],
+      tags: [],
     },
   });
   const { fields, append, remove } = useFieldArray({
