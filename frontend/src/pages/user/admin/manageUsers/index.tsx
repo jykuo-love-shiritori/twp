@@ -6,6 +6,7 @@ import { CheckFetchStatus } from '@lib/Status';
 import Pagination from '@components/Pagination';
 import UserTableRow from '@components/UserTableRow';
 import UserTableHeader from '@components/UserTableHeader';
+import { useState } from 'react';
 
 interface ICreditCard {
   CVV: string;
@@ -27,7 +28,11 @@ interface IUser {
 
 const ManageUser = () => {
   const navigate = useNavigate();
+  const [isMore, setIsMore] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const itemLimit = 10;
+
   const {
     data: fetchedData,
     status,
@@ -35,13 +40,21 @@ const ManageUser = () => {
   } = useQuery({
     queryKey: ['adminGetUser'],
     queryFn: async () => {
+      if (!searchParams.has('offset')) {
+        searchParams.set('offset', '0');
+      }
+      if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== itemLimit) {
+        searchParams.set('limit', itemLimit.toString());
+      }
       console.log('/api/admin/user?' + searchParams.toString());
       const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
         method: 'GET',
         headers: { accept: 'application/json' },
       });
       RouteOnNotOK(resp, navigate);
+      console.log(resp);
       const response = [] as IUser[];
+      setIsMore(response.length < itemLimit);
       return response;
     },
     select: (data) => data as IUser[],
@@ -80,6 +93,8 @@ const ManageUser = () => {
           searchParams={searchParams}
           setSearchParams={setSearchParams}
           refresh={refresh}
+          limit={itemLimit}
+          isMore={isMore}
         />
       </div>
     </div>

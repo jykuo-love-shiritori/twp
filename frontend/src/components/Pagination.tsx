@@ -4,6 +4,7 @@ interface Props {
   refresh: () => void;
   limit?: number;
   maxPage?: number;
+  isMore?: boolean;
 }
 
 const Pagination = ({
@@ -12,6 +13,7 @@ const Pagination = ({
   refresh,
   limit = 10,
   maxPage = 100,
+  isMore = true,
 }: Props) => {
   if (!searchParams.has('offset')) {
     searchParams.set('offset', '0');
@@ -34,7 +36,7 @@ const Pagination = ({
   };
   const onNext = () => {
     const page = getPage();
-    if (page < maxPage) {
+    if (page < maxPage && isMore) {
       searchParams.set('offset', (page * limit).toString());
       setSearchParams(searchParams, { replace: true });
       refresh();
@@ -44,9 +46,11 @@ const Pagination = ({
   const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputPage = parseInt(e.target.value);
     if (inputPage > 0 && inputPage < maxPage) {
-      searchParams.set('offset', ((inputPage - 1) * limit).toString());
-      setSearchParams(searchParams, { replace: true });
-      refresh();
+      if (isMore || (!isMore && inputPage < getPage())) {
+        searchParams.set('offset', ((inputPage - 1) * limit).toString());
+        setSearchParams(searchParams, { replace: true });
+        refresh();
+      }
     }
   };
   return (
