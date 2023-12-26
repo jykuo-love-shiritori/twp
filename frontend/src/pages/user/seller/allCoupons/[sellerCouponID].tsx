@@ -2,7 +2,7 @@ import { Row, Col } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
@@ -49,6 +49,7 @@ const EachSellerCoupon = () => {
   const [tag, setTag] = useState('');
   const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
   const navigate = useNavigate();
+  const { coupon_id } = useParams();
 
   const { register, control, handleSubmit, watch, reset } = useForm<IShopCouponDetail>({
     defaultValues: {
@@ -74,15 +75,12 @@ const EachSellerCoupon = () => {
   const { data: initData, status: initStatus } = useQuery({
     queryKey: ['sellerGetCouponDetail'],
     queryFn: async () => {
-      const resp = await fetch(
-        `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
-        {
-          method: 'GET',
-          headers: {
-            accept: 'application/json',
-          },
+      const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
         },
-      );
+      });
       if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
       } else {
@@ -130,17 +128,14 @@ const EachSellerCoupon = () => {
           }
         }
 
-        const resp = await fetch(
-          `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}/tag`,
-          {
-            method: 'POST',
-            headers: {
-              accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ tag_id: newTag.tag_id }),
+        const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({ tag_id: newTag.tag_id }),
+        });
         if (!resp.ok) {
           console.log('error when adding new tag');
         } else {
@@ -170,17 +165,14 @@ const EachSellerCoupon = () => {
     }
   };
   const deleteTag = async (index: number) => {
-    const resp = await fetch(
-      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}/tag`,
-      {
-        method: 'DELETE',
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tag_id: fields[index].tag_id }),
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
+      method: 'DELETE',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({ tag_id: fields[index].tag_id }),
+    });
     if (!resp.ok) {
       console.log('error when deleting tag');
     } else {
@@ -221,17 +213,14 @@ const EachSellerCoupon = () => {
       type: data.coupon_info.type,
     };
     console.log(newCoupon);
-    const resp = await fetch(
-      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
-      {
-        method: 'PATCH',
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newCoupon),
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+      method: 'PATCH',
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify(newCoupon),
+    });
     if (!resp.ok) {
       console.log('error when updating coupon');
     } else {
@@ -240,15 +229,12 @@ const EachSellerCoupon = () => {
   };
 
   const OnDelete = async () => {
-    const resp = await fetch(
-      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
-      {
-        method: 'DELETE',
-        headers: {
-          accept: 'application/json',
-        },
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+      method: 'DELETE',
+      headers: {
+        accept: 'application/json',
       },
-    );
+    });
     if (!resp.ok) {
       console.log('error when deleting coupon');
     } else {
