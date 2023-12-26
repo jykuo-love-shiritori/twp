@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form';
+
 interface Props {
   searchParams: URLSearchParams;
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void;
@@ -21,10 +23,13 @@ const Pagination = ({
   if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== limit) {
     searchParams.set('limit', limit.toString());
   }
-
   const getPage = () => {
     return Number(searchParams.get('offset')) / limit + 1;
   };
+
+  const { register, handleSubmit, setValue } = useForm<{ newPage: number }>({
+    defaultValues: { newPage: getPage() },
+  });
 
   const onPrevious = () => {
     const page = getPage();
@@ -43,14 +48,14 @@ const Pagination = ({
     }
   };
 
-  const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputPage = parseInt(e.target.value);
-    if (inputPage > 0 && inputPage < maxPage) {
-      if (isMore || (!isMore && inputPage < getPage())) {
-        searchParams.set('offset', ((inputPage - 1) * limit).toString());
-        setSearchParams(searchParams, { replace: true });
-        refresh();
-      }
+  const onSubmit = (data: { newPage: number }) => {
+    const inputPage = data.newPage;
+    if (inputPage > 0 && inputPage < maxPage && (isMore || (!isMore && inputPage < getPage()))) {
+      searchParams.set('offset', ((inputPage - 1) * limit).toString());
+      setSearchParams(searchParams, { replace: true });
+      refresh();
+    } else {
+      setValue('newPage', getPage());
     }
   };
   return (
@@ -58,10 +63,21 @@ const Pagination = ({
       <div className='center' onClick={onPrevious}>
         {'<'}
       </div>
-      <div className='center'>{'Page:'}</div>
-      <input className='center' type='text' value={getPage()} onChange={handlePageChange} />
-      <div className='center'>of</div>
-      <div className='center'>{maxPage}</div>
+      <div className='center'>{'Page: '}</div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input
+          className='center'
+          {...register('newPage')}
+          style={{
+            maxWidth: '50px',
+            border: 'none',
+            textAlign: 'center',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+            color: 'var(--button_light)',
+          }}
+        />
+      </form>
       <div className='center' onClick={onNext}>
         {'>'}
       </div>

@@ -53,8 +53,9 @@ const ManageUser = () => {
       });
       RouteOnNotOK(resp, navigate);
       console.log(resp);
+      // const response = await resp.json();
       const response = [] as IUser[];
-      setIsMore(response.length < itemLimit);
+      setIsMore(response.length === itemLimit);
       return response;
     },
     select: (data) => data as IUser[],
@@ -64,7 +65,6 @@ const ManageUser = () => {
 
   const refresh = () => {
     refetch();
-    // navigate(0);
   };
 
   if (status !== 'success') {
