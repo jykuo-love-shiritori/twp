@@ -32,7 +32,6 @@ const ManageSellerCoupons = () => {
         RouteOnNotOK(resp, navigate);
       } else {
         const response = await resp.json();
-        console.log(response);
         return response;
       }
     },
@@ -42,7 +41,6 @@ const ManageSellerCoupons = () => {
   });
 
   if (status !== 'success') {
-    console.log(status);
     return <CheckFetchStatus status={status} />;
   }
 

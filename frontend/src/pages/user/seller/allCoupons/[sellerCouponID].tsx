@@ -11,16 +11,18 @@ import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
 
 interface IShopCouponDetail {
-  coupon_info: {
-    description: string;
-    discount: number;
-    expire_date: string;
-    name: string;
-    scope: 'global' | 'shop';
-    start_date: string;
-    type: 'percentage' | 'fixed' | 'shipping';
-  };
+  coupon_info: ICouponInfo;
   tags: [ITag];
+}
+
+interface ICouponInfo {
+  description: string;
+  discount: number;
+  expire_date: string;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 interface ITag {
@@ -205,14 +207,13 @@ const EachSellerCoupon = () => {
     }
     const newCoupon: INewCoupon = {
       description: data.coupon_info.description,
-      discount: data.coupon_info.discount,
+      discount: Number(data.coupon_info.discount),
       expire_date: new Date(data.coupon_info.expire_date).toISOString(),
       name: data.coupon_info.name,
       start_date: new Date(data.coupon_info.start_date).toISOString(),
       tags: data.tags.map((tag) => tag.tag_id),
       type: data.coupon_info.type,
     };
-    console.log(newCoupon);
     const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
       method: 'PATCH',
       headers: {
@@ -313,7 +314,7 @@ const EachSellerCoupon = () => {
                 </div>
               ))}
 
-              {/* delete, comfirm button */}
+              {/* delete, confirm button */}
               <div style={{ height: '50px' }} />
               <TButton text='Delete Coupon' action={OnDelete} />
               <TButton text='Confirm Changes' action={handleSubmit(OnConfirm)} />
@@ -324,25 +325,15 @@ const EachSellerCoupon = () => {
           <Col xs={12} md={7}>
             <div style={{ padding: '7% 0% 7% 2%' }}>
               <FormItem label='Coupon Name'>
-                <input
-                  type='text'
-                  defaultValue={watchAllFields.coupon_info.name}
-                  {...register('coupon_info.name', { required: true })}
-                />
+                <input type='text' {...register('coupon_info.name', { required: true })} />
               </FormItem>
 
               <FormItem label='Coupon description'>
-                <textarea
-                  defaultValue={watchAllFields.coupon_info.description}
-                  {...register('coupon_info.description', { required: true })}
-                />
+                <textarea {...register('coupon_info.description', { required: true })} />
               </FormItem>
 
               <FormItem label='Method'>
-                <select
-                  defaultValue={watchAllFields.coupon_info.type}
-                  {...register('coupon_info.type', { required: true })}
-                >
+                <select {...register('coupon_info.type', { required: true })}>
                   <option value='percentage'>percentage</option>
                   <option value='fixed'>fixed</option>
                   <option value='shipping'>shipping</option>
@@ -350,27 +341,15 @@ const EachSellerCoupon = () => {
               </FormItem>
 
               <FormItem label='Discount'>
-                <input
-                  type='number'
-                  defaultValue={watchAllFields.coupon_info.discount}
-                  {...register('coupon_info.discount', { required: true })}
-                />
+                <input type='number' {...register('coupon_info.discount', { required: true })} />
               </FormItem>
 
               <FormItem label='Start Date'>
-                <input
-                  type='date'
-                  defaultValue={watchAllFields.coupon_info.start_date}
-                  {...register('coupon_info.start_date', { required: true })}
-                />
+                <input type='date' {...register('coupon_info.start_date', { required: true })} />
               </FormItem>
 
               <FormItem label='Expire Date'>
-                <input
-                  type='date'
-                  defaultValue={watchAllFields.coupon_info.expire_date}
-                  {...register('coupon_info.expire_date', { required: true })}
-                />
+                <input type='date' {...register('coupon_info.expire_date', { required: true })} />
               </FormItem>
             </div>
           </Col>
