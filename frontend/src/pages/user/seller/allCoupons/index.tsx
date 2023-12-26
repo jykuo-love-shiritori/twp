@@ -1,6 +1,6 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
 import TButton from '@components/TButton';

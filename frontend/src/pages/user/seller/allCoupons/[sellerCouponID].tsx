@@ -1,23 +1,31 @@
 import { Row, Col } from 'react-bootstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
-  description: string;
-  discount: number;
-  start_date: string;
-  expire_date: string;
-  tags: {
+interface IShopCouponDetail {
+  coupon_info: {
+    description: string;
+    discount: number;
+    expire_date: string;
     name: string;
-  }[];
+    scope: 'global' | 'shop';
+    start_date: string;
+    type: 'percentage' | 'fixed' | 'shipping';
+  };
+  tags: [ITag];
+}
+
+interface ITag {
+  name: string;
+  tag_id: number;
 }
 
 const tagStyle = {
@@ -29,89 +37,176 @@ const tagStyle = {
   width: '100%',
 };
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const EachSellerCoupon = () => {
-  // react-hook-form things
-  const { register, control, handleSubmit, watch, setValue } = useForm<CouponProps>({
+  const [tag, setTag] = useState('');
+  const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
+  const navigate = useNavigate();
+
+  const { register, control, handleSubmit, watch, reset } = useForm<IShopCouponDetail>({
     defaultValues: {
-      id: 0,
-      type: 'percentage',
-      name: '',
-      description: '',
-      discount: 0,
-      start_date: '',
-      expire_date: '',
-      tags: [],
+      coupon_info: {
+        description: '',
+        discount: 0,
+        expire_date: '',
+        name: '',
+        scope: 'shop',
+        start_date: '',
+        type: 'percentage',
+      },
+      tags: [{ name: '', tag_id: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'tags',
   });
-  const OnFormOutput: SubmitHandler<CouponProps> = (data) => {
-    console.log(data);
+  const OnFormOutput: SubmitHandler<IShopCouponDetail> = (data) => {
     return data;
   };
   const watchAllFields = watch();
-  const getAllFields = (): CouponProps => {
-    return {
-      id: watchAllFields.id,
-      type: watchAllFields.type,
-      name: watchAllFields.name,
-      description: watchAllFields.description,
-      discount: watchAllFields.discount,
-      start_date: watchAllFields.start_date,
-      expire_date: watchAllFields.expire_date,
-      tags: watchAllFields.tags,
-    };
-  };
 
-  // tags
-  const [tag, setTag] = useState('');
-  const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const { data: initData, status: initStatus } = useQuery({
+    queryKey: ['sellerGetCouponDetail'],
+    queryFn: async () => {
+      const resp = await fetch(
+        `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}`,
+        {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+          },
+        },
+      );
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        return await resp.json();
+      }
+    },
+    select: (data) => data as IShopCouponDetail,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  const addNewTag = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     // this addressed the magic number: https://github.com/facebook/react/issues/14512
     if (event.keyCode === 229) return;
     if (event.key === 'Enter') {
-      const input = event.currentTarget.value.trim();
-      if (input !== '') {
-        //TODO: api request
-        append({ name: input });
-        setTag('');
+      const newTagName = event.currentTarget.value.trim();
+      if (newTagName !== '') {
+        let newTag: ITag;
+        const foundOldTag = suggestTags.find((tag) => tag.name === newTagName);
+        if (foundOldTag) {
+          // using old tag
+          if (fields.find((tag) => tag.name === newTagName)) {
+            alert('tag already exist');
+            setTag('');
+            return;
+          }
+          newTag = foundOldTag;
+        } else {
+          // creating a new tag
+          const resp = await fetch('/api/seller/tag', {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            // TODO: change seller_name to real user name
+            body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
+          });
+          if (!resp.ok) {
+            console.log('error when creating new tag');
+            return;
+          } else {
+            const response = await resp.json();
+            newTag = { name: newTagName, tag_id: response.id };
+          }
+        }
+
+        const resp = await fetch(
+          `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}/tag`,
+          {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tag_id: newTag.tag_id }),
+          },
+        );
+        if (!resp.ok) {
+          console.log('error when adding new tag');
+        } else {
+          append(newTag);
+          setTag('');
+        }
       }
     }
   };
-  const deleteTag = (index: number) => {
-    //TODO: api request
-    remove(index);
+  const onChangeNewTag = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTag(event.target.value);
+    const resp = await fetch(`/api/seller/tag?name=${event.target.value}`, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      console.log('error when fetching existing tag');
+    } else {
+      const response = await resp.json();
+      const newSuggestTags: ITag[] = [];
+      response.forEach((tag: { name: string; id: number }) => {
+        newSuggestTags.push({ name: tag.name, tag_id: tag.id });
+      });
+      setSuggestTags(newSuggestTags);
+    }
+  };
+  const deleteTag = async (index: number) => {
+    const resp = await fetch(
+      `/api/seller/coupon/${window.location.pathname.split('/').slice(-1)}/tag`,
+      {
+        method: 'DELETE',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tag_id: fields[index].tag_id }),
+      },
+    );
+    if (!resp.ok) {
+      console.log('error when deleting tag');
+    } else {
+      remove(index);
+    }
   };
 
-  //TODO: get the init value
-  // const params = useParams();
-  // const id = params.coupon_id;
-  const initData: CouponProps = {
-    id: 0,
-    type: 'percentage',
-    name: 'Coupon',
-    description: 'this is description',
-    discount: 0,
-    start_date: '2000-01-01',
-    expire_date: '2000-01-01',
-    tags: [],
-  };
-  const setInitField = (data: CouponProps) => {
-    //set the field into the initial data
-    setValue('type', data.type);
-    setValue('name', data.name);
-    setValue('description', data.description);
-    setValue('discount', data.discount);
-    setValue('start_date', data.start_date);
-    setValue('expire_date', data.expire_date);
-    setValue('tags', data.tags);
-  };
-  // TODO: this is just prevent the inf loop, will remove latter
-  const [isInit, setIsInit] = useState(false);
-  if (!isInit) {
-    setInitField(initData);
-    setIsInit(true);
+  useEffect(() => {
+    if (initStatus === 'success') {
+      const startDate = new Date(initData.coupon_info.start_date);
+      const expDate = new Date(initData.coupon_info.expire_date);
+      reset({
+        coupon_info: {
+          ...initData.coupon_info,
+          start_date: formatDate(startDate.toISOString()),
+          expire_date: formatDate(expDate.toISOString()),
+        },
+        tags: initData.tags,
+      });
+    }
+  }, [initData, initStatus, reset]);
+
+  if (initStatus !== 'success') {
+    return <CheckFetchStatus status={initStatus} />;
   }
 
   return (
@@ -123,7 +218,14 @@ const EachSellerCoupon = () => {
             <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
               {/* sample display */}
               <div style={{ padding: '15% 10%' }}>
-                <CouponItemTemplate data={getAllFields()} />
+                <CouponItemTemplate
+                  data={{
+                    name: watchAllFields.coupon_info.name,
+                    type: watchAllFields.coupon_info.type,
+                    discount: watchAllFields.coupon_info.discount,
+                    expire_date: watchAllFields.coupon_info.expire_date,
+                  }}
+                />
               </div>
               <span className='dark'>add more tags</span>
 
@@ -133,11 +235,16 @@ const EachSellerCoupon = () => {
                 placeholder='Input tags'
                 className='quantity_box'
                 value={tag}
-                onChange={(e) => setTag(e.target.value)}
+                onChange={onChangeNewTag}
                 onKeyDown={addNewTag}
                 style={{ marginBottom: '10px' }}
+                list='suggestion'
               />
-
+              <datalist id='suggestion'>
+                {suggestTags.map((tag, index) => (
+                  <option key={index} value={tag.name} />
+                ))}
+              </datalist>
               {/* dynamic tags fields */}
               {fields.map((field, index) => (
                 <div key={field.id} style={tagStyle}>
@@ -167,22 +274,22 @@ const EachSellerCoupon = () => {
               <FormItem label='Coupon Name'>
                 <input
                   type='text'
-                  defaultValue={watchAllFields.name}
-                  {...register('name', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.name}
+                  {...register('coupon_info.name', { required: true })}
                 />
               </FormItem>
 
               <FormItem label='Coupon description'>
                 <textarea
-                  defaultValue={watchAllFields.description}
-                  {...register('description', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.description}
+                  {...register('coupon_info.description', { required: true })}
                 />
               </FormItem>
 
               <FormItem label='Method'>
                 <select
-                  defaultValue={watchAllFields.type}
-                  {...register('type', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.type}
+                  {...register('coupon_info.type', { required: true })}
                 >
                   <option value='percentage'>percentage</option>
                   <option value='fixed'>fixed</option>
@@ -193,24 +300,24 @@ const EachSellerCoupon = () => {
               <FormItem label='Discount'>
                 <input
                   type='number'
-                  defaultValue={watchAllFields.discount}
-                  {...register('discount', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.discount}
+                  {...register('coupon_info.discount', { required: true })}
                 />
               </FormItem>
 
               <FormItem label='Start Date'>
                 <input
                   type='date'
-                  defaultValue={watchAllFields.start_date}
-                  {...register('start_date', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.start_date}
+                  {...register('coupon_info.start_date', { required: true })}
                 />
               </FormItem>
 
               <FormItem label='Expire Date'>
                 <input
                   type='date'
-                  defaultValue={watchAllFields.expire_date}
-                  {...register('expire_date', { required: true })}
+                  defaultValue={watchAllFields.coupon_info.expire_date}
+                  {...register('coupon_info.expire_date', { required: true })}
                 />
               </FormItem>
             </div>

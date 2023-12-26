@@ -55,7 +55,7 @@ const CouponItemTemplate = ({ data }: { data: ICouponItemTemplate }) => {
               exp
             </div>
             <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {`${expireDate.getMonth() + 1} / ${expireDate.getDay()}`}
+              {`${expireDate.getMonth() + 1} / ${expireDate.getDate()}`}
             </div>
           </div>
         </Col>

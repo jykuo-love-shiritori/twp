@@ -3,7 +3,7 @@ import CouponItem from '@components/CouponItem';
 import TButton from '@components/TButton';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { CheckFetchStatus } from '@lib/Status';
 
 interface ICoupon {
