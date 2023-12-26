@@ -95,6 +95,9 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
     return <CheckFetchStatus status={status} />;
   }
 
+  const startDate = new Date(fetchedData.coupon_info.start_date);
+  const expDate = new Date(fetchedData.coupon_info.expire_date);
+
   return (
     <>
       <div style={{ cursor: 'pointer' }} onClick={handleShow}>
@@ -141,13 +144,13 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
                   From
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
-                  {fetchedData.coupon_info.start_date}
+                  {`${startDate.getFullYear()}/${startDate.getMonth() + 1}/${startDate.getDate()}`}
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '500', color: '#ffffff7f' }}>
                   to
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
-                  {fetchedData.coupon_info.expire_date}
+                  {`${expDate.getFullYear()}/${expDate.getMonth() + 1}/${expDate.getDate()} `}
                 </Col>
               </Row>
             </Col>
@@ -215,6 +218,9 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
     return <CheckFetchStatus status={status} />;
   }
 
+  const startDate = new Date(fetchedData.start_date);
+  const expDate = new Date(fetchedData.expire_date);
+
   return (
     <>
       <div style={{ cursor: 'pointer' }} onClick={handleShow}>
@@ -254,13 +260,13 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
                   From
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
-                  {fetchedData.start_date}
+                  {`${startDate.getFullYear()}/${startDate.getMonth() + 1}/${startDate.getDate()}`}
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '500', color: '#ffffff7f' }}>
                   to
                 </Col>
                 <Col xs='auto' style={{ paddingRight: '0', fontWeight: '700', color: 'white' }}>
-                  {fetchedData.expire_date}
+                  {`${expDate.getFullYear()}/${expDate.getMonth() + 1}/${expDate.getDate()}`}
                 </Col>
               </Row>
             </Col>
@@ -275,8 +281,8 @@ const CouponItem = ({ data }: { data: ICouponItem }) => {
   // TODO: path.include 'seller/' change to 'seller' once implemented number [sellerID] on path
   return (
     <>
-      {!window.location.pathname.includes('seller/') &&
-      !window.location.pathname.includes('admin') ? (
+      {window.location.pathname.includes('seller/') ||
+      window.location.pathname.includes('admin') ? (
         <LinkCouponItem data={data} />
       ) : data.scope === 'global' ? (
         <ModalGlobalCouponItem data={data} />
