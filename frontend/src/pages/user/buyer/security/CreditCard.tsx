@@ -1,12 +1,11 @@
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
-
-import TButton from '@components/TButton';
 import { useQuery } from '@tanstack/react-query';
-import { RouteOnNotOK } from '@lib/Functions';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
+import { RouteOnNotOK } from '@lib/Status';
+import TButton from '@components/TButton';
 
 interface ICreditCard {
   CVV: string;
@@ -54,7 +53,6 @@ const CreditCard = () => {
       RouteOnNotOK(resp, navigate);
     } else {
       refetch();
-      navigate(0);
     }
   };
 
