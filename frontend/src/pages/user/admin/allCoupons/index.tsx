@@ -31,9 +31,7 @@ const ManageAdminCoupons = () => {
       if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
       } else {
-        const response = await resp.json();
-        console.log(response);
-        return response;
+        return resp.json();
       }
     },
     select: (data) => data as ICoupon[],
@@ -42,7 +40,6 @@ const ManageAdminCoupons = () => {
   });
 
   if (status !== 'success') {
-    console.log(status);
     return <CheckFetchStatus status={status} />;
   }
 

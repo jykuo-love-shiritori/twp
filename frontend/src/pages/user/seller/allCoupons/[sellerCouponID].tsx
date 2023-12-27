@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { formatDate } from '@lib/Functions';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -37,14 +38,6 @@ const tagStyle = {
   color: 'white',
   margin: '5px 0 5px 5px',
   width: '100%',
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
 };
 
 const EachSellerCoupon = () => {

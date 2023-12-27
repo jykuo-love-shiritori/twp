@@ -4,6 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { formatDate } from '@lib/Functions';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -18,14 +19,6 @@ interface IGlobalCouponDetail {
   start_date: string;
   type: 'percentage' | 'fixed' | 'shipping';
 }
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
 
 const EachAdminCoupon = () => {
   const navigate = useNavigate();
