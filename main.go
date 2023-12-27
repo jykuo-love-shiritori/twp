@@ -35,7 +35,8 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	err = script.CheckAdminAccount(db)
+	//create admin account if admin account not exit
+	err = script.CheckAdminAccount(db, context.Background())
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
@@ -43,6 +44,10 @@ func main() {
 	RegisterFrontend(e)
 
 	router.RegisterApi(e, db, mc, logger.Sugar())
+
+	// load init data
+	// script.InsertInitData(db, mc, context.Background(), "./data.json")
+	// script.DeleteInitData(db, mc, context.Background(), "./data.json")
 
 	if common.IsEnv(constants.DEV) {
 		router.RegisterDocs(e)

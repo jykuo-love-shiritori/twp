@@ -59,7 +59,7 @@ func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader, fileName s
 	}
 	return fileName, nil
 }
-func (mc MC) PutFileByPath(ctx context.Context, path string, fileName string) (string, error) {
+func (mc MC) PutFileByPath(ctx context.Context, path string) (string, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -70,14 +70,14 @@ func (mc MC) PutFileByPath(ctx context.Context, path string, fileName string) (s
 		return "", err
 	}
 
-	info, err := mc.mcp.PutObject(ctx, mc.BucketName, fileName, file, fileStat.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	info, err := mc.mcp.PutObject(ctx, mc.BucketName, common.CreateUniqueFileName(file.Name()), file, fileStat.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
 		return info.VersionID, err
 	}
 	if err := file.Close(); err != nil {
 		return info.VersionID, err
 	}
-	return fileName, nil
+	return info.Key, nil
 }
 
 func (mc MC) RemoveFile(ctx context.Context, fileName string) error {

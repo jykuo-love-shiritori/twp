@@ -147,5 +147,4 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	customer.POST("/seller/product/:id/tag", seller.AddProductTag(pg, logger))
 	customer.DELETE("/seller/product/:id/tag", seller.DeleteProductTag(pg, logger))
 	customer.DELETE("/seller/product/:id", seller.DeleteProduct(pg, logger))
-
 }
