@@ -46,55 +46,52 @@ const SellerCoupons = () => {
     return <CheckFetchStatus status={status} />;
   }
 
+  const globalCoupons = fetchedData.filter((coupon) => coupon.scope === 'global');
+  const shopCoupons = fetchedData.filter((coupon) => coupon.scope === 'shop');
+
   return (
     <div>
       <Row>
         <Col md={12}>
-          <div className='title'>All Coupon</div>
+          <div className='title'>Global Coupon</div>
         </Col>
-        <hr />
-        <Row>
-          <div className='disappear_phone'>
-            <Row>
-              {fetchedData.map((data, index) => {
-                return (
-                  <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                    <CouponItem
-                      data={{
-                        discount: data.discount,
-                        expire_date: data.expire_date,
-                        id: data.id,
-                        name: data.name,
-                        scope: data.scope,
-                        type: data.type,
-                      }}
-                    />
-                  </Col>
-                );
-              })}
-            </Row>
-          </div>
-          <div className='disappear_desktop disappear_tablet'>
-            <Row>
-              {fetchedData.map((data, index) => {
-                return (
-                  <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem
-                      data={{
-                        discount: data.discount,
-                        expire_date: data.expire_date,
-                        id: data.id,
-                        name: data.name,
-                        scope: data.scope,
-                        type: data.type,
-                      }}
-                    />
-                  </Col>
-                );
-              })}
-            </Row>
-          </div>
-        </Row>
+        <hr className='hr' />
+        {globalCoupons.map((data, index) => {
+          return (
+            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <CouponItem
+                data={{
+                  discount: data.discount,
+                  expire_date: data.expire_date,
+                  id: data.id,
+                  name: data.name,
+                  scope: data.scope,
+                  type: data.type,
+                }}
+              />
+            </Col>
+          );
+        })}
+        <Col md={12} style={{ paddingTop: '5%' }}>
+          <div className='title'>Shop Coupon</div>
+        </Col>
+        <hr className='hr' />
+        {shopCoupons.map((data, index) => {
+          return (
+            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <CouponItem
+                data={{
+                  discount: data.discount,
+                  expire_date: data.expire_date,
+                  id: data.id,
+                  name: data.name,
+                  scope: data.scope,
+                  type: data.type,
+                }}
+              />
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );
