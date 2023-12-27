@@ -93,6 +93,7 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		// FIX ME
 		// result.OrderInfo.ThumbnailUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ThumbnailUrl)
 		result.OrderInfo.UserImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.UserImageUrl)
 		for i := range result.Products {
