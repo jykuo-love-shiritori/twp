@@ -1,6 +1,7 @@
 import { Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { RouteOnNotOK } from '@lib/Status';
 
 interface ICreditCard {
   CVV: string;
@@ -22,13 +23,13 @@ interface IUser {
 
 const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) => {
   const onDelete = async () => {
+    console.log(data.username);
     const resp = await fetch(`/api/admin/user/${data.username}`, {
       method: 'DELETE',
       headers: { accept: 'application/json' },
     });
     if (!resp.ok) {
-      const response = await resp.json();
-      alert(response.message);
+      RouteOnNotOK(resp);
     } else {
       refresh();
     }
@@ -72,7 +73,6 @@ const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) =
       </>
     );
   };
-
   const UserTableRowBig = () => {
     return (
       <Row style={{ padding: '0 0 0 0', fontSize: '24px' }}>
