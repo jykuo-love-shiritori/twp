@@ -229,7 +229,6 @@ type OrderHistory struct {
 	ID         int32              `json:"id" param:"id"`
 	UserID     int32              `json:"user_id"`
 	ShopID     int32              `json:"shop_id"`
-	ImageID    string             `json:"image_id"`
 	Shipment   int32              `json:"shipment"`
 	TotalPrice int32              `json:"total_price"`
 	Status     OrderStatus        `json:"status"`
