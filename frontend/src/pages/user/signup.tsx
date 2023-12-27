@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import Footer from '@components/Footer';
-import RegisterImgUrl from '@assets/images/register.jpg';
+import Registerimage_url from '@assets/images/register.jpg';
 import FormItem from '@components/FormItem';
 import WarningModal from '@components/WarningModal';
 import { useState } from 'react';
@@ -61,7 +61,7 @@ const Signup = () => {
             <div
               className='flex_wrapper'
               style={{
-                background: `url(${RegisterImgUrl}) no-repeat center center/cover`,
+                background: `url(${Registerimage_url}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>

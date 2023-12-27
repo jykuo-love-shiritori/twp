@@ -6,19 +6,19 @@
       {
         "id": 1,
         "name": "Strawberry Delight Cupcake",
-        "imgUrl": "/placeholder/goods1.png",
+        "image_url": "/placeholder/goods1.png",
         "amount": 10223301
       },
       {
         "id": 4,
         "name": "Berrylicious Tart",
-        "imgUrl": "/placeholder/goods4.png",
+        "image_url": "/placeholder/goods4.png",
         "amount": 987373
       },
       {
         "id": 6,
         "name": "Blossom Bliss Macarons",
-        "imgUrl": "/placeholder/goods6.png",
+        "image_url": "/placeholder/goods6.png",
         "amount": 876698
       }
     ],
@@ -32,19 +32,19 @@
       {
         "id": 1,
         "name": "Strawberry Delight Cupcake",
-        "imgUrl": "/placeholder/goods1.png",
+        "image_url": "/placeholder/goods1.png",
         "amount": 10223301
       },
       {
         "id": 3,
         "name": "Choco-Heaven Pancake Delight",
-        "imgUrl": "/placeholder/goods3.png",
+        "image_url": "/placeholder/goods3.png",
         "amount": 987373
       },
       {
         "id": 5,
         "name": "Mocha Cookie Cupcake",
-        "imgUrl": "/placeholder/goods5.png",
+        "image_url": "/placeholder/goods5.png",
         "amount": 876698
       }
     ],
@@ -58,19 +58,19 @@
       {
         "id": 7,
         "name": "Triple Berry Yogurt Delight",
-        "imgUrl": "/placeholder/goods7.png",
+        "image_url": "/placeholder/goods7.png",
         "amount": 10223301
       },
       {
         "id": 9,
         "name": "Strawberry Panna Bliss",
-        "imgUrl": "/placeholder/goods9.png",
+        "image_url": "/placeholder/goods9.png",
         "amount": 987373
       },
       {
         "id": 2,
         "name": "Coffee Bliss Berry Cake",
-        "imgUrl": "/placeholder/goods2.png",
+        "image_url": "/placeholder/goods2.png",
         "amount": 876698
       }
     ],
@@ -84,19 +84,19 @@
       {
         "id": 5,
         "name": "Mocha Cookie Cupcake",
-        "imgUrl": "/placeholder/goods5.png",
+        "image_url": "/placeholder/goods5.png",
         "amount": 876698
       },
       {
         "id": 7,
         "name": "Triple Berry Yogurt Delight",
-        "imgUrl": "/placeholder/goods7.png",
+        "image_url": "/placeholder/goods7.png",
         "amount": 10223301
       },
       {
         "id": 9,
         "name": "Strawberry Panna Bliss",
-        "imgUrl": "/placeholder/goods9.png",
+        "image_url": "/placeholder/goods9.png",
         "amount": 987373
       }
     ],

@@ -6,19 +6,19 @@
       {
         "id": 1,
         "name": "john",
-        "imgUrl": "/placeholder/person.png",
+        "image_url": "/placeholder/person.png",
         "amount": 10223301
       },
       {
         "id": 4,
         "name": "tom",
-        "imgUrl": "/placeholder/head.png",
+        "image_url": "/placeholder/head.png",
         "amount": 987373
       },
       {
         "id": 6,
         "name": "alice",
-        "imgUrl": "/placeholder/news1.jpg",
+        "image_url": "/placeholder/news1.jpg",
         "amount": 876698
       }
     ],
@@ -32,19 +32,19 @@
       {
         "id": 4,
         "name": "tom",
-        "imgUrl": "/placeholder/head.png",
+        "image_url": "/placeholder/head.png",
         "amount": 987373
       },
       {
         "id": 1,
         "name": "john",
-        "imgUrl": "/placeholder/person.png",
+        "image_url": "/placeholder/person.png",
         "amount": 10223301
       },
       {
         "id": 6,
         "name": "alice",
-        "imgUrl": "/placeholder/news1.jpg",
+        "image_url": "/placeholder/news1.jpg",
         "amount": 876698
       }
     ],
@@ -58,19 +58,19 @@
       {
         "id": 6,
         "name": "alice",
-        "imgUrl": "/placeholder/news1.jpg",
+        "image_url": "/placeholder/news1.jpg",
         "amount": 876698
       },
       {
         "id": 4,
         "name": "tom",
-        "imgUrl": "/placeholder/head.png",
+        "image_url": "/placeholder/head.png",
         "amount": 987373
       },
       {
         "id": 1,
         "name": "john",
-        "imgUrl": "/placeholder/person.png",
+        "image_url": "/placeholder/person.png",
         "amount": 10223301
       }
     ],
@@ -84,19 +84,19 @@
       {
         "id": 4,
         "name": "tom",
-        "imgUrl": "/placeholder/head.png",
+        "image_url": "/placeholder/head.png",
         "amount": 987373
       },
       {
         "id": 6,
         "name": "alice",
-        "imgUrl": "/placeholder/news1.jpg",
+        "image_url": "/placeholder/news1.jpg",
         "amount": 876698
       },
       {
         "id": 1,
         "name": "john",
-        "imgUrl": "/placeholder/person.png",
+        "image_url": "/placeholder/person.png",
         "amount": 10223301
       }
     ],

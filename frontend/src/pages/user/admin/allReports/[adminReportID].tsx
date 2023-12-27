@@ -4,16 +4,13 @@ import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
-import SellerItem from '@components/SellerItem';
+import SellerItem, { SellerItemProps } from '@components/SellerItem';
 import NotFound from '@components/NotFound';
 
 import { CheckFetchStatus } from '@lib/Status';
 
-interface SellersProps {
-  id: number;
-  name: string;
-  imgUrl: string;
-  amount: number;
+interface SellersProps extends SellerItemProps {
+  total_sales: number;
 }
 
 const AdminReportEach = () => {
@@ -75,10 +72,10 @@ const AdminReportEach = () => {
                   <h4>No. {index + 1}</h4>
                 </div>
                 <div className='center' style={{ paddingBottom: '30px' }}>
-                  TWD $ {item.amount}
+                  TWD $ {item.total_sales}
                 </div>
 
-                <SellerItem id={item.id} />
+                <SellerItem data={item} />
               </Col>
             );
           })}

@@ -11,7 +11,7 @@ import reportData from '@pages/user/seller/sellerReportData.json';
 interface Goods {
   id: number;
   name: string;
-  imgUrl: string;
+  image_url: string;
   amount: number;
 }
 
@@ -60,7 +60,7 @@ const SellerReportEach = () => {
                     TWD $ {item.amount}
                   </div>
 
-                  <GoodsItem id={item.id} name={item.name} image_url={item.imgUrl} />
+                  <GoodsItem id={item.id} name={item.name} image_url={item.image_url} />
                 </Col>
               );
             })}

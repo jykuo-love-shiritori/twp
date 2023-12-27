@@ -11,7 +11,7 @@ import GoodsItem from '@components/GoodsItem';
 
 import { useAuth } from '@lib/Auth';
 
-import TitleImgUrl from '@assets/images/title.png';
+import Titleimage_url from '@assets/images/title.png';
 import { CheckFetchStatus } from '@lib/Status';
 import { NewsProps } from '@components/News';
 import { GoodsItemProps } from '@components/GoodsItem';
@@ -57,12 +57,13 @@ const Home = () => {
     return <CheckFetchStatus status={recommendStatus} />;
   }
 
+  console.log(recommendData);
   console.log(token);
 
   return (
     <div>
       <div className='home'>
-        <img src={TitleImgUrl} style={{ width: '100%' }}></img>
+        <img src={Titleimage_url} style={{ width: '100%' }}></img>
       </div>
 
       <div style={{ padding: '1% 15% 1% 15%' }}>
