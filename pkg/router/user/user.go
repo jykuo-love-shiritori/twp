@@ -8,6 +8,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -29,7 +30,10 @@ type updatePasswordParams struct {
 // @Router			/user/info [get]
 func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
@@ -55,7 +59,10 @@ func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 // @Router			/user/info [patch]
 func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -109,13 +116,18 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Router			/user/security/password [post]
 func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param updatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		//todo check password strong
+		if !auth.IsValidPassword(param.NewPassword) {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid password")
+		}
 
 		currentPassword, err := pg.Queries.UserGetPassword(c.Request().Context(), username)
 		if err != nil {
@@ -150,7 +162,10 @@ func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [get]
 func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), username)
 		if err != nil {
@@ -173,7 +188,10 @@ func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [patch]
 func UpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param json.RawMessage
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)

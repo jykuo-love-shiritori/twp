@@ -13,10 +13,24 @@ import (
 )
 
 const addCoupon = `-- name: AddCoupon :one
-INSERT INTO "coupon"("type", "scope", "name", "description", "discount", "start_date", "expire_date")
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING
-    "id", "type", "scope", "name", "description", "discount", "start_date", "expire_date"
+INSERT INTO "coupon"(
+        "type",
+        "scope",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
 `
 
 type AddCouponParams struct {
@@ -65,14 +79,11 @@ func (q *Queries) AddCoupon(ctx context.Context, arg AddCouponParams) (AddCoupon
 }
 
 const couponExists = `-- name: CouponExists :one
-SELECT
-    EXISTS (
-        SELECT
-            1
-        FROM
-            "coupon"
-        WHERE
-            "id" = $1)
+SELECT EXISTS (
+        SELECT 1
+        FROM "coupon"
+        WHERE "id" = $1
+    )
 `
 
 func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
@@ -80,6 +91,44 @@ func (q *Queries) CouponExists(ctx context.Context, id int32) (bool, error) {
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const createAdmin = `-- name: CreateAdmin :exec
+INSERT INTO "user" (
+        "username",
+        "password",
+        "name",
+        "email",
+        "address",
+        "image_id",
+        "role",
+        "credit_card",
+        "enabled"
+    )
+SELECT $1 AS "username",
+    $2 AS "password",
+    'Admin' AS "name",
+    'admin@example.com' AS "email",
+    '' AS "address",
+    '' AS "image_id",
+    'admin' AS "role",
+    '{}'::jsonb AS "credit_card",
+    TRUE AS "enable5d"
+WHERE NOT EXISTS (
+        SELECT 1
+        FROM "user"
+        WHERE "role" = 'admin'
+    )
+`
+
+type CreateAdminParams struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) error {
+	_, err := q.db.Exec(ctx, createAdmin, arg.Username, arg.Password)
+	return err
 }
 
 const deleteCoupon = `-- name: DeleteCoupon :execrows
@@ -97,12 +146,9 @@ func (q *Queries) DeleteCoupon(ctx context.Context, id int32) (int64, error) {
 }
 
 const disableProductsFromShop = `-- name: DisableProductsFromShop :execrows
-UPDATE
-    "product"
-SET
-    "enabled" = FALSE
-WHERE
-    "shop_id" = $1
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" = $1
 `
 
 func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (int64, error) {
@@ -115,24 +161,17 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (in
 
 const disableShop = `-- name: DisableShop :execrows
 WITH disable_shop AS (
-    UPDATE
-        "shop"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "seller_name" = $1
-    RETURNING
-        "id")
-UPDATE
-    "product"
-SET
-    "enabled" = FALSE
-WHERE
-    "shop_id" =(
-        SELECT
-            "id"
-        FROM
-            disable_shop)
+    UPDATE "shop"
+    SET "enabled" = FALSE
+    WHERE "seller_name" = $1
+    RETURNING "id"
+)
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" =(
+        SELECT "id"
+        FROM disable_shop
+    )
 `
 
 func (q *Queries) DisableShop(ctx context.Context, sellerName string) (int64, error) {
@@ -145,38 +184,26 @@ func (q *Queries) DisableShop(ctx context.Context, sellerName string) (int64, er
 
 const disableUser = `-- name: DisableUser :execrows
 WITH disabled_user AS (
-    UPDATE
-        "user"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "username" = $1
-    RETURNING
-        "username"
+    UPDATE "user"
+    SET "enabled" = FALSE
+    WHERE "username" = $1
+    RETURNING "username"
 ),
 disabled_shop AS (
-    UPDATE
-        "shop"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "seller_name" =(
-            SELECT
-                "username"
-            FROM
-                disabled_user)
-        RETURNING
-            "id")
-UPDATE
-    "product"
-SET
-    "enabled" = FALSE
-WHERE
-    "shop_id" =(
-        SELECT
-            "id"
-        FROM
-            disabled_shop)
+    UPDATE "shop"
+    SET "enabled" = FALSE
+    WHERE "seller_name" =(
+            SELECT "username"
+            FROM disabled_user
+        )
+    RETURNING "id"
+)
+UPDATE "product"
+SET "enabled" = FALSE
+WHERE "shop_id" =(
+        SELECT "id"
+        FROM disabled_shop
+    )
 `
 
 func (q *Queries) DisableUser(ctx context.Context, username string) (int64, error) {
@@ -188,20 +215,16 @@ func (q *Queries) DisableUser(ctx context.Context, username string) (int64, erro
 }
 
 const editCoupon = `-- name: EditCoupon :one
-UPDATE
-    "coupon"
-SET
-    "type" = COALESCE($2, "type"),
+UPDATE "coupon"
+SET "type" = COALESCE($2, "type"),
     "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "discount" = COALESCE($5, "discount"),
     "start_date" = COALESCE($6, "start_date"),
     "expire_date" = COALESCE($7, "expire_date")
-WHERE
-    "id" = $1
+WHERE "id" = $1
     AND "scope" = 'global'
-RETURNING
-    "id",
+RETURNING "id",
     "type",
     "scope",
     "name",
@@ -257,12 +280,9 @@ func (q *Queries) EditCoupon(ctx context.Context, arg EditCouponParams) (EditCou
 }
 
 const enabledShop = `-- name: EnabledShop :execrows
-UPDATE
-    "shop"
-SET
-    "enabled" = TRUE
-WHERE
-    "seller_name" = $1
+UPDATE "shop"
+SET "enabled" = TRUE
+WHERE "seller_name" = $1
 `
 
 func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, error) {
@@ -274,8 +294,7 @@ func (q *Queries) EnabledShop(ctx context.Context, sellerName string) (int64, er
 }
 
 const getGlobalCouponDetail = `-- name: GetGlobalCouponDetail :one
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -283,10 +302,8 @@ SELECT
     "discount",
     "start_date",
     "expire_date"
-FROM
-    "coupon"
-WHERE
-    "scope" = 'global'
+FROM "coupon"
+WHERE "scope" = 'global'
     AND "id" = $1
 `
 
@@ -318,8 +335,7 @@ func (q *Queries) GetGlobalCouponDetail(ctx context.Context, id int32) (GetGloba
 }
 
 const getGlobalCoupons = `-- name: GetGlobalCoupons :many
-SELECT
-    "id",
+SELECT "id",
     "type",
     "scope",
     "name",
@@ -327,12 +343,9 @@ SELECT
     "discount",
     "start_date",
     "expire_date"
-FROM
-    "coupon"
-WHERE
-    "scope" = 'global'
-ORDER BY
-    "id" ASC
+FROM "coupon"
+WHERE "scope" = 'global'
+ORDER BY "id" ASC
 LIMIT $1 OFFSET $2
 `
 
@@ -382,12 +395,9 @@ func (q *Queries) GetGlobalCoupons(ctx context.Context, arg GetGlobalCouponsPara
 }
 
 const getShopIDBySellerName = `-- name: GetShopIDBySellerName :one
-SELECT
-    "id"
-FROM
-    "shop"
-WHERE
-    "seller_name" = $1
+SELECT "id"
+FROM "shop"
+WHERE "seller_name" = $1
 `
 
 func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) (int32, error) {
@@ -398,25 +408,19 @@ func (q *Queries) GetShopIDBySellerName(ctx context.Context, sellerName string) 
 }
 
 const getTopSeller = `-- name: GetTopSeller :many
-SELECT
-    S."seller_name",
+SELECT S."seller_name",
     S."name",
     S."image_id" AS "image_url",
     SUM(O."total_price") AS "total_sales"
-FROM
-    "shop" AS S,
+FROM "shop" AS S,
     "order_history" AS O
-WHERE
-    S."id" = O."shop_id"
+WHERE S."id" = O."shop_id"
     AND O."status" = 'paid'
-    AND O."created_at" BETWEEN $1
-    AND $1 + INTERVAL '1 month'
-GROUP BY
-    S."seller_name",
+    AND O."created_at" BETWEEN $1 AND $1 + INTERVAL '1 month'
+GROUP BY S."seller_name",
     S."name",
     S."image_id"
-ORDER BY
-    "total_sales" DESC
+ORDER BY "total_sales" DESC
 LIMIT 3
 `
 
@@ -453,14 +457,10 @@ func (q *Queries) GetTopSeller(ctx context.Context, date pgtype.Timestamptz) ([]
 }
 
 const getTotalSales = `-- name: GetTotalSales :one
-SELECT
-    COALESCE(SUM("total_price"), 0)::INTEGER AS "total_sales"
-FROM
-    "order_history" O
-WHERE
-    "status" = 'paid'
-    AND O."created_at" BETWEEN $1
-    AND $1 + INTERVAL '1 month'
+SELECT COALESCE(SUM("total_price"), 0)::INTEGER AS "total_sales"
+FROM "order_history" O
+WHERE "status" = 'paid'
+    AND O."created_at" BETWEEN $1 AND $1 + INTERVAL '1 month'
 `
 
 func (q *Queries) GetTotalSales(ctx context.Context, date pgtype.Timestamptz) (int32, error) {
@@ -471,12 +471,9 @@ func (q *Queries) GetTotalSales(ctx context.Context, date pgtype.Timestamptz) (i
 }
 
 const getUserIDByUsername = `-- name: GetUserIDByUsername :one
-SELECT
-    "id"
-FROM
-    "user"
-WHERE
-    "username" = $1
+SELECT "id"
+FROM "user"
+WHERE "username" = $1
 `
 
 func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (int32, error) {
@@ -487,8 +484,7 @@ func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (int
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT
-    "username",
+SELECT "username",
     "name",
     "email",
     "address",
@@ -496,12 +492,9 @@ SELECT
     "role",
     "credit_card",
     "enabled"
-FROM
-    "user"
-WHERE
-    "enabled" = TRUE
-ORDER BY
-    "id" ASC
+FROM "user"
+WHERE "enabled" = TRUE
+ORDER BY "id" ASC
 LIMIT $1 OFFSET $2
 `
 

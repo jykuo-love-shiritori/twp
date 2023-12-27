@@ -12,6 +12,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
+	"github.com/jykuo-love-shiritori/twp/pkg/script"
 	"go.uber.org/zap"
 
 	"github.com/labstack/echo/v4"
@@ -31,6 +32,10 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 	mc, err := minio.NewMINIO()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	err = script.CheckAdminAccount(db)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}

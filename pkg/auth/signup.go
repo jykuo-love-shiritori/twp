@@ -34,7 +34,7 @@ func isValidUsername(username string) bool {
 	return r.MatchString(username)
 }
 
-func isValidPassword(password string) bool {
+func IsValidPassword(password string) bool {
 	// bcrypt only allows passwords with length up to 72 bytes
 	if len(password) < 8 || len([]byte(password)) >= 72 {
 		return false
@@ -103,7 +103,7 @@ func Signup(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if !isValidUsername(params.Username) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid username")
 		}
-		if !isValidPassword(params.Password) {
+		if !IsValidPassword(params.Password) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid password")
 		}
 

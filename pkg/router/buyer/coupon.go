@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -21,7 +22,10 @@ import (
 // @Router			/buyer/cart/{id}/coupon [get]
 func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param db.GetSortedUsableCouponsParams
 		param.Username = username
 		result := []db.GetSortedUsableCouponsRow{}
@@ -123,7 +127,10 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [post]
 func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param db.AddCouponToCartParams
 		param.Username = username
 		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("coupon_id", &param.CouponID).BindError(); err != nil {
@@ -231,7 +238,10 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/buyer/cart/{cart_id}/coupon/{coupon_id} [delete]
 func DeleteCouponFromCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param db.DeleteCouponFromCartParams
 		param.Username = username
 		if err := echo.PathParamsBinder(c).Int32("cart_id", &param.CartID).Int32("coupon_id", &param.CouponID).BindError(); err != nil {

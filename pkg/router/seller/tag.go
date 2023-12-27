@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -27,7 +28,10 @@ type TagParams struct {
 // @Router			/seller/tag [get]
 func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var tagPerPage int32 = 20
 
 		var param TagParams
@@ -59,7 +63,10 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/tag [post]
 func AddTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param TagParams
 		if err := c.Bind(&param); err != nil {

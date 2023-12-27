@@ -39,7 +39,7 @@ func TestInvalidUsername(t *testing.T) {
 func TestValidPassword(t *testing.T) {
 	password := "Secret_p@ssw0rd"
 
-	valid := isValidPassword(password)
+	valid := IsValidPassword(password)
 
 	if !valid {
 		t.Fatal("Valid password failed")
@@ -49,7 +49,7 @@ func TestValidPassword(t *testing.T) {
 func TestInvalidPasswordNoUpper(t *testing.T) {
 	password := "secret_p@ssw0rd"
 
-	valid := isValidPassword(password)
+	valid := IsValidPassword(password)
 
 	if valid {
 		t.Fatal("Invalid password failed")
@@ -59,7 +59,7 @@ func TestInvalidPasswordNoUpper(t *testing.T) {
 func TestInvalidPasswordNoSpecial(t *testing.T) {
 	password := "Secretpassw0rd"
 
-	valid := isValidPassword(password)
+	valid := IsValidPassword(password)
 
 	if valid {
 		t.Fatal("Invalid password failed")
@@ -69,7 +69,7 @@ func TestInvalidPasswordNoSpecial(t *testing.T) {
 func TestInvalidPasswordNoNumber(t *testing.T) {
 	password := "Secret_password"
 
-	valid := isValidPassword(password)
+	valid := IsValidPassword(password)
 
 	if valid {
 		t.Fatal("Invalid password failed")
@@ -79,7 +79,7 @@ func TestInvalidPasswordNoNumber(t *testing.T) {
 func TestInvalidPasswordNoLower(t *testing.T) {
 	password := "SECRET_PASSWORD"
 
-	valid := isValidPassword(password)
+	valid := IsValidPassword(password)
 
 	if valid {
 		t.Fatal("Invalid password failed")

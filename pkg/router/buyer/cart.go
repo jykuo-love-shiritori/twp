@@ -5,6 +5,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -25,7 +26,10 @@ type Cart struct {
 // @Router			/buyer/cart [get]
 func GetCart(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		carts, err := pg.Queries.GetCart(c.Request().Context(), username)
 		if err != nil {
 			logger.Errorw("failed to get cart", "error", err)
