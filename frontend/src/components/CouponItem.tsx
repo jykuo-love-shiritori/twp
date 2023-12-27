@@ -210,7 +210,7 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
       }
     },
     select: (data) => data as IGlobalCouponDetail,
-    enabled: false,
+    enabled: true,
     refetchOnWindowFocus: false,
   });
 
