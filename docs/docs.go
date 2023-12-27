@@ -3604,6 +3604,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "product_name": {
+                    "type": "string"
+                },
                 "shipment": {
                     "type": "integer"
                 },
@@ -4135,9 +4138,6 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
-                "thumbnail_url": {
-                    "type": "string"
-                },
                 "total_price": {
                     "type": "integer"
                 },
@@ -4160,9 +4160,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "image_url": {
-                    "type": "string"
                 },
                 "shipment": {
                     "type": "integer"

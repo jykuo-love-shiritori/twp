@@ -286,6 +286,8 @@ definitions:
         type: string
       id:
         type: integer
+      product_name:
+        type: string
       shipment:
         type: integer
       shop_image_url:
@@ -636,8 +638,6 @@ definitions:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
-      thumbnail_url:
-        type: string
       total_price:
         type: integer
       user_id:
@@ -653,8 +653,6 @@ definitions:
         type: string
       id:
         type: integer
-      image_url:
-        type: string
       shipment:
         type: integer
       status:

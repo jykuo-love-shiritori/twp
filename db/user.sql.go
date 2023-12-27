@@ -12,27 +12,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addShop = `-- name: AddShop :exec
+INSERT INTO "shop"("seller_name", "image_id", "name", "description", "enabled")
+    VALUES ($1, '', $2, '', FALSE)
+`
+
+type AddShopParams struct {
+	SellerName string `json:"seller_name" param:"seller_name"`
+	Name       string `form:"name" json:"name"`
+}
+
+func (q *Queries) AddShop(ctx context.Context, arg AddShopParams) error {
+	_, err := q.db.Exec(ctx, addShop, arg.SellerName, arg.Name)
+	return err
+}
+
 const addUser = `-- name: AddUser :exec
-INSERT INTO "user" (
-        "username",
-        "password",
-        "name",
-        "email",
-        "address",
-        "role",
-        "credit_card",
-        "enabled"
-    )
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        'customer',
-        '{}',
-        TRUE
-    )
+INSERT INTO "user"("username", "password", "name", "email", "address", "role", "credit_card", "enabled", "image_id")
+    VALUES ($1, $2, $3, $4, $5, 'customer', '{}', TRUE, '')
 `
 
 type AddUserParams struct {
@@ -55,9 +52,12 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) error {
 }
 
 const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
-UPDATE "user"
-SET "refresh_token" = NULL
-WHERE "refresh_token" = $1
+UPDATE
+    "user"
+SET
+    "refresh_token" = NULL
+WHERE
+    "refresh_token" = $1
 `
 
 func (q *Queries) DeleteRefreshToken(ctx context.Context, refreshToken string) error {
@@ -66,10 +66,13 @@ func (q *Queries) DeleteRefreshToken(ctx context.Context, refreshToken string) e
 }
 
 const findUserByRefreshToken = `-- name: FindUserByRefreshToken :one
-SELECT "username",
+SELECT
+    "username",
     "role"
-FROM "user"
-WHERE "refresh_token" = $1
+FROM
+    "user"
+WHERE
+    "refresh_token" = $1
     AND "refresh_token_expire_date" > NOW()
 `
 
@@ -86,11 +89,14 @@ func (q *Queries) FindUserByRefreshToken(ctx context.Context, refreshToken strin
 }
 
 const findUserInfoAndPassword = `-- name: FindUserInfoAndPassword :one
-SELECT "username",
+SELECT
+    "username",
     "role",
     "password"
-FROM "user"
-WHERE "username" = $1
+FROM
+    "user"
+WHERE
+    "username" = $1
     OR "email" = $1
 `
 
@@ -110,10 +116,13 @@ func (q *Queries) FindUserInfoAndPassword(ctx context.Context, username string) 
 }
 
 const setRefreshToken = `-- name: SetRefreshToken :exec
-UPDATE "user"
-SET "refresh_token" = $1,
+UPDATE
+    "user"
+SET
+    "refresh_token" = $1,
     "refresh_token_expire_date" = $2
-WHERE "username" = $3
+WHERE
+    "username" = $3
 `
 
 type SetRefreshTokenParams struct {
@@ -128,12 +137,15 @@ func (q *Queries) SetRefreshToken(ctx context.Context, arg SetRefreshTokenParams
 }
 
 const userExists = `-- name: UserExists :one
-SELECT EXISTS (
-        SELECT 1
-        FROM "user"
-        WHERE "username" = $1
-            OR "email" = $2
-    )
+SELECT
+    EXISTS (
+        SELECT
+            1
+        FROM
+            "user"
+        WHERE
+            "username" = $1
+            OR "email" = $2)
 `
 
 type UserExistsParams struct {
@@ -149,9 +161,12 @@ func (q *Queries) UserExists(ctx context.Context, arg UserExistsParams) (bool, e
 }
 
 const userGetCreditCard = `-- name: UserGetCreditCard :one
-SELECT "credit_card"
-FROM "user"
-WHERE "username" = $1
+SELECT
+    "credit_card"
+FROM
+    "user"
+WHERE
+    "username" = $1
 `
 
 func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.RawMessage, error) {
@@ -162,12 +177,15 @@ func (q *Queries) UserGetCreditCard(ctx context.Context, username string) (json.
 }
 
 const userGetInfo = `-- name: UserGetInfo :one
-SELECT "name",
+SELECT
+    "name",
     "email",
     "address",
-    "image_id" as "image_url"
-FROM "user" u
-WHERE u."username" = $1
+    "image_id" AS "image_url"
+FROM
+    "user" u
+WHERE
+    u."username" = $1
 `
 
 type UserGetInfoRow struct {
@@ -190,9 +208,12 @@ func (q *Queries) UserGetInfo(ctx context.Context, username string) (UserGetInfo
 }
 
 const userGetPassword = `-- name: UserGetPassword :one
-SELECT "password"
-FROM "user"
-WHERE "username" = $1
+SELECT
+    "password"
+FROM
+    "user"
+WHERE
+    "username" = $1
 `
 
 func (q *Queries) UserGetPassword(ctx context.Context, username string) (string, error) {
@@ -203,10 +224,14 @@ func (q *Queries) UserGetPassword(ctx context.Context, username string) (string,
 }
 
 const userUpdateCreditCard = `-- name: UserUpdateCreditCard :one
-UPDATE "user"
-SET "credit_card" = $2
-WHERE "username" = $1
-RETURNING "credit_card"
+UPDATE
+    "user"
+SET
+    "credit_card" = $2
+WHERE
+    "username" = $1
+RETURNING
+    "credit_card"
 `
 
 type UserUpdateCreditCardParams struct {
@@ -222,19 +247,24 @@ func (q *Queries) UserUpdateCreditCard(ctx context.Context, arg UserUpdateCredit
 }
 
 const userUpdateInfo = `-- name: UserUpdateInfo :one
-UPDATE "user"
-SET "name" = COALESCE($2, "name"),
+UPDATE
+    "user"
+SET
+    "name" = COALESCE($2, "name"),
     "email" = COALESCE($3, "email"),
     "address" = COALESCE($4, "address"),
-    "image_id" = CASE
-        WHEN $5::TEXT = '' THEN "image_id"
-        ELSE $5::TEXT
+    "image_id" = CASE WHEN $5::TEXT = '' THEN
+        "image_id"
+    ELSE
+        $5::TEXT
     END
-WHERE "username" = $1
-RETURNING "name",
+WHERE
+    "username" = $1
+RETURNING
+    "name",
     "email",
     "address",
-    "image_id" as "image_url"
+    "image_id" AS "image_url"
 `
 
 type UserUpdateInfoParams struct {
@@ -271,13 +301,17 @@ func (q *Queries) UserUpdateInfo(ctx context.Context, arg UserUpdateInfoParams) 
 }
 
 const userUpdatePassword = `-- name: UserUpdatePassword :one
-UPDATE "user"
-SET "password" = $2
-WHERE "username" = $1
-RETURNING "name",
+UPDATE
+    "user"
+SET
+    "password" = $2
+WHERE
+    "username" = $1
+RETURNING
+    "name",
     "email",
     "address",
-    "image_id" as "image_url"
+    "image_id" AS "image_url"
 `
 
 type UserUpdatePasswordParams struct {

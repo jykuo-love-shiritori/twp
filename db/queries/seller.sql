@@ -1,56 +1,78 @@
 -- name: SellerGetInfo :one
-SELECT "name",
-    "image_id" as "image_url",
+SELECT
+    "name",
+    "image_id" AS "image_url",
     "description",
     "enabled"
-FROM "shop"
-WHERE "seller_name" = $1;
+FROM
+    "shop"
+WHERE
+    "seller_name" = $1;
+
 -- name: SellerUpdateInfo :one
-UPDATE "shop"
-SET "image_id" = CASE
-        WHEN sqlc.arg('image_id')::TEXT = '' THEN "image_id"
-        ELSE sqlc.arg('image_id')::TEXT
+UPDATE
+    "shop"
+SET
+    "image_id" = CASE WHEN sqlc.arg('image_id')::TEXT = '' THEN
+        "image_id"
+    ELSE
+        sqlc.arg('image_id')::TEXT
     END,
     "name" = COALESCE($2, "name"),
     "description" = COALESCE($3, "description"),
     "enabled" = COALESCE($4, "enabled")
-WHERE "seller_name" = $1
-RETURNING "name",
-    "image_id" as "image_url",
+WHERE
+    "seller_name" = $1
+RETURNING
+    "name",
+    "image_id" AS "image_url",
     "description",
     "enabled";
+
 -- name: SellerSearchTag :many
-SELECT t."id",
+SELECT
+    t."id",
     t."name"
-FROM "tag" t
+FROM
+    "tag" t
     LEFT JOIN "shop" s ON "shop_id" = s.id
-WHERE s."seller_name" = $1
+WHERE
+    s."seller_name" = $1
     AND t."name" ~* $2
-ORDER BY LENGTH(t."name") ASC
+ORDER BY
+    LENGTH(t."name") ASC
 LIMIT $3;
+
 -- name: HaveTagName :one
-SELECT EXISTS (
-        SELECT 1
-        FROM "tag" t
-            LEFT JOIN "shop" s ON "shop_id" = s.id
-        WHERE s."seller_name" = $1
-            AND t."name" = $2
-    );
+SELECT
+    EXISTS (
+        SELECT
+            1
+        FROM
+            "tag" t
+        LEFT JOIN "shop" s ON "shop_id" = s.id
+    WHERE
+        s."seller_name" = $1
+        AND t."name" = $2);
+
 -- name: SellerInsertTag :one
-INSERT INTO "tag" ("shop_id", "name")
-VALUES (
-        (
-            SELECT s."id"
-            FROM "shop" s
-            WHERE s."seller_name" = $1
-                AND s."enabled" = true
-        ),
-        $2
-    )
-RETURNING "id",
+INSERT INTO "tag"("shop_id", "name")
+    VALUES ((
+            SELECT
+                s."id"
+            FROM
+                "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = TRUE),
+            $2)
+RETURNING
+    "id",
     "name";
+
 -- name: SellerGetCoupon :many
-SELECT c."id",
+SELECT
+    c."id",
     c."type",
     c."scope",
     c."name",
@@ -58,50 +80,48 @@ SELECT c."id",
     c."discount",
     c."start_date",
     c."expire_date"
-FROM "coupon" c
+FROM
+    "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
-WHERE s.seller_name = $1
-ORDER BY "start_date" DESC
+WHERE
+    s.seller_name = $1
+ORDER BY
+    "start_date" DESC
 LIMIT $2 OFFSET $3;
+
 -- name: SellerGetCouponDetail :one
-SELECT c."type",
+SELECT
+    c."type",
     c."scope",
     c."name",
     c."discount",
     c."description",
     c."start_date",
     c."expire_date"
-FROM "coupon" c
+FROM
+    "coupon" c
     JOIN "shop" s ON c."shop_id" = s.id
-WHERE s."seller_name" = $1
+WHERE
+    s."seller_name" = $1
     AND c."id" = $2;
+
 -- name: SellerInsertCoupon :one
-INSERT INTO "coupon" (
-        "type",
-        "scope",
-        "shop_id",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    )
-VALUES (
-        $2,
-        'shop',
-        (
-            SELECT s."id"
-            FROM "shop" s
-            WHERE s."seller_name" = $1
-                AND s."enabled" = true
-        ),
-        $3,
-        $4,
-        $5,
-        $6,
-        $7
-    )
-RETURNING "id",
+INSERT INTO "coupon"("type", "scope", "shop_id", "name", "description", "discount", "start_date", "expire_date")
+    VALUES ($2, 'shop',(
+            SELECT
+                s."id"
+            FROM
+                "shop" s
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = TRUE),
+            $3,
+            $4,
+            $5,
+            $6,
+            $7)
+RETURNING
+    "id",
     "type",
     "scope",
     "name",
@@ -109,22 +129,29 @@ RETURNING "id",
     "description",
     "start_date",
     "expire_date";
+
 -- name: SellerUpdateCouponInfo :one
-UPDATE "coupon" c
-SET "type" = COALESCE($3, "type"),
+UPDATE
+    "coupon" c
+SET
+    "type" = COALESCE($3, "type"),
     "name" = COALESCE($4, "name"),
     "description" = COALESCE($5, "description"),
     "discount" = COALESCE($6, "discount"),
     "start_date" = COALESCE($7, "start_date"),
     "expire_date" = COALESCE($8, "expire_date")
-WHERE c."id" = $2
-    AND "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-    )
-RETURNING c."id",
+WHERE
+    c."id" = $2
+    AND "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE)
+RETURNING
+    c."id",
     c."type",
     c."scope",
     c."name",
@@ -132,168 +159,206 @@ RETURNING c."id",
     c."discount",
     c."start_date",
     c."expire_date";
+
 -- name: SellerDeleteCoupon :execrows
 DELETE FROM "coupon" c
 WHERE c."id" = $2
-    AND "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-    );
+    AND "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE);
+
 -- name: SellerGetOrder :many
-SELECT "id",
-    oh."image_id" as "image_url",
+SELECT
+    "id",
     oh."shipment",
     oh."total_price",
     oh."status",
     oh."created_at"
-FROM "order_history" as oh
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-    )
-ORDER BY "created_at" DESC
+FROM
+    "order_history" AS oh
+WHERE
+    "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1)
+ORDER BY
+    "created_at" DESC
 LIMIT $2 OFFSET $3;
+
 -- name: SellerGetOrderHistory :one
-SELECT "order_history"."id",
-    "order_history"."image_id" as "thumbnail_url",
+SELECT
+    "order_history"."id",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
     "order_history"."created_at",
-    "user"."id" as "user_id",
-    "user"."name" as "user_name",
-    "user"."image_id" as "user_image_url"
-FROM "order_history"
+    "user"."id" AS "user_id",
+    "user"."name" AS "user_name",
+    "user"."image_id" AS "user_image_url"
+FROM
+    "order_history"
     JOIN shop ON "order_history".shop_id = shop.id
     JOIN "user" ON "order_history".user_id = "user"."id"
-WHERE shop.seller_name = $1
+WHERE
+    shop.seller_name = $1
     AND "order_history".id = $2;
+
 -- name: SellerGetOrderDetail :many
-SELECT product_archive."id",
+SELECT
+    product_archive."id",
     product_archive."name",
     product_archive."description",
     product_archive."price",
-    product_archive."image_id" as "image_url",
+    product_archive."image_id" AS "image_url",
     order_detail.quantity
-FROM "order_detail"
+FROM
+    "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
-    AND order_detail.product_version = product_archive.version
+        AND order_detail.product_version = product_archive.version
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
-WHERE shop.seller_name = $1
+WHERE
+    shop.seller_name = $1
     AND order_detail.order_id = $2
-ORDER BY quantity * price DESC;
+ORDER BY
+    quantity * price DESC;
+
 -- name: SellerUpdateOrderStatus :one
-UPDATE "order_history" oh
-SET "status" = sqlc.arg(set_status)
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-    )
+UPDATE
+    "order_history" oh
+SET
+    "status" = sqlc.arg(set_status)
+WHERE
+    "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE)
     AND oh."id" = $2
     AND oh."status" = sqlc.arg(current_status)
-RETURNING oh."id",
+RETURNING
+    oh."id",
     oh."shipment",
     oh."total_price",
     oh."status",
     oh."created_at";
+
 -- name: SellerBestSellProduct :many
-SELECT order_detail.product_id,
+SELECT
+    order_detail.product_id,
     product_archive.name,
     product_archive.price,
-    product_archive.image_id as "image_url",
+    product_archive.image_id AS "image_url",
     SUM(order_detail.quantity) AS total_quantity,
     SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
     COUNT(order_history.id) AS order_count
-FROM "order_detail"
+FROM
+    "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
-    AND order_detail.product_version = product_archive.version
+        AND order_detail.product_version = product_archive.version
     LEFT JOIN order_history ON order_history.id = order_detail.order_id
     LEFT JOIN shop ON order_history.shop_id = shop.id
-WHERE shop.seller_name = $1
+WHERE
+    shop.seller_name = $1
     AND order_history."created_at" > sqlc.arg('time')
     AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month'
-GROUP BY product_archive.id,
+GROUP BY
+    product_archive.id,
     product_archive.description,
     product_archive.name,
     product_archive.price,
     product_archive.image_id,
     order_detail.product_id
-ORDER BY total_quantity DESC
+ORDER BY
+    total_quantity DESC
 LIMIT $2;
+
 -- name: SellerReport :one
-SELECT SUM(order_history.total_price)::decimal(10, 2) AS total_income,
+SELECT
+    SUM(order_history.total_price)::decimal(10, 2) AS total_income,
     COUNT(order_history.id) AS order_count
-FROM order_history
+FROM
+    order_history
     LEFT JOIN shop ON order_history.shop_id = shop.id
-WHERE shop.seller_name = $1
+WHERE
+    shop.seller_name = $1
     AND order_history."created_at" > sqlc.arg('time')
     AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month';
+
 -- name: SellerGetProductDetail :one
-SELECT p."name",
-    p."image_id" as "image_url",
-    p."price",
-    p."sales",
-    p."stock",
-    p."enabled"
-FROM "product" p
-    JOIN "shop" s ON p."shop_id" = s.id
-WHERE s.seller_name = $1
-    AND p."id" = $2;
--- name: SellerProductList :many
-SELECT p."id",
+SELECT
     p."name",
-    p."image_id" as "image_url",
+    p."image_id" AS "image_url",
     p."price",
     p."sales",
     p."stock",
     p."enabled"
-FROM "product" p
+FROM
+    "product" p
     JOIN "shop" s ON p."shop_id" = s.id
-WHERE s.seller_name = $1
-ORDER BY "sales" DESC
+WHERE
+    s.seller_name = $1
+    AND p."id" = $2;
+
+-- name: SellerProductList :many
+SELECT
+    p."id",
+    p."name",
+    p."image_id" AS "image_url",
+    p."price",
+    p."sales",
+    p."stock",
+    p."enabled"
+FROM
+    "product" p
+    JOIN "shop" s ON p."shop_id" = s.id
+WHERE
+    s.seller_name = $1
+ORDER BY
+    "sales" DESC
 LIMIT $2 OFFSET $3;
+
 -- name: SellerCheckTags :one
-SELECT NOT EXISTS (
-        SELECT 1
-        FROM unnest(@tags::INT []) t
-            LEFT JOIN "tag" ON t = "tag"."id"
-            LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
-        WHERE "tag"."id" IS NULL
-            OR s."seller_name" != $1
-    );
+SELECT
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            unnest(@tags::INT[]) t
+        LEFT JOIN "tag" ON t = "tag"."id"
+        LEFT JOIN "shop" s ON "tag"."shop_id" = s."id"
+    WHERE
+        "tag"."id" IS NULL
+        OR s."seller_name" != $1);
+
 -- name: SellerInsertProductTags :exec
-INSERT INTO "product_tag" ("product_id", "tag_id")
-VALUES ($1, unnest(@tags::INT []));
+INSERT INTO "product_tag"("product_id", "tag_id")
+    VALUES ($1, unnest(@tags::INT[]));
+
 -- name: SellerInsertCouponTags :exec
-INSERT INTO "coupon_tag" ("coupon_id", "tag_id")
-VALUES ($1, unnest(@tags::INT []));
+INSERT INTO "coupon_tag"("coupon_id", "tag_id")
+    VALUES ($1, unnest(@tags::INT[]));
+
 -- name: SellerInsertProduct :one
-INSERT INTO "product"(
-        "version",
-        "shop_id",
-        "name",
-        "description",
-        "price",
-        "image_id",
-        "expire_date",
-        "edit_date",
-        "stock",
-        "enabled"
-    )
-VALUES (
-        1,
-        (
-            SELECT s."id"
+INSERT INTO "product"("version", "shop_id", "name", "description", "price", "image_id", "expire_date", "edit_date", "stock", "enabled")
+    VALUES (1,(
+            SELECT
+                s."id"
             FROM "shop" s
-            WHERE s."seller_name" = $1
-                AND s."enabled" = true
-        ),
+            WHERE
+                s."seller_name" = $1
+                AND s."enabled" = TRUE),
         $2,
         $3,
         $4,
@@ -301,139 +366,180 @@ VALUES (
         $6,
         NOW(),
         $7,
-        $8
-    )
-RETURNING "id",
+        $8)
+RETURNING
+    "id",
     "name",
     "description",
     "price",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "expire_date",
     "edit_date",
     "stock",
     "sales",
     "enabled";
+
 -- name: SellerUpdateProductInfo :one
-UPDATE "product" p
-SET "name" = COALESCE($3, "name"),
+UPDATE
+    "product" p
+SET
+    "name" = COALESCE($3, "name"),
     "description" = COALESCE($4, "description"),
     "price" = COALESCE($5, "price"),
-    "image_id" = CASE
-        WHEN sqlc.arg('image_id')::TEXT = '' THEN "image_id"
-        ELSE sqlc.arg('image_id')::TEXT
+    "image_id" = CASE WHEN sqlc.arg('image_id')::TEXT = '' THEN
+        "image_id"
+    ELSE
+        sqlc.arg('image_id')::TEXT
     END,
     "expire_date" = COALESCE($6, "expire_date"),
     "enabled" = COALESCE($7, "enabled"),
     "stock" = COALESCE($8, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-    )
+WHERE
+    "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE)
     AND p."id" = $2
-RETURNING "id",
+RETURNING
+    "id",
     "name",
     "description",
     "price",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "expire_date",
     "edit_date",
     "stock",
     "sales",
     "enabled";
+
 -- name: SellerDeleteProduct :execrows
 DELETE FROM "product" p
-WHERE "shop_id" = (
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-    )
+WHERE "shop_id" =(
+        SELECT
+            s."id"
+        FROM
+            "shop" s
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE)
     AND p."id" = $2;
+
 -- name: SellerGetProductTag :many
-SELECT pt."tag_id",
+SELECT
+    pt."tag_id",
     t."name"
-FROM "product_tag" pt
+FROM
+    "product_tag" pt
     JOIN "product" p ON p."id" = pt."product_id"
     JOIN "shop" s ON s."id" = p."shop_id"
     JOIN "tag" t ON t."id" = pt."tag_id"
-WHERE s."seller_name" = $1
+WHERE
+    s."seller_name" = $1
     AND "product_id" = $2
-    AND s."enabled" = true;
+    AND s."enabled" = TRUE;
+
 -- name: SellerGetCouponTag :many
-SELECT ct."tag_id",
+SELECT
+    ct."tag_id",
     t."name"
-FROM "coupon_tag" ct
+FROM
+    "coupon_tag" ct
     JOIN "coupon" c ON c."id" = ct."coupon_id"
     JOIN "shop" s ON s."id" = c."shop_id"
     JOIN "tag" t ON t."id" = ct."tag_id"
-WHERE s."seller_name" = $1
+WHERE
+    s."seller_name" = $1
     AND "coupon_id" = $2;
+
 -- name: SellerInsertProductTag :one
-INSERT INTO "product_tag" ("tag_id", "product_id")
-SELECT $2,
+INSERT INTO "product_tag"("tag_id", "product_id")
+SELECT
+    $2,
     $3
-WHERE EXISTS (
-        SELECT 1
-        FROM "tag" t
+WHERE
+    EXISTS (
+        SELECT
+            1
+        FROM
+            "tag" t
             JOIN "shop" s ON s."id" = t."shop_id"
-        WHERE s."seller_name" = $1
+        WHERE
+            s."seller_name" = $1
             AND t."id" = $2
-            AND s."enabled" = true
-    )
+            AND s."enabled" = TRUE)
     AND EXISTS (
-        SELECT 1
-        FROM "product" p
+        SELECT
+            1
+        FROM
+            "product" p
             JOIN "shop" s ON s."id" = p."shop_id"
-        WHERE s."seller_name" = $1
-            AND p."id" = $3
-    )
-RETURNING *;
+        WHERE
+            s."seller_name" = $1
+            AND p."id" = $3)
+RETURNING
+    *;
+
 -- name: SellerDeleteProductTag :execrows
 DELETE FROM "product_tag" tp
 WHERE EXISTS (
-        SELECT 1
-        FROM "product" p
+        SELECT
+            1
+        FROM
+            "product" p
             JOIN "shop" s ON s."id" = p."shop_id"
-        WHERE s."seller_name" = $1
+        WHERE
+            s."seller_name" = $1
             AND p."id" = $3
-            AND s."enabled" = true
-    )
+            AND s."enabled" = TRUE)
     AND "product_id" = $3
     AND "tag_id" = $2;
+
 -- name: SellerInsertCouponTag :one
-INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
-SELECT $2,
+INSERT INTO "coupon_tag"("tag_id", "coupon_id")
+SELECT
+    $2,
     $3
-WHERE EXISTS (
-        SELECT 1
-        FROM "tag" t
+WHERE
+    EXISTS (
+        SELECT
+            1
+        FROM
+            "tag" t
             JOIN "shop" s ON s."id" = t."shop_id"
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-            AND t."id" = $2
-    )
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE
+            AND t."id" = $2)
     AND EXISTS (
-        SELECT 1
-        FROM "coupon" c
+        SELECT
+            1
+        FROM
+            "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-            AND c."id" = $3
-    )
-RETURNING *;
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE
+            AND c."id" = $3)
+RETURNING
+    *;
+
 -- name: SellerDeleteCouponTag :execrows
 DELETE FROM "coupon_tag" tp
 WHERE EXISTS (
-        SELECT 1
-        FROM "coupon" c
+        SELECT
+            1
+        FROM
+            "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
-        WHERE s."seller_name" = $1
-            AND s."enabled" = true
-            AND c."id" = $3
-    )
+        WHERE
+            s."seller_name" = $1
+            AND s."enabled" = TRUE
+            AND c."id" = $3)
     AND "coupon_id" = $3
     AND "tag_id" = $2;

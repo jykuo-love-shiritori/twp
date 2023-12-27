@@ -169,35 +169,17 @@ func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartPara
 
 const checkout = `-- name: Checkout :exec
 WITH insert_order AS (
-INSERT INTO "order_history"("user_id", "shop_id", "image_id", "shipment", "total_price", "status")
+INSERT INTO "order_history"("user_id", "shop_id", "shipment", "total_price", "status")
     SELECT
         U."id",
         S."id",
-        T."image_id",
         $2,
         $3,
         'paid'
     FROM
         "user" AS U,
         "shop" AS S,
-        "cart" AS C,
-(
-            SELECT
-                "image_id"
-            FROM
-                "product"
-            WHERE
-                "id" =(
-                    SELECT
-                        "product_id"
-                    FROM
-                        "cart_product"
-                    WHERE
-                        "cart_id" = $4
-                    ORDER BY
-                        "price" DESC
-                    LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
-)) AS T
+        "cart" AS C
     WHERE
         U."username" = $1
         AND U."id" = C."user_id"
@@ -637,21 +619,33 @@ SELECT
     O."id",
     s."name" AS "shop_name",
     s."image_id" AS "shop_image_url",
-    O."image_id" AS "thumbnail_url",
-    "shipment",
-    "total_price",
-    "status",
-    "created_at"
+    OP."thumbnail_url",
+    OP."product_name",
+    O."shipment",
+    O."total_price",
+    O."status",
+    O."created_at"
 FROM
-    "order_history" AS O,
-    "user" AS U,
-    "shop" AS S
+    "order_history" AS O
+    INNER JOIN "user" AS U ON U."id" = O."user_id"
+    INNER JOIN "shop" AS S ON O."shop_id" = S."id"
+    LEFT JOIN (
+        SELECT
+            OD."order_id",
+            PA."name" AS "product_name",
+            PA."image_id" AS "thumbnail_url",
+            ROW_NUMBER() OVER (PARTITION BY OD."order_id" ORDER BY PA."price" DESC) AS rn
+        FROM
+            "order_detail" AS OD
+            INNER JOIN "product_archive" AS PA ON OD."product_id" = PA."id"
+                AND OD."product_version" = PA."version"
+            ORDER BY
+                PA."price" DESC) AS OP ON O."id" = OP."order_id"
+    AND OP.rn = 1
 WHERE
     U."username" = $1
-    AND U."id" = O."user_id"
-    AND O."shop_id" = S."id"
 ORDER BY
-    "created_at" ASC OFFSET $2
+    O."created_at" ASC OFFSET $2
 LIMIT $3
 `
 
@@ -666,6 +660,7 @@ type GetOrderHistoryRow struct {
 	ShopName     string             `form:"name" json:"shop_name"`
 	ShopImageUrl string             `json:"shop_image_url" swaggertype:"string"`
 	ThumbnailUrl string             `json:"thumbnail_url"`
+	ProductName  string             `json:"product_name"`
 	Shipment     int32              `json:"shipment"`
 	TotalPrice   int32              `json:"total_price"`
 	Status       OrderStatus        `json:"status"`
@@ -686,6 +681,7 @@ func (q *Queries) GetOrderHistory(ctx context.Context, arg GetOrderHistoryParams
 			&i.ShopName,
 			&i.ShopImageUrl,
 			&i.ThumbnailUrl,
+			&i.ProductName,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
@@ -1101,7 +1097,13 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version",
+        P."version" + COALESCE((
+            SELECT
+                1
+            FROM Check_version
+            WHERE
+                "product_existed" = TRUE
+                AND "version_existed" = FALSE), 0),
         P."name",
         P."description",
         P."price",
@@ -1167,9 +1169,19 @@ SELECT
             JOIN "user" AS U ON C."user_id" = U."id"
         WHERE
             C."id" = $2
-            AND U."username" = $1 --
+            AND U."username" = $1
             AND (P."enabled" = FALSE
                 OR CP."quantity" > P."stock"))
+    AND EXISTS (
+        SELECT
+            1
+        FROM
+            "cart" AS C,
+            "user" AS U
+        WHERE
+            C."id" = $2
+            AND U."username" = $1
+            AND C."user_id" = U."id")
 `
 
 type ValidateProductsInCartParams struct {
@@ -1177,9 +1189,9 @@ type ValidateProductsInCartParams struct {
 	CartID   int32  `json:"cart_id" param:"cart_id"`
 }
 
-func (q *Queries) ValidateProductsInCart(ctx context.Context, arg ValidateProductsInCartParams) (bool, error) {
+func (q *Queries) ValidateProductsInCart(ctx context.Context, arg ValidateProductsInCartParams) (pgtype.Bool, error) {
 	row := q.db.QueryRow(ctx, validateProductsInCart, arg.Username, arg.CartID)
-	var not_exists bool
-	err := row.Scan(&not_exists)
-	return not_exists, err
+	var column_1 pgtype.Bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }
