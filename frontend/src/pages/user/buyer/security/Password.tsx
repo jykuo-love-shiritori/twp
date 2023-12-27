@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import FormItem from '@components/FormItem';
 
 interface IEditPassword {

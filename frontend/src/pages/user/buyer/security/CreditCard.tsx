@@ -4,7 +4,7 @@ import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
 
 import TButton from '@components/TButton';
 import { useQuery } from '@tanstack/react-query';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
 

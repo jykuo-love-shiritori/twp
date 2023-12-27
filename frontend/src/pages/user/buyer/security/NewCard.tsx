@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import FormItem from '@components/FormItem';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus } from '@lib/Status';

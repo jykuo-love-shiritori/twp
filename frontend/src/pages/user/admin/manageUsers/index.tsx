@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RouteOnNotOK } from '@lib/Functions';
+import { RouteOnNotOK } from '@lib/Status';
 import { CheckFetchStatus } from '@lib/Status';
 import Pagination from '@components/Pagination';
 import UserTableRow from '@components/UserTableRow';
