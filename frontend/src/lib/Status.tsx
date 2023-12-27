@@ -1,7 +1,12 @@
 import { NavigateFunction } from 'react-router-dom';
 
-export const RouteOnNotOK = (response: Response, navigate: NavigateFunction) => {
+export const RouteOnNotOK = async (response: Response, navigate: NavigateFunction) => {
+  let res;
   switch (response.status) {
+    case 400:
+      res = await response.json();
+      alert(res.message);
+      break;
     case 404:
       navigate('/notFound');
       break;
