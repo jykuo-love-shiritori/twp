@@ -37,7 +37,7 @@ const sellerBestSellProduct = `-- name: SellerBestSellProduct :many
 SELECT order_detail.product_id,
     product_archive.name,
     product_archive.price,
-    product_archive.image_id as "image_url",
+    product_archive.image_id AS "image_url",
     SUM(order_detail.quantity) AS total_quantity,
     SUM(order_detail.quantity * product_archive.price)::decimal(10, 2) AS total_sell,
     COUNT(order_history.id) AS order_count
@@ -129,11 +129,11 @@ func (q *Queries) SellerCheckTags(ctx context.Context, arg SellerCheckTagsParams
 const sellerDeleteCoupon = `-- name: SellerDeleteCoupon :execrows
 DELETE FROM "coupon" c
 WHERE c."id" = $2
-    AND "shop_id" = (
+    AND "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
 `
 
@@ -157,7 +157,7 @@ WHERE EXISTS (
         FROM "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
             AND c."id" = $3
     )
     AND "coupon_id" = $3
@@ -180,11 +180,11 @@ func (q *Queries) SellerDeleteCouponTag(ctx context.Context, arg SellerDeleteCou
 
 const sellerDeleteProduct = `-- name: SellerDeleteProduct :execrows
 DELETE FROM "product" p
-WHERE "shop_id" = (
+WHERE "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
     AND p."id" = $2
 `
@@ -210,7 +210,7 @@ WHERE EXISTS (
             JOIN "shop" s ON s."id" = p."shop_id"
         WHERE s."seller_name" = $1
             AND p."id" = $3
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
     AND "product_id" = $3
     AND "tag_id" = $2
@@ -379,7 +379,7 @@ func (q *Queries) SellerGetCouponTag(ctx context.Context, arg SellerGetCouponTag
 
 const sellerGetInfo = `-- name: SellerGetInfo :one
 SELECT "name",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "description",
     "enabled"
 FROM "shop"
@@ -406,34 +406,17 @@ func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerG
 }
 
 const sellerGetOrder = `-- name: SellerGetOrder :many
-SELECT oh."id",
-    op."product_name",
-    oh."image_id" as "thumbnail_url",
+SELECT "id",
     oh."shipment",
     oh."total_price",
     oh."status",
-    oh."created_at",
-    u."name" AS "user_name",
-    u."image_id" AS "user_image_url"
-FROM "order_history" as oh,
-    "user" AS u,
-    (
-        SELECT pa."name" AS "product_name"
-        FROM "order_history" as oh,
-            "order_detail" AS od,
-            "product_archive" AS pa
-        WHERE oh."id" = od."order_id"
-            AND od."product_id" = pa."id"
-            AND od."product_version" = pa."version"
-        ORDER BY pa."price" DESC
-        LIMIT 1
-    ) AS op
-WHERE "shop_id" = (
+    oh."created_at"
+FROM "order_history" AS oh
+WHERE "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
     )
-    AND u."id" = oh."user_id"
 ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3
 `
@@ -445,15 +428,11 @@ type SellerGetOrderParams struct {
 }
 
 type SellerGetOrderRow struct {
-	ID           int32              `json:"id" param:"id"`
-	ProductName  string             `json:"product_name"`
-	ThumbnailUrl string             `json:"thumbnail_url"`
-	Shipment     int32              `json:"shipment"`
-	TotalPrice   int32              `json:"total_price"`
-	Status       OrderStatus        `json:"status"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
-	UserName     string             `form:"name" json:"user_name"`
-	UserImageUrl string             `json:"user_image_url" swaggertype:"string"`
+	ID         int32              `json:"id" param:"id"`
+	Shipment   int32              `json:"shipment"`
+	TotalPrice int32              `json:"total_price"`
+	Status     OrderStatus        `json:"status"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) ([]SellerGetOrderRow, error) {
@@ -467,14 +446,10 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 		var i SellerGetOrderRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.ProductName,
-			&i.ThumbnailUrl,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
 			&i.CreatedAt,
-			&i.UserName,
-			&i.UserImageUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -491,7 +466,7 @@ SELECT product_archive."id",
     product_archive."name",
     product_archive."description",
     product_archive."price",
-    product_archive."image_id" as "image_url",
+    product_archive."image_id" AS "image_url",
     order_detail.quantity
 FROM "order_detail"
     LEFT JOIN product_archive ON order_detail.product_id = product_archive.id
@@ -546,14 +521,13 @@ func (q *Queries) SellerGetOrderDetail(ctx context.Context, arg SellerGetOrderDe
 
 const sellerGetOrderHistory = `-- name: SellerGetOrderHistory :one
 SELECT "order_history"."id",
-    "order_history"."image_id" as "thumbnail_url",
     "order_history"."shipment",
     "order_history"."total_price",
     "order_history"."status",
     "order_history"."created_at",
-    "user"."id" as "user_id",
-    "user"."name" as "user_name",
-    "user"."image_id" as "user_image_url"
+    "user"."id" AS "user_id",
+    "user"."name" AS "user_name",
+    "user"."image_id" AS "user_image_url"
 FROM "order_history"
     JOIN shop ON "order_history".shop_id = shop.id
     JOIN "user" ON "order_history".user_id = "user"."id"
@@ -568,7 +542,6 @@ type SellerGetOrderHistoryParams struct {
 
 type SellerGetOrderHistoryRow struct {
 	ID           int32              `json:"id" param:"id"`
-	ThumbnailUrl string             `json:"thumbnail_url"`
 	Shipment     int32              `json:"shipment"`
 	TotalPrice   int32              `json:"total_price"`
 	Status       OrderStatus        `json:"status"`
@@ -583,7 +556,6 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 	var i SellerGetOrderHistoryRow
 	err := row.Scan(
 		&i.ID,
-		&i.ThumbnailUrl,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -648,7 +620,7 @@ FROM "product_tag" pt
     JOIN "tag" t ON t."id" = pt."tag_id"
 WHERE s."seller_name" = $1
     AND "product_id" = $2
-    AND s."enabled" = true
+    AND s."enabled" = TRUE
 `
 
 type SellerGetProductTagParams struct {
@@ -682,7 +654,7 @@ func (q *Queries) SellerGetProductTag(ctx context.Context, arg SellerGetProductT
 }
 
 const sellerInsertCoupon = `-- name: SellerInsertCoupon :one
-INSERT INTO "coupon" (
+INSERT INTO "coupon"(
         "type",
         "scope",
         "shop_id",
@@ -699,7 +671,7 @@ VALUES (
             SELECT s."id"
             FROM "shop" s
             WHERE s."seller_name" = $1
-                AND s."enabled" = true
+                AND s."enabled" = TRUE
         ),
         $3,
         $4,
@@ -763,7 +735,7 @@ func (q *Queries) SellerInsertCoupon(ctx context.Context, arg SellerInsertCoupon
 }
 
 const sellerInsertCouponTag = `-- name: SellerInsertCouponTag :one
-INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
+INSERT INTO "coupon_tag"("tag_id", "coupon_id")
 SELECT $2,
     $3
 WHERE EXISTS (
@@ -771,7 +743,7 @@ WHERE EXISTS (
         FROM "tag" t
             JOIN "shop" s ON s."id" = t."shop_id"
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
             AND t."id" = $2
     )
     AND EXISTS (
@@ -779,7 +751,7 @@ WHERE EXISTS (
         FROM "coupon" c
             JOIN "shop" s ON s."id" = c."shop_id"
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
             AND c."id" = $3
     )
 RETURNING coupon_id, tag_id
@@ -799,7 +771,7 @@ func (q *Queries) SellerInsertCouponTag(ctx context.Context, arg SellerInsertCou
 }
 
 const sellerInsertCouponTags = `-- name: SellerInsertCouponTags :exec
-INSERT INTO "coupon_tag" ("coupon_id", "tag_id")
+INSERT INTO "coupon_tag"("coupon_id", "tag_id")
 VALUES ($1, unnest($2::INT []))
 `
 
@@ -832,7 +804,7 @@ VALUES (
             SELECT s."id"
             FROM "shop" s
             WHERE s."seller_name" = $1
-                AND s."enabled" = true
+                AND s."enabled" = TRUE
         ),
         $2,
         $3,
@@ -847,7 +819,7 @@ RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "expire_date",
     "edit_date",
     "stock",
@@ -907,7 +879,7 @@ func (q *Queries) SellerInsertProduct(ctx context.Context, arg SellerInsertProdu
 }
 
 const sellerInsertProductTag = `-- name: SellerInsertProductTag :one
-INSERT INTO "product_tag" ("tag_id", "product_id")
+INSERT INTO "product_tag"("tag_id", "product_id")
 SELECT $2,
     $3
 WHERE EXISTS (
@@ -916,7 +888,7 @@ WHERE EXISTS (
             JOIN "shop" s ON s."id" = t."shop_id"
         WHERE s."seller_name" = $1
             AND t."id" = $2
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
     AND EXISTS (
         SELECT 1
@@ -942,7 +914,7 @@ func (q *Queries) SellerInsertProductTag(ctx context.Context, arg SellerInsertPr
 }
 
 const sellerInsertProductTags = `-- name: SellerInsertProductTags :exec
-INSERT INTO "product_tag" ("product_id", "tag_id")
+INSERT INTO "product_tag"("product_id", "tag_id")
 VALUES ($1, unnest($2::INT []))
 `
 
@@ -957,13 +929,13 @@ func (q *Queries) SellerInsertProductTags(ctx context.Context, arg SellerInsertP
 }
 
 const sellerInsertTag = `-- name: SellerInsertTag :one
-INSERT INTO "tag" ("shop_id", "name")
+INSERT INTO "tag"("shop_id", "name")
 VALUES (
         (
             SELECT s."id"
             FROM "shop" s
             WHERE s."seller_name" = $1
-                AND s."enabled" = true
+                AND s."enabled" = TRUE
         ),
         $2
     )
@@ -991,7 +963,7 @@ func (q *Queries) SellerInsertTag(ctx context.Context, arg SellerInsertTagParams
 const sellerProductList = `-- name: SellerProductList :many
 SELECT p."id",
     p."name",
-    p."image_id" as "image_url",
+    p."image_id" AS "image_url",
     p."price",
     p."sales",
     p."stock",
@@ -1125,11 +1097,11 @@ SET "type" = COALESCE($3, "type"),
     "start_date" = COALESCE($7, "start_date"),
     "expire_date" = COALESCE($8, "expire_date")
 WHERE c."id" = $2
-    AND "shop_id" = (
+    AND "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
 RETURNING c."id",
     c."type",
@@ -1199,7 +1171,7 @@ SET "image_id" = CASE
     "enabled" = COALESCE($4, "enabled")
 WHERE "seller_name" = $1
 RETURNING "name",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "description",
     "enabled"
 `
@@ -1240,16 +1212,15 @@ func (q *Queries) SellerUpdateInfo(ctx context.Context, arg SellerUpdateInfoPara
 const sellerUpdateOrderStatus = `-- name: SellerUpdateOrderStatus :one
 UPDATE "order_history" oh
 SET "status" = $3
-WHERE "shop_id" = (
+WHERE "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
     AND oh."id" = $2
     AND oh."status" = $4
 RETURNING oh."id",
-    oh."image_id" as "thumbnail_url",
     oh."shipment",
     oh."total_price",
     oh."status",
@@ -1264,12 +1235,11 @@ type SellerUpdateOrderStatusParams struct {
 }
 
 type SellerUpdateOrderStatusRow struct {
-	ID           int32              `json:"id" param:"id"`
-	ThumbnailUrl string             `json:"thumbnail_url"`
-	Shipment     int32              `json:"shipment"`
-	TotalPrice   int32              `json:"total_price"`
-	Status       OrderStatus        `json:"status"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	ID         int32              `json:"id" param:"id"`
+	Shipment   int32              `json:"shipment"`
+	TotalPrice int32              `json:"total_price"`
+	Status     OrderStatus        `json:"status"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateOrderStatusParams) (SellerUpdateOrderStatusRow, error) {
@@ -1282,7 +1252,6 @@ func (q *Queries) SellerUpdateOrderStatus(ctx context.Context, arg SellerUpdateO
 	var i SellerUpdateOrderStatusRow
 	err := row.Scan(
 		&i.ID,
-		&i.ThumbnailUrl,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -1305,18 +1274,18 @@ SET "name" = COALESCE($3, "name"),
     "stock" = COALESCE($8, "stock"),
     "edit_date" = NOW(),
     "version" = "version" + 1
-WHERE "shop_id" = (
+WHERE "shop_id" =(
         SELECT s."id"
         FROM "shop" s
         WHERE s."seller_name" = $1
-            AND s."enabled" = true
+            AND s."enabled" = TRUE
     )
     AND p."id" = $2
 RETURNING "id",
     "name",
     "description",
     "price",
-    "image_id" as "image_url",
+    "image_id" AS "image_url",
     "expire_date",
     "edit_date",
     "stock",

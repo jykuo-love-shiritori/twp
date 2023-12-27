@@ -69,8 +69,8 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			logger.Errorw("failed to validate product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid {
-			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
+		} else if !valid.Bool {
+			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now or cart is not valid")
 		}
 		productCount := make(map[int32]int32)
 		productTag := make(map[int32]*tagSet)
@@ -126,7 +126,7 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			cd.Discount = discount.Float64
 			// if coupon is shipping coupon, calculate discount and continue
 			if cd.Type == db.CouponTypeShipping {
-				cd.DiscountValue = result.Shipment * (int32(cd.Discount / 100))
+				cd.DiscountValue = result.Shipment
 				totalDiscount += cd.DiscountValue
 				result.Coupons = append(result.Coupons, cd)
 				continue
@@ -210,8 +210,8 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if err != nil {
 			logger.Errorw("failed to validate product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid {
-			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
+		} else if !valid.Bool {
+			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now or cart is not valid")
 		}
 		// all the following logic is basically same as the GetCheckout
 		// the only diff is that we need to update product version and no return
@@ -249,16 +249,6 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 			productTag[product.ProductID] = NewTagSet(tags)
 		}
-		// this will validate cart and product legitimacy
-		if valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
-			Username: username,
-			CartID:   cartID,
-		}); err != nil {
-			logger.Errorw("failed to validate product in cart", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid {
-			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now")
-		}
 		shipment := getShipmentFee(int32(subtotal))
 		var params db.GetSortedCouponsFromCartParams
 		params.CartID = cartID
@@ -279,7 +269,7 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 			dc := discount.Float64
 			if coupon.Type == db.CouponTypeShipping {
-				totalDiscount += shipment * (int32(dc / 100))
+				totalDiscount += shipment
 				continue
 			}
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
