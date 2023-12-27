@@ -71,7 +71,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
     status,
     refetch,
   } = useQuery({
-    queryKey: ['sellerGetCouponDetail'],
+    queryKey: ['sellerGetCouponDetail', data.id],
     queryFn: async () => {
       const resp = await fetch(`/api/seller/coupon/${data.id}`, {
         method: 'GET',
@@ -194,7 +194,7 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
     status,
     refetch,
   } = useQuery({
-    queryKey: ['adminGetCouponDetail'],
+    queryKey: ['adminGetCouponDetail', data.id],
     queryFn: async () => {
       const resp = await fetch(`/api/admin/coupon/${data.id}`, {
         method: 'GET',
