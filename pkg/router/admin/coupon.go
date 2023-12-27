@@ -95,7 +95,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to parse discount", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
 		}
-		if discount.Float64 < 0 || (coupon.Type == db.CouponTypeFixed && discount.Float64 > 100) {
+		if discount.Float64 < 0 || (coupon.Type == db.CouponTypePercentage && discount.Float64 > 100) {
 			logger.Errorw("discount is invalid", "discount", discount)
 			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
