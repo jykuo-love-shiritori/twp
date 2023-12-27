@@ -4161,9 +4161,6 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
-                "thumbnail_url": {
-                    "type": "string"
-                },
                 "total_price": {
                     "type": "integer"
                 },
@@ -4187,26 +4184,14 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "product_name": {
-                    "type": "string"
-                },
                 "shipment": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
-                "thumbnail_url": {
-                    "type": "string"
-                },
                 "total_price": {
                     "type": "integer"
-                },
-                "user_image_url": {
-                    "type": "string"
-                },
-                "user_name": {
-                    "type": "string"
                 }
             }
         },
@@ -4430,9 +4415,6 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
-                },
-                "thumbnail_url": {
-                    "type": "string"
                 },
                 "total_price": {
                     "type": "integer"

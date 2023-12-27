@@ -131,7 +131,7 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			cd.Discount = discount.Float64
 			// if coupon is shipping coupon, calculate discount and continue
 			if cd.Type == db.CouponTypeShipping {
-				cd.DiscountValue = result.Shipment * (int32(cd.Discount / 100))
+				cd.DiscountValue = result.Shipment
 				totalDiscount += cd.DiscountValue
 				result.Coupons = append(result.Coupons, cd)
 				continue
@@ -277,7 +277,7 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			}
 			dc := discount.Float64
 			if coupon.Type == db.CouponTypeShipping {
-				totalDiscount += shipment * (int32(dc / 100))
+				totalDiscount += shipment
 				continue
 			}
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
