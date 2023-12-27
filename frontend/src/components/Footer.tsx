@@ -1,5 +1,5 @@
 import '@style/global.css';
-import Logoimage_url from '@assets/images/logo.png';
+import LogoImgUrl from '@assets/images/logo.png';
 
 const Footer = () => {
   const FooterStyle = {
@@ -14,7 +14,7 @@ const Footer = () => {
 
   return (
     <div className='center' style={FooterStyle}>
-      <img src={Logoimage_url} style={{ height: '100%' }}></img>
+      <img src={LogoImgUrl} style={{ height: '100%' }}></img>
       <span className='white_word'>&nbsp;&nbsp;Copyright Ⓒ 2023 All right reserved</span>
     </div>
   );

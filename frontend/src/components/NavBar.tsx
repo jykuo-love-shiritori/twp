@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 
-import Logoimage_url from '@assets/images/logo.png';
+import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
 import { useAuth } from '@lib/Auth';
@@ -51,7 +51,7 @@ const NavBar = () => {
         <Row style={{ width: '100%' }}>
           <Col xs={2} className='center'>
             <NavbarBrand href='/' className='disappear_desktop'>
-              <img src={Logoimage_url} alt='logo' style={{ width: '35px' }} />
+              <img src={LogoImgUrl} alt='logo' style={{ width: '35px' }} />
             </NavbarBrand>
           </Col>
           <Col xs={8} className='center'>
@@ -206,7 +206,7 @@ const NavBar = () => {
           <Col sm={3}>
             <Link to='/' className='none'>
               <div className='center_vertical'>
-                <img src={Logoimage_url} alt='logo' style={{ width: '35px' }} />
+                <img src={LogoImgUrl} alt='logo' style={{ width: '35px' }} />
                 &nbsp;&nbsp; <span className='nav_title'>Too White Powder</span>
               </div>
             </Link>

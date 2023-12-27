@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import WarningModal from '@components/WarningModal';
 import Footer from '@components/Footer';
-import Loginimage_url from '@assets/images/login.jpg';
+import LoginImgUrl from '@assets/images/login.jpg';
 import FormItem from '@components/FormItem';
 
 interface FormProps {
@@ -67,7 +67,7 @@ const Authorize = () => {
             <div
               className='flex_wrapper'
               style={{
-                background: `url(${Loginimage_url}) no-repeat center center/cover`,
+                background: `url(${LoginImgUrl}) no-repeat center center/cover`,
                 width: '100%',
               }}
             ></div>
