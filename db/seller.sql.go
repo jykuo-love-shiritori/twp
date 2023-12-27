@@ -406,17 +406,30 @@ func (q *Queries) SellerGetInfo(ctx context.Context, sellerName string) (SellerG
 }
 
 const sellerGetOrder = `-- name: SellerGetOrder :many
-SELECT "id",
+SELECT oh."id",
+    op."product_name",
+    op."thumbnail_url",
     oh."shipment",
     oh."total_price",
     oh."status",
     oh."created_at"
 FROM "order_history" AS oh
-WHERE "shop_id" =(
-        SELECT s."id"
-        FROM "shop" s
-        WHERE s."seller_name" = $1
-    )
+    INNER JOIN "shop" AS s ON oh."shop_id" = s."id"
+    LEFT JOIN (
+        SELECT od."order_id",
+            pa."name" AS "product_name",
+            pa."image_id" AS "thumbnail_url",
+            ROW_NUMBER() OVER (
+                PARTITION BY od."order_id"
+                ORDER BY pa."price" DESC
+            ) AS rn
+        FROM "order_detail" AS od
+            INNER JOIN "product_archive" AS pa ON od."product_id" = pa."id"
+            AND od."product_version" = pa."version"
+        ORDER BY pa."price" DESC
+    ) AS op ON oh."id" = op."order_id"
+    AND op.rn = 1
+WHERE s."seller_name" = $1
 ORDER BY "created_at" DESC
 LIMIT $2 OFFSET $3
 `
@@ -428,11 +441,13 @@ type SellerGetOrderParams struct {
 }
 
 type SellerGetOrderRow struct {
-	ID         int32              `json:"id" param:"id"`
-	Shipment   int32              `json:"shipment"`
-	TotalPrice int32              `json:"total_price"`
-	Status     OrderStatus        `json:"status"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
+	ID           int32              `json:"id" param:"id"`
+	ProductName  string             `json:"product_name"`
+	ThumbnailUrl string             `json:"thumbnail_url"`
+	Shipment     int32              `json:"shipment"`
+	TotalPrice   int32              `json:"total_price"`
+	Status       OrderStatus        `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at" swaggertype:"string"`
 }
 
 func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) ([]SellerGetOrderRow, error) {
@@ -446,6 +461,8 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 		var i SellerGetOrderRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.ProductName,
+			&i.ThumbnailUrl,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
