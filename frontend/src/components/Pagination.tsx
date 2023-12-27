@@ -5,7 +5,6 @@ interface Props {
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void;
   refresh: () => void;
   limit?: number;
-  maxPage?: number;
   isMore?: boolean;
 }
 
@@ -14,9 +13,10 @@ const Pagination = ({
   setSearchParams,
   refresh,
   limit = 10,
-  maxPage = 100,
   isMore = true,
 }: Props) => {
+  const MAX_PAGE = 100;
+
   if (!searchParams.has('offset')) {
     searchParams.set('offset', '0');
   }
@@ -41,7 +41,7 @@ const Pagination = ({
   };
   const onNext = () => {
     const page = getPage();
-    if (page < maxPage && isMore) {
+    if (page < MAX_PAGE && isMore) {
       searchParams.set('offset', (page * limit).toString());
       setSearchParams(searchParams, { replace: true });
       refresh();
@@ -50,7 +50,7 @@ const Pagination = ({
 
   const onSubmit = (data: { newPage: number }) => {
     const inputPage = data.newPage;
-    if (inputPage > 0 && inputPage < maxPage && (isMore || (!isMore && inputPage < getPage()))) {
+    if (inputPage > 0 && inputPage < MAX_PAGE && (isMore || (!isMore && inputPage < getPage()))) {
       searchParams.set('offset', ((inputPage - 1) * limit).toString());
       setSearchParams(searchParams, { replace: true });
       refresh();
@@ -59,7 +59,7 @@ const Pagination = ({
     }
   };
   return (
-    <div className='pagination center_vertical center'>
+    <div className='pagination center_vertical center' style={{ padding: '5px' }}>
       <div className='center' onClick={onPrevious}>
         {'<'}
       </div>

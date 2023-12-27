@@ -22,7 +22,7 @@ interface IUser {
 
 const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) => {
   const onDelete = async () => {
-    const resp = await fetch(`/api/admin/${data.username}`, {
+    const resp = await fetch(`/api/admin/user/${data.username}`, {
       method: 'DELETE',
       headers: { accept: 'application/json' },
     });

@@ -25,3 +25,15 @@ export const CheckFetchStatus = ({ status }: FetchStatusProps) => {
       return <div>Error...</div>;
   }
 };
+
+type MutateStatusProps = {
+  status: 'error' | 'idle' | 'pending';
+};
+export const CheckMutateStatus = ({ status }: MutateStatusProps) => {
+  switch (status) {
+    case 'pending':
+      return <div>Loading...</div>;
+    case 'error':
+      return <div>Error...</div>;
+  }
+};

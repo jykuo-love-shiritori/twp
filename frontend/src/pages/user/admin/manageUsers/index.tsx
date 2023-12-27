@@ -1,12 +1,11 @@
 import { Col, Row } from 'react-bootstrap';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { RouteOnNotOK } from '@lib/Status';
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckMutateStatus, RouteOnNotOK } from '@lib/Status';
 import Pagination from '@components/Pagination';
 import UserTableRow from '@components/UserTableRow';
 import UserTableHeader from '@components/UserTableHeader';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ICreditCard {
   CVV: string;
@@ -36,39 +35,36 @@ const ManageUser = () => {
   const {
     data: fetchedData,
     status,
-    refetch,
-  } = useQuery({
-    queryKey: ['adminGetUser'],
-    queryFn: async () => {
-      if (!searchParams.has('offset')) {
-        searchParams.set('offset', '0');
+    mutate,
+  } = useMutation({
+    mutationKey: ['adminGetUser'],
+    mutationFn: async (isPage: boolean) => {
+      if (!isPage) {
+        const newSearchParams = new URLSearchParams({ offset: '0', limit: itemLimit.toString() });
+        setSearchParams(newSearchParams, { replace: true });
       }
-      if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== itemLimit) {
-        searchParams.set('limit', itemLimit.toString());
-      }
-      console.log('/api/admin/user?' + searchParams.toString());
       const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
         method: 'GET',
         headers: { accept: 'application/json' },
       });
       RouteOnNotOK(resp, navigate);
-      console.log(resp);
-      // const response = await resp.json();
-      const response = [] as IUser[];
+      const response = await resp.json();
       setIsMore(response.length === itemLimit);
-      return response;
+      return response as IUser[];
     },
-    select: (data) => data as IUser[],
-    enabled: true,
-    refetchOnWindowFocus: false,
   });
 
   const refresh = () => {
-    refetch();
+    mutate(true);
   };
 
+  // refresh on first render
+  useEffect(() => {
+    mutate(false);
+  }, [mutate]);
+
   if (status !== 'success') {
-    return <CheckFetchStatus status={status} />;
+    return <CheckMutateStatus status={status} />;
   }
 
   return (
