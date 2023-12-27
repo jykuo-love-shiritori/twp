@@ -169,35 +169,17 @@ func (q *Queries) AddProductToCart(ctx context.Context, arg AddProductToCartPara
 
 const checkout = `-- name: Checkout :exec
 WITH insert_order AS (
-INSERT INTO "order_history"("user_id", "shop_id", "image_id", "shipment", "total_price", "status")
+INSERT INTO "order_history"("user_id", "shop_id", "shipment", "total_price", "status")
     SELECT
         U."id",
         S."id",
-        T."image_id",
         $2,
         $3,
         'paid'
     FROM
         "user" AS U,
         "shop" AS S,
-        "cart" AS C,
-(
-            SELECT
-                "image_id"
-            FROM
-                "product"
-            WHERE
-                "id" =(
-                    SELECT
-                        "product_id"
-                    FROM
-                        "cart_product"
-                    WHERE
-                        "cart_id" = $4
-                    ORDER BY
-                        "price" DESC
-                    LIMIT 1 -- the most expensive product's image_id will be used as the thumbnail ↙️
-)) AS T
+        "cart" AS C
     WHERE
         U."username" = $1
         AND U."id" = C."user_id"
@@ -637,7 +619,7 @@ SELECT
     O."id",
     s."name" AS "shop_name",
     s."image_id" AS "shop_image_url",
-    O."image_id" AS "thumbnail_url",
+    OP."thumbnail_url",
     OP."product_name",
     O."shipment",
     O."total_price",
@@ -650,11 +632,16 @@ FROM
     LEFT JOIN (
         SELECT
             OD."order_id",
-            PA."name" AS "product_name"
+            PA."name" AS "product_name",
+            PA."image_id" AS "thumbnail_url",
+            ROW_NUMBER() OVER (PARTITION BY OD."order_id" ORDER BY PA."price" DESC) AS rn
         FROM
             "order_detail" AS OD
             INNER JOIN "product_archive" AS PA ON OD."product_id" = PA."id"
-                AND OD."product_version" = PA."version") AS OP ON O."id" = OP."order_id"
+                AND OD."product_version" = PA."version"
+            ORDER BY
+                PA."price" DESC) AS OP ON O."id" = OP."order_id"
+    AND OP.rn = 1
 WHERE
     U."username" = $1
 ORDER BY
@@ -1110,13 +1097,13 @@ insert_archive AS (
 INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
     SELECT
         P."id",
-        P."version" + COALESCE(0,(
-                SELECT
-                    1
-                FROM Check_version
-                WHERE
-                    "product_existed" = TRUE
-                    AND "version_existed" = FALSE)),
+        P."version" + COALESCE((
+            SELECT
+                1
+            FROM Check_version
+            WHERE
+                "product_existed" = TRUE
+                AND "version_existed" = FALSE), 0),
         P."name",
         P."description",
         P."price",

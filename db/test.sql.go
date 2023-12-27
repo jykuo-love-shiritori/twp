@@ -123,9 +123,10 @@ func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (int64, erro
 }
 
 const testInsertCart = `-- name: TestInsertCart :one
-INSERT INTO "cart" ("id", "user_id", "shop_id")
-VALUES ($1, $2, $3)
-RETURNING id, user_id, shop_id
+INSERT INTO "cart"("id", "user_id", "shop_id")
+    VALUES ($1, $2, $3)
+RETURNING
+    id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
@@ -142,9 +143,10 @@ func (q *Queries) TestInsertCart(ctx context.Context, arg TestInsertCartParams) 
 }
 
 const testInsertCartCoupon = `-- name: TestInsertCartCoupon :one
-INSERT INTO "cart_coupon" ("cart_id", "coupon_id")
-VALUES ($1, $2)
-RETURNING cart_id, coupon_id
+INSERT INTO "cart_coupon"("cart_id", "coupon_id")
+    VALUES ($1, $2)
+RETURNING
+    cart_id, coupon_id
 `
 
 type TestInsertCartCouponParams struct {
@@ -160,13 +162,10 @@ func (q *Queries) TestInsertCartCoupon(ctx context.Context, arg TestInsertCartCo
 }
 
 const testInsertCartProduct = `-- name: TestInsertCartProduct :one
-INSERT INTO "cart_product" (
-        "cart_id",
-        "product_id",
-        "quantity"
-    )
-VALUES ($1, $2, $3)
-RETURNING cart_id, product_id, quantity
+INSERT INTO "cart_product"("cart_id", "product_id", "quantity")
+    VALUES ($1, $2, $3)
+RETURNING
+    cart_id, product_id, quantity
 `
 
 type TestInsertCartProductParams struct {
@@ -183,19 +182,10 @@ func (q *Queries) TestInsertCartProduct(ctx context.Context, arg TestInsertCartP
 }
 
 const testInsertCoupon = `-- name: TestInsertCoupon :one
-INSERT INTO "coupon" (
-        "id",
-        "type",
-        "scope",
-        "shop_id",
-        "name",
-        "description",
-        "discount",
-        "start_date",
-        "expire_date"
-    )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
+INSERT INTO "coupon"("id", "type", "scope", "shop_id", "name", "description", "discount", "start_date", "expire_date")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING
+    id, type, scope, shop_id, name, description, discount, start_date, expire_date
 `
 
 type TestInsertCouponParams struct {
@@ -238,9 +228,10 @@ func (q *Queries) TestInsertCoupon(ctx context.Context, arg TestInsertCouponPara
 }
 
 const testInsertCouponTag = `-- name: TestInsertCouponTag :one
-INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
-VALUES ($1, $2)
-RETURNING coupon_id, tag_id
+INSERT INTO "coupon_tag"("tag_id", "coupon_id")
+    VALUES ($1, $2)
+RETURNING
+    coupon_id, tag_id
 `
 
 type TestInsertCouponTagParams struct {
@@ -256,14 +247,10 @@ func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponT
 }
 
 const testInsertOrderDetail = `-- name: TestInsertOrderDetail :one
-INSERT INTO "order_detail" (
-        "order_id",
-        "product_id",
-        "product_version",
-        "quantity"
-    )
-VALUES ($1, $2, $3, $4)
-RETURNING order_id, product_id, product_version, quantity
+INSERT INTO "order_detail"("order_id", "product_id", "product_version", "quantity")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    order_id, product_id, product_version, quantity
 `
 
 type TestInsertOrderDetailParams struct {
@@ -291,24 +278,16 @@ func (q *Queries) TestInsertOrderDetail(ctx context.Context, arg TestInsertOrder
 }
 
 const testInsertOrderHistory = `-- name: TestInsertOrderHistory :one
-INSERT INTO "order_history" (
-        "id",
-        "user_id",
-        "shop_id",
-        "image_id",
-        "shipment",
-        "total_price",
-        "status"
-    )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_id, shop_id, image_id, shipment, total_price, status, created_at
+INSERT INTO "order_history"("id", "user_id", "shop_id", "shipment", "total_price", "status")
+    VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
 	ID         int32       `json:"id" param:"id"`
 	UserID     int32       `json:"user_id"`
 	ShopID     int32       `json:"shop_id"`
-	ImageID    string      `json:"image_id"`
 	Shipment   int32       `json:"shipment"`
 	TotalPrice int32       `json:"total_price"`
 	Status     OrderStatus `json:"status"`
@@ -319,7 +298,6 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		arg.ID,
 		arg.UserID,
 		arg.ShopID,
-		arg.ImageID,
 		arg.Shipment,
 		arg.TotalPrice,
 		arg.Status,
@@ -329,7 +307,6 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 		&i.ID,
 		&i.UserID,
 		&i.ShopID,
-		&i.ImageID,
 		&i.Shipment,
 		&i.TotalPrice,
 		&i.Status,
@@ -339,35 +316,10 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 }
 
 const testInsertProduct = `-- name: TestInsertProduct :one
-INSERT INTO "product" (
-        "id",
-        "version",
-        "shop_id",
-        "name",
-        "description",
-        "price",
-        "image_id",
-        "expire_date",
-        "edit_date",
-        "stock",
-        "sales",
-        "enabled"
-    )
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        NOW(),
-        $8,
-        $9,
-        $10,
-        $11
-    )
-RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+INSERT INTO "product"("id", "version", "shop_id", "name", "description", "price", "image_id", "expire_date", "edit_date", "stock", "sales", "enabled")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9, $10, $11)
+RETURNING
+    id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type TestInsertProductParams struct {
@@ -417,16 +369,10 @@ func (q *Queries) TestInsertProduct(ctx context.Context, arg TestInsertProductPa
 }
 
 const testInsertProductArchive = `-- name: TestInsertProductArchive :one
-INSERT INTO "product_archive" (
-        "id",
-        "version",
-        "name",
-        "description",
-        "price",
-        "image_id"
-    )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, version, name, description, price, image_id
+INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
+    VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, version, name, description, price, image_id
 `
 
 type TestInsertProductArchiveParams struct {
@@ -460,9 +406,10 @@ func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertPr
 }
 
 const testInsertProductTag = `-- name: TestInsertProductTag :one
-INSERT INTO "product_tag" ("tag_id", "product_id")
-VALUES ($1, $2)
-RETURNING tag_id, product_id
+INSERT INTO "product_tag"("tag_id", "product_id")
+    VALUES ($1, $2)
+RETURNING
+    tag_id, product_id
 `
 
 type TestInsertProductTagParams struct {
@@ -478,16 +425,10 @@ func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProduc
 }
 
 const testInsertShop = `-- name: TestInsertShop :one
-INSERT INTO "shop" (
-        "id",
-        "seller_name",
-        "name",
-        "image_id",
-        "description",
-        "enabled"
-    )
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, seller_name, image_id, name, description, enabled
+INSERT INTO "shop"("id", "seller_name", "name", "image_id", "description", "enabled")
+    VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, seller_name, image_id, name, description, enabled
 `
 
 type TestInsertShopParams struct {
@@ -521,9 +462,10 @@ func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) 
 }
 
 const testInsertTag = `-- name: TestInsertTag :one
-INSERT INTO "tag" ("id", "shop_id", "name")
-VALUES ($1, $2, $3)
-RETURNING id, shop_id, name
+INSERT INTO "tag"("id", "shop_id", "name")
+    VALUES ($1, $2, $3)
+RETURNING
+    id, shop_id, name
 `
 
 type TestInsertTagParams struct {
@@ -540,21 +482,10 @@ func (q *Queries) TestInsertTag(ctx context.Context, arg TestInsertTagParams) (T
 }
 
 const testInsertUser = `-- name: TestInsertUser :one
-INSERT INTO "user" (
-        "id",
-        "username",
-        "password",
-        "name",
-        "email",
-        "address",
-        "image_id",
-        "role",
-        "credit_card",
-        "refresh_token",
-        "enabled"
-    )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+INSERT INTO "user"("id", "username", "password", "name", "email", "address", "image_id", "role", "credit_card", "refresh_token", "enabled")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING
+    id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
 `
 
 type TestInsertUserParams struct {

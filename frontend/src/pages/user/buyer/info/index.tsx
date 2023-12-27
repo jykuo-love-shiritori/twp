@@ -1,12 +1,17 @@
-import { useRef, useState } from 'react';
+import { RouteOnNotOK } from '@lib/Status';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
-interface BuyerInfoProps {
+interface IBuyerInfo {
   name: string;
   email: string;
   address: string;
-  image: File | undefined;
+  image_url: string;
+  image: File | null;
 }
 
 const BuyerItemStyle = {
@@ -31,27 +36,65 @@ const labelStyle = {
 };
 
 const Info = () => {
-  //TODO: get the info from existing user
-  const { register, handleSubmit, watch, setValue } = useForm<BuyerInfoProps>({
+  const navigate = useNavigate();
+  const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IBuyerInfo>({
     defaultValues: {
       name: 'username',
-      image: undefined,
+      image_url: defaultImageUrl,
       address: 'an address',
       email: 'thisIsAnEmail@mail.com',
+      image: null,
     },
   });
-  const OnFormOutput: SubmitHandler<BuyerInfoProps> = (data) => {
-    console.log(data);
-    return data;
+  const OnFormOutput: SubmitHandler<IBuyerInfo> = async (data) => {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('address', data.address);
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    const resp = await fetch('/api/user/info', {
+      method: 'PATCH',
+      headers: {},
+      body: formData,
+    });
+    if (!resp.ok) {
+      RouteOnNotOK(resp, navigate);
+    } else {
+      navigate(0);
+    }
   };
+
+  const { data: fetchedData, isLoading } = useQuery({
+    queryKey: ['userGetInfo'],
+    queryFn: async () => {
+      const resp = await fetch('/api/user/info', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!resp) {
+        RouteOnNotOK(resp, navigate);
+      }
+      return resp.json();
+    },
+    select: (data) => data as IBuyerInfo,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
 
   // icon upload thing
   const [image, setImage] = useState<string | undefined>(undefined);
   const iconOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      //TODO? check file type
-      setValue('image', e.target.files[0]);
-      setImage(URL.createObjectURL(e.target.files[0]));
+      if (!e.target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        alert('not an image');
+      } else {
+        setValue('image', e.target.files[0]);
+        setImage(URL.createObjectURL(e.target.files[0]));
+      }
     }
   };
   const hiddenFileInput = useRef<HTMLInputElement>(null);
@@ -60,6 +103,10 @@ const Info = () => {
       hiddenFileInput.current.click();
     }
   };
+
+  useEffect(() => {
+    reset({ ...fetchedData });
+  }, [fetchedData, isLoading, reset]);
 
   return (
     <div>
@@ -82,7 +129,7 @@ const Info = () => {
                       ref={hiddenFileInput}
                     />
                     <img
-                      src={image ? image : '/placeholder/person.png'}
+                      src={image ?? getValues('image_url')}
                       style={userImgStyle}
                       onClick={handleIconClick}
                     />
@@ -100,19 +147,17 @@ const Info = () => {
           <Col xs={12} md={6}>
             <Row>
               <Col xs={12} style={labelStyle}>
-                Userame
+                Username
               </Col>
               <Col xs={12} className='form_item_wrapper'>
                 <input type='text' {...register('name', { required: true })} />
               </Col>
-
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
                 Email
               </Col>
               <Col xs={12} className='form_item_wrapper'>
-                <input type='text' {...register('email', { required: true })} />
+                <input type='email' {...register('email', { required: true })} />
               </Col>
-
               <Col xs={12} style={{ ...labelStyle, paddingTop: '24px' }}>
                 Address
               </Col>
