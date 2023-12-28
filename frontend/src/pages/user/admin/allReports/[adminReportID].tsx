@@ -13,6 +13,13 @@ interface SellersProps extends SellerItemProps {
   total_sales: number;
 }
 
+interface AdminReportProps {
+  month: number;
+  sellers: SellersProps[];
+  total: number;
+  year: number;
+}
+
 const reportPageStyle = {
   borderRadius: '50px 50px 0px 0px',
   border: '1px solid var(--button_border)',
@@ -33,7 +40,7 @@ const AdminReportEach = () => {
   ).toISOString();
 
   const { status, data: adminReport } = useQuery({
-    queryKey: ['adminReport'],
+    queryKey: ['adminReport', year, month],
     queryFn: async () => {
       const response = await fetch(`/api/admin/report?date=${rfc3339Date}`, {
         headers: {
@@ -43,7 +50,7 @@ const AdminReportEach = () => {
       if (!response.ok) {
         RouteOnNotOK(response, navigate);
       }
-      return await response.json();
+      return (await response.json()) as AdminReportProps;
     },
   });
 
