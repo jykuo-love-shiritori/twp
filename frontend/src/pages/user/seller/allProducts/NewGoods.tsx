@@ -81,15 +81,21 @@ const EmptyGoods = () => {
       if (!response.ok) {
         throw new Error('add tag failed');
       }
-      return response.json();
+      return await response.json();
     },
+
     onSuccess: (responseData: TagProps) => {
       console.log('success!', responseData);
-      setTags((prevTags) => [...prevTags, responseData]);
-      setValue(
-        'tags',
-        tags.map((tag) => tag.id),
-      );
+      setTags((prevTags) => {
+        const newTags = [...prevTags, responseData];
+
+        setValue(
+          'tags',
+          newTags.map((tag) => tag.id),
+        );
+
+        return newTags;
+      });
     },
     onError: (error: Error) => {
       console.log('not right', error);
@@ -106,7 +112,7 @@ const EmptyGoods = () => {
       if (!response.ok) {
         throw new Error('query tag failed');
       }
-      return response.json();
+      return await response.json();
     },
     onSuccess: (responseData: TagProps[]) => {
       console.log('success to query', responseData);
@@ -124,7 +130,7 @@ const EmptyGoods = () => {
       const response = await fetch('/api/seller/product', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           Accept: 'application/json',
         },
         body: JSON.stringify(data),
@@ -132,7 +138,7 @@ const EmptyGoods = () => {
       if (!response.ok) {
         throw new Error('add tag failed');
       }
-      return response.json();
+      return await response.json();
     },
 
     onSuccess: (responseData: TagProps) => {
@@ -164,6 +170,8 @@ const EmptyGoods = () => {
 
       // TODO : seller name need to be change to corresponding user
       await addTag.mutate({ name: input, seller_name: 'user1' });
+
+      console.log('check if all tags are in', tags);
 
       Reset();
     }
