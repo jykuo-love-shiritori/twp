@@ -22,7 +22,7 @@ type TagParams struct {
 // @Tags			Seller, Shop, Tag
 // @Param			name	query	string	true	"search tag name start with"	minlength(1)
 // @Produce		json
-// @Success		200 {array}	db.SellerSearchTagRow
+// @Success		200	{array}		db.SellerSearchTagRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/seller/tag [get]
@@ -56,7 +56,7 @@ func GetTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Accept			json
 // @Param			name	body	TagParams	true	"insert tag"
 // @Produce		json
-// @Success		200 {object}	db.SellerInsertTagRow
+// @Success		200	{object}	db.SellerInsertTagRow
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		409	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
