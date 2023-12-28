@@ -85,7 +85,7 @@ const EmptyGoods = () => {
     },
 
     onSuccess: (responseData: TagProps) => {
-      console.log('success!', responseData);
+      console.log('adding tag succeed', responseData);
       setTags((prevTags) => {
         const newTags = [...prevTags, responseData];
 
@@ -98,7 +98,7 @@ const EmptyGoods = () => {
       });
     },
     onError: (error: Error) => {
-      console.log('not right', error);
+      console.log('adding tag failed', error);
     },
   });
 
@@ -121,31 +121,46 @@ const EmptyGoods = () => {
       setTagExists(tagNames.includes(tag));
     },
     onError: (error: Error) => {
-      console.log('not right on query', error);
+      console.log('failed on query', error);
     },
   });
 
   const addProduct = useMutation({
     mutationFn: async (data: ProductProps) => {
+      if (!CheckDataInvalid(data)) {
+        throw new Error('Invalid data');
+      }
+
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('image', data.image);
+      formData.append('price', String(data.price));
+      formData.append('expire_date', new Date(data.expire_date).toISOString());
+      formData.append('stock', String(data.stock));
+      formData.append('enable', data.enable);
+      formData.append('tags', data.tags.join(','));
+
       const response = await fetch('/api/seller/product', {
         method: 'POST',
         headers: {
-          'Content-Type': 'multipart/form-data',
           Accept: 'application/json',
         },
-        body: JSON.stringify(data),
+        body: formData,
+        redirect: 'follow',
       });
       if (!response.ok) {
-        throw new Error('add tag failed');
+        throw new Error('add product failed');
       }
       return await response.json();
     },
 
     onSuccess: (responseData: TagProps) => {
       console.log('success on add product', responseData);
+      navigate('/user/seller/manageProducts');
     },
     onError: (error: Error) => {
-      console.log('not right on add product', error);
+      console.log('failed on add product', error);
     },
   });
 
@@ -200,10 +215,53 @@ const EmptyGoods = () => {
     setTagExists(false);
   };
 
+  const CheckDataInvalid = (data: ProductProps) => {
+    console.log(data.expire_date);
+
+    // if i remove toString() it tells me "Argument of type 'number' is not assignable to parameter of type 'string'.""
+    if (Number.isNaN(parseInt(data.price.toString()))) {
+      alert('please enter numbers in price!ddd');
+      return false;
+    }
+
+    if (Number.isNaN(parseInt(data.stock.toString()))) {
+      alert('please enter numbers in price!ddd');
+      return false;
+    }
+
+    if (data.price <= 0) {
+      alert("price can't be 0 or smaller than 0!");
+      return false;
+    }
+
+    if (data.stock <= 0) {
+      alert("stock can't be 0 or smaller than 0!");
+      return false;
+    }
+
+    if (data.image == undefined) {
+      alert('must has product image!');
+      return false;
+    }
+
+    if (new Date() > new Date(data.expire_date)) {
+      alert('product already expired!');
+      return false;
+    }
+
+    if (data.tags == undefined) {
+      alert('must have one tag');
+      return false;
+    }
+
+    return true;
+  };
+
   const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       if (!e.target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/i)) {
         alert('not an image');
+        return;
       } else {
         setValue('image', e.target.files[0]);
         setFile(URL.createObjectURL(e.target.files[0]));
@@ -214,7 +272,6 @@ const EmptyGoods = () => {
   const onSubmit: SubmitHandler<ProductProps> = async (data) => {
     console.log(data);
     await addProduct.mutate(data);
-    // navigate('/user/seller/manageProducts');
   };
 
   return (
@@ -347,7 +404,7 @@ const EmptyGoods = () => {
               </FormItem>
 
               <FormItem label='Best Before Date'>
-                <textarea {...register('expire_date', { required: true })} />
+                <input type='date' {...register('expire_date', { required: true })} />
               </FormItem>
             </div>
           </Col>
