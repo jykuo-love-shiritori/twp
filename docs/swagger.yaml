@@ -675,6 +675,10 @@ definitions:
         type: string
       total_price:
         type: integer
+      user_image_url:
+        type: string
+      user_name:
+        type: string
     type: object
   db.SellerGetProductDetailRow:
     properties:

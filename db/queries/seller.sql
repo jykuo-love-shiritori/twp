@@ -145,12 +145,15 @@ WHERE c."id" = $2
 SELECT oh."id",
     op."product_name",
     op."thumbnail_url",
+    u."name" AS "user_name",
+    u."image_id" AS "user_image_url",
     oh."shipment",
     oh."total_price",
     oh."status",
     oh."created_at"
 FROM "order_history" AS oh
     INNER JOIN "shop" AS s ON oh."shop_id" = s."id"
+    INNER JOIN "user" AS u ON oh."user_id" = u."id"
     LEFT JOIN (
         SELECT od."order_id",
             pa."name" AS "product_name",

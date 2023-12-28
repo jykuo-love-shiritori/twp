@@ -54,6 +54,7 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 		}
 		for i := range orders {
 			orders[i].ThumbnailUrl = mc.GetFileURL(c.Request().Context(), orders[i].ThumbnailUrl)
+			orders[i].UserImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].UserImageUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}

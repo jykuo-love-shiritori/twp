@@ -4198,6 +4198,12 @@ const docTemplate = `{
                 },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },

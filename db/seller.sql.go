@@ -409,12 +409,15 @@ const sellerGetOrder = `-- name: SellerGetOrder :many
 SELECT oh."id",
     op."product_name",
     op."thumbnail_url",
+    u."name" AS "user_name",
+    u."image_id" AS "user_image_url",
     oh."shipment",
     oh."total_price",
     oh."status",
     oh."created_at"
 FROM "order_history" AS oh
     INNER JOIN "shop" AS s ON oh."shop_id" = s."id"
+    INNER JOIN "user" AS u ON oh."user_id" = u."id"
     LEFT JOIN (
         SELECT od."order_id",
             pa."name" AS "product_name",
@@ -444,6 +447,8 @@ type SellerGetOrderRow struct {
 	ID           int32              `json:"id" param:"id"`
 	ProductName  string             `json:"product_name"`
 	ThumbnailUrl string             `json:"thumbnail_url"`
+	UserName     string             `form:"name" json:"user_name"`
+	UserImageUrl string             `json:"user_image_url" swaggertype:"string"`
 	Shipment     int32              `json:"shipment"`
 	TotalPrice   int32              `json:"total_price"`
 	Status       OrderStatus        `json:"status"`
@@ -463,6 +468,8 @@ func (q *Queries) SellerGetOrder(ctx context.Context, arg SellerGetOrderParams) 
 			&i.ID,
 			&i.ProductName,
 			&i.ThumbnailUrl,
+			&i.UserName,
+			&i.UserImageUrl,
 			&i.Shipment,
 			&i.TotalPrice,
 			&i.Status,
