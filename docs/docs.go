@@ -1657,7 +1657,7 @@ const docTemplate = `{
                 "summary": "Seller add coupon tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "coupon id",
                         "name": "id",
                         "in": "path",
@@ -1711,7 +1711,7 @@ const docTemplate = `{
                 "summary": "Seller delete coupon tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "coupon id",
                         "name": "id",
                         "in": "path",
@@ -2380,7 +2380,7 @@ const docTemplate = `{
                 "summary": "Seller add product tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "product id",
                         "name": "id",
                         "in": "path",

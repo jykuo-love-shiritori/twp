@@ -313,7 +313,7 @@ func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on product
 // @Tags			Seller, Shop, Product,Tag
 // @Accept			json
-// @Param			id		path	string			true	"product id"
+// @Param			id		path	int				true	"product id"
 // @Param			tag_id	body	GetTagParams	true	"add tag id"
 // @Produce		json
 // @Success		200	{object}	db.ProductTag

@@ -2186,7 +2186,7 @@ paths:
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       - description: add tag id
         in: body
         name: tag_id
@@ -2227,7 +2227,7 @@ paths:
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       - description: add tag id
         in: body
         name: tag_id
@@ -2727,7 +2727,7 @@ paths:
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       - description: add tag id
         in: body
         name: tag_id
