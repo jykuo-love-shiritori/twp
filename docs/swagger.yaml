@@ -43,6 +43,8 @@ definitions:
         example: john
         type: string
     type: object
+  big.Int:
+    type: object
   buyer.Cart:
     properties:
       cartInfo:
@@ -523,13 +525,6 @@ definitions:
       username:
         type: string
     type: object
-  db.HaveTagNameParams:
-    properties:
-      name:
-        type: string
-      seller_name:
-        type: string
-    type: object
   db.OrderStatus:
     enum:
     - paid
@@ -559,6 +554,23 @@ definitions:
     x-enum-varnames:
     - RoleTypeAdmin
     - RoleTypeCustomer
+  db.SellerBestSellProductRow:
+    properties:
+      image_url:
+        type: string
+      name:
+        type: string
+      order_count:
+        type: integer
+      price:
+        type: number
+      product_id:
+        type: integer
+      total_quantity:
+        type: integer
+      total_sell:
+        $ref: '#/definitions/pgtype.Numeric'
+    type: object
   db.SellerGetCouponDetailRow:
     properties:
       description:
@@ -638,8 +650,6 @@ definitions:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
-      thumbnail_url:
-        type: string
       total_price:
         type: integer
       user_id:
@@ -655,17 +665,25 @@ definitions:
         type: string
       id:
         type: integer
-      image_url:
+      product_name:
         type: string
       shipment:
         type: integer
       status:
         $ref: '#/definitions/db.OrderStatus'
+      thumbnail_url:
+        type: string
       total_price:
         type: integer
+      user_image_url:
+        type: string
+      user_name:
+        type: string
     type: object
   db.SellerGetProductDetailRow:
     properties:
+      description:
+        type: string
       enabled:
         type: boolean
       image_url:
@@ -751,6 +769,13 @@ definitions:
         type: integer
       stock:
         type: integer
+    type: object
+  db.SellerReportRow:
+    properties:
+      order_count:
+        type: integer
+      total_income:
+        $ref: '#/definitions/pgtype.Numeric'
     type: object
   db.SellerSearchTagRow:
     properties:
@@ -917,10 +942,33 @@ definitions:
           $ref: '#/definitions/db.GetShopProductsRow'
         type: array
     type: object
+  pgtype.InfinityModifier:
+    enum:
+    - 1
+    - 0
+    - -1
+    type: integer
+    x-enum-varnames:
+    - Infinity
+    - Finite
+    - NegativeInfinity
   pgtype.Int4:
     properties:
       int32:
         type: integer
+      valid:
+        type: boolean
+    type: object
+  pgtype.Numeric:
+    properties:
+      exp:
+        type: integer
+      infinityModifier:
+        $ref: '#/definitions/pgtype.InfinityModifier'
+      int:
+        $ref: '#/definitions/big.Int'
+      naN:
+        type: boolean
       valid:
         type: boolean
     type: object
@@ -977,10 +1025,19 @@ definitions:
           $ref: '#/definitions/db.SellerGetProductTagRow'
         type: array
     type: object
+  seller.ReportDetail:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/db.SellerBestSellProductRow'
+        type: array
+      report:
+        $ref: '#/definitions/db.SellerReportRow'
+    type: object
   seller.TagParams:
     properties:
-      tag_id:
-        type: integer
+      name:
+        type: string
     type: object
   user.updatePasswordParams:
     properties:
@@ -2204,7 +2261,6 @@ paths:
       parameters:
       - description: update shop name
         in: formData
-        minLength: 6
         name: name
         required: true
         type: string
@@ -2663,7 +2719,7 @@ paths:
       - Shop
       - Product
       - Tag
-  /seller/report/{year}/{month}:
+  /seller/report:
     get:
       description: Get report detail by year and month for shop.
       parameters:
@@ -2671,14 +2727,14 @@ paths:
         in: query
         name: time
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.SellerInsertCouponRow'
+            $ref: '#/definitions/seller.ReportDetail'
         "400":
           description: Bad Request
           schema:
@@ -2734,7 +2790,7 @@ paths:
         name: name
         required: true
         schema:
-          $ref: '#/definitions/db.HaveTagNameParams'
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -3127,6 +3183,10 @@ paths:
             $ref: '#/definitions/db.UserUpdatePasswordRow'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "500":
