@@ -1796,7 +1796,6 @@
                 "summary": "Seller edit shop info",
                 "parameters": [
                     {
-                        "minLength": 6,
                         "type": "string",
                         "description": "update shop name",
                         "name": "name",
@@ -2459,7 +2458,7 @@
                 }
             }
         },
-        "/seller/report/{year}/{month}": {
+        "/seller/report": {
             "get": {
                 "description": "Get report detail by year and month for shop.",
                 "produces": [
@@ -2473,7 +2472,7 @@
                 "summary": "Seller get report detail",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "time",
                         "name": "time",
                         "in": "query",
@@ -2484,7 +2483,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.SellerInsertCouponRow"
+                            "$ref": "#/definitions/seller.ReportDetail"
                         }
                     },
                     "400": {
@@ -2569,7 +2568,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/db.HaveTagNameParams"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -3153,6 +3152,12 @@
                             "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3227,6 +3232,9 @@
                     "example": "john"
                 }
             }
+        },
+        "big.Int": {
+            "type": "object"
         },
         "buyer.Cart": {
             "type": "object",
@@ -3961,17 +3969,6 @@
                 }
             }
         },
-        "db.HaveTagNameParams": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "seller_name": {
-                    "type": "string"
-                }
-            }
-        },
         "db.OrderStatus": {
             "type": "string",
             "enum": [
@@ -4010,6 +4007,32 @@
                 "RoleTypeAdmin",
                 "RoleTypeCustomer"
             ]
+        },
+        "db.SellerBestSellProductRow": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_count": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "total_quantity": {
+                    "type": "integer"
+                },
+                "total_sell": {
+                    "$ref": "#/definitions/pgtype.Numeric"
+                }
+            }
         },
         "db.SellerGetCouponDetailRow": {
             "type": "object",
@@ -4155,20 +4178,35 @@
                 "id": {
                     "type": "integer"
                 },
+                "product_name": {
+                    "type": "string"
+                },
                 "shipment": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/db.OrderStatus"
                 },
+                "thumbnail_url": {
+                    "type": "string"
+                },
                 "total_price": {
                     "type": "integer"
+                },
+                "user_image_url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },
         "db.SellerGetProductDetailRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
@@ -4298,6 +4336,17 @@
                 },
                 "stock": {
                     "type": "integer"
+                }
+            }
+        },
+        "db.SellerReportRow": {
+            "type": "object",
+            "properties": {
+                "order_count": {
+                    "type": "integer"
+                },
+                "total_income": {
+                    "$ref": "#/definitions/pgtype.Numeric"
                 }
             }
         },
@@ -4555,11 +4604,44 @@
                 }
             }
         },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
         "pgtype.Int4": {
             "type": "object",
             "properties": {
                 "int32": {
                     "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Numeric": {
+            "type": "object",
+            "properties": {
+                "exp": {
+                    "type": "integer"
+                },
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "int": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "naN": {
+                    "type": "boolean"
                 },
                 "valid": {
                     "type": "boolean"
@@ -4648,11 +4730,25 @@
                 }
             }
         },
+        "seller.ReportDetail": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.SellerBestSellProductRow"
+                    }
+                },
+                "report": {
+                    "$ref": "#/definitions/db.SellerReportRow"
+                }
+            }
+        },
         "seller.TagParams": {
             "type": "object",
             "properties": {
-                "tag_id": {
-                    "type": "integer"
+                "name": {
+                    "type": "string"
                 }
             }
         },

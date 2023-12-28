@@ -69,7 +69,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
-		//if have file then store in miniopkg/router/seller
+		//if have file then store in minio
 		if err == nil {
 			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
 			if err != nil {
@@ -104,6 +104,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Produce		json
 // @success		200	{object}	db.UserUpdatePasswordRow
 // @Failure		400	{object}	echo.HTTPError
+// @Failure		401	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/security/password [post]
 func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
