@@ -5,6 +5,7 @@ COPY ./frontend/package.json ./frontend/package-lock.json ./
 RUN npm ci
 
 COPY frontend .
+COPY .env ../.env
 RUN npm run build
 
 FROM golang:1.21-alpine3.18 AS backend-builder
