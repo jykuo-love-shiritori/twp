@@ -3,24 +3,26 @@ import '@style/global.css';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import SellerItem, { SellerItemProps } from '@components/SellerItem';
 import NotFound from '@components/NotFound';
-
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 
 interface SellersProps extends SellerItemProps {
   total_sales: number;
 }
 
+const reportPageStyle = {
+  borderRadius: '50px 50px 0px 0px',
+  border: '1px solid var(--button_border)',
+  background: 'var(--bg)',
+  boxShadow: '0px 4px 30px 2px var(--title)',
+  padding: ' 7% 12% 10% 12%',
+};
+
 const AdminReportEach = () => {
-  const reportPageStyle = {
-    borderRadius: '50px 50px 0px 0px',
-    border: '1px solid var(--button_border)',
-    background: 'var(--bg)',
-    boxShadow: '0px 4px 30px 2px var(--title)',
-    padding: ' 7% 12% 10% 12%',
-  };
+  const navigate = useNavigate();
 
   const { year, month } = useParams();
   const yearString = year ?? '';
@@ -39,9 +41,9 @@ const AdminReportEach = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return await response.json();
     },
   });
 

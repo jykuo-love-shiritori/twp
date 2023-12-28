@@ -4,6 +4,7 @@ import '@components/style.css';
 
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import News from '@components/News';
 import TButton from '@components/TButton';
@@ -12,12 +13,13 @@ import GoodsItem from '@components/GoodsItem';
 import { useAuth } from '@lib/Auth';
 
 import TitleImgUrl from '@assets/images/title.png';
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { NewsProps } from '@components/News';
 import { GoodsItemProps } from '@components/GoodsItem';
 
 const Home = () => {
   const token = useAuth();
+  const navigate = useNavigate();
 
   const { status: newsStatus, data: newsData } = useQuery({
     queryKey: ['news'],
@@ -28,9 +30,9 @@ const Home = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok in news');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return (await response.json()) as NewsProps[];
     },
   });
 
@@ -43,9 +45,9 @@ const Home = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok in recommend');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return await response.json();
     },
   });
 
@@ -57,7 +59,6 @@ const Home = () => {
     return <CheckFetchStatus status={recommendStatus} />;
   }
 
-  console.log(recommendData);
   console.log(token);
 
   return (

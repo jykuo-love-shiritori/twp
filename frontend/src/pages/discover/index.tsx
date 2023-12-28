@@ -2,13 +2,16 @@ import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import GoodsItem from '@components/GoodsItem';
 
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsItemProps } from '@components/GoodsItem';
 
 const Discover = () => {
+  const navigate = useNavigate();
+
   const { status, data: goodsData } = useQuery({
     queryKey: ['discover'],
     queryFn: async () => {
@@ -18,9 +21,9 @@ const Discover = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return (await response.json()) as GoodsItemProps[];
     },
   });
 

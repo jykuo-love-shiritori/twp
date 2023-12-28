@@ -3,10 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 
 import SellerGoodsItem from '@components/SellerGoodsItem';
 import TButton from '@components/TButton';
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsItemProps } from '@components/GoodsItem';
+import { useNavigate } from 'react-router-dom';
 
 const Products = () => {
+  const navigate = useNavigate();
+
   const { status, data: sellerShopData } = useQuery({
     queryKey: ['sellerShopView'],
     queryFn: async () => {
@@ -16,9 +19,9 @@ const Products = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return await response.json();
     },
   });
 

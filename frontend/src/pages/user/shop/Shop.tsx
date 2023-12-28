@@ -1,11 +1,14 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import GoodsItem from '@components/GoodsItem';
 import { Props } from '@components/GoodsItem';
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 
 const Shop = () => {
+  const navigate = useNavigate();
+
   const { status, data: shopData } = useQuery({
     queryKey: ['shopsView'],
     queryFn: async () => {
@@ -15,9 +18,9 @@ const Shop = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        RouteOnNotOK(response, navigate);
       }
-      return response.json();
+      return await response.json();
     },
   });
 
