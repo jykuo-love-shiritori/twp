@@ -11,28 +11,29 @@ import { useNavigate } from 'react-router-dom';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 
-interface TagProps {
+export interface TagProps {
   id: number;
   name: string;
 }
 
-interface ProductProps {
+export interface ProductProps {
   name: string;
   description: string;
   price: number;
-  image: File;
+  image: File | string;
   expire_date: string;
   stock: number;
   enable: string;
   tags: number[];
 }
 
-interface RequestProps {
+export interface RequestProps {
   name: string;
   seller_name: string;
 }
 
-const tagStyle = {
+// eslint-disable-next-line react-refresh/only-export-components
+export const tagStyle = {
   borderRadius: '30px',
   background: ' var(--button_light)',
   padding: '1% 1% 1% 3%',
@@ -41,9 +42,64 @@ const tagStyle = {
   width: '100%',
 };
 
-const LeftBgStyle = {
+export const LeftBgStyle = {
   backgroundColor: 'rgba(255, 255, 255, 0.7)',
   boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+};
+
+export const CheckDataInvalid = (data: ProductProps) => {
+  console.log(data.expire_date);
+
+  // if i remove toString() it tells me "Argument of type 'number' is not assignable to parameter of type 'string'.""
+  if (Number.isNaN(parseInt(data.price.toString()))) {
+    alert('please enter numbers in price!ddd');
+    return false;
+  }
+
+  if (Number.isNaN(parseInt(data.stock.toString()))) {
+    alert('please enter numbers in price!ddd');
+    return false;
+  }
+
+  if (data.price <= 0) {
+    alert("price can't be 0 or smaller than 0!");
+    return false;
+  }
+
+  if (data.stock <= 0) {
+    alert("stock can't be 0 or smaller than 0!");
+    return false;
+  }
+
+  if (data.image == undefined) {
+    alert('must has product image!');
+    return false;
+  }
+
+  if (new Date() > new Date(data.expire_date)) {
+    alert('product already expired!');
+    return false;
+  }
+
+  if (data.tags == undefined) {
+    alert('must have one tag');
+    return false;
+  }
+
+  return true;
+};
+
+export const SetFormData = (data: ProductProps) => {
+  const formData = new FormData();
+  formData.append('name', data.name);
+  formData.append('description', data.description);
+  formData.append('image', data.image);
+  formData.append('price', String(data.price));
+  formData.append('expire_date', new Date(data.expire_date).toISOString());
+  formData.append('stock', String(data.stock));
+  formData.append('enable', data.enable);
+  formData.append('tags', data.tags.join(','));
+  return formData;
 };
 
 const EmptyGoods = () => {
@@ -131,15 +187,7 @@ const EmptyGoods = () => {
         throw new Error('Invalid data');
       }
 
-      const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('description', data.description);
-      formData.append('image', data.image);
-      formData.append('price', String(data.price));
-      formData.append('expire_date', new Date(data.expire_date).toISOString());
-      formData.append('stock', String(data.stock));
-      formData.append('enable', data.enable);
-      formData.append('tags', data.tags.join(','));
+      const formData = SetFormData(data);
 
       const response = await fetch('/api/seller/product', {
         method: 'POST',
@@ -213,48 +261,6 @@ const EmptyGoods = () => {
     setTag('');
     setQueryTags([]);
     setTagExists(false);
-  };
-
-  const CheckDataInvalid = (data: ProductProps) => {
-    console.log(data.expire_date);
-
-    // if i remove toString() it tells me "Argument of type 'number' is not assignable to parameter of type 'string'.""
-    if (Number.isNaN(parseInt(data.price.toString()))) {
-      alert('please enter numbers in price!ddd');
-      return false;
-    }
-
-    if (Number.isNaN(parseInt(data.stock.toString()))) {
-      alert('please enter numbers in price!ddd');
-      return false;
-    }
-
-    if (data.price <= 0) {
-      alert("price can't be 0 or smaller than 0!");
-      return false;
-    }
-
-    if (data.stock <= 0) {
-      alert("stock can't be 0 or smaller than 0!");
-      return false;
-    }
-
-    if (data.image == undefined) {
-      alert('must has product image!');
-      return false;
-    }
-
-    if (new Date() > new Date(data.expire_date)) {
-      alert('product already expired!');
-      return false;
-    }
-
-    if (data.tags == undefined) {
-      alert('must have one tag');
-      return false;
-    }
-
-    return true;
   };
 
   const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
