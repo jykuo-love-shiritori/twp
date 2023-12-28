@@ -121,6 +121,9 @@ func GetPopular(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			logger.Errorw("failed to get popular products", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		for i := range result.LocalProducts {
+			result.LocalProducts[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.LocalProducts[i].ImageUrl)
+		}
 		return c.JSON(http.StatusOK, result)
 	}
 }
