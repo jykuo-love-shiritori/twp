@@ -23,7 +23,7 @@ export interface ProductProps {
   image: File | string;
   expire_date: string;
   stock: number;
-  enable: string;
+  enable: boolean;
   tags: number[];
 }
 
@@ -47,6 +47,7 @@ export const LeftBgStyle = {
   boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
 };
 
+// i want to alert for all exception, letting user know what happened
 export const CheckDataInvalid = (data: ProductProps) => {
   console.log(data.expire_date);
 
@@ -97,7 +98,7 @@ export const SetFormData = (data: ProductProps) => {
   formData.append('price', String(data.price));
   formData.append('expire_date', new Date(data.expire_date).toISOString());
   formData.append('stock', String(data.stock));
-  formData.append('enable', data.enable);
+  formData.append('enable', String(data.enable));
   formData.append('tags', data.tags.join(','));
   return formData;
 };
@@ -108,7 +109,6 @@ const EmptyGoods = () => {
   const [tag, setTag] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [queryTags, setQueryTags] = useState<string[]>([]);
-  const [tagExists, setTagExists] = useState(false);
   const [file, setFile] = useState<string | null>(null);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
@@ -119,7 +119,7 @@ const EmptyGoods = () => {
       image: undefined,
       expire_date: 'expire date',
       stock: 0,
-      enable: 'true',
+      enable: true,
       tags: undefined,
     },
   });
@@ -168,10 +168,8 @@ const EmptyGoods = () => {
       return await response.json();
     },
     onSuccess: (responseData: TagProps[]) => {
-      console.log('success to query', responseData);
       const tagNames = responseData.map((tag) => tag.name);
       setQueryTags(tagNames);
-      setTagExists(tagNames.includes(tag));
     },
   });
 
@@ -208,26 +206,44 @@ const EmptyGoods = () => {
 
     if (event.key === 'Enter') {
       const input = event.currentTarget.value.trim();
-      console.log(event.currentTarget.value);
+      console.log('input tag value here', event.currentTarget.value);
 
       if (input == '') {
         Reset();
         return;
       }
 
-      queryTag.mutate(tag);
-      if (tagExists) {
-        alert('Tag already exists');
+      if (tags.some((currentTag) => currentTag.name === tag)) {
+        console.log('already in container');
         Reset();
         return;
       }
 
-      // TODO : seller name need to be change to corresponding user
-      addTag.mutate({ name: input, seller_name: 'user1' });
+      queryTag.mutate(tag, {
+        onSuccess: (responseData) => {
+          console.log('res!!!!', responseData);
 
-      console.log('check if all tags are in', tags);
+          const existingTag = responseData.find((currentTag) => currentTag.name === tag);
 
-      Reset();
+          if (existingTag) {
+            console.log('found value', existingTag);
+            setTags((prevTags) => {
+              const newTags = [...prevTags, existingTag];
+              setValue(
+                'tags',
+                newTags.map((tag) => tag.id),
+              );
+              return newTags;
+            });
+          } else {
+            console.log('not exist');
+            // TODO : seller name need to be change to corresponding user
+            addTag.mutate({ name: tag, seller_name: 'user1' });
+          }
+
+          Reset();
+        },
+      });
     }
   };
 
@@ -240,7 +256,7 @@ const EmptyGoods = () => {
       return;
     }
     setTag(tagName);
-    await queryTag.mutate(tagName);
+    queryTag.mutate(tagName);
   };
 
   const deleteTag = (index: number) => {
@@ -251,7 +267,6 @@ const EmptyGoods = () => {
   const Reset = () => {
     setTag('');
     setQueryTags([]);
-    setTagExists(false);
   };
 
   const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,7 +283,7 @@ const EmptyGoods = () => {
 
   const onSubmit: SubmitHandler<ProductProps> = async (data) => {
     console.log(data);
-    await addProduct.mutate(data);
+    addProduct.mutate(data);
   };
 
   return (

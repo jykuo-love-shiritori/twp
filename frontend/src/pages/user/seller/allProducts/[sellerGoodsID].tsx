@@ -20,16 +20,23 @@ import {
   SetFormData,
 } from './NewGoods';
 
+interface TagPropsAnotherVersion {
+  name: string;
+  tag_id: number;
+}
 interface GetResponseProps {
   product_info: {
-    enable: string;
+    description: string;
+    enable: boolean;
+    expire_date: string;
+    id: number;
     image_url: string;
     name: string;
     price: number;
     sales: number;
     stock: number;
   };
-  tags: TagProps[];
+  tags: TagPropsAnotherVersion[];
 }
 
 interface PatchResponseProps {
@@ -42,7 +49,7 @@ interface PatchResponseProps {
   edit_date: string;
   stock: number;
   sales: number;
-  enable: string;
+  enable: boolean;
 }
 
 const EachSellerGoods = () => {
@@ -52,7 +59,6 @@ const EachSellerGoods = () => {
   const [tag, setTag] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [queryTags, setQueryTags] = useState<string[]>([]);
-  const [tagExists, setTagExists] = useState(false);
   const [file, setFile] = useState<string | null>(null);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
@@ -63,7 +69,7 @@ const EachSellerGoods = () => {
       image: undefined,
       expire_date: 'expire date',
       stock: 0,
-      enable: 'true',
+      enable: true,
       tags: [],
     },
   });
@@ -112,10 +118,8 @@ const EachSellerGoods = () => {
       return await response.json();
     },
     onSuccess: (responseData: TagProps[]) => {
-      console.log('success to query', responseData);
       const tagNames = responseData.map((tag) => tag.name);
       setQueryTags(tagNames);
-      setTagExists(tagNames.includes(tag));
     },
   });
 
@@ -134,16 +138,21 @@ const EachSellerGoods = () => {
     onSuccess: (responseData: GetResponseProps) => {
       console.log('success on query product', responseData);
       setValue('name', responseData.product_info.name);
-      // TODO: update when api update because currently no such api
-      setValue('description', 'no such api');
+      setValue('description', responseData.product_info.description);
       setValue('price', responseData.product_info.price);
       setFile(responseData.product_info.image_url);
       setValue('image', responseData.product_info.image_url);
-      // TODO: update when api update because currently no such api
-      setValue('expire_date', new Date().toISOString());
+      setValue(
+        'expire_date',
+        new Date(responseData.product_info.expire_date).toLocaleDateString('en-CA'),
+      );
       setValue('stock', responseData.product_info.stock);
-      setValue('enable', responseData.product_info.enable);
-      setTags(responseData.tags);
+      setValue('enable', Boolean(responseData.product_info.enable));
+      const convertedTags = responseData.tags.map((tag) => ({
+        id: tag.tag_id,
+        name: tag.name,
+      }));
+      setTags(convertedTags);
       setValue(
         'tags',
         tags.map((tag) => tag.id),
@@ -182,7 +191,7 @@ const EachSellerGoods = () => {
       setValue('image', responseData.image_url);
       setValue('expire_date', responseData.expire_date);
       setValue('stock', responseData.stock);
-      setValue('enable', responseData.enable);
+      setValue('enable', Boolean(responseData.enable));
     },
   });
 
@@ -198,19 +207,37 @@ const EachSellerGoods = () => {
         return;
       }
 
-      await queryTag.mutate(tag);
-      if (tagExists) {
-        alert('Tag already exists');
+      if (tags.some((currentTag) => currentTag.name === tag)) {
+        console.log('already in container');
         Reset();
         return;
       }
 
-      // TODO : seller name need to be change to corresponding user
-      await addTag.mutate({ name: input, seller_name: 'user1' });
+      queryTag.mutate(tag, {
+        onSuccess: (responseData) => {
+          console.log('res!!!!', responseData);
 
-      console.log('check if all tags are in', tags);
+          const existingTag = responseData.find((currentTag) => currentTag.name === tag);
 
-      Reset();
+          if (existingTag) {
+            console.log('found value', existingTag);
+            setTags((prevTags) => {
+              const newTags = [...prevTags, existingTag];
+              setValue(
+                'tags',
+                newTags.map((tag) => tag.id),
+              );
+              return newTags;
+            });
+          } else {
+            console.log('not exist');
+            // TODO : seller name need to be change to corresponding user
+            addTag.mutate({ name: tag, seller_name: 'user1' });
+          }
+
+          Reset();
+        },
+      });
     }
   };
 
@@ -223,7 +250,7 @@ const EachSellerGoods = () => {
       return;
     }
     setTag(tagName);
-    await queryTag.mutate(tagName);
+    queryTag.mutate(tagName);
   };
 
   const deleteTag = (index: number) => {
@@ -234,7 +261,6 @@ const EachSellerGoods = () => {
   const Reset = () => {
     setTag('');
     setQueryTags([]);
-    setTagExists(false);
   };
 
   const uploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,7 +287,7 @@ const EachSellerGoods = () => {
       return;
     }
     console.log(data);
-    await updateProduct.mutate(data);
+    updateProduct.mutate(data);
   };
 
   return (
