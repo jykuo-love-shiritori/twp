@@ -2478,7 +2478,7 @@ paths:
         name: name
         required: true
         type: string
-      - default: '"description"'
+      - default: description
         description: description of product
         in: formData
         name: description
@@ -2490,7 +2490,7 @@ paths:
         name: price
         required: true
         type: number
-      - description: image id
+      - description: image file
         in: formData
         name: image
         required: true
@@ -2507,19 +2507,18 @@ paths:
         name: stock
         required: true
         type: integer
-      - default: "true"
+      - default: true
         description: enabled
         in: formData
         name: enabled
         required: true
-        type: string
+        type: boolean
       - collectionFormat: csv
         description: init tags
         in: formData
         items:
           type: integer
         name: tags
-        required: true
         type: array
       produces:
       - application/json
@@ -2617,13 +2616,13 @@ paths:
         name: id
         required: true
         type: integer
-      - default: '"product new 10001"'
+      - default: product new 10001
         description: name of product
         in: formData
         name: name
         required: true
         type: string
-      - default: '"description"'
+      - default: description
         description: description of product
         in: formData
         name: description
@@ -2651,12 +2650,11 @@ paths:
         name: stock
         required: true
         type: integer
-      - default: "true"
+      - default: true
         description: enabled
         in: formData
         name: enabled
-        required: true
-        type: string
+        type: boolean
       produces:
       - application/json
       responses:

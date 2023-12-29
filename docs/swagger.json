@@ -2082,7 +2082,7 @@
                     },
                     {
                         "type": "string",
-                        "default": "\"description\"",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2098,7 +2098,7 @@
                     },
                     {
                         "type": "file",
-                        "description": "image id",
+                        "description": "image file",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -2120,8 +2120,8 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "default": "true",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData",
@@ -2135,8 +2135,7 @@
                         "collectionFormat": "csv",
                         "description": "init tags",
                         "name": "tags",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2281,7 +2280,7 @@
                     },
                     {
                         "type": "string",
-                        "default": "\"product new 10001\"",
+                        "default": "product new 10001",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2289,7 +2288,7 @@
                     },
                     {
                         "type": "string",
-                        "default": "\"description\"",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2326,12 +2325,11 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "default": "true",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {

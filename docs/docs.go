@@ -2088,7 +2088,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "\"description\"",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2104,7 +2104,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "file",
-                        "description": "image id",
+                        "description": "image file",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -2126,8 +2126,8 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "default": "true",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData",
@@ -2141,8 +2141,7 @@ const docTemplate = `{
                         "collectionFormat": "csv",
                         "description": "init tags",
                         "name": "tags",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2287,7 +2286,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "\"product new 10001\"",
+                        "default": "product new 10001",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2295,7 +2294,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "\"description\"",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2332,12 +2331,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "default": "true",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
