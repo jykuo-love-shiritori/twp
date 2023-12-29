@@ -77,6 +77,10 @@ const EachAdminCoupon = () => {
       alert('Discount should be less than 100%');
       return;
     }
+    if (data.discount < 0) {
+      alert('Discount should be greater than 0');
+      return;
+    }
     // nice "end_date" backend team 🥳
     interface INewCoupon {
       description: string;
@@ -104,7 +108,8 @@ const EachAdminCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     if (!resp.ok) {
-      console.log('error when updating coupon');
+      const response = await resp.json();
+      alert(response.message);
     } else {
       navigate('/admin/manageCoupons');
     }
@@ -117,7 +122,8 @@ const EachAdminCoupon = () => {
       },
     });
     if (!resp.ok) {
-      console.log('error when deleting coupon');
+      const response = await resp.json();
+      alert(response.message);
     } else {
       navigate('/admin/manageCoupons');
     }

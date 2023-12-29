@@ -90,7 +90,7 @@ const NewSellerCoupon = () => {
             body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
           });
           if (!resp.ok) {
-            console.log('error when creating new tag');
+            alert('error when creating new tag');
             return;
           } else {
             const response = await resp.json();
@@ -110,7 +110,7 @@ const NewSellerCoupon = () => {
       },
     });
     if (!resp.ok) {
-      console.log('error when fetching existing tag');
+      alert('error when fetching existing tag');
     } else {
       const response = await resp.json();
       const newSuggestTags: ITag[] = [];

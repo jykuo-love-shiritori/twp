@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { CheckFetchStatus } from '@lib/Status';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { formatDate } from '@lib/Functions';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
@@ -77,8 +77,7 @@ const EachSellerCoupon = () => {
         },
       });
       if (!resp.ok) {
-        const response = await resp.json();
-        alert(response.message);
+        RouteOnNotOK(resp, navigate);
       } else {
         return await resp.json();
       }
@@ -116,7 +115,7 @@ const EachSellerCoupon = () => {
             body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
           });
           if (!resp.ok) {
-            console.log('error when creating new tag');
+            alert('error when creating new tag');
             return;
           } else {
             const response = await resp.json();
@@ -133,7 +132,7 @@ const EachSellerCoupon = () => {
           body: JSON.stringify({ tag_id: newTag.tag_id }),
         });
         if (!resp.ok) {
-          console.log('error when adding new tag');
+          alert('error when adding new tag');
         } else {
           append(newTag);
           setTag('');
@@ -150,7 +149,7 @@ const EachSellerCoupon = () => {
       },
     });
     if (!resp.ok) {
-      console.log('error when fetching existing tag');
+      alert('error when fetching existing tag');
     } else {
       const response = await resp.json();
       const newSuggestTags: ITag[] = [];
@@ -170,7 +169,7 @@ const EachSellerCoupon = () => {
       body: JSON.stringify({ tag_id: fields[index].tag_id }),
     });
     if (!resp.ok) {
-      console.log('error when deleting tag');
+      alert('error when deleting tag');
     } else {
       remove(index);
     }
@@ -192,6 +191,10 @@ const EachSellerCoupon = () => {
     }
     if (data.coupon_info.type === 'percentage' && data.coupon_info.discount >= 100) {
       alert('Discount should be less than 100%');
+      return;
+    }
+    if (data.coupon_info.discount < 0) {
+      alert('Discount should be greater than 0');
       return;
     }
     interface INewCoupon {
@@ -222,7 +225,8 @@ const EachSellerCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     if (!resp.ok) {
-      console.log('error when updating coupon');
+      const response = await resp.json();
+      alert(response.message);
     } else {
       navigate('/user/seller/manageCoupons');
     }
@@ -236,7 +240,7 @@ const EachSellerCoupon = () => {
       },
     });
     if (!resp.ok) {
-      console.log('error when deleting coupon');
+      alert('error when deleting coupon');
     } else {
       navigate('/user/seller/manageCoupons');
     }
