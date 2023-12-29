@@ -113,7 +113,7 @@ func (q *Queries) DisableProductsFromShop(ctx context.Context, shopID int32) (in
 	return result.RowsAffected(), nil
 }
 
-const disableShop = `-- name: DisableShop :execrows
+const disableShop = `-- name: DisableShop :exec
 WITH disable_shop AS (
     UPDATE
         "shop"
@@ -135,48 +135,20 @@ WHERE
             disable_shop)
 `
 
-func (q *Queries) DisableShop(ctx context.Context, sellerName string) (int64, error) {
-	result, err := q.db.Exec(ctx, disableShop, sellerName)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) DisableShop(ctx context.Context, sellerName string) error {
+	_, err := q.db.Exec(ctx, disableShop, sellerName)
+	return err
 }
 
 const disableUser = `-- name: DisableUser :execrows
-WITH disabled_user AS (
-    UPDATE
-        "user"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "username" = $1
-    RETURNING
-        "username"
-),
-disabled_shop AS (
-    UPDATE
-        "shop"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "seller_name" =(
-            SELECT
-                "username"
-            FROM
-                disabled_user)
-        RETURNING
-            "id")
 UPDATE
-    "product"
+    "user"
 SET
     "enabled" = FALSE
 WHERE
-    "shop_id" =(
-        SELECT
-            "id"
-        FROM
-            disabled_shop)
+    "username" = $1
+RETURNING
+    "username"
 `
 
 func (q *Queries) DisableUser(ctx context.Context, username string) (int64, error) {
