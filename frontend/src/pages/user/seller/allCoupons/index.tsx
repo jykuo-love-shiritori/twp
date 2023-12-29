@@ -4,7 +4,7 @@ import { RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
 import TButton from '@components/TButton';
-import CouponItem from '@components/CouponItem';
+import CouponItemEdit from '@components/CouponItemEdit';
 
 interface ICoupon {
   description: string;
@@ -91,7 +91,7 @@ const ManageSellerCoupons = () => {
               {fetchedData.map((data, index) => {
                 return (
                   <Col md={6} xl={4} key={index} style={{ padding: '2%' }}>
-                    <CouponItem
+                    <CouponItemEdit
                       data={{
                         id: data.id,
                         scope: data.scope,
@@ -111,7 +111,7 @@ const ManageSellerCoupons = () => {
               {fetchedData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem
+                    <CouponItemEdit
                       data={{
                         id: data.id,
                         scope: data.scope,

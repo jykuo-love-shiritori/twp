@@ -1,5 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
-import CouponItem from '@components/CouponItem';
+import CouponItemEdit from '@components/CouponItemEdit';
 import TButton from '@components/TButton';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -90,7 +90,7 @@ const ManageAdminCoupons = () => {
               {fetchedData.map((data, index) => {
                 return (
                   <Col md={6} xl={4} key={index} style={{ padding: '2%' }}>
-                    <CouponItem
+                    <CouponItemEdit
                       data={{
                         id: data.id,
                         scope: data.scope,
@@ -110,7 +110,7 @@ const ManageAdminCoupons = () => {
               {fetchedData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem
+                    <CouponItemEdit
                       data={{
                         id: data.id,
                         scope: data.scope,

@@ -1,7 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
 import { Col, Modal, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -9,14 +8,18 @@ import CouponItemTemplate from '@components/CouponItemTemplate';
 import TButton from '@components/TButton';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus } from '@lib/Status';
+import defaultUserIcon from '@assets/images/defaultUserIcon.gif';
 
-interface ICouponItem {
+interface ICouponItemShow {
   id: number;
   scope: 'global' | 'shop';
   name: string;
   type: 'percentage' | 'fixed' | 'shipping';
   discount: number;
   expire_date: string;
+  seller_name: string;
+  seller_username: string;
+  seller_image_url: string;
 }
 
 interface IShopCouponDetail {
@@ -48,17 +51,7 @@ interface IGlobalCouponDetail {
   type: 'percentage' | 'fixed' | 'shipping';
 }
 
-const LinkCouponItem = ({ data }: { data: ICouponItem }) => {
-  return (
-    <Link className='none' to={`${window.location.pathname}/${data.id}`}>
-      <div style={{ cursor: 'pointer' }}>
-        <CouponItemTemplate data={data} />
-      </div>
-    </Link>
-  );
-};
-
-const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
+const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
   const [show, setShow] = useState(false);
   const handleShow = () => {
     refetch();
@@ -67,7 +60,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
   const handleClose = () => setShow(false);
 
   const {
-    data: fetchedData,
+    data: detailCouponData,
     status,
     refetch,
   } = useQuery({
@@ -95,18 +88,18 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
     return <CheckFetchStatus status={status} />;
   }
 
-  const startDate = new Date(fetchedData.coupon_info.start_date);
-  const expDate = new Date(fetchedData.coupon_info.expire_date);
+  const startDate = new Date(detailCouponData.coupon_info.start_date);
+  const expDate = new Date(detailCouponData.coupon_info.expire_date);
 
   return (
     <>
       <div style={{ cursor: 'pointer' }} onClick={handleShow}>
         <CouponItemTemplate
           data={{
-            name: fetchedData.coupon_info.name,
-            type: fetchedData.coupon_info.type,
-            discount: fetchedData.coupon_info.discount,
-            expire_date: fetchedData.coupon_info.expire_date,
+            name: detailCouponData.coupon_info.name,
+            type: detailCouponData.coupon_info.type,
+            discount: detailCouponData.coupon_info.discount,
+            expire_date: detailCouponData.coupon_info.expire_date,
           }}
         />
       </div>
@@ -119,21 +112,28 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
         <Modal.Body>
           <Row>
             <Col xs={3} md={2} className='center'>
-              <img src='/placeholder/person.png' className='user_img' />
+              <img src={data.seller_image_url ?? defaultUserIcon} className='user_img' />
             </Col>
             <Col xs={4} md={6} className='center_vertical left'>
-              {fetchedData.coupon_info.name}
+              {data.seller_name}
             </Col>
             <Col xs={5} md={4}>
-              <TButton text='ViewShop' />
+              <TButton text='ViewShop' action={`/${data.seller_username}/shop`} />
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>
-                <CouponItemTemplate data={data} />
+                <CouponItemTemplate
+                  data={{
+                    name: detailCouponData.coupon_info.name,
+                    type: detailCouponData.coupon_info.type,
+                    discount: detailCouponData.coupon_info.discount,
+                    expire_date: detailCouponData.coupon_info.expire_date,
+                  }}
+                />
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
-              <p>{fetchedData.coupon_info.description}</p>
+              <p>{detailCouponData.coupon_info.description}</p>
             </Col>
             <Col xs={12} style={{ fontSize: '20px', color: '#ffffff7f' }}>
               Valid Period
@@ -156,7 +156,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
               <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-                {fetchedData.tags.map((tag, index) => {
+                {detailCouponData.tags.map((tag, index) => {
                   return (
                     <div
                       className='center'
@@ -181,7 +181,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItem }) => {
   );
 };
 
-const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
+const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
   const [show, setShow] = useState(false);
   const handleShow = () => {
     refetch();
@@ -190,7 +190,7 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
   const handleClose = () => setShow(false);
 
   const {
-    data: fetchedData,
+    data: detailCouponData,
     status,
     refetch,
   } = useQuery({
@@ -218,8 +218,8 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
     return <CheckFetchStatus status={status} />;
   }
 
-  const startDate = new Date(fetchedData.start_date);
-  const expDate = new Date(fetchedData.expire_date);
+  const startDate = new Date(detailCouponData.start_date);
+  const expDate = new Date(detailCouponData.expire_date);
 
   return (
     <>
@@ -235,21 +235,28 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
         <Modal.Body>
           <Row>
             <Col xs={3} md={2} className='center'>
-              <img src='/placeholder/person.png' className='user_img' />
+              <img src={data.seller_image_url ?? defaultUserIcon} className='user_img' />
             </Col>
             <Col xs={4} md={6} className='center_vertical left'>
-              {fetchedData.name}
+              {data.seller_name}
             </Col>
             <Col xs={5} md={4}>
-              <TButton text='ViewShop' />
+              <TButton text='ViewShop' action={`/${data.seller_username}/shop`} />
             </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>
-                <CouponItemTemplate data={data} />
+                <CouponItemTemplate
+                  data={{
+                    name: detailCouponData.name,
+                    type: detailCouponData.type,
+                    discount: detailCouponData.discount,
+                    expire_date: detailCouponData.expire_date,
+                  }}
+                />
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
-              <p>{fetchedData.description}</p>
+              <p>{detailCouponData.description}</p>
             </Col>
             <Col xs={12} style={{ fontSize: '20px', color: '#ffffff7f' }}>
               Valid Period
@@ -277,14 +284,10 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItem }) => {
   );
 };
 
-const CouponItem = ({ data }: { data: ICouponItem }) => {
-  // TODO: path.include 'seller/' change to 'seller' once implemented number [sellerID] on path
+const CouponItemShow = ({ data }: { data: ICouponItemShow }) => {
   return (
     <>
-      {window.location.pathname.includes('seller/') ||
-      window.location.pathname.includes('admin') ? (
-        <LinkCouponItem data={data} />
-      ) : data.scope === 'global' ? (
+      {data.scope === 'global' ? (
         <ModalGlobalCouponItem data={data} />
       ) : (
         <ModalShopCouponItem data={data} />
@@ -293,4 +296,4 @@ const CouponItem = ({ data }: { data: ICouponItem }) => {
   );
 };
 
-export default CouponItem;
+export default CouponItemShow;
