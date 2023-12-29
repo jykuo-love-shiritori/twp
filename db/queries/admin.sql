@@ -25,41 +25,16 @@ WHERE
     "seller_name" = $1;
 
 -- name: DisableUser :execrows
-WITH disabled_user AS (
-    UPDATE
-        "user"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "username" = $1
-    RETURNING
-        "username"
-),
-disabled_shop AS (
-    UPDATE
-        "shop"
-    SET
-        "enabled" = FALSE
-    WHERE
-        "seller_name" =(
-            SELECT
-                "username"
-            FROM
-                disabled_user)
-        RETURNING
-            "id")
 UPDATE
-    "product"
+    "user"
 SET
     "enabled" = FALSE
 WHERE
-    "shop_id" =(
-        SELECT
-            "id"
-        FROM
-            disabled_shop);
+    "username" = $1
+RETURNING
+    "username";
 
--- name: DisableShop :execrows
+-- name: DisableShop :exec
 WITH disable_shop AS (
     UPDATE
         "shop"

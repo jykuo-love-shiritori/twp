@@ -55,17 +55,32 @@ func GetUser(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 // @Router			/admin/user/{username} [delete]
 func DisableUser(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		ctx := c.Request().Context()
 		username := c.Param("username")
 		if username == "" { // would not happen in future
 			logger.Errorw("username is empty")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if execRows, err := pg.Queries.DisableUser(c.Request().Context(), username); err != nil {
+		tx, err := pg.NewTx(ctx)
+		defer tx.Rollback(ctx) //nolint:errcheck
+		if err != nil {
+			logger.Errorw("failed to create transaction", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if execRows, err := pg.Queries.WithTx(tx).DisableUser(ctx, username); err != nil {
 			logger.Errorw("failed to disable user", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to disable user")
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		} else if execRows == 0 {
 			logger.Errorw("user not found", "username", username)
 			return echo.NewHTTPError(http.StatusNotFound, "User not found")
+		}
+		if err := pg.Queries.WithTx(tx).DisableShop(ctx, username); err != nil {
+			logger.Errorw("failed to disable shop", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			logger.Errorw("failed to commit transaction", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		return c.JSON(http.StatusOK, constants.SUCCESS)
 	}
