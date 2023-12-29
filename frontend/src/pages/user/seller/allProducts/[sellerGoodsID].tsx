@@ -97,9 +97,6 @@ const EachSellerGoods = () => {
         return newTags;
       });
     },
-    onError: (error: Error) => {
-      console.log('adding tag failed', error);
-    },
   });
 
   const queryTag = useMutation({
@@ -119,9 +116,6 @@ const EachSellerGoods = () => {
       const tagNames = responseData.map((tag) => tag.name);
       setQueryTags(tagNames);
       setTagExists(tagNames.includes(tag));
-    },
-    onError: (error: Error) => {
-      console.log('failed on query', error);
     },
   });
 
@@ -154,9 +148,6 @@ const EachSellerGoods = () => {
         'tags',
         tags.map((tag) => tag.id),
       );
-    },
-    onError: (error: Error) => {
-      console.log('failed on query product', error);
     },
   });
 
@@ -192,9 +183,6 @@ const EachSellerGoods = () => {
       setValue('expire_date', responseData.expire_date);
       setValue('stock', responseData.stock);
       setValue('enable', responseData.enable);
-    },
-    onError: (error: Error) => {
-      console.log('failed on update product', error);
     },
   });
 

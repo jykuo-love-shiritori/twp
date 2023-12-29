@@ -52,12 +52,12 @@ export const CheckDataInvalid = (data: ProductProps) => {
 
   // if i remove toString() it tells me "Argument of type 'number' is not assignable to parameter of type 'string'.""
   if (Number.isNaN(parseInt(data.price.toString()))) {
-    alert('please enter numbers in price!ddd');
+    alert('please enter numbers in price!');
     return false;
   }
 
   if (Number.isNaN(parseInt(data.stock.toString()))) {
-    alert('please enter numbers in price!ddd');
+    alert('please enter numbers in price!');
     return false;
   }
 
@@ -153,9 +153,6 @@ const EmptyGoods = () => {
         return newTags;
       });
     },
-    onError: (error: Error) => {
-      console.log('adding tag failed', error);
-    },
   });
 
   const queryTag = useMutation({
@@ -175,9 +172,6 @@ const EmptyGoods = () => {
       const tagNames = responseData.map((tag) => tag.name);
       setQueryTags(tagNames);
       setTagExists(tagNames.includes(tag));
-    },
-    onError: (error: Error) => {
-      console.log('failed on query', error);
     },
   });
 
@@ -206,9 +200,6 @@ const EmptyGoods = () => {
     onSuccess: (responseData: TagProps) => {
       console.log('success on add product', responseData);
       navigate('/user/seller/manageProducts');
-    },
-    onError: (error: Error) => {
-      console.log('failed on add product', error);
     },
   });
 
@@ -398,11 +389,11 @@ const EmptyGoods = () => {
               </FormItem>
 
               <FormItem label='Product Price'>
-                <input type='text' {...register('price', { required: true })} />
+                <input type='number' {...register('price', { required: true })} />
               </FormItem>
 
               <FormItem label='Product Quantity'>
-                <input type='text' {...register('stock', { required: true })} />
+                <input type='number' {...register('stock', { required: true, min: 0 })} />
               </FormItem>
 
               <FormItem label='Product Introduction'>
@@ -410,7 +401,10 @@ const EmptyGoods = () => {
               </FormItem>
 
               <FormItem label='Best Before Date'>
-                <input type='date' {...register('expire_date', { required: true })} />
+                <input
+                  type='date'
+                  {...register('expire_date', { required: true, validate: { date: () => true } })}
+                />
               </FormItem>
             </div>
           </Col>
