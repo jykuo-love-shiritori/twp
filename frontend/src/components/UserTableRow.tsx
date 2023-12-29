@@ -23,6 +23,10 @@ interface IUser {
 
 const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) => {
   const onDelete = async () => {
+    if (data.role === 'admin') {
+      alert('Cannot delete yourself! 💀');
+      return;
+    }
     console.log(data.username);
     const resp = await fetch(`/api/admin/user/${data.username}`, {
       method: 'DELETE',
