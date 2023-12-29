@@ -1657,7 +1657,7 @@ const docTemplate = `{
                 "summary": "Seller add coupon tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "coupon id",
                         "name": "id",
                         "in": "path",
@@ -1669,7 +1669,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.TagParams"
+                            "$ref": "#/definitions/seller.GetTagParams"
                         }
                     }
                 ],
@@ -1711,7 +1711,7 @@ const docTemplate = `{
                 "summary": "Seller delete coupon tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "coupon id",
                         "name": "id",
                         "in": "path",
@@ -1723,7 +1723,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.TagParams"
+                            "$ref": "#/definitions/seller.GetTagParams"
                         }
                     }
                 ],
@@ -2080,6 +2080,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "A",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2087,6 +2088,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2094,6 +2096,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
+                        "default": 19.99,
                         "description": "price",
                         "name": "price",
                         "in": "formData",
@@ -2101,13 +2104,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "file",
-                        "description": "image id",
+                        "description": "image file",
                         "name": "image",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
+                        "default": "2024-10-12T07:20:50.52Z",
                         "description": "expire date",
                         "name": "expire_date",
                         "in": "formData",
@@ -2115,13 +2119,15 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "stock",
                         "name": "stock",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData",
@@ -2135,8 +2141,7 @@ const docTemplate = `{
                         "collectionFormat": "csv",
                         "description": "init tags",
                         "name": "tags",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2273,6 +2278,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 10001,
                         "description": "Product ID",
                         "name": "id",
                         "in": "path",
@@ -2280,6 +2286,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "default": "product new 10001",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2287,6 +2294,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2294,6 +2302,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
+                        "default": 19.99,
                         "description": "price",
                         "name": "price",
                         "in": "formData",
@@ -2307,6 +2316,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "default": "2024-10-12T07:20:50.52Z",
                         "description": "expire date",
                         "name": "expire_date",
                         "in": "formData",
@@ -2314,17 +2324,18 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "stock",
                         "name": "stock",
                         "in": "formData",
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "boolean",
+                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2367,7 +2378,7 @@ const docTemplate = `{
                 "summary": "Seller add product tag",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "product id",
                         "name": "id",
                         "in": "path",
@@ -2379,7 +2390,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.TagParams"
+                            "$ref": "#/definitions/seller.GetTagParams"
                         }
                     }
                 ],
@@ -2432,7 +2443,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.TagParams"
+                            "$ref": "#/definitions/seller.GetTagParams"
                         }
                     }
                 ],
@@ -4216,6 +4227,12 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "image_url": {
                     "type": "string"
                 },
@@ -4322,8 +4339,14 @@ const docTemplate = `{
         "db.SellerProductListRow": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
+                },
+                "expire_date": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -4668,32 +4691,54 @@ const docTemplate = `{
                 }
             }
         },
+        "seller.GetTagParams": {
+            "type": "object",
+            "properties": {
+                "tag_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "seller.InsertCouponParams": {
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "some description"
                 },
                 "discount": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 19.99
                 },
                 "expire_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-11-12T07:20:50.52Z"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "product name"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-10-12T07:20:50.52Z"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    }
+                    },
+                    "example": [
+                        10001,
+                        10002
+                    ]
                 },
                 "type": {
-                    "$ref": "#/definitions/db.CouponType"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/db.CouponType"
+                        }
+                    ],
+                    "example": "fixed"
                 }
             }
         },

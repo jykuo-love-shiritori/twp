@@ -592,9 +592,11 @@ func (q *Queries) SellerGetOrderHistory(ctx context.Context, arg SellerGetOrderH
 }
 
 const sellerGetProductDetail = `-- name: SellerGetProductDetail :one
-SELECT p."name",
+SELECT p."id",
+    p."name",
     p."description",
-    p."image_id" as "image_url",
+    p."image_id" AS "image_url",
+    p."expire_date",
     p."price",
     p."sales",
     p."stock",
@@ -611,22 +613,26 @@ type SellerGetProductDetailParams struct {
 }
 
 type SellerGetProductDetailRow struct {
-	Name        string         `form:"name" json:"name"`
-	Description string         `form:"description" json:"description"`
-	ImageUrl    string         `json:"image_url"`
-	Price       pgtype.Numeric `json:"price" swaggertype:"number"`
-	Sales       int32          `json:"sales"`
-	Stock       int32          `form:"stock" json:"stock"`
-	Enabled     bool           `form:"enabled" json:"enabled"`
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
+	ImageUrl    string             `json:"image_url"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	Sales       int32              `json:"sales"`
+	Stock       int32              `form:"stock" json:"stock"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerGetProductDetail(ctx context.Context, arg SellerGetProductDetailParams) (SellerGetProductDetailRow, error) {
 	row := q.db.QueryRow(ctx, sellerGetProductDetail, arg.SellerName, arg.ID)
 	var i SellerGetProductDetailRow
 	err := row.Scan(
+		&i.ID,
 		&i.Name,
 		&i.Description,
 		&i.ImageUrl,
+		&i.ExpireDate,
 		&i.Price,
 		&i.Sales,
 		&i.Stock,
@@ -987,7 +993,9 @@ func (q *Queries) SellerInsertTag(ctx context.Context, arg SellerInsertTagParams
 const sellerProductList = `-- name: SellerProductList :many
 SELECT p."id",
     p."name",
+    p."description",
     p."image_id" AS "image_url",
+    p."expire_date",
     p."price",
     p."sales",
     p."stock",
@@ -1006,13 +1014,15 @@ type SellerProductListParams struct {
 }
 
 type SellerProductListRow struct {
-	ID       int32          `json:"id" param:"id"`
-	Name     string         `form:"name" json:"name"`
-	ImageUrl string         `json:"image_url"`
-	Price    pgtype.Numeric `json:"price" swaggertype:"number"`
-	Sales    int32          `json:"sales"`
-	Stock    int32          `form:"stock" json:"stock"`
-	Enabled  bool           `form:"enabled" json:"enabled"`
+	ID          int32              `json:"id" param:"id"`
+	Name        string             `form:"name" json:"name"`
+	Description string             `form:"description" json:"description"`
+	ImageUrl    string             `json:"image_url"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
+	Sales       int32              `json:"sales"`
+	Stock       int32              `form:"stock" json:"stock"`
+	Enabled     bool               `form:"enabled" json:"enabled"`
 }
 
 func (q *Queries) SellerProductList(ctx context.Context, arg SellerProductListParams) ([]SellerProductListRow, error) {
@@ -1027,7 +1037,9 @@ func (q *Queries) SellerProductList(ctx context.Context, arg SellerProductListPa
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.Description,
 			&i.ImageUrl,
+			&i.ExpireDate,
 			&i.Price,
 			&i.Sales,
 			&i.Stock,
