@@ -142,6 +142,10 @@ const NewSellerCoupon = () => {
       alert('Discount should be less than 100%');
       return;
     }
+    if (data.coupon_info.discount < 0) {
+      alert('Discount should be greater than 0');
+      return;
+    }
     interface INewCoupon {
       description: string;
       discount: number;
@@ -170,7 +174,8 @@ const NewSellerCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     if (!resp.ok) {
-      console.log('error when updating coupon');
+      const response = await resp.json();
+      alert(response.message);
     } else {
       navigate('/user/seller/manageCoupons');
     }

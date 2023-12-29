@@ -54,6 +54,10 @@ const NewAdminCoupon = () => {
       alert('Discount should be less than 100%');
       return;
     }
+    if (data.discount < 0) {
+      alert('Discount should be greater than 0');
+      return;
+    }
     interface INewCoupon {
       description: string;
       discount: number;
@@ -82,7 +86,8 @@ const NewAdminCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     if (!resp.ok) {
-      console.log('error when adding new coupon');
+      const response = await resp.json();
+      alert(response.message);
     } else {
       navigate('/admin/manageCoupons');
     }

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { CheckFetchStatus } from '@lib/Status';
 import { formatDate } from '@lib/Functions';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
@@ -77,7 +77,8 @@ const EachSellerCoupon = () => {
         },
       });
       if (!resp.ok) {
-        RouteOnNotOK(resp, navigate);
+        const response = await resp.json();
+        alert(response.message);
       } else {
         return await resp.json();
       }
