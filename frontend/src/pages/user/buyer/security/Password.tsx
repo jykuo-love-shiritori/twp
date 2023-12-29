@@ -23,7 +23,7 @@ const Password = () => {
       )
     ) {
       setWarningText(
-        'Password should contain at least one of each: uppercase letter, lowercase letter, number and special character.',
+        'Password should contain at least one of each: uppercase letter, lowercase letter, number and special character. And the length should be between 8 and 72.',
       );
       setShow(true);
       return;
