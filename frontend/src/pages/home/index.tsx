@@ -17,6 +17,11 @@ import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { NewsProps } from '@components/News';
 import { GoodsItemProps } from '@components/GoodsItem';
 
+interface RecommendDataProps {
+  popular_products: GoodsItemProps[];
+  local_products: GoodsItemProps[];
+}
+
 const Home = () => {
   const token = useAuth();
   const navigate = useNavigate();
@@ -47,7 +52,7 @@ const Home = () => {
       if (!response.ok) {
         RouteOnNotOK(response, navigate);
       }
-      return await response.json();
+      return (await response.json()) as RecommendDataProps;
     },
   });
 
@@ -70,7 +75,7 @@ const Home = () => {
       <div style={{ padding: '1% 15% 1% 15%' }}>
         <h2 className='title'>News</h2>
         <Row>
-          {newsData.map((data: NewsProps, index: number) => {
+          {newsData.map((data, index) => {
             return (
               <Col xs={12} md={4} key={index}>
                 <News id={data.id} image_id={data.image_id} title={data.title} />
@@ -83,7 +88,7 @@ const Home = () => {
 
         <div style={{ padding: '0% 0% 3% 0%' }}>From most popular sellers</div>
         <Row>
-          {recommendData.popular_products.map((data: GoodsItemProps, index: number) => (
+          {recommendData.popular_products.map((data, index) => (
             <Col xs={6} md={3} key={index}>
               <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
             </Col>
@@ -92,7 +97,7 @@ const Home = () => {
 
         <div style={{ padding: '3% 0% 3% 0%' }}>From local sellers</div>
         <Row>
-          {recommendData.local_products.map((data: GoodsItemProps, index: number) => (
+          {recommendData.local_products.map((data, index) => (
             <Col xs={6} md={3} key={index}>
               <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
             </Col>

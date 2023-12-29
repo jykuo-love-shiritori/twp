@@ -28,10 +28,6 @@ const SellerItem = ({ data }: Props) => {
     height: '100px',
   };
 
-  if (!data) {
-    return <div style={SellerItemStyle}>no user</div>;
-  }
-
   return (
     <div style={SellerItemStyle}>
       <div className='center'>
