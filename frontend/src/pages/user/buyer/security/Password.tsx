@@ -1,6 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { RouteOnNotOK } from '@lib/Status';
+import WarningModal from '@components/WarningModal';
 import FormItem from '@components/FormItem';
 
 interface IEditPassword {
@@ -11,6 +13,8 @@ interface IEditPassword {
 
 const Password = () => {
   const navigate = useNavigate();
+  const [show, setShow] = useState<boolean>(false);
+  const [warningText, setWarningText] = useState<string>('');
   const { register, handleSubmit } = useForm<IEditPassword>();
   const onSubmit = async (data: IEditPassword) => {
     if (
@@ -18,17 +22,20 @@ const Password = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
       )
     ) {
-      alert(
-        'password should contain at least one of each: uppercase letter, lowercase letter, number and special character',
+      setWarningText(
+        'Password should contain at least one of each: uppercase letter, lowercase letter, number and special character. And the length should be between 8 and 72.',
       );
+      setShow(true);
       return;
     }
     if (data.new_password !== data.confirm_password) {
-      alert('passwords do not match');
+      setWarningText('New password and confirm password do not match.');
+      setShow(true);
       return;
     }
     if (data.new_password === data.current_password) {
-      alert('new password cannot be the same as old password');
+      setWarningText('New password and old password are the same.');
+      setShow(true);
       return;
     }
     const resp = await fetch('/api/user/security/password', {
@@ -41,16 +48,17 @@ const Password = () => {
     });
     if (!resp.ok) {
       RouteOnNotOK(resp, navigate);
-      // TODO: change when another pr is merged
-      const a = await resp.json();
-      alert(a.message);
+      if (resp.status === 401) {
+        const response = await resp.json();
+        alert(response.message);
+      }
     } else {
       navigate('/user/security');
     }
   };
 
   return (
-    <div>
+    <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className='title'>Security - Password</div>
         <hr className='hr' />
@@ -79,7 +87,8 @@ const Password = () => {
           <input type='submit' value='Save' />
         </div>
       </form>
-    </div>
+      <WarningModal show={show} text={warningText} onHide={() => setShow(false)} />
+    </>
   );
 };
 
