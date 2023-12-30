@@ -9,6 +9,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -61,7 +62,7 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			logger.Errorw("failed to get shop info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.Info.ImageUrl = mc.GetFileURL(c.Request().Context(), result.Info.ImageUrl)
+		result.Info.ImageUrl = image.GetUrl(result.Info.ImageUrl)
 		result.Products, err = pg.Queries.GetShopProducts(c.Request().Context(), db.GetShopProductsParams{
 			Offset: qp.Offset, Limit: qp.Limit, SellerName: sellerName})
 		if err != nil {
@@ -69,7 +70,7 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result.Products {
-			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
+			result.Products[i].ImageUrl = image.GetUrl(result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
