@@ -1,43 +1,11 @@
 import { Col, Row } from 'react-bootstrap';
-import { useQuery } from '@tanstack/react-query';
 
 import SellerGoodsItem from '@components/SellerGoodsItem';
 import TButton from '@components/TButton';
-import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
-// import { GoodsItemProps } from '@components/GoodsItem';
-import { useNavigate } from 'react-router-dom';
 
-interface GoodsItemProps {
-  description: string;
-  id: number;
-  image_url: string;
-  name: string;
-  price: number;
-  sales: number;
-}
+import goodsData from '@pages/discover/goodsData.json';
 
 const Products = () => {
-  const navigate = useNavigate();
-
-  const { status, data: sellerShopData } = useQuery({
-    queryKey: ['sellerShopView'],
-    queryFn: async () => {
-      const response = await fetch(`/api/seller/product?offset=${0}&limit=${12}`, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
-      if (!response.ok) {
-        RouteOnNotOK(response, navigate);
-      }
-      return await response.json();
-    },
-  });
-
-  if (status != 'success') {
-    return <CheckFetchStatus status={status} />;
-  }
-
   return (
     <div>
       <Row>
@@ -52,7 +20,7 @@ const Products = () => {
       </Row>
       <hr className='hr' />
       <Row>
-        {sellerShopData.map((data: GoodsItemProps, index: number) => {
+        {goodsData.map((data, index) => {
           return (
             <Col xs={6} md={3} key={index}>
               <SellerGoodsItem

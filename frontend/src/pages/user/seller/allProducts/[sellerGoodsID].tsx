@@ -23,11 +23,11 @@ import {
   DeleteTagsAction,
 } from './NewGoods';
 
-interface TagPropsAnotherVersion {
+export interface TagPropsAnotherVersion {
   name: string;
   tag_id: number;
 }
-interface GetResponseProps {
+export interface GetResponseProps {
   product_info: {
     description: string;
     enable: boolean;
