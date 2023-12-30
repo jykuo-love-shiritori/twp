@@ -271,6 +271,25 @@ const EachSellerGoods = () => {
     },
   });
 
+  const deleteProduct = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/seller/product/${goods_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('delete product failed');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      navigate('/user/seller/manageProducts');
+    },
+  });
+
   const addNewTag = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 229) return;
 
@@ -470,7 +489,7 @@ const EachSellerGoods = () => {
               <div style={{ height: '50px' }} />
               <TButton
                 text='Delete Product'
-                action={() => navigate('/user/seller/manageProducts')}
+                action={() => goods_id !== undefined && deleteProduct.mutate()}
               />
               <TButton text='Confirm Changes' action={handleSubmit(onSubmit)} />
             </div>
