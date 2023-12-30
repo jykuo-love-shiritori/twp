@@ -10,19 +10,20 @@ import RecordStatus from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 
-interface BuyerOrderProps {
-  info: {
+interface SellerOrderProps {
+  order_info: {
     id: number;
-    shop_name: string;
-    shop_image_url: string;
     shipment: number;
     total_price: number;
     status: 'paid' | 'shipped' | 'delivered';
     created_at: string;
+    user_id: number;
+    user_name: string;
+    user_image_url: string;
     discount: number;
   };
-  details: {
-    product_id: number;
+  products: {
+    _id: number;
     name: string;
     description: string;
     price: number;
@@ -31,7 +32,7 @@ interface BuyerOrderProps {
   }[];
 }
 
-const BuyerHistoryEach = () => {
+const SellerHistoryEach = () => {
   const navigate = useNavigate();
 
   const params = useParams<{ history_id?: string }>();
@@ -43,13 +44,13 @@ const BuyerHistoryEach = () => {
     order_id = parseInt(params.history_id);
   }
 
-  const { status, data: buyerOrderData } = useQuery({
-    queryKey: ['buyerOrder', order_id],
+  const { status, data: sellerOrderData } = useQuery({
+    queryKey: ['sellerOrder', order_id],
     queryFn: async () => {
       if (order_id === undefined) {
         throw new Error('Invalid order_id');
       }
-      const response = await fetch(`/api/buyer/order/${order_id}`, {
+      const response = await fetch(`/api/seller/order/${order_id}`, {
         headers: {
           Accept: 'application/json',
         },
@@ -57,14 +58,15 @@ const BuyerHistoryEach = () => {
       if (!response.ok) {
         RouteOnNotOK(response, navigate);
       }
-      return (await response.json()) as BuyerOrderProps;
+      return (await response.json()) as SellerOrderProps;
     },
   });
 
   if (status != 'success') {
     return <CheckFetchStatus status={status} />;
   } else {
-    switch (buyerOrderData.info.status) {
+    console.log(sellerOrderData);
+    switch (sellerOrderData.order_info.status) {
       case 'paid':
         recordStatus.fill(true, 0, 1);
         break;
@@ -77,12 +79,12 @@ const BuyerHistoryEach = () => {
     }
   }
 
-  if (!buyerOrderData) {
+  if (!sellerOrderData) {
     return <NotFound />;
   }
   return (
     <div style={{ padding: '7% 10% 10% 10%' }}>
-      <div className='title'>Record ID : {buyerOrderData.info.id} </div>
+      <div className='title'>Record ID : {sellerOrderData.order_info.id} </div>
       <Row>
         <Col xs={6} md={3}>
           <RecordStatus icon={faFile} text='Order placed' status={recordStatus[0]} />
@@ -101,11 +103,11 @@ const BuyerHistoryEach = () => {
       <hr className='hr' />
 
       <UserItem
-        img_path={buyerOrderData.info.shop_image_url}
-        name={buyerOrderData.info.shop_name}
+        img_path={sellerOrderData.order_info.user_image_url}
+        name={sellerOrderData.order_info.user_name}
       />
 
-      {buyerOrderData.details.map((product, index) => {
+      {sellerOrderData.products.map((product, index) => {
         return (
           <HistoryProduct
             data={{
@@ -125,7 +127,7 @@ const BuyerHistoryEach = () => {
           Original Total :
         </Col>
         <Col xs={6} md={2}>
-          ${buyerOrderData.info.total_price}
+          ${sellerOrderData.order_info.total_price}
         </Col>
 
         <Col xs={12} md={7} />
@@ -133,7 +135,7 @@ const BuyerHistoryEach = () => {
           Shipment :
         </Col>
         <Col xs={6} md={2}>
-          ${buyerOrderData.info.shipment}
+          ${sellerOrderData.order_info.shipment}
         </Col>
 
         <Col xs={12} md={7} />
@@ -141,7 +143,8 @@ const BuyerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          -${buyerOrderData.info.discount}
+          {/* -${sellerOrderData.order_info.discount} */}
+          no such api
         </Col>
       </Row>
       <hr className='hr' />
@@ -152,13 +155,14 @@ const BuyerHistoryEach = () => {
         </Col>
         <Col xs={6} md={2}>
           $
-          {buyerOrderData.info.total_price +
-            buyerOrderData.info.shipment -
-            buyerOrderData.info.discount}
+          {/* {sellerOrderData.order_info.total_price +
+            sellerOrderData.order_info.shipment -
+            sellerOrderData.order_info.discount} */}
+          can't count
         </Col>
       </Row>
     </div>
   );
 };
 
-export default BuyerHistoryEach;
+export default SellerHistoryEach;
