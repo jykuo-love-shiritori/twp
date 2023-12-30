@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import React, { useReducer, useEffect } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
@@ -49,19 +50,6 @@ export const LeftBgStyle = {
 
 // i want to alert for all exception, letting user know what happened
 export const CheckDataInvalid = (data: ProductProps) => {
-  console.log(data.expire_date);
-
-  // if i remove toString() it tells me "Argument of type 'number' is not assignable to parameter of type 'string'.""
-  if (Number.isNaN(parseInt(data.price.toString()))) {
-    alert('please enter numbers in price!');
-    return false;
-  }
-
-  if (Number.isNaN(parseInt(data.stock.toString()))) {
-    alert('please enter numbers in price!');
-    return false;
-  }
-
   if (data.price <= 0) {
     alert("price can't be 0 or smaller than 0!");
     return false;
@@ -103,6 +91,39 @@ export const SetFormData = (data: ProductProps) => {
   return formData;
 };
 
+const ADD_TAG = 'ADD_TAG';
+const DELETE_TAG = 'DELETE_TAG';
+
+export type TagsAction = AddTagsAction | DeleteTagsAction;
+
+export interface AddTagsAction {
+  type: typeof ADD_TAG;
+  payload: TagProps;
+}
+
+export interface DeleteTagsAction {
+  type: typeof DELETE_TAG;
+  payload: number;
+}
+
+const tagsReducer = (state: TagProps[], action: TagsAction) => {
+  switch (action.type) {
+    case ADD_TAG:
+      return [...state, action.payload];
+    case DELETE_TAG:
+      return state.filter((_, i) => i !== action.payload);
+    default:
+      return state;
+  }
+};
+
+const deleteTagsAction = (index: number): DeleteTagsAction => {
+  return {
+    type: DELETE_TAG,
+    payload: index,
+  };
+};
+
 const EmptyGoods = () => {
   const navigate = useNavigate();
 
@@ -110,6 +131,13 @@ const EmptyGoods = () => {
   const [tags, setTags] = useState<TagProps[]>([]);
   const [queryTags, setQueryTags] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
+
+  const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
+
+  // view changes
+  useEffect(() => {
+    console.log('current tags: ', reducerTags, tags);
+  }, [reducerTags, tags]);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
     defaultValues: {
@@ -141,17 +169,8 @@ const EmptyGoods = () => {
     },
 
     onSuccess: (responseData: TagProps) => {
-      console.log('adding tag succeed', responseData);
-      setTags((prevTags) => {
-        const newTags = [...prevTags, responseData];
-
-        setValue(
-          'tags',
-          newTags.map((tag) => tag.id),
-        );
-
-        return newTags;
-      });
+      dispatchTags({ type: ADD_TAG, payload: responseData });
+      updateTags(responseData);
     },
   });
 
@@ -179,6 +198,7 @@ const EmptyGoods = () => {
         throw new Error('Invalid data');
       }
 
+      data.tags = tags.map((tag) => tag.id);
       const formData = SetFormData(data);
 
       const response = await fetch('/api/seller/product', {
@@ -195,8 +215,7 @@ const EmptyGoods = () => {
       return await response.json();
     },
 
-    onSuccess: (responseData: TagProps) => {
-      console.log('success on add product', responseData);
+    onSuccess: () => {
       navigate('/user/seller/manageProducts');
     },
   });
@@ -206,7 +225,6 @@ const EmptyGoods = () => {
 
     if (event.key === 'Enter') {
       const input = event.currentTarget.value.trim();
-      console.log('input tag value here', event.currentTarget.value);
 
       if (input == '') {
         Reset();
@@ -214,33 +232,21 @@ const EmptyGoods = () => {
       }
 
       if (tags.some((currentTag) => currentTag.name === tag)) {
-        console.log('already in container');
         Reset();
         return;
       }
 
       queryTag.mutate(tag, {
         onSuccess: (responseData) => {
-          console.log('res!!!!', responseData);
-
           const existingTag = responseData.find((currentTag) => currentTag.name === tag);
 
           if (existingTag) {
-            console.log('found value', existingTag);
-            setTags((prevTags) => {
-              const newTags = [...prevTags, existingTag];
-              setValue(
-                'tags',
-                newTags.map((tag) => tag.id),
-              );
-              return newTags;
-            });
+            dispatchTags({ type: ADD_TAG, payload: existingTag });
+            updateTags(existingTag);
           } else {
-            console.log('not exist');
             // TODO : seller name need to be change to corresponding user
             addTag.mutate({ name: tag, seller_name: 'user1' });
           }
-
           Reset();
         },
       });
@@ -260,8 +266,19 @@ const EmptyGoods = () => {
   };
 
   const deleteTag = (index: number) => {
+    dispatchTags(deleteTagsAction(index));
     setTags((prevTags) => prevTags.filter((_, i) => i !== index));
-    console.log('delete', tags);
+  };
+
+  const updateTags = (tag: TagProps) => {
+    setTags((prevTags) => {
+      const newTags = [...prevTags, tag];
+      setValue(
+        'tags',
+        newTags.map((tag) => tag.id),
+      );
+      return newTags;
+    });
   };
 
   const Reset = () => {
@@ -282,8 +299,7 @@ const EmptyGoods = () => {
   };
 
   const onSubmit: SubmitHandler<ProductProps> = async (data) => {
-    console.log(data);
-    addProduct.mutate(data);
+    await addProduct.mutate(data);
   };
 
   return (

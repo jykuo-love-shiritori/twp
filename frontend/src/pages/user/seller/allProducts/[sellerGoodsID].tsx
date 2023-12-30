@@ -7,6 +7,7 @@ import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import React, { useReducer, useEffect } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
@@ -18,6 +19,8 @@ import {
   LeftBgStyle,
   CheckDataInvalid,
   SetFormData,
+  TagsAction,
+  DeleteTagsAction,
 } from './NewGoods';
 
 interface TagPropsAnotherVersion {
@@ -52,14 +55,53 @@ interface PatchResponseProps {
   enable: boolean;
 }
 
+interface ConnectionTagsPros {
+  id?: number;
+  tag_id: number;
+}
+
+const ADD_TAG = 'ADD_TAG';
+const DELETE_TAG = 'DELETE_TAG';
+
+const tagsReducer = (state: TagProps[], action: TagsAction) => {
+  switch (action.type) {
+    case ADD_TAG:
+      return [...state, action.payload];
+    case DELETE_TAG:
+      return state.filter((_, i) => i !== action.payload);
+    default:
+      return state;
+  }
+};
+
+const deleteTagsAction = (index: number): DeleteTagsAction => {
+  return {
+    type: DELETE_TAG,
+    payload: index,
+  };
+};
+
 const EachSellerGoods = () => {
   const navigate = useNavigate();
-  const { goods_id } = useParams();
+
+  const params = useParams<{ goods_id?: string }>();
+  let goods_id: number | undefined;
+
+  if (params.goods_id) {
+    goods_id = parseInt(params.goods_id);
+  }
 
   const [tag, setTag] = useState('');
   const [tags, setTags] = useState<TagProps[]>([]);
   const [queryTags, setQueryTags] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
+
+  const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
+
+  // view changes
+  useEffect(() => {
+    console.log('current tags: ', reducerTags, tags);
+  }, [reducerTags, tags]);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
     defaultValues: {
@@ -90,18 +132,10 @@ const EachSellerGoods = () => {
       return await response.json();
     },
 
-    onSuccess: (responseData: TagProps) => {
-      console.log('adding tag succeed', responseData);
-      setTags((prevTags) => {
-        const newTags = [...prevTags, responseData];
-
-        setValue(
-          'tags',
-          newTags.map((tag) => tag.id),
-        );
-
-        return newTags;
-      });
+    onSuccess: async (responseData: TagProps) => {
+      dispatchTags({ type: ADD_TAG, payload: responseData });
+      updateTags(responseData);
+      await connectTag.mutate({ id: goods_id, tag_id: responseData.id });
     },
   });
 
@@ -136,7 +170,6 @@ const EachSellerGoods = () => {
       return await response.json();
     },
     onSuccess: (responseData: GetResponseProps) => {
-      console.log('success on query product', responseData);
       setValue('name', responseData.product_info.name);
       setValue('description', responseData.product_info.description);
       setValue('price', responseData.product_info.price);
@@ -157,6 +190,8 @@ const EachSellerGoods = () => {
         'tags',
         tags.map((tag) => tag.id),
       );
+
+      goods_id = responseData.product_info.id;
     },
   });
 
@@ -182,16 +217,57 @@ const EachSellerGoods = () => {
       return await response.json();
     },
     onSuccess: (responseData: PatchResponseProps) => {
-      console.log('success on update product', responseData);
-
       setValue('name', responseData.name);
       setValue('description', responseData.description);
       setValue('price', responseData.price);
       setFile(responseData.image_url);
       setValue('image', responseData.image_url);
-      setValue('expire_date', responseData.expire_date);
+      setValue('expire_date', new Date(responseData.expire_date).toLocaleDateString('en-CA'));
       setValue('stock', responseData.stock);
       setValue('enable', Boolean(responseData.enable));
+      navigate('/user/seller/manageProducts');
+    },
+  });
+
+  const connectTag = useMutation({
+    mutationFn: async (data: ConnectionTagsPros) => {
+      if (goods_id === undefined) {
+        throw new Error('Invalid goods_id');
+      }
+
+      const response = await fetch(`/api/seller/product/${goods_id}/tag`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('connect tag failed');
+      }
+      return await response.json();
+    },
+  });
+
+  const removeConnectedTag = useMutation({
+    mutationFn: async (data: ConnectionTagsPros) => {
+      if (goods_id === undefined) {
+        throw new Error('Invalid goods_id');
+      }
+
+      const response = await fetch(`/api/seller/product/${goods_id}/tag`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error('remove connected tag failed');
+      }
+      return await response.json();
     },
   });
 
@@ -200,7 +276,6 @@ const EachSellerGoods = () => {
 
     if (event.key === 'Enter') {
       const input = event.currentTarget.value.trim();
-      console.log(event.currentTarget.value);
 
       if (input == '') {
         Reset();
@@ -208,29 +283,19 @@ const EachSellerGoods = () => {
       }
 
       if (tags.some((currentTag) => currentTag.name === tag)) {
-        console.log('already in container');
         Reset();
         return;
       }
 
       queryTag.mutate(tag, {
-        onSuccess: (responseData) => {
-          console.log('res!!!!', responseData);
-
+        onSuccess: async (responseData) => {
           const existingTag = responseData.find((currentTag) => currentTag.name === tag);
 
           if (existingTag) {
-            console.log('found value', existingTag);
-            setTags((prevTags) => {
-              const newTags = [...prevTags, existingTag];
-              setValue(
-                'tags',
-                newTags.map((tag) => tag.id),
-              );
-              return newTags;
-            });
+            dispatchTags({ type: ADD_TAG, payload: existingTag });
+            updateTags(existingTag);
+            await connectTag.mutate({ id: goods_id, tag_id: existingTag.id });
           } else {
-            console.log('not exist');
             // TODO : seller name need to be change to corresponding user
             addTag.mutate({ name: tag, seller_name: 'user1' });
           }
@@ -253,9 +318,22 @@ const EachSellerGoods = () => {
     queryTag.mutate(tagName);
   };
 
-  const deleteTag = (index: number) => {
+  const deleteTag = async (index: number) => {
+    await removeConnectedTag.mutate({ id: goods_id, tag_id: tags[index].id });
+
+    dispatchTags(deleteTagsAction(index));
     setTags((prevTags) => prevTags.filter((_, i) => i !== index));
-    console.log('delete', tags);
+  };
+
+  const updateTags = (tag: TagProps) => {
+    setTags((prevTags) => {
+      const newTags = [...prevTags, tag];
+      setValue(
+        'tags',
+        newTags.map((tag) => tag.id),
+      );
+      return newTags;
+    });
   };
 
   const Reset = () => {
@@ -275,18 +353,14 @@ const EachSellerGoods = () => {
     }
   };
 
-  const prevGoodsIdRef = useRef<string | null>(null);
+  const prevGoodsIdRef = useRef<number | null>(null);
 
   if (goods_id && goods_id !== prevGoodsIdRef.current) {
-    queryProduct.mutate(parseInt(goods_id));
+    queryProduct.mutate(goods_id);
     prevGoodsIdRef.current = goods_id;
   }
 
   const onSubmit: SubmitHandler<ProductProps> = async (data) => {
-    if (!goods_id) {
-      return;
-    }
-    console.log(data);
     updateProduct.mutate(data);
   };
 
@@ -408,11 +482,11 @@ const EachSellerGoods = () => {
               </FormItem>
 
               <FormItem label='Product Price'>
-                <input type='text' {...register('price', { required: true })} />
+                <input type='number' {...register('price', { required: true })} />
               </FormItem>
 
               <FormItem label='Product Quantity'>
-                <input type='text' {...register('stock', { required: true })} />
+                <input type='number' {...register('stock', { required: true })} />
               </FormItem>
 
               <FormItem label='Product Introduction'>
