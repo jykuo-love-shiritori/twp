@@ -65,7 +65,18 @@ export const LeftBgStyle = {
 };
 
 // i want to alert for all exception, letting user know what happened
-export const CheckDataInvalid = (data: ProductProps) => {
+// eslint-disable-next-line react-refresh/only-export-components
+export const isDataValid = (data: ProductProps) => {
+  if (!/^-?\d+$/.test(data.price.toString())) {
+    alert("can't input texts or point numbers on price");
+    return false;
+  }
+
+  if (!/^-?\d+$/.test(data.stock.toString())) {
+    alert("can't input texts or point numbers on stock");
+    return false;
+  }
+
   if (data.price <= 0) {
     alert("price can't be 0 or smaller than 0!");
     return false;
@@ -210,7 +221,7 @@ const EmptyGoods = () => {
 
   const addProduct = useMutation({
     mutationFn: async (data: ProductProps) => {
-      if (!CheckDataInvalid(data)) {
+      if (!isDataValid(data)) {
         throw new Error('Invalid data');
       }
 

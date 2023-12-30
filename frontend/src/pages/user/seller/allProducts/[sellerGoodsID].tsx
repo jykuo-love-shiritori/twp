@@ -17,7 +17,7 @@ import {
   RequestProps,
   tagStyle,
   LeftBgStyle,
-  CheckDataInvalid,
+  isDataValid,
   SetFormData,
   TagsAction,
   DeleteTagsAction,
@@ -199,7 +199,7 @@ const EachSellerGoods = () => {
 
   const updateProduct = useMutation({
     mutationFn: async (data: ProductProps) => {
-      if (!CheckDataInvalid(data)) {
+      if (!isDataValid(data)) {
         throw new Error('Invalid data');
       }
 
