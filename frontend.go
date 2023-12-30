@@ -11,12 +11,12 @@ import (
 func RegisterFrontend(e *echo.Echo) {
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: func(c echo.Context) bool {
-			if strings.HasPrefix(c.Request().URL.Path, constants.SWAGGER_PATH) {
-				return true
-			}
+			skipList := []string{constants.SWAGGER_PATH, constants.API_BASE_PATH, constants.IMAGE_BASE_PATH}
 
-			if strings.HasPrefix(c.Request().URL.Path, constants.API_BASE_PATH) {
-				return true
+			for _, v := range skipList {
+				if strings.HasPrefix(c.Request().URL.Path, v) {
+					return true
+				}
 			}
 
 			return false
