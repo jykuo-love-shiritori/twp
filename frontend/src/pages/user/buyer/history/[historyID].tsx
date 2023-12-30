@@ -111,7 +111,7 @@ const BuyerHistoryEach = () => {
             data={{
               image_id: product.image_url,
               name: product.name,
-              price: product.price,
+              price: Math.floor(product.price),
               quantity: product.quantity,
             }}
             key={index}
@@ -125,7 +125,12 @@ const BuyerHistoryEach = () => {
           Original Total :
         </Col>
         <Col xs={6} md={2}>
-          ${buyerOrderData.info.total_price}
+          $
+          {Math.floor(
+            buyerOrderData.info.total_price +
+              buyerOrderData.info.discount -
+              buyerOrderData.info.shipment,
+          )}
         </Col>
 
         <Col xs={12} md={7} />
@@ -133,7 +138,7 @@ const BuyerHistoryEach = () => {
           Shipment :
         </Col>
         <Col xs={6} md={2}>
-          ${buyerOrderData.info.shipment}
+          ${Math.floor(buyerOrderData.info.shipment)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -141,7 +146,7 @@ const BuyerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          -${buyerOrderData.info.discount}
+          -${Math.floor(buyerOrderData.info.discount)}
         </Col>
       </Row>
       <hr className='hr' />
@@ -151,10 +156,7 @@ const BuyerHistoryEach = () => {
           Order Total :
         </Col>
         <Col xs={6} md={2}>
-          $
-          {buyerOrderData.info.total_price +
-            buyerOrderData.info.shipment -
-            buyerOrderData.info.discount}
+          ${Math.floor(buyerOrderData.info.total_price)}
         </Col>
       </Row>
     </div>

@@ -82,6 +82,12 @@ const SellerHistoryEach = () => {
   if (!sellerOrderData) {
     return <NotFound />;
   }
+
+  const originalTotalPrice = sellerOrderData.products.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0,
+  );
+
   return (
     <div style={{ padding: '7% 10% 10% 10%' }}>
       <div className='title'>Record ID : {sellerOrderData.order_info.id} </div>
@@ -113,7 +119,7 @@ const SellerHistoryEach = () => {
             data={{
               image_id: product.image_url,
               name: product.name,
-              price: product.price,
+              price: Math.floor(product.price),
               quantity: product.quantity,
             }}
             key={index}
@@ -127,7 +133,7 @@ const SellerHistoryEach = () => {
           Original Total :
         </Col>
         <Col xs={6} md={2}>
-          ${sellerOrderData.order_info.total_price}
+          {Math.floor(originalTotalPrice)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -135,7 +141,7 @@ const SellerHistoryEach = () => {
           Shipment :
         </Col>
         <Col xs={6} md={2}>
-          ${sellerOrderData.order_info.shipment}
+          ${Math.floor(sellerOrderData.order_info.shipment)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -143,8 +149,12 @@ const SellerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          {/* -${sellerOrderData.order_info.discount} */}
-          no such api
+          $
+          {Math.floor(
+            originalTotalPrice -
+              sellerOrderData.order_info.total_price -
+              sellerOrderData.order_info.shipment,
+          )}
         </Col>
       </Row>
       <hr className='hr' />
@@ -154,11 +164,7 @@ const SellerHistoryEach = () => {
           Order Total :
         </Col>
         <Col xs={6} md={2}>
-          $
-          {/* {sellerOrderData.order_info.total_price +
-            sellerOrderData.order_info.shipment -
-            sellerOrderData.order_info.discount} */}
-          can't count
+          ${Math.floor(sellerOrderData.order_info.total_price)}
         </Col>
       </Row>
     </div>
