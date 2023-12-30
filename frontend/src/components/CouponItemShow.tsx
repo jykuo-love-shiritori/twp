@@ -100,6 +100,9 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
       </div>
       <Modal show={show} onHide={handleClose} centered className='coupon_modal'>
         <Modal.Header>
+          <div className='title' style={{ whiteSpace: 'nowrap' }}>
+            Shop Coupon Detail
+          </div>
           <div className='right' style={{ width: '100%', cursor: 'pointer' }}>
             <FontAwesomeIcon icon={faCircleXmark as IconProp} size='2x' onClick={handleClose} />
           </div>
@@ -214,6 +217,9 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
       </div>
       <Modal show={show} onHide={handleClose} centered className='coupon_modal'>
         <Modal.Header>
+          <div className='title' style={{ whiteSpace: 'nowrap' }}>
+            Global Coupon Detail
+          </div>
           <div className='right' style={{ width: '100%', cursor: 'pointer' }}>
             <FontAwesomeIcon icon={faCircleXmark as IconProp} size='2x' onClick={handleClose} />
           </div>
