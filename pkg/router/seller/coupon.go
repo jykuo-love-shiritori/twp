@@ -19,13 +19,13 @@ type CouponDetail struct {
 }
 
 type InsertCouponParams struct {
-	Type        db.CouponType      `json:"type"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
-	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-	Tags        []int32            `json:"tags" `
+	Type        db.CouponType      `json:"type" example:"fixed"`
+	Name        string             `json:"name" example:"product name"`
+	Description string             `json:"description" example:"some description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number" example:"19.99"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string" example:"2024-10-12T07:20:50.52Z"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string" example:"2024-11-12T07:20:50.52Z"`
+	Tags        []int32            `json:"tags" example:"10001,10002"`
 }
 
 // @Summary		Seller get shop coupon
@@ -254,8 +254,8 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on coupon
 // @Tags			Seller, Shop, Coupon,Tag
 // @Accept			json
-// @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	TagParams		true	"add tag id"
+// @Param			id		path	int				true	"coupon id"
+// @Param			tag_id	body	GetTagParams	true	"add tag id"
 // @Produce		json
 // @success		200	{object}	db.CouponTag
 // @Failure		400	{object}	echo.HTTPError
@@ -286,8 +286,8 @@ func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete coupon tag
 // @Description	Delete coupon for shop.
 // @Tags			Seller, Shop, Coupon,Tag
-// @Param			id		path	string	true	"coupon id"
-// @Param			tag_id	body	TagParams		true	"add tag id"
+// @Param			id		path	int				true	"coupon id"
+// @Param			tag_id	body	GetTagParams	true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"

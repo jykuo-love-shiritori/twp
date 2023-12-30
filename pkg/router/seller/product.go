@@ -103,14 +103,14 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Summary		Seller add product
 // @Description	Add product for shop.
 // @Tags			Seller, Shop, Product
-// @Param			name		formData	string	true	"name of product"
-// @Param			description	formData	string	true	"description of product"
-// @Param			price		formData	number	true	"price"
-// @Param			image		formData	file	true	"image id"
-// @Param			expire_date	formData	string	true	"expire date"
-// @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	string	true	"enabled"
-// @Param			tags		formData	[]int32	true	"init tags"
+// @Param			name		formData	string	true	"name of product"			default(A)
+// @Param			description	formData	string	true	"description of product"	default(description)
+// @Param			price		formData	number	true	"price"						default(19.99)
+// @Param			image		formData	file	true	"image file"
+// @Param			expire_date	formData	string	true	"expire date"	default(2024-10-12T07:20:50.52Z)
+// @Param			stock		formData	int		true	"stock"			default(10)
+// @Param			enabled		formData	bool	true	"enabled"		default(true)
+// @Param			tags		formData	[]int32	false	"init tags"
 // @Accept			mpfd
 // @Produce		json
 // @Success		200	{object}	db.SellerInsertProductRow
@@ -211,14 +211,14 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 // @Tags			Seller, Shop, Product
 // @Accept			mpfd
 // @Produce		json
-// @Param			id			path		int		true	"Product ID"
-// @Param			name		formData	string	true	"name of product"
-// @Param			description	formData	string	true	"description of product"
-// @Param			price		formData	number	true	"price"
+// @Param			id			path		int		true	"Product ID"				default(10001)
+// @Param			name		formData	string	true	"name of product"			default(product new 10001)
+// @Param			description	formData	string	true	"description of product"	default(description)
+// @Param			price		formData	number	true	"price"						default(19.99)
 // @Param			image		formData	file	false	"image file"
-// @Param			expire_date	formData	string	true	"expire date"
-// @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	string	true	"enabled"
+// @Param			expire_date	formData	string	true	"expire date"	default(2024-10-12T07:20:50.52Z)
+// @Param			stock		formData	int		true	"stock"			default(10)
+// @Param			enabled		formData	bool	false	"enabled"		default(true)
 // @Success		200			{object}	db.SellerUpdateProductInfoRow
 // @Failure		400			{object}	echo.HTTPError
 // @Failure		500			{object}	echo.HTTPError
@@ -329,8 +329,8 @@ func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Description	Add tag on product
 // @Tags			Seller, Shop, Product,Tag
 // @Accept			json
-// @Param			id		path	string		true	"product id"
-// @Param			tag_id	body	TagParams	true	"add tag id"
+// @Param			id		path	int				true	"product id"
+// @Param			tag_id	body	GetTagParams	true	"add tag id"
 // @Produce		json
 // @Success		200	{object}	db.ProductTag
 // @Failure		400	{object}	echo.HTTPError
@@ -361,8 +361,8 @@ func AddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Summary		Seller delete product tag
 // @Description	Delete product for shop.
 // @Tags			Seller, Shop, Coupon
-// @Param			id		path	int			true	"product id"
-// @Param			tag_id	body	TagParams	true	"add tag id"
+// @Param			id		path	int				true	"product id"
+// @Param			tag_id	body	GetTagParams	true	"add tag id"
 // @Accept			json
 // @Produce		json
 // @Success		200	{string}	string	"success"

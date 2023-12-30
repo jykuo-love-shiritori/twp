@@ -16,28 +16,11 @@ UPDATE "shop"
 SET "enabled" = TRUE
 WHERE "seller_name" = $1;
 -- name: DisableUser :execrows
-WITH disabled_user AS (
-    UPDATE "user"
-    SET "enabled" = FALSE
-    WHERE "username" = $1
-    RETURNING "username"
-),
-disabled_shop AS (
-    UPDATE "shop"
-    SET "enabled" = FALSE
-    WHERE "seller_name" =(
-            SELECT "username"
-            FROM disabled_user
-        )
-    RETURNING "id"
-)
-UPDATE "product"
+UPDATE "user"
 SET "enabled" = FALSE
-WHERE "shop_id" =(
-        SELECT "id"
-        FROM disabled_shop
-    );
--- name: DisableShop :execrows
+WHERE "username" = $1
+RETURNING "username";
+-- name: DisableShop :exec
 WITH disable_shop AS (
     UPDATE "shop"
     SET "enabled" = FALSE
@@ -174,7 +157,7 @@ SELECT $1 AS "username",
     '' AS "image_id",
     'admin' AS "role",
     '{}'::jsonb AS "credit_card",
-    TRUE AS "enable5d"
+    TRUE AS "enabled"
 WHERE NOT EXISTS (
         SELECT 1
         FROM "user"

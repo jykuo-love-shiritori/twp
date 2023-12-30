@@ -249,9 +249,11 @@ WHERE shop.seller_name = $1
     AND order_history."created_at" > sqlc.arg('time')
     AND order_history."created_at" < sqlc.arg('time') + INTERVAL '1 month';
 -- name: SellerGetProductDetail :one
-SELECT p."name",
+SELECT p."id",
+    p."name",
     p."description",
     p."image_id" AS "image_url",
+    p."expire_date",
     p."price",
     p."sales",
     p."stock",
@@ -263,7 +265,9 @@ WHERE s.seller_name = $1
 -- name: SellerProductList :many
 SELECT p."id",
     p."name",
+    p."description",
     p."image_id" AS "image_url",
+    p."expire_date",
     p."price",
     p."sales",
     p."stock",
