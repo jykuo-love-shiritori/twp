@@ -21,6 +21,8 @@ import {
   SetFormData,
   TagsAction,
   DeleteTagsAction,
+  GoodsImgStyle,
+  GoodsBGStyle,
 } from './NewGoods';
 
 export interface TagPropsAnotherVersion {
@@ -397,21 +399,16 @@ const EachSellerGoods = () => {
                   borderRadius: '0 0 30px 0',
                 }}
               >
-                <div
-                  className='center'
-                  style={{ backgroundColor: 'black', borderRadius: '0 0 30px 0' }}
-                >
+                <div>
                   {file ? (
-                    <div>
-                      <img
-                        src={file}
-                        alt='File preview'
-                        style={{ width: '100%', height: '100%', borderRadius: '0 0 30px 0' }}
-                      />
+                    <div style={{ overflow: ' hidden' }}>
+                      <img src={file} alt='File preview' style={GoodsImgStyle} />
                     </div>
                   ) : (
-                    <div style={{ padding: '30% 5% 30% 5%' }}>
-                      <FontAwesomeIcon icon={faFileUpload} size='6x' />
+                    <div style={GoodsBGStyle}>
+                      <div style={{ padding: '30% 5% 30% 5%' }} className='center'>
+                        <FontAwesomeIcon icon={faFileUpload} size='6x' />
+                      </div>
                     </div>
                   )}
                 </div>

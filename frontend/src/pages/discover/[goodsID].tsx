@@ -5,12 +5,12 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import NotFound from '@components/NotFound';
 import TButton from '@components/TButton';
 import QuantityBar from '@components/QuantityBar';
 import UserItem from '@components/UserItem';
 import { GetResponseProps } from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { GoodsImgStyle } from '@pages/user/seller/allProducts/NewGoods';
 
 const tagStyle = {
   borderRadius: '30px',
@@ -62,68 +62,66 @@ const EachGoods = () => {
     ).padStart(2, '0')}-${String(originalDate.getDate()).padStart(2, '0')}`;
   }
 
-  if (data) {
-    return (
-      <div style={{ padding: '55px 12% 0 12%' }}>
-        <Row>
-          <Col xs={12} md={5} style={LeftBgStyle}>
-            <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
-              <img src={data.product_info.image_url} style={{ borderRadius: '0 0 30px 0' }} />
-
-              <Row xs='auto'>
-                {data.tags.map((currentTag, index) => (
-                  <Col style={tagStyle} className='center' key={index}>
-                    {currentTag.name}
-                  </Col>
-                ))}
-              </Row>
-
-              <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
-                $ {data.product_info.price} TWD
-              </h4>
-
-              {data.product_info.stock != 0 ? (
-                <div>
-                  <span style={{ color: 'black' }}>{data.product_info.stock} available</span>
-                  <hr style={{ opacity: '1' }} />
-                  <QuantityBar />
-                  <TButton text='Add to cart' />
-                </div>
-              ) : (
-                <h6 style={{ color: '#ED7E6D' }}>
-                  <b>SOLD OUT</b>
-                </h6>
-              )}
+  return (
+    <div style={{ padding: '55px 12% 0 12%' }}>
+      <Row>
+        <Col xs={12} md={5} style={LeftBgStyle}>
+          <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
+            <div style={{ overflow: ' hidden' }}>
+              <img src={data.product_info.image_url} alt='File preview' style={GoodsImgStyle} />
             </div>
-          </Col>
-          <Col xs={12} md={7}>
-            <div style={{ padding: '7% 5% 7% 5%' }}>
-              <div className='inpage_title'>{data.product_info.name}</div>
 
-              <p>
-                {data.product_info.description}
-                <br />
-                <br />
-                Enjoy at its Freshest : {data.product_info.expire_date}
-              </p>
+            <Row xs='auto'>
+              {data.tags.map((currentTag, index) => (
+                <Col style={tagStyle} className='center' key={index}>
+                  {currentTag.name}
+                </Col>
+              ))}
+            </Row>
 
-              <hr className='hr' />
-              <Row>
-                <Col xs={6} className='center'>
-                  <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
-                </Col>
-                <Col xs={6}>
-                  <TButton text='View Shop' />
-                </Col>
-              </Row>
-            </div>
-          </Col>
-        </Row>
-      </div>
-    );
-  } else {
-    return <NotFound />;
-  }
+            <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
+              $ {data.product_info.price} TWD
+            </h4>
+
+            {data.product_info.stock != 0 ? (
+              <div>
+                <span style={{ color: 'black' }}>{data.product_info.stock} available</span>
+                <hr style={{ opacity: '1' }} />
+                <QuantityBar />
+                <TButton text='Add to cart' />
+              </div>
+            ) : (
+              <h6 style={{ color: '#ED7E6D' }}>
+                <b>SOLD OUT</b>
+              </h6>
+            )}
+          </div>
+        </Col>
+        <Col xs={12} md={7}>
+          <div style={{ padding: '7% 5% 7% 5%' }}>
+            <div className='inpage_title'>{data.product_info.name}</div>
+
+            <p>
+              {data.product_info.description}
+              <br />
+              <br />
+              Enjoy at its Freshest : {data.product_info.expire_date}
+            </p>
+
+            <hr className='hr' />
+            <Row>
+              <Col xs={6} className='center'>
+                <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
+              </Col>
+              <Col xs={6}>
+                <TButton text='View Shop' />
+              </Col>
+            </Row>
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 
 export default EachGoods;

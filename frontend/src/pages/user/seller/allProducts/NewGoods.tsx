@@ -7,10 +7,26 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, CSSProperties } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
+
+export const GoodsImgStyle: CSSProperties = {
+  borderRadius: '0 0 30px 0',
+  width: '100%',
+  maxHeight: '40vh',
+  minHeight: '40vh',
+  objectFit: 'cover',
+};
+
+export const GoodsBGStyle: CSSProperties = {
+  borderRadius: '0 0 30px 0',
+  backgroundColor: 'black',
+  width: '100%',
+  maxHeight: '40vh',
+  minHeight: '40vh',
+};
 
 export interface TagProps {
   id: number;
@@ -55,8 +71,8 @@ export const CheckDataInvalid = (data: ProductProps) => {
     return false;
   }
 
-  if (data.stock <= 0) {
-    alert("stock can't be 0 or smaller than 0!");
+  if (data.stock < 0) {
+    alert("stock can't be smaller than 0!");
     return false;
   }
 
@@ -316,21 +332,16 @@ const EmptyGoods = () => {
                   borderRadius: '0 0 30px 0',
                 }}
               >
-                <div
-                  className='center'
-                  style={{ backgroundColor: 'black', borderRadius: '0 0 30px 0' }}
-                >
+                <div>
                   {file ? (
-                    <div>
-                      <img
-                        src={file}
-                        alt='File preview'
-                        style={{ width: '100%', height: '100%', borderRadius: '0 0 30px 0' }}
-                      />
+                    <div style={{ overflow: ' hidden' }}>
+                      <img src={file} alt='File preview' style={GoodsImgStyle} />
                     </div>
                   ) : (
-                    <div style={{ padding: '30% 5% 30% 5%' }}>
-                      <FontAwesomeIcon icon={faFileUpload} size='6x' />
+                    <div style={GoodsBGStyle}>
+                      <div style={{ padding: '30% 5% 30% 5%' }} className='center'>
+                        <FontAwesomeIcon icon={faFileUpload} size='6x' />
+                      </div>
                     </div>
                   )}
                 </div>

@@ -23,8 +23,8 @@ const GoodsItemStyle = {
 const GoodsImgStyle: CSSProperties = {
   borderRadius: '0 0 30px 0',
   width: '100%',
-  minHeight: '23vh',
-  maxHeight: '23vh',
+  minHeight: '20vh',
+  maxHeight: '20vh',
   objectFit: 'cover',
 };
 
