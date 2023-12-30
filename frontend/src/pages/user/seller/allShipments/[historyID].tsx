@@ -132,7 +132,7 @@ const SellerHistoryEach = () => {
           Original Total :
         </Col>
         <Col xs={6} md={2}>
-          {Math.floor(originalTotalPrice)}
+          $ {Math.floor(originalTotalPrice)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -140,7 +140,7 @@ const SellerHistoryEach = () => {
           Shipment :
         </Col>
         <Col xs={6} md={2}>
-          ${Math.floor(sellerOrderData.order_info.shipment)}
+          $ {Math.floor(sellerOrderData.order_info.shipment)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -148,7 +148,7 @@ const SellerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          $
+          ${' '}
           {Math.floor(
             originalTotalPrice -
               sellerOrderData.order_info.total_price -
@@ -163,7 +163,7 @@ const SellerHistoryEach = () => {
           Order Total :
         </Col>
         <Col xs={6} md={2}>
-          ${Math.floor(sellerOrderData.order_info.total_price)}
+          $ {Math.floor(sellerOrderData.order_info.total_price)}
         </Col>
       </Row>
     </div>

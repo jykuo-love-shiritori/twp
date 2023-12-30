@@ -125,7 +125,7 @@ const BuyerHistoryEach = () => {
           Original Total :
         </Col>
         <Col xs={6} md={2}>
-          $
+          ${' '}
           {Math.floor(
             buyerOrderData.info.total_price +
               buyerOrderData.info.discount -
@@ -138,7 +138,7 @@ const BuyerHistoryEach = () => {
           Shipment :
         </Col>
         <Col xs={6} md={2}>
-          ${Math.floor(buyerOrderData.info.shipment)}
+          $ {Math.floor(buyerOrderData.info.shipment)}
         </Col>
 
         <Col xs={12} md={7} />
@@ -146,7 +146,7 @@ const BuyerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          -${Math.floor(buyerOrderData.info.discount)}
+          -$ {Math.floor(buyerOrderData.info.discount)}
         </Col>
       </Row>
       <hr className='hr' />
@@ -156,7 +156,7 @@ const BuyerHistoryEach = () => {
           Order Total :
         </Col>
         <Col xs={6} md={2}>
-          ${Math.floor(buyerOrderData.info.total_price)}
+          $ {Math.floor(buyerOrderData.info.total_price)}
         </Col>
       </Row>
     </div>
