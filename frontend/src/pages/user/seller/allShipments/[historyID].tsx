@@ -65,7 +65,6 @@ const SellerHistoryEach = () => {
   if (status != 'success') {
     return <CheckFetchStatus status={status} />;
   } else {
-    console.log(sellerOrderData);
     switch (sellerOrderData.order_info.status) {
       case 'paid':
         recordStatus.fill(true, 0, 1);
