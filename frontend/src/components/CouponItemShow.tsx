@@ -5,10 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import CouponItemTemplate from '@components/CouponItemTemplate';
-import TButton from '@components/TButton';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus } from '@lib/Status';
-import defaultUserIcon from '@assets/images/defaultUserIcon.gif';
 
 interface ICouponItemShow {
   id: number;
@@ -17,9 +15,6 @@ interface ICouponItemShow {
   type: 'percentage' | 'fixed' | 'shipping';
   discount: number;
   expire_date: string;
-  seller_name: string;
-  seller_username: string;
-  seller_image_url: string;
 }
 
 interface IShopCouponDetail {
@@ -111,15 +106,6 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
         </Modal.Header>
         <Modal.Body>
           <Row>
-            <Col xs={3} md={2} className='center'>
-              <img src={data.seller_image_url ?? defaultUserIcon} className='user_img' />
-            </Col>
-            <Col xs={4} md={6} className='center_vertical left'>
-              {data.seller_name}
-            </Col>
-            <Col xs={5} md={4}>
-              <TButton text='ViewShop' action={`/${data.seller_username}/shop`} />
-            </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>
                 <CouponItemTemplate
@@ -234,15 +220,6 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
         </Modal.Header>
         <Modal.Body>
           <Row>
-            <Col xs={3} md={2} className='center'>
-              <img src={data.seller_image_url ?? defaultUserIcon} className='user_img' />
-            </Col>
-            <Col xs={4} md={6} className='center_vertical left'>
-              {data.seller_name}
-            </Col>
-            <Col xs={5} md={4}>
-              <TButton text='ViewShop' action={`/${data.seller_username}/shop`} />
-            </Col>
             <Col xs={12} className='center' style={{ padding: '4% 0 0 0' }}>
               <div style={{ minWidth: '50%' }}>
                 <CouponItemTemplate
