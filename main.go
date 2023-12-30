@@ -9,7 +9,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
-	"github.com/jykuo-love-shiritori/twp/pkg/auth/boot"
+	"github.com/jykuo-love-shiritori/twp/pkg/boot"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
