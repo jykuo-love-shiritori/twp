@@ -9,10 +9,10 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth/boot"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
-	"github.com/jykuo-love-shiritori/twp/script"
 	"go.uber.org/zap"
 
 	"github.com/labstack/echo/v4"
@@ -36,7 +36,7 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	err = script.CheckAdminAccount(db, context.Background())
+	err = boot.CheckAdminAccount(db, context.Background())
 	if err != nil {
 		e.Logger.Fatal(err)
 	}

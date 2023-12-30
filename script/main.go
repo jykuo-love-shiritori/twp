@@ -1,4 +1,4 @@
-package script
+package main
 
 import (
 	"context"
@@ -31,7 +31,7 @@ type loadDataTable struct {
 	OrderDetail    []db.TestInsertOrderDetailParams    `json:"order_detail"`
 }
 
-func script() {
+func main() {
 	pg, err := db.NewDB()
 	if err != nil {
 		log.Fatal(err)
