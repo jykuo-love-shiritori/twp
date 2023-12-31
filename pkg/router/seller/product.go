@@ -9,6 +9,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -51,7 +52,7 @@ func GetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.ProductInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), result.ProductInfo.ImageUrl)
+		result.ProductInfo.ImageUrl = image.GetUrl(result.ProductInfo.ImageUrl)
 		return c.JSON(http.StatusOK, result)
 	}
 }
@@ -87,7 +88,7 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range productsRow {
-			productsRow[i].ImageUrl = mc.GetFileURL(c.Request().Context(), productsRow[i].ImageUrl)
+			productsRow[i].ImageUrl = image.GetUrl(productsRow[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, productsRow)
 	}
@@ -191,7 +192,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
+		product.ImageUrl = image.GetUrl(product.ImageUrl)
 		return c.JSON(http.StatusOK, product)
 	}
 }
@@ -269,7 +270,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		product.ImageUrl = mc.GetFileURL(c.Request().Context(), product.ImageUrl)
+		product.ImageUrl = image.GetUrl(product.ImageUrl)
 		return c.JSON(http.StatusOK, product)
 	}
 }

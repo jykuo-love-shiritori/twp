@@ -5,6 +5,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -41,14 +42,14 @@ func GetCart(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			for i := range cart.Products {
-				cart.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), cart.Products[i].ImageUrl)
+				cart.Products[i].ImageUrl = image.GetUrl(cart.Products[i].ImageUrl)
 			}
 			cart.Coupons, err = pg.Queries.GetSortedCouponsFromCart(c.Request().Context(), db.GetSortedCouponsFromCartParams{Username: username, CartID: cartInfo.ID})
 			if err != nil {
 				logger.Errorw("failed to get coupon in cart", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			cartInfo.ShopImageUrl = mc.GetFileURL(c.Request().Context(), cartInfo.ShopImageUrl)
+			cartInfo.ShopImageUrl = image.GetUrl(cartInfo.ShopImageUrl)
 			cart.CartInfo = cartInfo
 			result = append(result, cart)
 		}
