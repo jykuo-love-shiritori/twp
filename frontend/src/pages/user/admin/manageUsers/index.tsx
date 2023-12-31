@@ -40,7 +40,10 @@ const ManageUser = () => {
     mutationKey: ['adminGetUser'],
     mutationFn: async (isPage: boolean) => {
       if (!isPage) {
-        const newSearchParams = new URLSearchParams({ offset: '0', limit: itemLimit.toString() });
+        const newSearchParams = new URLSearchParams({
+          offset: '0',
+          limit: (itemLimit + 1).toString(), // request one more to check if there is more
+        });
         setSearchParams(newSearchParams, { replace: true });
       }
       const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
@@ -49,7 +52,12 @@ const ManageUser = () => {
       });
       RouteOnNotOK(resp, navigate);
       const response = await resp.json();
-      setIsMore(response.length === itemLimit);
+      if (response.length === itemLimit + 1) {
+        response.pop();
+        setIsMore(true);
+      } else {
+        setIsMore(false);
+      }
       return response as IUser[];
     },
   });

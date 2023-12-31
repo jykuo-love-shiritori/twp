@@ -20,8 +20,9 @@ const Pagination = ({
   if (!searchParams.has('offset')) {
     searchParams.set('offset', '0');
   }
-  if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== limit) {
-    searchParams.set('limit', limit.toString());
+  if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== limit + 1) {
+    // request one more to check if there is more
+    searchParams.set('limit', (limit + 1).toString());
   }
   const getPage = () => {
     return Number(searchParams.get('offset')) / limit + 1;
