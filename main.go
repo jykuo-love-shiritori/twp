@@ -12,6 +12,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/pkg/boot"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/jykuo-love-shiritori/twp/pkg/router"
 	"go.uber.org/zap"
 
@@ -41,6 +42,7 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 	RegisterFrontend(e)
+	image.RegisterImage(e, mc, logger.Sugar())
 
 	router.RegisterApi(e, db, mc, logger.Sugar())
 

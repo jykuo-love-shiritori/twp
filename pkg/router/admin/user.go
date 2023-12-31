@@ -7,6 +7,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -37,7 +38,7 @@ func GetUser(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range users {
-			users[i].IconUrl = mc.GetFileURL(c.Request().Context(), users[i].IconUrl)
+			users[i].IconUrl = image.GetUrl(users[i].IconUrl)
 		}
 		return c.JSON(http.StatusOK, users)
 	}

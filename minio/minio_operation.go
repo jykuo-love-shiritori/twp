@@ -2,10 +2,10 @@ package minio
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"mime/multipart"
-	"net/url"
 	"os"
-	"time"
 
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/minio/minio-go/v7"
@@ -16,12 +16,10 @@ import (
 type MC struct {
 	mcp        *minio.Client
 	BucketName string
-	Hostname   string
 }
 
 func NewMINIO() (*MC, error) {
-
-	endpoint := os.Getenv("MINIO_HOST") + ":" + os.Getenv("MINIO_API_PORT")
+	endpoint := fmt.Sprintf("%s:%s", os.Getenv("MINIO_HOST"), os.Getenv("MINIO_API_PORT"))
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	secretKey := os.Getenv("MINIO_SECRET_KEY")
 
@@ -38,7 +36,6 @@ func NewMINIO() (*MC, error) {
 	mc := &MC{
 		mcp:        mcp,
 		BucketName: os.Getenv("MINIO_BUCKET_NAME"),
-		Hostname:   os.Getenv("MINIO_PRESIGNED_URL_HOST"),
 	}
 	return mc, nil
 }
@@ -59,7 +56,8 @@ func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader, fileName s
 	}
 	return fileName, nil
 }
-func (mc MC) PutFileByPath(ctx context.Context, path string) (string, error) {
+
+func (mc MC) PutFileByPath(ctx context.Context, path string, fileName string) (string, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -96,19 +94,12 @@ func (mc MC) RemoveFile(ctx context.Context, fileName string) error {
 	}
 	return nil
 }
-func (mc MC) GetFileURL(ctx context.Context, fileName string) string {
-	if fileName == "" {
-		return ""
-	}
-	reqParams := make(url.Values)
-	reqParams.Set("response-content-type", common.FileMimeFrom(fileName))
 
-	presignedURL, err := mc.mcp.PresignedGetObject(ctx, mc.BucketName, fileName, time.Second*24*60*60, reqParams)
+func (mc MC) GetFile(ctx context.Context, fileName string) ([]byte, error) {
+	obj, err := mc.mcp.GetObject(ctx, mc.BucketName, fileName, minio.GetObjectOptions{})
 	if err != nil {
-		//default image if can find image by uuid
-		return ""
+		return nil, err
 	}
-	//overwrite minio host
-	presignedURL.Host = mc.Hostname
-	return presignedURL.String()
+
+	return io.ReadAll(obj)
 }
