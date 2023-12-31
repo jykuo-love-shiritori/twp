@@ -6,6 +6,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -52,10 +53,10 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// FIX ME
-		// for i := range orders {
-		// 	orders[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ImageUrl)
-		// }
+		for i := range orders {
+			orders[i].ThumbnailUrl = image.GetUrl(orders[i].ThumbnailUrl)
+			orders[i].UserImageUrl = image.GetUrl(orders[i].UserImageUrl)
+		}
 		return c.JSON(http.StatusOK, orders)
 	}
 }
@@ -93,11 +94,9 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// FIX ME
-		// result.OrderInfo.ThumbnailUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.ThumbnailUrl)
-		result.OrderInfo.UserImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.UserImageUrl)
+		result.OrderInfo.UserImageUrl = image.GetUrl(result.OrderInfo.UserImageUrl)
 		for i := range result.Products {
-			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
+			result.Products[i].ImageUrl = image.GetUrl(result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}

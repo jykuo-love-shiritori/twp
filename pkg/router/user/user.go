@@ -9,6 +9,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -35,7 +36,7 @@ func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
+		user.ImageUrl = image.GetUrl(user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -69,7 +70,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		fileHeader, err := c.FormFile("image")
-		//if have file then store in miniopkg/router/seller
+		//if have file then store in minio
 		if err == nil {
 			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
 			if err != nil {
@@ -91,7 +92,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
-		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
+		user.ImageUrl = image.GetUrl(user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -104,6 +105,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Produce		json
 // @success		200	{object}	db.UserUpdatePasswordRow
 // @Failure		400	{object}	echo.HTTPError
+// @Failure		401	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
 // @Router			/user/security/password [post]
 func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {

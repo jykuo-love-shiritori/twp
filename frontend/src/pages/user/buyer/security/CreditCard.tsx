@@ -1,18 +1,59 @@
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
-
-import creditData from '@pages/user/buyer/security/creditCard.json';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { CheckFetchStatus } from '@lib/Status';
+import { RouteOnNotOK } from '@lib/Status';
 import TButton from '@components/TButton';
 
+interface ICreditCard {
+  CVV: string;
+  name: string;
+  card_number: string;
+  expiry_date: string;
+}
+
+const ContainerStyle = {
+  borderRadius: '24px',
+  border: '1px solid var(--button_border, #34977F)',
+  background: ' var(--button_dark, #135142)',
+  padding: '10% 5% 5% 5%',
+  color: 'white',
+  marginBottom: '15px',
+};
+
 const CreditCard = () => {
-  const ContainerStyle = {
-    borderRadius: '24px',
-    border: '1px solid var(--button_border, #34977F)',
-    background: ' var(--button_dark, #135142)',
-    padding: '10% 5% 5% 5%',
-    color: 'white',
-    marginBottom: '15px',
+  const navigate = useNavigate();
+
+  const { data, status, refetch } = useQuery({
+    queryKey: ['userGetCreditCard'],
+    queryFn: async () => {
+      const resp = await fetch('/api/user/security/credit_card');
+      RouteOnNotOK(resp, navigate);
+      return await resp.json();
+    },
+    select: (data) => data as [ICreditCard],
+    retry: false,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
+  const onDelete = async (id: number) => {
+    const newCards = id !== 0 ? data.slice(0, id).concat(data.slice(id + 1)) : data.slice(1);
+    const resp = await fetch('/api/user/security/credit_card', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCards),
+    });
+    if (!resp.ok) {
+      RouteOnNotOK(resp, navigate);
+    } else {
+      refetch();
+    }
   };
 
   return (
@@ -27,21 +68,21 @@ const CreditCard = () => {
       </Row>
       <br />
       <Row>
-        {creditData.map((data, index) => {
+        {data.map((card, index) => {
           return (
             <Col xs={6} md={3} key={index}>
               <div style={ContainerStyle}>
                 <div className='title_color' style={{ padding: '0% 5% 5% 10%' }}>
-                  <b>{data.company}</b>
+                  <b>{card.name}</b>
                 </div>
                 <div className='center'>
                   <FontAwesomeIcon icon={faCreditCard} size='3x' />
                 </div>
                 <div className='center' style={{ padding: '5%' }}>
-                  ...{data.last_four_code}
+                  {`---- ---- ---- ${card.card_number.slice(-4)}`}
                 </div>
               </div>
-              <TButton text='delete' />
+              <TButton text='delete' action={() => onDelete(index)} />
             </Col>
           );
         })}
