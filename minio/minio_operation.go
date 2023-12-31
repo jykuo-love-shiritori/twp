@@ -57,7 +57,7 @@ func (mc MC) PutFile(ctx context.Context, file *multipart.FileHeader, fileName s
 	return fileName, nil
 }
 
-func (mc MC) PutFileByPath(ctx context.Context, path string, fileName string) (string, error) {
+func (mc MC) PutFileByPath(ctx context.Context, path string) (string, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
