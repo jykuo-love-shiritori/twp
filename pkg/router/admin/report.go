@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -50,7 +51,7 @@ func GetReport(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerF
 		})
 		for i := range result.Sellers {
 			if result.Sellers[i].ImageUrl != "" {
-				result.Sellers[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Sellers[i].ImageUrl)
+				result.Sellers[i].ImageUrl = image.GetUrl(result.Sellers[i].ImageUrl)
 			}
 		}
 		if err != nil {

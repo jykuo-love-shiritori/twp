@@ -10,6 +10,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -42,8 +43,8 @@ func GetOrderHistory(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Ha
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orders {
-			orders[i].ShopImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ShopImageUrl)
-			orders[i].ThumbnailUrl = mc.GetFileURL(c.Request().Context(), orders[i].ThumbnailUrl)
+			orders[i].ShopImageUrl = image.GetUrl(orders[i].ShopImageUrl)
+			orders[i].ThumbnailUrl = image.GetUrl(orders[i].ThumbnailUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -82,13 +83,13 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to get order info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		orderDetail.Info.ShopImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Info.ShopImageUrl)
+		orderDetail.Info.ShopImageUrl = image.GetUrl(orderDetail.Info.ShopImageUrl)
 		if orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID); err != nil {
 			logger.Errorw("failed to get order detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orderDetail.Details {
-			orderDetail.Details[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Details[i].ImageUrl)
+			orderDetail.Details[i].ImageUrl = image.GetUrl(orderDetail.Details[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, orderDetail)
 	}

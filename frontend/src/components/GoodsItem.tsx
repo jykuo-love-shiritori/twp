@@ -28,6 +28,15 @@ const GoodsImgStyle: CSSProperties = {
   objectFit: 'cover',
 };
 
+export interface GoodsItemProps {
+  description: string;
+  id: number;
+  image_url: string;
+  name: string;
+  price: number;
+  sales: number;
+}
+
 const GoodsItem = ({ id, name, image_url }: Props) => {
   return (
     <div style={GoodsItemStyle}>

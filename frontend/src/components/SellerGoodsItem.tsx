@@ -11,7 +11,6 @@ interface Props {
   id: number;
   name: string;
   image_url: string;
-  isIndex: boolean;
 }
 
 const GoodsItemStyle: CSSProperties = {
@@ -31,7 +30,7 @@ const GoodsImgStyle: CSSProperties = {
   objectFit: 'cover',
 };
 
-const SellerGoodsItem = ({ id, name, image_url, isIndex }: Props) => {
+const SellerGoodsItem = ({ id, name, image_url }: Props) => {
   return (
     <div style={GoodsItemStyle}>
       <div style={{ overflow: ' hidden' }}>
@@ -44,7 +43,7 @@ const SellerGoodsItem = ({ id, name, image_url, isIndex }: Props) => {
         </p>
       </div>
 
-      <Link to={isIndex ? `discover/${id}` : `${id}`}>
+      <Link to={`/user/seller/manageProducts/${id}`}>
         <div className='button pointer center'>
           <FontAwesomeIcon icon={faPen} className='white_word' />
         </div>
