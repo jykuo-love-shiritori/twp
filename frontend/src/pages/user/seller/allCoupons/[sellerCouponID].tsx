@@ -179,12 +179,13 @@ const EachSellerCoupon = () => {
     const startDate = new Date(data.coupon_info.start_date);
     const expDate = new Date(data.coupon_info.expire_date);
     const today = new Date();
-    if (startDate < today) {
+    startDate.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    if (startDate <= today) {
       alert('Start date should be later than today');
       return;
     }
-    startDate.setHours(0, 0, 0, 0);
-    expDate.setHours(0, 0, 0, 0);
     if (startDate >= expDate) {
       alert('Start date should be earlier than expire date');
       return;
@@ -210,9 +211,9 @@ const EachSellerCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.coupon_info.description,
       discount: Number(data.coupon_info.discount),
-      expire_date: new Date(data.coupon_info.expire_date).toISOString(),
+      expire_date: new Date(data.coupon_info.expire_date).toLocaleDateString(),
       name: data.coupon_info.name,
-      start_date: new Date(data.coupon_info.start_date).toISOString(),
+      start_date: new Date(data.coupon_info.start_date).toLocaleDateString(),
       tags: data.tags.map((tag) => tag.tag_id),
       type: data.coupon_info.type,
     };
@@ -253,8 +254,8 @@ const EachSellerCoupon = () => {
       reset({
         coupon_info: {
           ...initData.coupon_info,
-          start_date: formatDate(startDate.toISOString()),
-          expire_date: formatDate(expDate.toISOString()),
+          start_date: formatDate(startDate.toLocaleDateString()),
+          expire_date: formatDate(expDate.toLocaleDateString()),
         },
         tags: initData.tags,
       });

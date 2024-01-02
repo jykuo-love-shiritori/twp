@@ -20,16 +20,15 @@ interface IGlobalCouponDetail {
 const NewAdminCoupon = () => {
   const navigate = useNavigate();
 
-  // react-hook-form things
   const { register, handleSubmit, watch } = useForm<IGlobalCouponDetail>({
     defaultValues: {
       description: '',
       discount: 0,
-      expire_date: formatDate(new Date().toISOString()),
+      expire_date: formatDate(new Date().toLocaleDateString()),
       id: 0,
       name: '',
       scope: 'global',
-      start_date: formatDate(new Date().toISOString()),
+      start_date: formatDate(new Date().toLocaleDateString()),
       type: 'percentage',
     },
   });
@@ -40,12 +39,13 @@ const NewAdminCoupon = () => {
     const startDate = new Date(data.start_date);
     const expDate = new Date(data.expire_date);
     const today = new Date();
-    if (startDate < today) {
+    startDate.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    if (startDate <= today) {
       alert('Start date should be later than today');
       return;
     }
-    startDate.setHours(0, 0, 0, 0);
-    expDate.setHours(0, 0, 0, 0);
     if (startDate >= expDate) {
       alert('Start date should be earlier than expire date');
       return;
@@ -71,10 +71,10 @@ const NewAdminCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.description,
       discount: Number(data.discount),
-      expire_date: new Date(data.expire_date).toISOString(),
+      expire_date: new Date(data.expire_date).toLocaleDateString(),
       name: data.name,
       scope: data.scope,
-      start_date: new Date(data.start_date).toISOString(),
+      start_date: new Date(data.start_date).toLocaleDateString(),
       type: data.type,
     };
     const resp = await fetch(`/api/admin/coupon`, {

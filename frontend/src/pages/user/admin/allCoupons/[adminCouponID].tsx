@@ -63,12 +63,13 @@ const EachAdminCoupon = () => {
     const startDate = new Date(data.start_date);
     const expDate = new Date(data.expire_date);
     const today = new Date();
-    if (startDate < today) {
+    startDate.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    if (startDate <= today) {
       alert('Start date should be later than today');
       return;
     }
-    startDate.setHours(0, 0, 0, 0);
-    expDate.setHours(0, 0, 0, 0);
     if (startDate >= expDate) {
       alert('Start date should be earlier than expire date');
       return;
@@ -81,6 +82,7 @@ const EachAdminCoupon = () => {
       alert('Discount should be greater than 0');
       return;
     }
+
     // nice "end_date" backend team 🥳
     interface INewCoupon {
       description: string;
@@ -94,9 +96,9 @@ const EachAdminCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.description,
       discount: Number(data.discount),
-      end_date: new Date(data.expire_date).toISOString(),
+      end_date: new Date(data.expire_date).toLocaleDateString(),
       name: data.name,
-      start_date: new Date(data.start_date).toISOString(),
+      start_date: new Date(data.start_date).toLocaleDateString(),
       type: data.type,
     };
     const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
@@ -114,6 +116,7 @@ const EachAdminCoupon = () => {
       navigate('/admin/manageCoupons');
     }
   };
+
   const OnDelete = async () => {
     const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
       method: 'DELETE',
@@ -135,8 +138,8 @@ const EachAdminCoupon = () => {
       const expDate = new Date(initData.expire_date);
       reset({
         ...initData,
-        start_date: formatDate(startDate.toISOString()),
-        expire_date: formatDate(expDate.toISOString()),
+        start_date: formatDate(startDate.toLocaleDateString()),
+        expire_date: formatDate(expDate.toLocaleDateString()),
       });
     }
   }, [initData, initStatus, reset]);
