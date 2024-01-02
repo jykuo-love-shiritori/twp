@@ -3,9 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@lib/Auth';
+
 import HistoryItem, { SellerHistoryItemProps } from '@components/HistoryItem';
 
 const SellerShipment = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const { status, data: sellerOrderData } = useQuery({
@@ -14,6 +17,7 @@ const SellerShipment = () => {
       const response = await fetch(`/api/seller/order?offset=${0}&limit=${8}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

@@ -9,6 +9,7 @@ import NotFound from '@components/NotFound';
 import RecordStatus from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface BuyerOrderProps {
   info: {
@@ -32,6 +33,7 @@ interface BuyerOrderProps {
 }
 
 const BuyerHistoryEach = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const params = useParams<{ history_id?: string }>();
@@ -52,6 +54,7 @@ const BuyerHistoryEach = () => {
       const response = await fetch(`/api/buyer/order/${order_id}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

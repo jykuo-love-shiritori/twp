@@ -9,6 +9,7 @@ import NotFound from '@components/NotFound';
 import RecordStatus from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface SellerOrderProps {
   order_info: {
@@ -33,6 +34,7 @@ interface SellerOrderProps {
 }
 
 const SellerHistoryEach = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const params = useParams<{ history_id?: string }>();
@@ -53,6 +55,7 @@ const SellerHistoryEach = () => {
       const response = await fetch(`/api/seller/order/${order_id}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -148,10 +151,10 @@ const SellerHistoryEach = () => {
           Coupon :
         </Col>
         <Col xs={6} md={2}>
-          ${' '}
+          -${' '}
           {Math.floor(
             originalTotalPrice -
-              sellerOrderData.order_info.total_price -
+              sellerOrderData.order_info.total_price +
               sellerOrderData.order_info.shipment,
           )}
         </Col>
