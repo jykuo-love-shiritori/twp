@@ -123,7 +123,7 @@ func GetPopular(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result.LocalProducts {
-			result.LocalProducts[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.LocalProducts[i].ImageUrl)
+			result.LocalProducts[i].ImageUrl = image.GetUrl(result.LocalProducts[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
