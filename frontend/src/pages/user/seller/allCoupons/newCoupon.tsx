@@ -103,6 +103,10 @@ const NewSellerCoupon = () => {
   };
   const onChangeNewTag = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setTag(event.target.value);
+    if (event.target.value === '') {
+      setSuggestTags([]);
+      return;
+    }
     const resp = await fetch(`/api/seller/tag?name=${event.target.value}`, {
       method: 'GET',
       headers: {
