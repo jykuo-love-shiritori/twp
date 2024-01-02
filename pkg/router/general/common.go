@@ -8,6 +8,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -85,7 +86,7 @@ func GetDiscover(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result {
-			result[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result[i].ImageUrl)
+			result[i].ImageUrl = image.GetUrl(result[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -114,7 +115,7 @@ func GetPopular(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result.PopularProducts {
-			result.PopularProducts[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.PopularProducts[i].ImageUrl)
+			result.PopularProducts[i].ImageUrl = image.GetUrl(result.PopularProducts[i].ImageUrl)
 		}
 		result.LocalProducts, err = pg.Queries.GetProductsFromNearByShop(c.Request().Context())
 		if err != nil {
@@ -154,7 +155,7 @@ func GetProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to get product info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.ImageUrl = mc.GetFileURL(c.Request().Context(), result.ImageUrl)
+		result.ImageUrl = image.GetUrl(result.ImageUrl)
 		return c.JSON(http.StatusOK, result)
 	}
 }
