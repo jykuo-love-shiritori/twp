@@ -11,6 +11,7 @@ import UserItem from '@components/UserItem';
 import { GetResponseProps } from '@pages/user/seller/allProducts/[sellerGoodsID]';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsImgStyle } from '@pages/user/seller/allProducts/NewGoods';
+import { useAuth } from '@lib/Auth';
 
 const tagStyle = {
   borderRadius: '30px',
@@ -26,6 +27,7 @@ const LeftBgStyle = {
 };
 
 const EachGoods = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const params = useParams<{ goods_id?: string }>();
@@ -44,6 +46,7 @@ const EachGoods = () => {
       const response = await fetch(`/api/seller/product/${goods_id}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

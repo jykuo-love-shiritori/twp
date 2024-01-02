@@ -11,6 +11,8 @@ import React, { useReducer, useEffect } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
+import { useAuth } from '@lib/Auth';
+
 import {
   TagProps,
   ProductProps,
@@ -84,6 +86,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 };
 
 const EachSellerGoods = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const params = useParams<{ goods_id?: string }>();
@@ -125,6 +128,7 @@ const EachSellerGoods = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -146,6 +150,7 @@ const EachSellerGoods = () => {
       const response = await fetch(`/api/seller/tag?name=${data}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -164,6 +169,7 @@ const EachSellerGoods = () => {
       const response = await fetch(`/api/seller/product/${id}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -209,6 +215,7 @@ const EachSellerGoods = () => {
         method: 'PATCH',
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
         redirect: 'follow',
@@ -242,6 +249,7 @@ const EachSellerGoods = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -263,6 +271,7 @@ const EachSellerGoods = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -280,6 +289,7 @@ const EachSellerGoods = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

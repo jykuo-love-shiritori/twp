@@ -11,6 +11,7 @@ import React, { useReducer, useEffect, CSSProperties } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
+import { useAuth } from '@lib/Auth';
 
 export const GoodsImgStyle: CSSProperties = {
   borderRadius: '0 0 30px 0',
@@ -152,6 +153,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 };
 
 const EmptyGoods = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const [tag, setTag] = useState('');
@@ -186,6 +188,7 @@ const EmptyGoods = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
@@ -206,6 +209,7 @@ const EmptyGoods = () => {
       const response = await fetch(`/api/seller/tag?name=${data}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
@@ -232,6 +236,7 @@ const EmptyGoods = () => {
         method: 'POST',
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
         redirect: 'follow',
