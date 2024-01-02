@@ -93,8 +93,8 @@ SELECT
 FROM
     "user"
 WHERE
-    "username" = $1
-    OR "email" = $1;
+    ("username" = $1 OR "email" = $1)
+    AND "enabled" = TRUE;
 
 -- name: SetRefreshToken :exec
 UPDATE
