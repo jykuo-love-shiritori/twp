@@ -24,11 +24,11 @@ const NewAdminCoupon = () => {
     defaultValues: {
       description: '',
       discount: 0,
-      expire_date: formatDate(new Date().toLocaleDateString()),
+      expire_date: formatDate(new Date().toISOString()),
       id: 0,
       name: '',
       scope: 'global',
-      start_date: formatDate(new Date().toLocaleDateString()),
+      start_date: formatDate(new Date().toISOString()),
       type: 'percentage',
     },
   });
@@ -71,10 +71,10 @@ const NewAdminCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.description,
       discount: Number(data.discount),
-      expire_date: new Date(data.expire_date).toLocaleDateString(),
+      expire_date: new Date(data.expire_date).toISOString(),
       name: data.name,
       scope: data.scope,
-      start_date: new Date(data.start_date).toLocaleDateString(),
+      start_date: new Date(data.start_date).toISOString(),
       type: data.type,
     };
     const resp = await fetch(`/api/admin/coupon`, {

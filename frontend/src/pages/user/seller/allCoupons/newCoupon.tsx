@@ -46,10 +46,10 @@ const NewSellerCoupon = () => {
       coupon_info: {
         description: '',
         discount: 0,
-        expire_date: formatDate(new Date().toLocaleDateString()),
+        expire_date: formatDate(new Date().toISOString()),
         name: '',
         scope: 'shop',
-        start_date: formatDate(new Date().toLocaleDateString()),
+        start_date: formatDate(new Date().toISOString()),
         type: 'percentage',
       },
       tags: [],
@@ -160,9 +160,9 @@ const NewSellerCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.coupon_info.description,
       discount: Number(data.coupon_info.discount),
-      expire_date: new Date(data.coupon_info.expire_date).toLocaleDateString(),
+      expire_date: new Date(data.coupon_info.expire_date).toISOString(),
       name: data.coupon_info.name,
-      start_date: new Date(data.coupon_info.start_date).toLocaleDateString(),
+      start_date: new Date(data.coupon_info.start_date).toISOString(),
       tags: data.tags.map((tag) => tag.tag_id),
       type: data.coupon_info.type,
     };

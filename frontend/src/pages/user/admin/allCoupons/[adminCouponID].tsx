@@ -96,9 +96,9 @@ const EachAdminCoupon = () => {
     const newCoupon: INewCoupon = {
       description: data.description,
       discount: Number(data.discount),
-      end_date: new Date(data.expire_date).toLocaleDateString(),
+      end_date: new Date(data.expire_date).toISOString(),
       name: data.name,
-      start_date: new Date(data.start_date).toLocaleDateString(),
+      start_date: new Date(data.start_date).toISOString(),
       type: data.type,
     };
     const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
@@ -138,8 +138,8 @@ const EachAdminCoupon = () => {
       const expDate = new Date(initData.expire_date);
       reset({
         ...initData,
-        start_date: formatDate(startDate.toLocaleDateString()),
-        expire_date: formatDate(expDate.toLocaleDateString()),
+        start_date: formatDate(startDate.toISOString()),
+        expire_date: formatDate(expDate.toISOString()),
       });
     }
   }, [initData, initStatus, reset]);
