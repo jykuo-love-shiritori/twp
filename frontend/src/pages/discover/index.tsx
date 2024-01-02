@@ -1,12 +1,36 @@
 import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import GoodsItem from '@components/GoodsItem';
 
-import goodsData from '@pages/discover/goodsData.json';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { GoodsItemProps } from '@components/GoodsItem';
 
 const Discover = () => {
+  const navigate = useNavigate();
+
+  const { status, data: goodsData } = useQuery({
+    queryKey: ['discover'],
+    queryFn: async () => {
+      const response = await fetch(`/api/discover?offset=${0}&limit=${12}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        RouteOnNotOK(response, navigate);
+      }
+      return (await response.json()) as GoodsItemProps[];
+    },
+  });
+
+  if (status != 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
   return (
     <div style={{ padding: '10%' }}>
       <span className='title'>Discover</span>
