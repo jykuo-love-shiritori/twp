@@ -92,7 +92,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		// if the the given time is invalid, make it become now 😇
-		if coupon.StartDate.Time.Before(time.Now().Truncate(24 * time.Hour)) {
+		if coupon.StartDate.Time.Before(time.Now()) {
 			coupon.StartDate.Time = time.Now()
 		}
 		if coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
