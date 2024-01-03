@@ -9,6 +9,7 @@ import (
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -147,7 +148,7 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range products {
-			products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), products[i].ImageUrl)
+			products[i].ImageUrl = image.GetUrl(products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, products)
 	}
@@ -229,7 +230,7 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range sr.Products {
-			sr.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), sr.Products[i].ImageUrl)
+			sr.Products[i].ImageUrl = image.GetUrl(sr.Products[i].ImageUrl)
 		}
 		sr.Shops, err = pg.Queries.SearchShops(c.Request().Context(), db.SearchShopsParams{
 			Query:  q.Q,
@@ -241,7 +242,7 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range sr.Shops {
-			sr.Shops[i].ImageUrl = mc.GetFileURL(c.Request().Context(), sr.Shops[i].ImageUrl)
+			sr.Shops[i].ImageUrl = image.GetUrl(sr.Shops[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, sr)
 	}

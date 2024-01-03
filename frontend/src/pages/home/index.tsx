@@ -3,25 +3,69 @@ import '@style/global.css';
 import '@components/style.css';
 
 import { Col, Row } from 'react-bootstrap';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import News from '@components/News';
 import TButton from '@components/TButton';
 import GoodsItem from '@components/GoodsItem';
 
-import newsData from '@pages/home/newsData.json';
-import goodsData from '@pages/discover/goodsData.json';
 import { useAuth } from '@lib/Auth';
 
 import TitleImgUrl from '@assets/images/title.png';
-import NewsImgUrl1 from '@assets/images/news1.jpg';
-import NewsImgUrl2 from '@assets/images/news2.jpg';
-import NewsImgUrl3 from '@assets/images/news3.jpg';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { NewsProps } from '@components/News';
+import { GoodsItemProps } from '@components/GoodsItem';
+
+interface RecommendDataProps {
+  popular_products: GoodsItemProps[];
+  local_products: GoodsItemProps[];
+}
 
 const Home = () => {
   const token = useAuth();
+  const navigate = useNavigate();
 
-  // TODO: remove this when integrating with backend
+  const { status: newsStatus, data: newsData } = useQuery({
+    queryKey: ['news'],
+    queryFn: async () => {
+      const response = await fetch(`/api/news`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        RouteOnNotOK(response, navigate);
+      }
+      return (await response.json()) as NewsProps[];
+    },
+  });
+
+  const { status: recommendStatus, data: recommendData } = useQuery({
+    queryKey: ['recommend'],
+    queryFn: async () => {
+      const response = await fetch(`/api/popular`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        RouteOnNotOK(response, navigate);
+      }
+      return (await response.json()) as RecommendDataProps;
+    },
+  });
+
+  if (newsStatus != 'success') {
+    return <CheckFetchStatus status={newsStatus} />;
+  }
+
+  if (recommendStatus != 'success') {
+    return <CheckFetchStatus status={recommendStatus} />;
+  }
+
   console.log(token);
+
   return (
     <div>
       <div className='home'>
@@ -34,11 +78,7 @@ const Home = () => {
           {newsData.map((data, index) => {
             return (
               <Col xs={12} md={4} key={index}>
-                <News
-                  id={data.id}
-                  image_url={[NewsImgUrl3, NewsImgUrl2, NewsImgUrl1][index]}
-                  title={data.title}
-                />
+                <News id={data.id} image_id={data.image_id} title={data.title} />
               </Col>
             );
           })}
@@ -48,30 +88,20 @@ const Home = () => {
 
         <div style={{ padding: '0% 0% 3% 0%' }}>From most popular sellers</div>
         <Row>
-          {goodsData.map((data, index) => {
-            if (data.id < 5) {
-              return (
-                <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
-                </Col>
-              );
-            }
-            return null;
-          })}
+          {recommendData.popular_products.map((data, index) => (
+            <Col xs={6} md={3} key={index}>
+              <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
+            </Col>
+          ))}
         </Row>
 
         <div style={{ padding: '3% 0% 3% 0%' }}>From local sellers</div>
         <Row>
-          {goodsData.map((data, index) => {
-            if (data.id < 9 && data.id > 4) {
-              return (
-                <Col xs={6} md={3} key={index}>
-                  <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
-                </Col>
-              );
-            }
-            return null;
-          })}
+          {recommendData.local_products.map((data, index) => (
+            <Col xs={6} md={3} key={index}>
+              <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
+            </Col>
+          ))}
         </Row>
 
         <div style={{ padding: '3% 0% 3% 0%' }}>
