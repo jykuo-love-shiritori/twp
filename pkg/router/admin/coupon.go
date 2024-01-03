@@ -91,7 +91,11 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		if coupon.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
+		// if the the given time is invalid, make it become now 😇
+		if coupon.ExpireDate.Time.Before(time.Now().Truncate(24 * time.Hour)) {
+			coupon.ExpireDate.Time = time.Now()
+		}
+		if coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
 			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
 			return echo.NewHTTPError(http.StatusBadRequest, "Start date is invalid")
 		}
@@ -150,9 +154,13 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("discount is invalid", "discount", discount)
 			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
 		}
-		if coupon.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
-			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
-			return echo.NewHTTPError(http.StatusBadRequest, "Start date is invalid")
+		// if the the given time is invalid, make it become now 😇
+		if coupon.StartDate.Time.Before(time.Now()) {
+			coupon.ExpireDate.Time = time.Now()
+		}
+		if coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
+			logger.Errorw("start date should later than ", "start date", coupon.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "Expire date is invalid")
 		}
 		result, err := pg.Queries.EditCoupon(c.Request().Context(), coupon)
 		if err != nil {
