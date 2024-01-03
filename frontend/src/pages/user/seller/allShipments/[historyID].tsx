@@ -39,8 +39,7 @@ const SellerHistoryEach = () => {
 
   const params = useParams<{ history_id?: string }>();
   let order_id: number | undefined;
-  // eslint-disable-next-line prefer-const
-  let recordStatus: boolean[] = new Array(4).fill(false);
+  const recordStatus: boolean[] = new Array(4).fill(false);
 
   if (params.history_id) {
     order_id = parseInt(params.history_id);
@@ -65,7 +64,7 @@ const SellerHistoryEach = () => {
     },
   });
 
-  if (status != 'success') {
+  if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   } else {
     switch (sellerOrderData.order_info.status) {
@@ -78,6 +77,8 @@ const SellerHistoryEach = () => {
       case 'delivered':
         recordStatus.fill(true, 0, 3);
         break;
+      default:
+        recordStatus.fill(true, 0, 0);
     }
   }
 

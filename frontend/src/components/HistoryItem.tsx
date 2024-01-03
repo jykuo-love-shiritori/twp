@@ -4,6 +4,7 @@ import TButton from '@components/TButton';
 import UserItem from '@components/UserItem';
 
 export interface BuyerHistoryItemProps {
+  user: 'buyer';
   id: number;
   shop_name: string;
   shop_image_url: string;
@@ -16,6 +17,7 @@ export interface BuyerHistoryItemProps {
 }
 
 export interface SellerHistoryItemProps {
+  user: 'seller';
   id: number;
   product_name: string;
   thumbnail_url: string;
@@ -29,23 +31,16 @@ export interface SellerHistoryItemProps {
 
 interface Props {
   data: BuyerHistoryItemProps | SellerHistoryItemProps;
-  user: 'buyer' | 'seller';
 }
 
-const HistoryItem = ({ data, user }: Props) => {
-  const isBuyerHistory = (
-    data: BuyerHistoryItemProps | SellerHistoryItemProps,
-  ): data is BuyerHistoryItemProps => {
-    return 'shop_image_url' in data && 'shop_name' in data;
-  };
-
+const HistoryItem = ({ data }: Props) => {
   return (
     <div>
       <Row className='history_container dark'>
         <Col sm={12} md={6}>
           <UserItem
-            img_path={isBuyerHistory(data) ? data.shop_image_url : data.user_image_url}
-            name={isBuyerHistory(data) ? data.shop_name : data.user_name}
+            img_path={data.user === 'buyer' ? data.shop_image_url : data.user_image_url}
+            name={data.user === 'buyer' ? data.shop_name : data.user_name}
           />
         </Col>
         <Col sm={12} md={6} className='right'>
@@ -78,7 +73,9 @@ const HistoryItem = ({ data, user }: Props) => {
           <TButton
             text='Detail'
             action={
-              user === 'buyer' ? `/user/buyer/order/${data.id}` : `/user/seller/order/${data.id}`
+              data.user === 'buyer'
+                ? `/user/buyer/order/${data.id}`
+                : `/user/seller/order/${data.id}`
             }
           />
         </Col>

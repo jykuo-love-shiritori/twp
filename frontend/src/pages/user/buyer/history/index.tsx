@@ -14,7 +14,7 @@ const History = () => {
   const { status, data: buyerOrderData } = useQuery({
     queryKey: ['buyerOder'],
     queryFn: async () => {
-      const response = await fetch(`/api/buyer/order?offset=${0}&limit=${8}`, {
+      const response = await fetch(`/api/buyer/order?offset=0&limit=8`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
@@ -39,9 +39,11 @@ const History = () => {
 
       <Row>
         {buyerOrderData.map((item, index) => {
+          const data: BuyerHistoryItemProps = item;
+          data.user = 'buyer';
           return (
             <Col xs={12} key={index}>
-              <HistoryItem data={item} user='buyer' />
+              <HistoryItem data={data} />
             </Col>
           );
         })}
