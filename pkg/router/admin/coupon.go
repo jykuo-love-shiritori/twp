@@ -95,6 +95,15 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
 			return echo.NewHTTPError(http.StatusBadRequest, "Start date is invalid")
 		}
+		discount, err := coupon.Discount.Float64Value()
+		if err != nil {
+			logger.Errorw("failed to parse discount", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
+		}
+		if discount.Float64 < 0 || (coupon.Type == db.CouponTypePercentage && discount.Float64 > 100) {
+			logger.Errorw("discount is invalid", "discount", discount)
+			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
+		}
 		coupon.Scope = "global"
 		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
 		if err != nil {
