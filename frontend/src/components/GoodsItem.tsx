@@ -9,6 +9,15 @@ export interface Props {
   image_url: string;
 }
 
+export interface GoodsItemProps {
+  description: string;
+  id: number;
+  image_url: string;
+  name: string;
+  price: number;
+  sales: number;
+}
+
 const GoodsItem = ({ id, name, image_url }: Props) => {
   const GoodsItemStyle = {
     boxShadow: '3px 5px 10px 0px rgba(0, 0, 0, 0.25)',
