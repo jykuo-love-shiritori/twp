@@ -92,8 +92,8 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		// if the the given time is invalid, make it become now 😇
-		if coupon.ExpireDate.Time.Before(time.Now().Truncate(24 * time.Hour)) {
-			coupon.ExpireDate.Time = time.Now()
+		if coupon.StartDate.Time.Before(time.Now().Truncate(24 * time.Hour)) {
+			coupon.StartDate.Time = time.Now()
 		}
 		if coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
 			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
@@ -156,7 +156,7 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		}
 		// if the the given time is invalid, make it become now 😇
 		if coupon.StartDate.Time.Before(time.Now()) {
-			coupon.ExpireDate.Time = time.Now()
+			coupon.StartDate.Time = time.Now()
 		}
 		if coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
 			logger.Errorw("start date should later than ", "start date", coupon.StartDate)
