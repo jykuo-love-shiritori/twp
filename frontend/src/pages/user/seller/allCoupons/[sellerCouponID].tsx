@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { formatDate } from '@lib/Functions';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -45,6 +46,7 @@ const EachSellerCoupon = () => {
   const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
   const navigate = useNavigate();
   const { coupon_id } = useParams();
+  const token = useAuth();
 
   const { register, control, handleSubmit, watch, reset } = useForm<IShopCouponDetail>({
     defaultValues: {
@@ -73,6 +75,7 @@ const EachSellerCoupon = () => {
       const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });
@@ -108,6 +111,7 @@ const EachSellerCoupon = () => {
           const resp = await fetch('/api/seller/tag', {
             method: 'POST',
             headers: {
+              Authorization: `Bearer ${token}`,
               accept: 'application/json',
               'Content-Type': 'application/json',
             },
@@ -126,6 +130,7 @@ const EachSellerCoupon = () => {
         const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
           method: 'POST',
           headers: {
+            Authorization: `Bearer ${token}`,
             accept: 'application/json',
             'Content-Type': 'application/json',
           },
@@ -149,6 +154,7 @@ const EachSellerCoupon = () => {
     const resp = await fetch(`/api/seller/tag?name=${event.target.value}`, {
       method: 'GET',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
       },
     });
@@ -167,6 +173,7 @@ const EachSellerCoupon = () => {
     const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -224,6 +231,7 @@ const EachSellerCoupon = () => {
     const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -241,6 +249,7 @@ const EachSellerCoupon = () => {
     const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
       },
     });

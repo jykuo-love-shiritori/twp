@@ -2,6 +2,7 @@ import { Row, Col } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '@lib/Functions';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -19,6 +20,7 @@ interface IGlobalCouponDetail {
 
 const NewAdminCoupon = () => {
   const navigate = useNavigate();
+  const token = useAuth();
 
   const { register, handleSubmit, watch } = useForm<IGlobalCouponDetail>({
     defaultValues: {
@@ -80,6 +82,7 @@ const NewAdminCoupon = () => {
     const resp = await fetch(`/api/admin/coupon`, {
       method: 'POST',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
         'Content-Type': 'application/json',
       },

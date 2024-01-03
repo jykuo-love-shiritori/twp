@@ -2,6 +2,7 @@ import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import CouponItemShow from '@components/CouponItemShow';
 
 interface ICoupon {
@@ -17,6 +18,7 @@ interface ICoupon {
 
 const SellerCoupons = () => {
   const navigate = useNavigate();
+  const token = useAuth();
 
   // TODO
   // const {sellerName} = useParams();
@@ -28,6 +30,7 @@ const SellerCoupons = () => {
       const resp = await fetch(`/api/shop/${sellerName}/coupon?offset=0&limit=10`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });

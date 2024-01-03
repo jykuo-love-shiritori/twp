@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { RouteOnNotOK } from '@lib/Status';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import CouponItemEdit from '@components/CouponItemEdit';
 
@@ -19,12 +20,14 @@ interface ICoupon {
 
 const ManageSellerCoupons = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const { data: fetchedData, status } = useQuery({
     queryKey: ['sellGetShopCoupons'],
     queryFn: async () => {
       const resp = await fetch('/api/seller/coupon?offset=0&limit=10', {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });

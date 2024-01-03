@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { formatDate } from '@lib/Functions';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -23,6 +24,7 @@ interface IGlobalCouponDetail {
 const EachAdminCoupon = () => {
   const navigate = useNavigate();
   const { coupon_id } = useParams();
+  const token = useAuth();
 
   const { register, handleSubmit, watch, reset } = useForm<IGlobalCouponDetail>({
     defaultValues: {
@@ -45,6 +47,7 @@ const EachAdminCoupon = () => {
       const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });
@@ -104,6 +107,7 @@ const EachAdminCoupon = () => {
     const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -121,6 +125,7 @@ const EachAdminCoupon = () => {
     const resp = await fetch(`/api/admin/coupon/${coupon_id}`, {
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
       },
     });

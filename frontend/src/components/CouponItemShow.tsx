@@ -7,6 +7,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import CouponItemTemplate from '@components/CouponItemTemplate';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface ICouponItemShow {
   id: number;
@@ -48,6 +49,7 @@ interface IGlobalCouponDetail {
 
 const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
   const [show, setShow] = useState(false);
+  const token = useAuth();
   const handleShow = () => {
     refetch();
     setShow(true);
@@ -64,6 +66,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
       const resp = await fetch(`/api/seller/coupon/${data.id}`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });
@@ -172,6 +175,7 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
 
 const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
   const [show, setShow] = useState(false);
+  const token = useAuth();
   const handleShow = () => {
     refetch();
     setShow(true);
@@ -188,6 +192,7 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
       const resp = await fetch(`/api/admin/coupon/${data.id}`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });

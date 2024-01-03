@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { RouteOnNotOK } from '@lib/Status';
 import { CheckFetchStatus } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface ICoupon {
   description: string;
@@ -19,12 +20,15 @@ interface ICoupon {
 
 const ManageAdminCoupons = () => {
   const navigate = useNavigate();
+  const token = useAuth();
+
   const { data: fetchedData, status } = useQuery({
     queryKey: ['adminGetGlobalCoupons'],
     queryFn: async () => {
       const resp = await fetch('/api/admin/coupon?offset=0&limit=10', {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           accept: 'application/json',
         },
       });

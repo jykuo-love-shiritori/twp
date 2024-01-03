@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Status';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@lib/Auth';
 import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
 interface IShopInfo {
@@ -38,6 +39,7 @@ const labelStyle = {
 
 const SellerInfo = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IShopInfo>({
     defaultValues: {
       name: 'shop name',
@@ -57,7 +59,9 @@ const SellerInfo = () => {
     }
     const resp = await fetch('/api/seller/info', {
       method: 'PATCH',
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
     if (!resp.ok) {
@@ -73,6 +77,7 @@ const SellerInfo = () => {
       const resp = await fetch('/api/seller/info', {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });

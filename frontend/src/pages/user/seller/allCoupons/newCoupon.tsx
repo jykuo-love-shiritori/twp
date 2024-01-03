@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { formatDate } from '@lib/Functions';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -40,6 +41,7 @@ const NewSellerCoupon = () => {
   const [tag, setTag] = useState('');
   const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
   const navigate = useNavigate();
+  const token = useAuth();
 
   const { register, control, handleSubmit, watch } = useForm<IShopCouponDetail>({
     defaultValues: {
@@ -83,6 +85,7 @@ const NewSellerCoupon = () => {
           const resp = await fetch('/api/seller/tag', {
             method: 'POST',
             headers: {
+              Authorization: `Bearer ${token}`,
               accept: 'application/json',
               'Content-Type': 'application/json',
             },
@@ -110,6 +113,7 @@ const NewSellerCoupon = () => {
     const resp = await fetch(`/api/seller/tag?name=${event.target.value}`, {
       method: 'GET',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
       },
     });
@@ -173,6 +177,7 @@ const NewSellerCoupon = () => {
     const resp = await fetch(`/api/seller/coupon`, {
       method: 'POST',
       headers: {
+        Authorization: `Bearer ${token}`,
         accept: 'application/json',
         'Content-Type': 'application/json',
       },
