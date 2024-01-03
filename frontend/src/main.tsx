@@ -7,7 +7,7 @@ import AuthProvider from '@components/AuthProvider.tsx';
 const queryClient = new QueryClient({
   mutationCache: new MutationCache({
     onError: (error: Error) => {
-      console.error(error);
+      alert(error);
     },
   }),
 });

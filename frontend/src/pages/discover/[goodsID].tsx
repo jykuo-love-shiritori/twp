@@ -56,7 +56,7 @@ const EachGoods = () => {
     },
   });
 
-  if (status != 'success') {
+  if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   } else {
     const originalDate = new Date(data.product_info.expire_date);

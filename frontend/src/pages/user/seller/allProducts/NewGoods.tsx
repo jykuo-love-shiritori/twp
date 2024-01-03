@@ -163,9 +163,8 @@ const EmptyGoods = () => {
 
   const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
 
-  // view changes
   useEffect(() => {
-    console.log('current tags: ', reducerTags, tags);
+    setTags(reducerTags);
   }, [reducerTags, tags]);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
