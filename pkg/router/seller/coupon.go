@@ -128,7 +128,7 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
+		if param.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || param.ExpireDate.Time.Before(param.StartDate.Time) {
 			logger.Errorw("expire date or start date is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
@@ -181,7 +181,7 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 
 		}
 		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
+		if param.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || param.ExpireDate.Time.Before(param.StartDate.Time) {
 			logger.Errorw("expire date or start date is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}

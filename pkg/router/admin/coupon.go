@@ -2,6 +2,7 @@ package admin
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
@@ -90,14 +91,9 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to bind coupon", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		discount, err := coupon.Discount.Float64Value()
-		if err != nil {
-			logger.Errorw("failed to parse discount", "error", err)
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid discount")
-		}
-		if discount.Float64 < 0 || (coupon.Type == db.CouponTypePercentage && discount.Float64 > 100) {
-			logger.Errorw("discount is invalid", "discount", discount)
-			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
+		if coupon.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
+			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "Start date is invalid")
 		}
 		coupon.Scope = "global"
 		result, err := pg.Queries.AddCoupon(c.Request().Context(), coupon)
@@ -144,6 +140,10 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		if discount.Float64 < 0 || (coupon.Type == db.CouponTypePercentage && discount.Float64 > 100) {
 			logger.Errorw("discount is invalid", "discount", discount)
 			return echo.NewHTTPError(http.StatusBadRequest, "Discount is invalid")
+		}
+		if coupon.StartDate.Time.Before(time.Now().Truncate(24*time.Hour)) || coupon.ExpireDate.Time.Before(coupon.StartDate.Time) {
+			logger.Errorw("start date is invalid", "start date", coupon.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "Start date is invalid")
 		}
 		result, err := pg.Queries.EditCoupon(c.Request().Context(), coupon)
 		if err != nil {
