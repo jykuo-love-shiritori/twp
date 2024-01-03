@@ -7,7 +7,7 @@ import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
@@ -66,6 +66,7 @@ interface ConnectionTagsPros {
 
 const ADD_TAG = 'ADD_TAG';
 const DELETE_TAG = 'DELETE_TAG';
+const SET_TAG = 'SET_TAG';
 
 const tagsReducer = (state: TagProps[], action: TagsAction) => {
   switch (action.type) {
@@ -73,6 +74,8 @@ const tagsReducer = (state: TagProps[], action: TagsAction) => {
       return [...state, action.payload];
     case DELETE_TAG:
       return state.filter((_, i) => i !== action.payload);
+    case SET_TAG:
+      return action.payload;
     default:
       return state;
   }
@@ -97,15 +100,9 @@ const EachSellerGoods = () => {
   }
 
   const [tag, setTag] = useState('');
-  const [tags, setTags] = useState<TagProps[]>([]);
+  const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
   const [queryTags, setQueryTags] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
-
-  const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
-
-  useEffect(() => {
-    setTags(reducerTags);
-  }, [reducerTags, tags]);
 
   const { register, setValue, handleSubmit } = useForm<ProductProps>({
     defaultValues: {
@@ -139,7 +136,7 @@ const EachSellerGoods = () => {
 
     onSuccess: async (responseData: TagProps) => {
       dispatchTags({ type: ADD_TAG, payload: responseData });
-      updateTags(responseData);
+      updateTags();
       await connectTag.mutate({ id: goods_id, tag_id: responseData.id });
     },
   });
@@ -192,10 +189,10 @@ const EachSellerGoods = () => {
         id: tag.tag_id,
         name: tag.name,
       }));
-      setTags(convertedTags);
+      dispatchTags({ type: SET_TAG, payload: convertedTags });
       setValue(
         'tags',
-        tags.map((tag) => tag.id),
+        reducerTags.map((tag) => tag.id),
       );
 
       goods_id = responseData.product_info.id;
@@ -312,7 +309,7 @@ const EachSellerGoods = () => {
         return;
       }
 
-      if (tags.some((currentTag) => currentTag.name === tag)) {
+      if (reducerTags.some((currentTag) => currentTag.name === tag)) {
         Reset();
         return;
       }
@@ -323,7 +320,7 @@ const EachSellerGoods = () => {
 
           if (existingTag) {
             dispatchTags({ type: ADD_TAG, payload: existingTag });
-            updateTags(existingTag);
+            updateTags();
             await connectTag.mutate({ id: goods_id, tag_id: existingTag.id });
           } else {
             // TODO : seller name need to be change to corresponding user
@@ -349,21 +346,15 @@ const EachSellerGoods = () => {
   };
 
   const deleteTag = async (index: number) => {
-    await removeConnectedTag.mutate({ id: goods_id, tag_id: tags[index].id });
-
+    await removeConnectedTag.mutate({ id: goods_id, tag_id: reducerTags[index].id });
     dispatchTags(deleteTagsAction(index));
-    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
   };
 
-  const updateTags = (tag: TagProps) => {
-    setTags((prevTags) => {
-      const newTags = [...prevTags, tag];
-      setValue(
-        'tags',
-        newTags.map((tag) => tag.id),
-      );
-      return newTags;
-    });
+  const updateTags = () => {
+    setValue(
+      'tags',
+      reducerTags.map((tag) => tag.id),
+    );
   };
 
   const Reset = () => {
@@ -474,7 +465,7 @@ const EachSellerGoods = () => {
               </datalist>
 
               <Row xs='auto'>
-                {tags.map((currentTag, index) => (
+                {reducerTags.map((currentTag, index) => (
                   <Col style={tagStyle} key={index} className='center'>
                     <Row style={{ width: '100%' }} className='center'>
                       <Col xs={1} className='center'>
