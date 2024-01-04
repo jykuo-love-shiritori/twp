@@ -1266,10 +1266,10 @@
                     },
                     {
                         "enum": [
-                            "\"price\"",
-                            "\"stock\"",
-                            "\"sales\"",
-                            "\"relevancy\""
+                            "price",
+                            "stock",
+                            "sales",
+                            "relevancy"
                         ],
                         "type": "string",
                         "description": "sort by",
@@ -1278,8 +1278,8 @@
                     },
                     {
                         "enum": [
-                            "\"asc\"",
-                            "\"desc\""
+                            "asc",
+                            "desc"
                         ],
                         "type": "string",
                         "description": "sorting order",
@@ -2372,7 +2372,7 @@
                 "summary": "Seller add product tag",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "product id",
                         "name": "id",
                         "in": "path",
@@ -2384,7 +2384,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.GetTagParams"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2807,10 +2807,10 @@
                     },
                     {
                         "enum": [
-                            "\"price\"",
-                            "\"stock\"",
-                            "\"sales\"",
-                            "\"relevancy\""
+                            "price",
+                            "stock",
+                            "sales",
+                            "relevancy"
                         ],
                         "type": "string",
                         "description": "sort by",
@@ -2819,8 +2819,8 @@
                     },
                     {
                         "enum": [
-                            "\"asc\"",
-                            "\"desc\""
+                            "asc",
+                            "desc"
                         ],
                         "type": "string",
                         "description": "sorting order",
