@@ -78,8 +78,8 @@ type searchResult struct {
 // @Param			minStock	query		int		false	"stock lower bound"
 // @Param			maxStock	query		int		false	"stock upper bound"
 // @Param			haveCoupon	query		bool	false	"has coupon"
-// @Param			sortBy		query		string	false	"sort by"		Enums("price", "stock", "sales", "relevancy")
-// @Param			order		query		string	false	"sorting order"	Enums("asc", "desc")
+// @Param			sortBy		query		string	false	"sort by"		Enums(price, stock, sales, relevancy)
+// @Param			order		query		string	false	"sorting order"	Enums(asc, desc)
 // @Param			offset		query		int		false	"Begin index"	default(0)
 // @Param			limit		query		int		false	"limit"			default(10)	Maximum(20)
 // @Success		200			{object}	PrettierProductSearchResult
@@ -165,8 +165,8 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 // @Param			minStock	query		int		false	"stock lower bound"
 // @Param			maxStock	query		int		false	"stock upper bound"
 // @Param			haveCoupon	query		bool	false	"has coupon"
-// @Param			sortBy		query		string	false	"sort by"		Enums("price", "stock", "sales", "relevancy")
-// @Param			order		query		string	false	"sorting order"	Enums("asc", "desc")
+// @Param			sortBy		query		string	false	"sort by"		Enums(price, stock, sales, relevancy)
+// @Param			order		query		string	false	"sorting order"	Enums(asc, desc)
 // @Param			offset		query		int		false	"Begin index"	default(0)
 // @Param			limit		query		int		false	"limit"			default(10)	Maximum(20)
 // @Success		200			{object}	PrettierSearchResult

@@ -137,10 +137,13 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("tags is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
-			logger.Errorw("expire date or start date is invalid")
-			return echo.NewHTTPError(http.StatusBadRequest)
+		//check start/expire time
+		if param.StartDate.Time.Before(time.Now()) {
+			param.StartDate.Time = time.Now()
+		}
+		if param.ExpireDate.Time.Before(param.StartDate.Time) {
+			logger.Errorw("expire date is invalid", "start date", param.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "expire date is invalid")
 		}
 		//check discount value
 		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {
@@ -193,10 +196,13 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
-			logger.Errorw("expire date or start date is invalid")
-			return echo.NewHTTPError(http.StatusBadRequest)
+		//check start/expire time
+		if param.StartDate.Time.Before(time.Now()) {
+			param.StartDate.Time = time.Now()
+		}
+		if param.ExpireDate.Time.Before(param.StartDate.Time) {
+			logger.Errorw("expire date is invalid", "start date", param.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "expire date is invalid")
 		}
 		//check discount value
 		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {

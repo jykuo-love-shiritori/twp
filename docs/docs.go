@@ -1272,10 +1272,10 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "\"price\"",
-                            "\"stock\"",
-                            "\"sales\"",
-                            "\"relevancy\""
+                            "price",
+                            "stock",
+                            "sales",
+                            "relevancy"
                         ],
                         "type": "string",
                         "description": "sort by",
@@ -1284,8 +1284,8 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "\"asc\"",
-                            "\"desc\""
+                            "asc",
+                            "desc"
                         ],
                         "type": "string",
                         "description": "sorting order",
@@ -2378,7 +2378,7 @@ const docTemplate = `{
                 "summary": "Seller add product tag",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "product id",
                         "name": "id",
                         "in": "path",
@@ -2390,7 +2390,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/seller.GetTagParams"
+                            "$ref": "#/definitions/seller.TagParams"
                         }
                     }
                 ],
@@ -2813,10 +2813,10 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "\"price\"",
-                            "\"stock\"",
-                            "\"sales\"",
-                            "\"relevancy\""
+                            "price",
+                            "stock",
+                            "sales",
+                            "relevancy"
                         ],
                         "type": "string",
                         "description": "sort by",
@@ -2825,8 +2825,8 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "\"asc\"",
-                            "\"desc\""
+                            "asc",
+                            "desc"
                         ],
                         "type": "string",
                         "description": "sorting order",
