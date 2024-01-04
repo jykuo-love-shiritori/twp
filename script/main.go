@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -40,7 +39,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// tasks := []string{"cook", "clean", "laundry", "eat", "sleep", "code"}
 
 	app := &cli.App{
 		Name:                 "twp-CLI",
@@ -117,7 +115,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertUser(ctx, userParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertUser(ctx, userParam)
 		if err != nil {
 			return err
 		}
@@ -167,7 +165,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertProduct(ctx, productParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertProduct(ctx, productParam)
 		if err != nil {
 			return err
 		}
@@ -188,7 +186,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertProductArchive(ctx, productArchiveParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertProductArchive(ctx, productArchiveParam)
 		if err != nil {
 			return err
 		}
@@ -358,18 +356,4 @@ func UnloadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) e
 	}
 	fmt.Println("Delete User Success")
 	return nil
-}
-
-func CheckAdminAccount(pg *db.DB, ctx context.Context) error {
-	admin_name := os.Getenv("TWP_ADMIN_USER")
-	password := os.Getenv("TWP_ADMIN_PASSWORD")
-	if admin_name == "" || password == "" {
-		return errors.New("empty ADMIN_USER or TWP_ADMIN_PASSWORD")
-	}
-	db_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	err = pg.Queries.CreateAdmin(ctx, db.CreateAdminParams{Username: admin_name, Password: string(db_password)})
-	return err
 }

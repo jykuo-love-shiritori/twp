@@ -170,12 +170,34 @@ func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (Tag, error) 
 const testDeleteUserById = `-- name: TestDeleteUserById :one
 DELETE FROM "user"
 WHERE "id" = $1
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
 `
 
-func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (User, error) {
+type TestDeleteUserByIdRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (TestDeleteUserByIdRow, error) {
 	row := q.db.QueryRow(ctx, testDeleteUserById, id)
-	var i User
+	var i TestDeleteUserByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -186,9 +208,7 @@ func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (User, error
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
-		&i.RefreshToken,
 		&i.Enabled,
-		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }
@@ -617,28 +637,48 @@ INSERT INTO "user" (
         "image_id",
         "role",
         "credit_card",
-        "refresh_token",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
 `
 
 type TestInsertUserParams struct {
-	ID           int32           `json:"id" param:"id"`
-	Username     string          `json:"username"`
-	Password     string          `json:"password"`
-	Name         string          `form:"name" json:"name"`
-	Email        string          `form:"email" json:"email"`
-	Address      string          `form:"address" json:"address"`
-	ImageID      string          `json:"image_id" swaggertype:"string"`
-	Role         RoleType        `json:"role"`
-	CreditCard   json.RawMessage `json:"credit_card"`
-	RefreshToken string          `json:"refresh_token"`
-	Enabled      bool            `json:"enabled"`
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
 }
 
-func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
+type TestInsertUserRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (TestInsertUserRow, error) {
 	row := q.db.QueryRow(ctx, testInsertUser,
 		arg.ID,
 		arg.Username,
@@ -649,10 +689,9 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		arg.ImageID,
 		arg.Role,
 		arg.CreditCard,
-		arg.RefreshToken,
 		arg.Enabled,
 	)
-	var i User
+	var i TestInsertUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -663,9 +702,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
-		&i.RefreshToken,
 		&i.Enabled,
-		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }

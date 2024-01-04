@@ -9,11 +9,19 @@ INSERT INTO "user" (
         "image_id",
         "role",
         "credit_card",
-        "refresh_token",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled";
 -- name: TestInsertShop :one
 INSERT INTO "shop" (
         "id",
@@ -131,7 +139,16 @@ RETURNING *;
 -- name: TestDeleteUserById :one
 DELETE FROM "user"
 WHERE "id" = $1
-RETURNING *;
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled";
 -- name: TestDeleteShopById :one
 DELETE FROM "shop"
 WHERE "id" = $1
