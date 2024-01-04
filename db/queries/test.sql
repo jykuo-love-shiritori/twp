@@ -180,3 +180,19 @@ RETURNING *;
 DELETE FROM "tag"
 WHERE "id" = $1
 RETURNING *;
+-- name: TestDeleteCoupon :exec
+DELETE FROM "coupon";
+-- name: TestDeleteProduct :exec
+DELETE FROM "product";
+-- name: TestDeleteOrderDetail :exec
+DELETE FROM "order_detail";
+-- name: TestDeleteTag :exec
+DELETE FROM "tag";
+-- name: TestDeleteOrderHistory :exec
+DELETE FROM "order_history";
+-- name: TestDeleteProductArchive :exec
+DELETE FROM "product_archive";
+-- name: TestDeleteShop :exec
+DELETE FROM "shop";
+-- name: TestDeleteUser :exec
+DELETE FROM "user";

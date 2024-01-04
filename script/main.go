@@ -60,10 +60,10 @@ func main() {
 			{
 				Name:      "unload",
 				Usage:     "Unload data from the database",
-				UsageText: "unload path/data.json",
+				UsageText: "unload or unload path/data.json",
 				Action: func(c *cli.Context) error {
-					if c.NArg() < 1 {
-						return cli.ShowSubcommandHelp(c)
+					if c.NArg() == 0 {
+						return ClearData(pg, context.Background())
 					}
 					fileName := c.Args().Get(0)
 					return UnloadData(pg, mc, context.Background(), fileName)
@@ -311,7 +311,7 @@ func UnloadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) e
 			return err
 		}
 	}
-	fmt.Println("Delete OrderDetail Success")
+	fmt.Println("Delete Tag Success")
 
 	for _, orderParam := range data.OrderHistory {
 		_, err = pg.Queries.TestDeleteOrderById(ctx, orderParam.ID)
@@ -353,6 +353,49 @@ func UnloadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) e
 		if err != nil {
 			return err
 		}
+	}
+	fmt.Println("Delete User Success")
+	return nil
+}
+func ClearData(pg *db.DB, ctx context.Context) error {
+	err := pg.Queries.TestDeleteCoupon(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Coupon Success")
+	err = pg.Queries.TestDeleteProduct(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Product Success")
+	err = pg.Queries.TestDeleteOrderDetail(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete OrderDetail Success")
+	err = pg.Queries.TestDeleteTag(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Tag Success")
+	err = pg.Queries.TestDeleteOrderHistory(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete OrderHistory Success")
+	err = pg.Queries.TestDeleteProductArchive(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete ProductArchive Success")
+	err = pg.Queries.TestDeleteShop(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Shop Success")
+	err = pg.Queries.TestDeleteUser(ctx)
+	if err != nil {
+		return err
 	}
 	fmt.Println("Delete User Success")
 	return nil

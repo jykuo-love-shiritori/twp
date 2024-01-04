@@ -12,6 +12,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const testDeleteCoupon = `-- name: TestDeleteCoupon :exec
+DELETE FROM "coupon"
+`
+
+func (q *Queries) TestDeleteCoupon(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteCoupon)
+	return err
+}
+
 const testDeleteCouponById = `-- name: TestDeleteCouponById :one
 DELETE FROM "coupon"
 WHERE "id" = $1
@@ -56,6 +65,15 @@ func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (OrderHisto
 	return i, err
 }
 
+const testDeleteOrderDetail = `-- name: TestDeleteOrderDetail :exec
+DELETE FROM "order_detail"
+`
+
+func (q *Queries) TestDeleteOrderDetail(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderDetail)
+	return err
+}
+
 const testDeleteOrderDetailByOrderId = `-- name: TestDeleteOrderDetailByOrderId :one
 DELETE FROM "order_detail"
 WHERE "order_id" = $1
@@ -80,6 +98,33 @@ func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, arg TestDe
 		&i.Quantity,
 	)
 	return i, err
+}
+
+const testDeleteOrderHistory = `-- name: TestDeleteOrderHistory :exec
+DELETE FROM "order_history"
+`
+
+func (q *Queries) TestDeleteOrderHistory(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderHistory)
+	return err
+}
+
+const testDeleteProduct = `-- name: TestDeleteProduct :exec
+DELETE FROM "product"
+`
+
+func (q *Queries) TestDeleteProduct(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProduct)
+	return err
+}
+
+const testDeleteProductArchive = `-- name: TestDeleteProductArchive :exec
+DELETE FROM "product_archive"
+`
+
+func (q *Queries) TestDeleteProductArchive(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProductArchive)
+	return err
 }
 
 const testDeleteProductArchiveByIdVersion = `-- name: TestDeleteProductArchiveByIdVersion :one
@@ -134,6 +179,15 @@ func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (Product,
 	return i, err
 }
 
+const testDeleteShop = `-- name: TestDeleteShop :exec
+DELETE FROM "shop"
+`
+
+func (q *Queries) TestDeleteShop(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteShop)
+	return err
+}
+
 const testDeleteShopById = `-- name: TestDeleteShopById :one
 DELETE FROM "shop"
 WHERE "id" = $1
@@ -154,6 +208,15 @@ func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (Shop, error
 	return i, err
 }
 
+const testDeleteTag = `-- name: TestDeleteTag :exec
+DELETE FROM "tag"
+`
+
+func (q *Queries) TestDeleteTag(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteTag)
+	return err
+}
+
 const testDeleteTagById = `-- name: TestDeleteTagById :one
 DELETE FROM "tag"
 WHERE "id" = $1
@@ -165,6 +228,15 @@ func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (Tag, error) 
 	var i Tag
 	err := row.Scan(&i.ID, &i.ShopID, &i.Name)
 	return i, err
+}
+
+const testDeleteUser = `-- name: TestDeleteUser :exec
+DELETE FROM "user"
+`
+
+func (q *Queries) TestDeleteUser(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteUser)
+	return err
 }
 
 const testDeleteUserById = `-- name: TestDeleteUserById :one
