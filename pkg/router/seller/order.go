@@ -5,6 +5,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
@@ -34,7 +35,10 @@ type OrderUpdateStatusParams struct {
 func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
@@ -73,7 +77,10 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Router			/seller/order/{id} [get]
 func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
@@ -113,7 +120,10 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 // @Router			/seller/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param OrderUpdateStatusParams
 		if err := c.Bind(&param); err != nil {

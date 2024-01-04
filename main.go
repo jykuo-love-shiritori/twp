@@ -9,6 +9,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/boot"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/image"
@@ -36,6 +37,10 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	err = boot.CheckAdminAccount(db, context.Background())
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
 	RegisterFrontend(e)
 	image.RegisterImage(e, mc, logger.Sugar())
 

@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/image"
@@ -27,7 +28,10 @@ import (
 // @Router			/buyer/order [get]
 func GetOrderHistory(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
@@ -66,7 +70,10 @@ type OrderDetail struct {
 // @Router			/buyer/order/{id} [get]
 func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var orderID int32
 		var orderDetail OrderDetail
 		var err error
@@ -112,7 +119,10 @@ type OrderStatus struct {
 // @Router			/buyer/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		param := db.UpdateOrderStatusParams{Username: username}
 		var status OrderStatus
 		if err := c.Bind(&status); err != nil {
