@@ -3,7 +3,6 @@ import '@style/global.css';
 import TButton from '@components/TButton';
 
 export interface SellerItemProps {
-  seller_name: string;
   name: string;
   image_url: string;
 }

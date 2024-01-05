@@ -49,7 +49,7 @@ const SearchBar = () => {
     }
   }, [q, navigate]);
 
-  const transfer = () => {
+  const setData = () => {
     const data: SearchProps = { ...defaultFilterValues, q: q };
 
     const maxPrice = parseInt(searchParams.get('maxPrice') || '');
@@ -93,6 +93,11 @@ const SearchBar = () => {
       data.order = order;
     }
 
+    return data;
+  };
+
+  const transfer = () => {
+    const data = setData();
     navigate(getUrl(data, q));
   };
 
@@ -118,7 +123,6 @@ const SearchBar = () => {
               placeholder='Search'
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              // onChange={(e) => queryOnChange(e.target.value)}
               onKeyDown={handleKeyDown}
               className='search'
             />
