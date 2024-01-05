@@ -4,6 +4,7 @@ import '@style/global.css';
 import { Col, Form, Row, Offcanvas } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import SellerItem, { SellerItemProps } from '@components/SellerItem';
 
@@ -11,7 +12,8 @@ import goodsData from '@pages/discover/goodsData.json';
 import GoodsItem from '@components/GoodsItem';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import TButton from '@components/TButton';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getUrl } from '@components/SearchBar';
 
 const PhoneOffCanvasStyle = {
   width: '330px',
@@ -22,23 +24,28 @@ const PhoneOffCanvasStyle = {
   color: 'white',
 };
 
-interface FilterProps {
+export interface FilterProps {
   maxPrice: number | null;
   minPrice: number | null;
   maxStock: number | null;
   minStock: number | null;
-  hasCoupon: boolean;
-  sort: 'price' | 'stock' | 'sales' | 'relevancy' | null;
+  haveCoupon: boolean | null;
+  sortBy: 'price' | 'stock' | 'sales' | 'relevancy' | null;
   order: 'asc' | 'desc' | null;
 }
 
-const defaultFilterValues: FilterProps = {
+export interface SearchProps extends FilterProps {
+  q: string;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const defaultFilterValues: FilterProps = {
   maxPrice: null,
   minPrice: null,
   maxStock: null,
   minStock: null,
-  hasCoupon: false,
-  sort: null,
+  haveCoupon: null,
+  sortBy: null,
   order: null,
 };
 
@@ -118,21 +125,65 @@ const isDataValid = (data: FilterProps) => {
 };
 
 const Search = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
   const [showPhoneFilter, setShowPhoneFilter] = useState(false);
   const phoneFilterOnClick = () => setShowPhoneFilter(!showPhoneFilter);
-
   const FILTER_OPTIONS: string[] = ['price', 'stock', 'sales', 'relevancy'];
   const ORDER_OPTIONS: string[] = ['asc', 'desc'];
 
-  const { register, handleSubmit, reset } = useForm<FilterProps>({
+  const { register, handleSubmit, reset, setValue } = useForm<FilterProps>({
     defaultValues: defaultFilterValues,
   });
+
+  useEffect(() => {
+    const newQ = searchParams.get('q') ?? '';
+    if (newQ !== q) {
+      setQ(newQ);
+    }
+  }, [searchParams, q]);
+
+  useEffect(() => {
+    setQ(searchParams.get('q') || '');
+
+    setValue(
+      'minPrice',
+      searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice') as string) : null,
+    );
+    setValue(
+      'maxPrice',
+      searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice') as string) : null,
+    );
+    setValue(
+      'minStock',
+      searchParams.get('minStock') ? parseInt(searchParams.get('minStock') as string) : null,
+    );
+    setValue(
+      'maxStock',
+      searchParams.get('maxStock') ? parseInt(searchParams.get('maxStock') as string) : null,
+    );
+
+    const hasCouponValue = searchParams.get('haveCoupon');
+    const hasCouponBoolean =
+      hasCouponValue === 'true' ? true : hasCouponValue === 'false' ? false : null;
+    setValue('haveCoupon', hasCouponBoolean);
+
+    const sortValue = searchParams.get('sortBy');
+    const isValidSortValue = ['price', 'stock', 'sales', 'relevancy'].includes(sortValue as string);
+    setValue(
+      'sortBy',
+      isValidSortValue ? (sortValue as 'price' | 'stock' | 'sales' | 'relevancy') : null,
+    );
+
+    setValue('order', searchParams.get('order') as 'asc' | 'desc' | null);
+  }, [searchParams, setValue]);
 
   const onSubmit: SubmitHandler<FilterProps> = async (data: FilterProps) => {
     if (!isDataValid(data)) {
       return;
     } else {
-      const newData: FilterProps = data;
+      const newData: SearchProps = { ...data, q: q };
       if (newData.minPrice) {
         newData.minPrice = parseInt(newData.minPrice.toString());
       }
@@ -145,7 +196,7 @@ const Search = () => {
       if (newData.maxStock) {
         newData.maxStock = parseInt(newData.maxStock.toString());
       }
-      console.log('success');
+      navigate(getUrl(newData, q));
     }
   };
 
@@ -216,7 +267,7 @@ const Search = () => {
                 <input
                   className='input_box'
                   type='checkbox'
-                  {...register('hasCoupon', { required: false })}
+                  {...register('haveCoupon', { required: false })}
                 />
               </Col>
               <Col xs={9}>has coupon</Col>
@@ -227,7 +278,7 @@ const Search = () => {
               <Form.Select
                 style={{ backgroundColor: 'var(--button_dark)', color: 'white' }}
                 className='selectBox'
-                {...register('sort')}
+                {...register('sortBy')}
                 aria-label='Sort selection'
               >
                 <option value='' disabled selected>
@@ -349,7 +400,7 @@ const Search = () => {
             <input
               className='input_box'
               type='checkbox'
-              {...register('hasCoupon', { required: false })}
+              {...register('haveCoupon', { required: false })}
             />
           </Col>
           <Col xs={9}>has coupon</Col>
@@ -360,7 +411,7 @@ const Search = () => {
           <Form.Select
             style={{ backgroundColor: 'var(--button_dark)', color: 'white' }}
             className='selectBox'
-            {...register('sort')}
+            {...register('sortBy')}
             aria-label='Sort selection'
           >
             <option value='' disabled selected>

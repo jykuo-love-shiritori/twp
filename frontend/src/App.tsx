@@ -137,8 +137,8 @@ function App() {
 
             <Route path='/coupons' element={<Coupons />} />
 
-            <Route path='/search?' element={<SearchNotFound />} />
-            <Route path='/testSearch' element={<Search />} />
+            <Route path='/searchNotFound' element={<SearchNotFound />} />
+            <Route path='/search' element={<Search />} />
 
             <Route path='*' element={<NotFound />} />
             <Route path='/forbidden' element={<Forbidden />} />
