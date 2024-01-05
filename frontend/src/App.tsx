@@ -47,6 +47,7 @@ import Callback from '@pages/user/callback';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
 import ProtectedBoundary from '@components/ProtectedBoundary';
 import Search from '@pages/search';
+import ShopSearch from '@pages/user/shop/ShopSearch';
 
 function App() {
   return (
@@ -103,6 +104,8 @@ function App() {
               <Route index element={<Shop />} />
               <Route path='/sellerID/shop' element={<Shop />} />
               <Route path='/sellerID/coupons' element={<SellerCoupons />} />
+              {/* TODO : the sellerID should be the real seller name */}
+              <Route path='/sellerID/shop/inside/search' element={<ShopSearch />} />
             </Route>
 
             <Route path='sellerID/shop'>

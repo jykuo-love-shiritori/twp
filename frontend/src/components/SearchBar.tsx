@@ -13,6 +13,22 @@ import { SearchProps, defaultFilterValues } from '@pages/search';
 // eslint-disable-next-line react-refresh/only-export-components
 export const getUrl = (data: SearchProps, q: string) => {
   let url: string = '/search?q=' + q;
+  url += getBehind(data);
+  return url;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const getShopSearchUrl = (data: SearchProps, q: string) => {
+  // TODO : the sellerID should be the real seller name
+  let url: string = '/sellerID/shop/inside/search?q=' + q;
+  url += getBehind(data);
+  return url;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const getBehind = (data: SearchProps) => {
+  let url = '';
+
   if (data.minPrice !== null) {
     url += '&minPrice=' + data.minPrice;
   }
@@ -44,8 +60,18 @@ const SearchBar = () => {
   const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
 
   useEffect(() => {
-    if (window.location.href.includes('search')) {
+    if (
+      window.location.href.includes('search') &&
+      !window.location.href.includes('inside') &&
+      !window.location.href.includes('searchNotFound')
+    ) {
       transfer();
+    } else if (
+      window.location.href.includes('inside') &&
+      !window.location.href.includes('searchNotFound')
+    ) {
+      const data = setData();
+      navigate(getShopSearchUrl(data, q));
     }
   }, [q, navigate]);
 
@@ -105,7 +131,12 @@ const SearchBar = () => {
     if (event.keyCode === 229) return;
 
     if (event.key === 'Enter') {
-      transfer();
+      if (window.location.href.includes('shop')) {
+        const data = setData();
+        navigate(getShopSearchUrl(data, q));
+      } else {
+        transfer();
+      }
     }
   };
 
