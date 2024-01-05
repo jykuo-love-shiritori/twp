@@ -197,7 +197,7 @@ const ShopSearch = () => {
 
       let extractedString = extractSearchQuery(requestString);
       // TODO : the sellerID should be the real seller name
-      extractedString = 'shop/s/' + extractedString;
+      extractedString = 'shop/s' + extractedString;
 
       const response = await fetch(`/api/${extractedString}`, {
         headers: {

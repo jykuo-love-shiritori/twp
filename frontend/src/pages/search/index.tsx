@@ -202,7 +202,7 @@ const Search = () => {
       if (currentQ === '') {
         return;
       }
-      const response = await fetch(`/api/${requestString}`, {
+      const response = await fetch(`/api${requestString}`, {
         headers: {
           Accept: 'application/json',
         },
