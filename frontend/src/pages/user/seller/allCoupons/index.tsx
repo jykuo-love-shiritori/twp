@@ -1,22 +1,52 @@
-import CouponItem from '@components/CouponItem';
 import { Col, Row } from 'react-bootstrap';
-import couponData from '@pages/coupon/couponData.json';
+import { useQuery } from '@tanstack/react-query';
+import { RouteOnNotOK } from '@lib/Status';
+import { useNavigate } from 'react-router-dom';
+import { CheckFetchStatus } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
+import CouponItemEdit from '@components/CouponItemEdit';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
+interface ICoupon {
   description: string;
   discount: number;
-  start_date: string;
   expire_date: string;
-  tags: {
-    name: string;
-  }[];
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 const ManageSellerCoupons = () => {
+  const navigate = useNavigate();
+  const token = useAuth();
+  const { data: fetchedData, status } = useQuery({
+    queryKey: ['sellGetShopCoupons'],
+    queryFn: async () => {
+      const resp = await fetch('/api/seller/coupon?offset=0&limit=10', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        const response = await resp.json();
+        return response;
+      }
+    },
+    select: (data) => data as ICoupon[],
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
+  }
+
   return (
     <div>
       <Row>
@@ -24,7 +54,7 @@ const ManageSellerCoupons = () => {
         <div className='disappear_phone disappear_tablet'>
           <Row>
             <Col xl={6} className='left'>
-              <div className='title'>All Global Coupon</div>
+              <div className='title'>Shop Coupon</div>
             </Col>
             <Col xl={3} />
             <Col xl={3} className='right'>
@@ -36,7 +66,7 @@ const ManageSellerCoupons = () => {
         <div className='disappear_desktop disappear_phone'>
           <Row>
             <Col md={8} className='left'>
-              <div className='title'>All Global Coupon</div>
+              <div className='title'>Shop Coupon</div>
             </Col>
             <Col md={4} className='right'>
               <TButton text='New Coupon' action='/user/seller/manageCoupons/new' />
@@ -61,10 +91,19 @@ const ManageSellerCoupons = () => {
         <Row>
           <div className='disappear_phone'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col md={6} xl={4} key={index} style={{ padding: '2%' }}>
-                    <CouponItem data={data as CouponProps} />
+                    <CouponItemEdit
+                      data={{
+                        id: data.id,
+                        scope: data.scope,
+                        name: data.name,
+                        type: data.type,
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                      }}
+                    />
                   </Col>
                 );
               })}
@@ -72,10 +111,19 @@ const ManageSellerCoupons = () => {
           </div>
           <div className='disappear_desktop disappear_tablet'>
             <Row>
-              {couponData.map((data, index) => {
+              {fetchedData.map((data, index) => {
                 return (
                   <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem data={data as CouponProps} />
+                    <CouponItemEdit
+                      data={{
+                        id: data.id,
+                        scope: data.scope,
+                        name: data.name,
+                        type: data.type,
+                        discount: data.discount,
+                        expire_date: data.expire_date,
+                      }}
+                    />
                   </Col>
                 );
               })}

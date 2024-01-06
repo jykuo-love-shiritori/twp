@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { RouteOnNotOK } from '@lib/Status';
 import { CheckFetchStatus } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import FormItem from '@components/FormItem';
 import WarningModal from '@components/WarningModal';
 
@@ -16,6 +17,7 @@ interface ICreditCard {
 
 const NewCard = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const [show, setShow] = useState<boolean>(false);
   const [warningText, setWarningText] = useState<string>('');
   const { register, handleSubmit } = useForm<ICreditCard>();
@@ -38,7 +40,10 @@ const NewCard = () => {
 
     const resp = await fetch('/api/user/security/credit_card', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(oldCards ? oldCards.concat(data) : [data]),
     });
     if (!resp.ok) {
@@ -49,9 +54,15 @@ const NewCard = () => {
   };
 
   const { data: oldCards, status } = useQuery({
-    queryKey: ['userGetCreditCard'],
+    queryKey: ['userGetOldCreditCard'],
     queryFn: async () => {
-      const resp = await fetch('/api/user/security/credit_card');
+      const resp = await fetch('/api/user/security/credit_card', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      });
       RouteOnNotOK(resp, navigate);
       return await resp.json();
     },

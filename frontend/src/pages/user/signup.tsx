@@ -22,6 +22,7 @@ const Signup = () => {
 
   const { register, handleSubmit } = useForm<SignupProps>();
   const OnFormOutput: SubmitHandler<SignupProps> = async (data) => {
+    // TODO: change to form validation
     if (!data.username.match(/^[a-zA-Z0-9]{1,32}$/)) {
       setWarningText('username should only contain letters and numbers\n');
       setShow(true);

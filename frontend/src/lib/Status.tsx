@@ -7,6 +7,12 @@ export const RouteOnNotOK = async (response: Response, navigate: NavigateFunctio
       res = await response.json();
       alert(res.message);
       break;
+    case 401:
+      navigate('/forbidden');
+      break;
+    case 403:
+      navigate('/unauthorized');
+      break;
     case 404:
       navigate('/notFound');
       break;
