@@ -193,8 +193,9 @@ const EachSellerCoupon = () => {
     startDate.setHours(0, 0, 0, 0);
     expDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-    if (startDate <= today) {
-      alert('Start date should be later than today');
+    // TODO: change to form validation
+    if (startDate < today) {
+      alert('Start date cannot be earlier than today');
       return;
     }
     if (startDate >= expDate) {
@@ -205,10 +206,14 @@ const EachSellerCoupon = () => {
       alert('Discount should be less than 100%');
       return;
     }
-    if (data.coupon_info.discount < 0) {
+    if (data.coupon_info.type === 'shipping') {
+      data.coupon_info.discount = 0;
+    }
+    if (data.coupon_info.type != 'shipping' && data.coupon_info.discount <= 0) {
       alert('Discount should be greater than 0');
       return;
     }
+
     interface INewCoupon {
       description: string;
       discount: number;
@@ -333,6 +338,7 @@ const EachSellerCoupon = () => {
 
               {/* delete, confirm button */}
               <div style={{ height: '50px' }} />
+              <TButton text='Cancel' action='/user/seller/manageCoupons' />
               <TButton text='Delete Coupon' action={OnDelete} />
               <TButton text='Confirm Changes' action={handleSubmit(OnConfirm)} />
             </div>
@@ -344,11 +350,9 @@ const EachSellerCoupon = () => {
               <FormItem label='Coupon Name'>
                 <input type='text' {...register('coupon_info.name', { required: true })} />
               </FormItem>
-
               <FormItem label='Coupon description'>
                 <textarea {...register('coupon_info.description', { required: true })} />
               </FormItem>
-
               <FormItem label='Method'>
                 <select {...register('coupon_info.type', { required: true })}>
                   <option value='percentage'>percentage</option>
@@ -356,15 +360,16 @@ const EachSellerCoupon = () => {
                   <option value='shipping'>shipping</option>
                 </select>
               </FormItem>
-
-              <FormItem label='Discount'>
-                <input type='number' {...register('coupon_info.discount', { required: true })} />
-              </FormItem>
-
+              {watch('coupon_info.type') != 'shipping' ? (
+                <FormItem label='Discount'>
+                  <input type='number' {...register('coupon_info.discount')} />
+                </FormItem>
+              ) : (
+                <></>
+              )}
               <FormItem label='Start Date'>
                 <input type='date' {...register('coupon_info.start_date', { required: true })} />
               </FormItem>
-
               <FormItem label='Expire Date'>
                 <input type='date' {...register('coupon_info.expire_date', { required: true })} />
               </FormItem>
