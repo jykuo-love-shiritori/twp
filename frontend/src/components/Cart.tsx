@@ -8,8 +8,8 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { formatDate } from '@lib/Functions';
 import CartProduct from '@components/CartProduct';
-import sellerInfo from '@pages/user/seller/sellerInfo.json';
 import UserItem from '@components/UserItem';
 import TButton from '@components/TButton';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -27,7 +27,12 @@ interface IProduct {
 }
 
 interface Props {
-  cart_id: number;
+  cartInfo: {
+    id: number;
+    seller_name: string;
+    shop_image_url: string;
+    shop_name: string;
+  };
   products: IProduct[];
   refresh: () => void;
 }
@@ -80,21 +85,21 @@ const ContentStyle = {
   margin: '1% 4%',
 };
 
-const Cart = ({ products, cart_id, refresh }: Props) => {
+const Cart = ({ products, cartInfo, refresh }: Props) => {
   const navigate = useNavigate();
   const token = useAuth();
   const [canvaShow, setCanvaShow] = useState(false);
   const [modalShow, setModalShow] = useState(false);
-
+  console.log(cartInfo.seller_name);
   // get the checkout detail
   const {
     data: checkoutData,
     status: checkoutStatus,
     refetch: refetchCheckout,
   } = useQuery({
-    queryKey: ['buyerGetCheckout', cart_id],
+    queryKey: ['buyerGetCheckout', cartInfo.id],
     queryFn: async () => {
-      const resp = await fetch(`/api/buyer/cart/${cart_id}/checkout`, {
+      const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/checkout`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -107,10 +112,6 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
     refetchOnWindowFocus: false,
     enabled: true,
   });
-  const onRefetchCheckout = () => {
-    console.log('refetch checkout');
-    refetchCheckout();
-  };
 
   // get the usable coupons
   const {
@@ -118,9 +119,9 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
     status: usableCouponStatus,
     refetch: refetchUsableCoupon,
   } = useQuery({
-    queryKey: ['BuyerGetUsableCoupon', cart_id],
+    queryKey: ['BuyerGetUsableCoupon', cartInfo.id],
     queryFn: async () => {
-      const response = await fetch(`/api/buyer/cart/${cart_id}/coupon`, {
+      const response = await fetch(`/api/buyer/cart/${cartInfo.id}/coupon`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -133,16 +134,16 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
     refetchOnWindowFocus: false,
     enabled: true,
   });
-  const onRefetchUsableCoupon = () => {
-    console.log('refetch usable coupon');
-    refetchUsableCoupon();
-  };
 
   const onViewCheckout = () => {
-    // TODO: Buyer get checkout
-    // GET /buyer/cart/:cart_id/checkout
-    onRefetchCheckout();
+    console.log('refetch checkout');
+    refetchCheckout();
     setCanvaShow(true);
+  };
+  const onChooseCoupon = () => {
+    console.log('refetch usable coupon');
+    refetchUsableCoupon();
+    setModalShow(true);
   };
   const onPay = () => {
     // TODO: Buyer checkout
@@ -156,24 +157,40 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
     refresh();
     setCanvaShow(false);
   };
-  const onChooseCoupon = () => {
-    // TODO: Buyer get usable coupon of cart
-    // GET /buyer/cart/:cart_id/coupon
-    onRefetchUsableCoupon();
-    setModalShow(true);
-  };
-  const onApplyCoupon = (coupon_id: number) => {
-    // TODO: Buyer apply coupon to cart
-    // POST /buyer/cart/:cart_id/coupon/:coupon_id
+  const onApplyCoupon = async (coupon_id: number) => {
     console.log(`apply coupon ${coupon_id}`);
-    onRefetchCheckout();
-    setModalShow(false);
+    const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/coupon/${coupon_id}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      // TODO: remove navigate
+      RouteOnNotOK(resp, navigate);
+    } else {
+      // refresh();
+      refetchCheckout();
+      setModalShow(false);
+    }
   };
-  const onRemoveCoupon = (coupon_id: number) => {
-    // TODO: Buyer delete coupon in cart
-    // DELETE /buyer/cart/:cart_id/coupon/:coupon_id
+  const onRemoveCoupon = async (coupon_id: number) => {
     console.log(`remove coupon ${coupon_id}`);
-    onRefetchCheckout();
+    const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/coupon/${coupon_id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      // TODO: remove navigate
+      RouteOnNotOK(resp, navigate);
+    } else {
+      // refresh();
+      refetchCheckout();
+    }
   };
 
   interface FormProps {
@@ -195,7 +212,7 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
         <div className='disappear_phone' style={{ fontSize: '20px' }}>
           <Row className='center_vertical' style={{ width: '100%', padding: '0 2%' }}>
             <Col md={6}>
-              <UserItem img_path={sellerInfo.image_url} name={sellerInfo.name} />
+              <UserItem img_path={cartInfo.shop_image_url} name={cartInfo.shop_name} />
             </Col>
             <Col md={3} className='center'>
               Subtotal: ${products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
@@ -209,7 +226,7 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
         <div className='disappear_tablet disappear_desktop'>
           <Row className='center_vertical' style={{ width: '100%', padding: '0 3%', margin: '0' }}>
             <Col xs={6} style={{ padding: '0 0 0 5%' }}>
-              <UserItem img_path={sellerInfo.image_url} name={sellerInfo.name} />
+              <UserItem img_path={cartInfo.shop_image_url} name={cartInfo.shop_name} />
             </Col>
             <Col xs={6} className='right'>
               Subtotal: ${products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
@@ -221,7 +238,7 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
         </div>
 
         {products.map((product, index) => (
-          <CartProduct data={product} cart_id={cart_id} key={index} refresh={refresh} />
+          <CartProduct data={product} cart_id={cartInfo.id} key={index} refresh={refresh} />
         ))}
       </div>
 
@@ -279,7 +296,7 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
                 {checkoutData.coupons.map((couponData, index) => (
                   <CheckoutItemCoupon
                     coupon={couponData}
-                    onClick={() => onRemoveCoupon(index)}
+                    onClick={() => onRemoveCoupon(couponData.id)}
                     key={index}
                   />
                 ))}
@@ -301,27 +318,19 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
               <Col xs={12} style={LabelStyle}>
                 Payment Method
                 <form>
-                  {/* TODO: implement real card selection */}
-                  <Row style={ContentStyle}>
-                    <Col xs={2} className='center'>
-                      <input
-                        type='radio'
-                        value={1}
-                        {...register('card_id')}
-                        style={{ cursor: 'pointer' }}
-                      />
-                    </Col>
-                    <Col xs={10}>Card1</Col>
-                    <Col xs={2} className='center'>
-                      <input
-                        type='radio'
-                        value={1}
-                        {...register('card_id')}
-                        style={{ cursor: 'pointer' }}
-                      />
-                    </Col>
-                    <Col xs={10}>Card2</Col>
-                  </Row>
+                  {checkoutData.payments.map((paymentData, index) => (
+                    <Row style={ContentStyle}>
+                      <Col xs={2} className='center' key={index}>
+                        <input
+                          type='radio'
+                          value={index}
+                          {...register('card_id')}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </Col>
+                      <Col xs={10}>{paymentData.name}</Col>
+                    </Row>
+                  ))}
                 </form>
               </Col>
 
@@ -357,7 +366,14 @@ const Cart = ({ products, cart_id, refresh }: Props) => {
             {usableCouponData.map((couponData, index) => (
               <Col xs={12} md={6} key={index} style={{ padding: '3%' }}>
                 <div onClick={() => onApplyCoupon(couponData.id)} style={{ cursor: 'pointer' }}>
-                  <CouponItemTemplate data={couponData} />
+                  <CouponItemTemplate
+                    data={{
+                      name: couponData.name,
+                      discount: couponData.discount,
+                      type: couponData.type,
+                      expire_date: formatDate(couponData.expire_date),
+                    }}
+                  />
                 </div>
               </Col>
             ))}

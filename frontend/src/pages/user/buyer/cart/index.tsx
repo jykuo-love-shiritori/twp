@@ -48,17 +48,16 @@ const BuyerCarts = () => {
           Accept: 'application/json',
         },
       });
-      if (!resp.ok) {
-        RouteOnNotOK(resp, navigate);
-      }
+      RouteOnNotOK(resp, navigate);
       return (await resp.json()) as ICart[];
     },
+    enabled: true,
+    refetchOnWindowFocus: false,
   });
 
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
-  console.log(data);
   return (
     <div style={{ padding: '10% 5% 10% 5%' }}>
       <span className='title'>Cart</span>
@@ -66,7 +65,7 @@ const BuyerCarts = () => {
       {data.map((cart, index) => (
         <Cart
           products={cart.Products}
-          cart_id={cart.CartInfo.id}
+          cartInfo={cart.CartInfo}
           key={index}
           refresh={() => refetch}
         />
