@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@lib/Auth';
 import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
 interface IBuyerInfo {
@@ -37,6 +38,7 @@ const labelStyle = {
 
 const Info = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IBuyerInfo>({
     defaultValues: {
       name: 'username',
@@ -56,7 +58,9 @@ const Info = () => {
     }
     const resp = await fetch('/api/user/info', {
       method: 'PATCH',
-      headers: {},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
     if (!resp.ok) {
@@ -73,9 +77,10 @@ const Info = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
-      if (!resp) {
+      if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
       }
       return resp.json();

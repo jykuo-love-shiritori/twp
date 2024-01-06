@@ -1,52 +1,80 @@
-import CouponItem from '@components/CouponItem';
 import { Col, Row } from 'react-bootstrap';
-import couponData from '@pages/coupon/couponData.json';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
+import CouponItemShow from '@components/CouponItemShow';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
+interface ICoupon {
   description: string;
   discount: number;
-  start_date: string;
   expire_date: string;
-  tags: {
-    name: string;
-  }[];
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 const SellerCoupons = () => {
+  const navigate = useNavigate();
+  const token = useAuth();
+  const { sellerName } = useParams();
+
+  const { data: CouponsData, status: fetchCouponsStatus } = useQuery({
+    queryKey: ['GetShopCoupons'],
+    queryFn: async () => {
+      const resp = await fetch(`/api/shop/${sellerName}/coupon?offset=0&limit=10`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        return await resp.json();
+      }
+    },
+    select: (data) => data as ICoupon[],
+    enabled: true,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  if (fetchCouponsStatus !== 'success') {
+    return <CheckFetchStatus status={fetchCouponsStatus} />;
+  }
+
+  const globalCoupons = CouponsData.filter((coupon) => coupon.scope === 'global');
+  const shopCoupons = CouponsData.filter((coupon) => coupon.scope === 'shop');
+
   return (
     <div>
       <Row>
         <Col md={12}>
-          <div className='title'>All Coupon</div>
+          <div className='title'>Global Coupon</div>
         </Col>
-        <hr />
-        <Row>
-          <div className='disappear_phone'>
-            <Row>
-              {couponData.map((data, index) => {
-                return (
-                  <Col md={4} xl={3} key={index} style={{ padding: '2%' }}>
-                    <CouponItem data={data as CouponProps} />
-                  </Col>
-                );
-              })}
-            </Row>
-          </div>
-          <div className='disappear_desktop disappear_tablet'>
-            <Row>
-              {couponData.map((data, index) => {
-                return (
-                  <Col xs={12} key={index} style={{ padding: '2% 10%' }}>
-                    <CouponItem data={data as CouponProps} />
-                  </Col>
-                );
-              })}
-            </Row>
-          </div>
-        </Row>
+        <hr className='hr' />
+        {globalCoupons.map((data, index) => {
+          return (
+            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <CouponItemShow data={data} />
+            </Col>
+          );
+        })}
+        <Col md={12} style={{ paddingTop: '5%' }}>
+          <div className='title'>Shop Coupon</div>
+        </Col>
+        <hr className='hr' />
+        {shopCoupons.map((data, index) => {
+          return (
+            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <CouponItemShow data={data} />
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );
