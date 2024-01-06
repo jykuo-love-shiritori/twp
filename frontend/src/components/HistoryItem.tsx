@@ -12,7 +12,7 @@ export interface BuyerHistoryItemProps {
   product_name: string;
   shipment: number;
   total_price: number;
-  status: 'paid' | 'shipped' | 'delivered';
+  status: 'paid' | 'shipped' | 'delivered' | 'finished';
   created_at: string;
 }
 
@@ -25,7 +25,7 @@ export interface SellerHistoryItemProps {
   user_image_url: string;
   shipment: number;
   total_price: number;
-  status: 'paid' | 'shipped' | 'delivered';
+  status: 'paid' | 'shipped' | 'delivered' | 'finished';
   created_at: string;
 }
 

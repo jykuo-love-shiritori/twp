@@ -16,7 +16,7 @@ interface SellerOrderProps {
     id: number;
     shipment: number;
     total_price: number;
-    status: 'paid' | 'shipped' | 'delivered';
+    status: 'paid' | 'shipped' | 'delivered' | 'finished';
     created_at: string;
     user_id: number;
     user_name: string;
@@ -75,6 +75,9 @@ const SellerHistoryEach = () => {
         recordStatus.fill(true, 0, 2);
         break;
       case 'delivered':
+        recordStatus.fill(true, 0, 3);
+        break;
+      case 'finished':
         recordStatus.fill(true, 0, 3);
         break;
       default:

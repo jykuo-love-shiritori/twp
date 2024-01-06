@@ -18,7 +18,7 @@ interface BuyerOrderProps {
     shop_image_url: string;
     shipment: number;
     total_price: number;
-    status: 'paid' | 'shipped' | 'delivered';
+    status: 'paid' | 'shipped' | 'delivered' | 'finished';
     created_at: string;
     discount: number;
   };
@@ -74,6 +74,9 @@ const BuyerHistoryEach = () => {
         recordStatus.fill(true, 0, 2);
         break;
       case 'delivered':
+        recordStatus.fill(true, 0, 3);
+        break;
+      case 'finished':
         recordStatus.fill(true, 0, 3);
         break;
       default:
