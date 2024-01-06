@@ -242,7 +242,10 @@ const EachSellerCoupon = () => {
       },
       body: JSON.stringify(newCoupon),
     });
-    if (!resp.ok) {
+    // 500 means shop is not enabled
+    if (resp.status === 500) {
+      alert('cannot change coupon while your shop is disabled');
+    } else if (!resp.ok) {
       const response = await resp.json();
       alert(response.message);
     } else {
@@ -258,7 +261,10 @@ const EachSellerCoupon = () => {
         accept: 'application/json',
       },
     });
-    if (!resp.ok) {
+    // 404 means shop is not enabled
+    if (resp.status === 404) {
+      alert('cannot change coupon while your shop is disabled');
+    } else if (!resp.ok) {
       alert('error when deleting coupon');
     } else {
       navigate('/user/seller/manageCoupons');
