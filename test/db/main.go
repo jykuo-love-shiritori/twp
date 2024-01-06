@@ -191,7 +191,11 @@ func TestDeleteData(pg *db.DB) {
 	}
 	fmt.Println("DeleteTestProduct success")
 	for _, orderDetailParam := range data.OrderDetail {
-		_, err = pg.Queries.TestDeleteOrderDetailByOrderId(context.Background(), orderDetailParam.OrderID)
+		_, err = pg.Queries.TestDeleteOrderDetailByOrderId(context.Background(), db.TestDeleteOrderDetailByOrderIdParams{
+			OrderID:        orderDetailParam.OrderID,
+			ProductID:      orderDetailParam.ProductID,
+			ProductVersion: orderDetailParam.ProductVersion,
+		})
 		if err != nil {
 			log.Fatal(err)
 		}

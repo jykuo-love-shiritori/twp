@@ -15,7 +15,7 @@ func main() {
 	}
 	fileName := "test.jpg"
 	path := "./test/minio/" + fileName
-	_, err = mc.PutFileByPath(context.Background(), path, fileName)
+	_, err = mc.PutFileByPath(context.Background(), path)
 	if err != nil {
 		log.Fatal(err)
 	}

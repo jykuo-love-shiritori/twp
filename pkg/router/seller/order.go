@@ -5,7 +5,9 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -33,7 +35,10 @@ type OrderUpdateStatusParams struct {
 func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
@@ -53,8 +58,8 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orders {
-			orders[i].ThumbnailUrl = mc.GetFileURL(c.Request().Context(), orders[i].ThumbnailUrl)
-			orders[i].UserImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].UserImageUrl)
+			orders[i].ThumbnailUrl = image.GetUrl(orders[i].ThumbnailUrl)
+			orders[i].UserImageUrl = image.GetUrl(orders[i].UserImageUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -72,7 +77,10 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Router			/seller/order/{id} [get]
 func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerGetOrderDetailParams
 		if err := c.Bind(&param); err != nil {
@@ -93,9 +101,9 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.OrderInfo.UserImageUrl = mc.GetFileURL(c.Request().Context(), result.OrderInfo.UserImageUrl)
+		result.OrderInfo.UserImageUrl = image.GetUrl(result.OrderInfo.UserImageUrl)
 		for i := range result.Products {
-			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
+			result.Products[i].ImageUrl = image.GetUrl(result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}
@@ -112,7 +120,10 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 // @Router			/seller/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param OrderUpdateStatusParams
 		if err := c.Bind(&param); err != nil {

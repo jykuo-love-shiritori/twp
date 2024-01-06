@@ -8,7 +8,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -28,13 +30,16 @@ type ReportDetail struct {
 // @Router			/seller/info [get]
 func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		shopInfo, err := pg.Queries.SellerGetInfo(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		shopInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), shopInfo.ImageUrl)
+		shopInfo.ImageUrl = image.GetUrl(shopInfo.ImageUrl)
 		return c.JSON(http.StatusOK, shopInfo)
 	}
 }
@@ -54,7 +59,10 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Router			/seller/info [patch]
 func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -73,7 +81,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader.Filename))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -100,7 +108,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		shopInfo.ImageUrl = mc.GetFileURL(c.Request().Context(), shopInfo.ImageUrl)
+		shopInfo.ImageUrl = image.GetUrl(shopInfo.ImageUrl)
 
 		return c.JSON(http.StatusOK, shopInfo)
 	}
@@ -118,13 +126,17 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 func GetReportDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		inputTime := pgtype.Timestamptz{}
 		if err := echo.QueryParamsBinder(c).Time("time", &inputTime.Time, time.RFC3339).BindError(); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		inputTime.Time = time.Date(inputTime.Time.Year(), inputTime.Time.Month(), 0, 0, 0, 0, 0, inputTime.Time.Location())
+		// if use 0 day will be the last day of last month
+		inputTime.Time = time.Date(inputTime.Time.Year(), inputTime.Time.Month(), 1, 0, 0, 0, 0, inputTime.Time.Location())
 		inputTime.Valid = true
 		var result ReportDetail
 		result.Report, err = pg.Queries.SellerReport(c.Request().Context(), db.SellerReportParams{SellerName: username, Time: inputTime})
@@ -138,7 +150,7 @@ func GetReportDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Ha
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range result.Products {
-			result.Products[i].ImageUrl = mc.GetFileURL(c.Request().Context(), result.Products[i].ImageUrl)
+			result.Products[i].ImageUrl = image.GetUrl(result.Products[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, result)
 	}

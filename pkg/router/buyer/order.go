@@ -8,8 +8,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -26,7 +28,10 @@ import (
 // @Router			/buyer/order [get]
 func GetOrderHistory(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		q := common.NewQueryParams(0, 10)
 		if err := c.Bind(&q); err != nil {
 			logger.Errorw("failed to bind query parameter", "error", err)
@@ -42,8 +47,8 @@ func GetOrderHistory(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Ha
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orders {
-			orders[i].ShopImageUrl = mc.GetFileURL(c.Request().Context(), orders[i].ShopImageUrl)
-			orders[i].ThumbnailUrl = mc.GetFileURL(c.Request().Context(), orders[i].ThumbnailUrl)
+			orders[i].ShopImageUrl = image.GetUrl(orders[i].ShopImageUrl)
+			orders[i].ThumbnailUrl = image.GetUrl(orders[i].ThumbnailUrl)
 		}
 		return c.JSON(http.StatusOK, orders)
 	}
@@ -65,7 +70,10 @@ type OrderDetail struct {
 // @Router			/buyer/order/{id} [get]
 func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var orderID int32
 		var orderDetail OrderDetail
 		var err error
@@ -82,13 +90,13 @@ func GetOrderDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to get order info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		orderDetail.Info.ShopImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Info.ShopImageUrl)
+		orderDetail.Info.ShopImageUrl = image.GetUrl(orderDetail.Info.ShopImageUrl)
 		if orderDetail.Details, err = pg.Queries.GetOrderDetail(c.Request().Context(), orderID); err != nil {
 			logger.Errorw("failed to get order detail", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for i := range orderDetail.Details {
-			orderDetail.Details[i].ImageUrl = mc.GetFileURL(c.Request().Context(), orderDetail.Details[i].ImageUrl)
+			orderDetail.Details[i].ImageUrl = image.GetUrl(orderDetail.Details[i].ImageUrl)
 		}
 		return c.JSON(http.StatusOK, orderDetail)
 	}
@@ -111,7 +119,10 @@ type OrderStatus struct {
 // @Router			/buyer/order/{id} [patch]
 func UpdateOrderStatus(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		param := db.UpdateOrderStatusParams{Username: username}
 		var status OrderStatus
 		if err := c.Bind(&status); err != nil {

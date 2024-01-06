@@ -8,7 +8,9 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
+	"github.com/jykuo-love-shiritori/twp/pkg/image"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -29,13 +31,16 @@ type updatePasswordParams struct {
 // @Router			/user/info [get]
 func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		user, err := pg.Queries.UserGetInfo(c.Request().Context(), username)
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
+		user.ImageUrl = image.GetUrl(user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -55,7 +60,10 @@ func GetInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFun
 // @Router			/user/info [patch]
 func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.UserUpdateInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -71,7 +79,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 		fileHeader, err := c.FormFile("image")
 		//if have file then store in minio
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader.Filename))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -91,7 +99,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
-		user.ImageUrl = mc.GetFileURL(c.Request().Context(), user.ImageUrl)
+		user.ImageUrl = image.GetUrl(user.ImageUrl)
 		return c.JSON(http.StatusOK, user)
 	}
 }
@@ -109,13 +117,18 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 // @Router			/user/security/password [post]
 func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param updatePasswordParams
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		//todo check password strong
+		if !auth.IsValidPassword(param.NewPassword) {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid password")
+		}
 
 		currentPassword, err := pg.Queries.UserGetPassword(c.Request().Context(), username)
 		if err != nil {
@@ -150,7 +163,10 @@ func EditPassword(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [get]
 func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		credit_card, err := pg.Queries.UserGetCreditCard(c.Request().Context(), username)
 		if err != nil {
@@ -173,7 +189,10 @@ func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/user/security/credit_card [patch]
 func UpdateCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param json.RawMessage
 		if err := c.Bind(&param); err != nil {
 			logger.Error(err)
