@@ -2,16 +2,19 @@ import { faBan, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Row, Col } from 'react-bootstrap';
 
+interface ICheckoutCoupon {
+  description: string;
+  discount: number;
+  discount_value: number;
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  type: 'percentage' | 'fixed' | 'shipping';
+}
+
+// optional is because the row "Add More"
 interface Props {
-  coupon?: {
-    description: string;
-    discount: number;
-    discount_value: number;
-    id: number;
-    name: string;
-    scope: 'global' | 'shop';
-    type: 'percentage' | 'fixed' | 'shipping';
-  };
+  coupon?: ICheckoutCoupon;
   onClick: () => void;
   isAddMore?: boolean;
 }
@@ -36,7 +39,7 @@ const ColStyle = {
 const CheckoutItemCoupon = ({ coupon = undefined, onClick, isAddMore = false }: Props) => {
   return (
     <>
-      {/* layout for dektop and tablet */}
+      {/* layout for desktop and tablet */}
       <div className='disappear_phone'>
         <Row style={ContentStyle}>
           <Col xs={7} style={ColStyle}>

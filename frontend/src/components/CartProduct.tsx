@@ -2,15 +2,9 @@ import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-interface Props {
-  data: ProductProps;
-  cart_id: number;
-  onRefetch: () => void;
-}
-
-interface ProductProps {
-  enabled: boolean;
-  image_id: string;
+interface IProduct {
+  enabled: true;
+  image_url: string;
   name: string;
   price: number;
   product_id: number;
@@ -18,12 +12,18 @@ interface ProductProps {
   stock: number;
 }
 
-const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
+interface Props {
+  data: IProduct;
+  cart_id: number;
+  refresh: () => void;
+}
+
+const CartProduct = ({ data, cart_id, refresh }: Props) => {
   // TODO: Buyer delete product in cart
   // DELETE /buyer/cart/:cart_id/product/:product_id
   const removeItem = () => {
     console.log(`${data.name} delete in cart ${cart_id}`);
-    onRefetch();
+    refresh();
   };
 
   const updateQuantity = (quantity: number) => {
@@ -34,7 +34,7 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
       removeItem();
     } else if (quantity > 0 && quantity <= data.stock) {
       console.log(`${data.name} ${quantity} in cart ${cart_id}`);
-      onRefetch();
+      refresh();
     }
   };
 
@@ -42,7 +42,7 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
     <div className='cart_item' style={{ margin: '2% 0 2% 0' }}>
       <Row>
         <Col xs={4} md={1} className='center'>
-          <img src={data.image_id} style={{ width: '100%', borderRadius: '10px' }} />
+          <img src={data.image_url} style={{ width: '100%', borderRadius: '10px' }} />
         </Col>
         <Col xs={8} md={11} className='dark center_vertical'>
           <div className='disappear_phone' style={{ width: '100%' }}>
