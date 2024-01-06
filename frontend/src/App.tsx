@@ -9,7 +9,8 @@ import BuyerCarts from '@pages/user/buyer/cart';
 import User from '@pages/user/buyer';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
-import HistoryEach from '@pages/user/buyer/history/[historyID]';
+import BuyerHistoryEach from '@pages/user/buyer/history/[historyID]';
+import SellerHistoryEach from '@pages/user/seller/allShipments/[historyID]';
 import Info from '@pages/user/buyer/info';
 import History from '@pages/user/buyer/history';
 import Admin from '@pages/user/admin';
@@ -74,7 +75,7 @@ function App() {
               <Route path='/user/buyer/order' element={<History />} />
             </Route>
             <Route path='/user/buyer/order'>
-              <Route path=':history_id' element={<HistoryEach />} />
+              <Route path=':history_id' element={<BuyerHistoryEach />} />
             </Route>
 
             <Route path='/user/seller' element={<Seller />}>
@@ -107,7 +108,7 @@ function App() {
             </Route>
 
             <Route path='/user/seller/order'>
-              <Route path=':history_id' element={<HistoryEach />} />
+              <Route path=':history_id' element={<SellerHistoryEach />} />
             </Route>
 
             <Route path='/user/seller/reports'>
