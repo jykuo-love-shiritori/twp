@@ -13,168 +13,17 @@ import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
 import { getShopSearchUrl } from '@components/SearchBar';
 
-const PhoneOffCanvasStyle = {
-  width: '330px',
-  border: ' 1px solid var(--button_light, #60998B)',
-  background: ' var(--bg, #061E18)',
-  boxShadow: '0px 4px 20px 2px #60998B',
-  padding: '4% 10% 10% 10%',
-  color: 'white',
-};
-
-export interface FilterProps {
-  maxPrice: number | null;
-  minPrice: number | null;
-  maxStock: number | null;
-  minStock: number | null;
-  haveCoupon: boolean | null;
-  sortBy: 'price' | 'stock' | 'sales' | 'relevancy' | null;
-  order: 'asc' | 'desc' | null;
-}
-
-export interface SearchProps extends FilterProps {
-  q: string;
-}
-
-interface ProductProps {
-  id: number;
-  image_url: string;
-  name: string;
-  price: string;
-  stock: number;
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const defaultFilterValues: FilterProps = {
-  maxPrice: null,
-  minPrice: null,
-  maxStock: null,
-  minStock: null,
-  haveCoupon: null,
-  sortBy: null,
-  order: null,
-};
-
-const isValidNumber = (value: string | number | null | undefined): boolean => {
-  return typeof value === 'number' || (typeof value === 'string' && !isNaN(parseInt(value)));
-};
-
-const isInteger = (value: string | number | null | undefined): boolean => {
-  return typeof value === 'number' || (typeof value === 'string' && /^-?\d+$/.test(value));
-};
-
-const isEmpty = (value: string | number | null | undefined): boolean => {
-  return value === '' || value === null ? true : false;
-};
-
-const isDataValid = (data: FilterProps) => {
-  if (typeof data.maxPrice !== 'number' && data.maxPrice !== null && data.maxPrice !== '') {
-    if (!isValidNumber(data.maxPrice)) {
-      alert('Please enter numbers for max price');
-      return false;
-    }
-  }
-
-  if (typeof data.minPrice !== 'number' && data.minPrice !== null && data.minPrice !== '') {
-    if (!isValidNumber(data.minPrice)) {
-      alert('Please enter numbers for min price');
-      return false;
-    }
-  }
-
-  if (typeof data.maxStock !== 'number' && data.maxStock !== null && data.maxStock !== '') {
-    if (!isValidNumber(data.maxStock)) {
-      alert('Please enter numbers for max stock');
-      return false;
-    }
-  }
-
-  if (typeof data.minStock !== 'number' && data.minStock !== null && data.minStock !== '') {
-    if (!isValidNumber(data.minStock)) {
-      alert('Please enter numbers for min stock');
-      return false;
-    }
-  }
-
-  if (
-    (!isInteger(data.maxPrice) && data.maxPrice !== null && data.maxPrice.toString() !== '') ||
-    (!isInteger(data.minPrice) && data.minPrice !== null && data.minPrice.toString() !== '') ||
-    (!isInteger(data.maxStock) && data.maxStock !== null && data.maxStock.toString() !== '') ||
-    (!isInteger(data.minStock) && data.minStock !== null && data.minStock.toString() !== '')
-  ) {
-    alert("can't enter float numbers!");
-    return false;
-  }
-
-  if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
-    alert("min price can't negative numbers");
-    return false;
-  }
-
-  if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
-    alert("max price can't negative numbers");
-    return false;
-  }
-
-  if (data.minStock !== null && parseInt(data.minStock.toString()) < 0) {
-    alert("min stock can't negative numbers");
-    return false;
-  }
-
-  if (data.maxStock !== null && parseInt(data.maxStock.toString()) < 0) {
-    alert("max stock can't negative numbers");
-    return false;
-  }
-
-  if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
-    alert("min price can't negative numbers");
-    return false;
-  }
-
-  if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
-    alert("max price can't negative numbers");
-    return false;
-  }
-
-  if (
-    data.maxPrice !== null &&
-    data.minPrice !== null &&
-    parseInt(data.maxPrice.toString()) < parseInt(data.minPrice.toString())
-  ) {
-    alert("min price can't bigger than max value");
-    return false;
-  }
-
-  if (
-    data.maxStock !== null &&
-    data.minStock !== null &&
-    parseInt(data.maxStock.toString()) < parseInt(data.minStock.toString())
-  ) {
-    alert("min stock can't bigger than max value");
-    return false;
-  }
-
-  if (isEmpty(data.maxPrice) != isEmpty(data.minPrice)) {
-    alert('max and min price should both have values or both have no values at the same time');
-    return false;
-  }
-
-  if (isEmpty(data.maxStock) != isEmpty(data.minStock)) {
-    alert('max and min stock should both have values or both have no values at the same time');
-    return false;
-  }
-
-  return true;
-};
-
-const extractSearchQuery = (url: string) => {
-  const regex = /\/search\?.*$/;
-  const match = url.match(regex);
-  return match ? match[0] : null;
-};
+import {
+  PhoneOffCanvasStyle,
+  FilterProps,
+  SearchProps,
+  ProductProps,
+  defaultFilterValues,
+  isDataValid,
+} from '@pages/search';
 
 const ShopSearch = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
 
@@ -189,17 +38,13 @@ const ShopSearch = () => {
   });
 
   const querySearch = useMutation({
-    mutationFn: async (requestString: string) => {
+    mutationFn: async () => {
       const currentQ = searchParams.get('q') ?? '';
       if (currentQ === '') {
         return;
       }
 
-      let extractedString = extractSearchQuery(requestString);
-      // TODO : the sellerID should be the real seller name
-      extractedString = 'shop/s' + extractedString;
-
-      const response = await fetch(`/api/${extractedString}`, {
+      const response = await fetch('/api/shop/s/search?' + getNewParams(), {
         headers: {
           Accept: 'application/json',
         },
@@ -213,6 +58,34 @@ const ShopSearch = () => {
       navigate('/searchNotFound');
     },
   });
+
+  const getNewParams = () => {
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    const minStock = searchParams.get('minStock');
+    const maxStock = searchParams.get('maxStock');
+    const haveCouponValue = searchParams.get('haveCoupon');
+    const sortBy = searchParams.get('sortBy');
+    const order = searchParams.get('order');
+
+    if (minPrice) searchParams.set('minPrice', minPrice);
+    if (maxPrice) searchParams.set('maxPrice', maxPrice);
+    if (minStock) searchParams.set('minStock', minStock);
+    if (maxStock) searchParams.set('maxStock', maxStock);
+    if (haveCouponValue === 'true' || haveCouponValue === 'false') {
+      searchParams.set('haveCoupon', haveCouponValue);
+    }
+    if (sortBy && ['price', 'stock', 'sales', 'relevancy'].includes(sortBy)) {
+      searchParams.set('sortBy', sortBy);
+    }
+    if (order && ['asc', 'desc'].includes(order)) {
+      searchParams.set('order', order);
+    }
+
+    setSearchParams(searchParams);
+
+    return searchParams.toString();
+  };
 
   useEffect(() => {
     const newQ = searchParams.get('q') ?? '';
@@ -228,7 +101,6 @@ const ShopSearch = () => {
     }
 
     const request: SearchProps = setData();
-    const requestUrl = getShopSearchUrl(request, newQ);
 
     setQ(request.q);
     setValue('minPrice', request.minPrice);
@@ -238,7 +110,7 @@ const ShopSearch = () => {
     setValue('haveCoupon', request.haveCoupon);
     setValue('sortBy', request.sortBy);
     setValue('order', request.order);
-    querySearch.mutate(requestUrl);
+    querySearch.mutate();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, setValue]);

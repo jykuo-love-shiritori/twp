@@ -14,7 +14,7 @@ import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
 import { getUrl } from '@components/SearchBar';
 
-const PhoneOffCanvasStyle = {
+export const PhoneOffCanvasStyle = {
   width: '330px',
   border: ' 1px solid var(--button_light, #60998B)',
   background: ' var(--bg, #061E18)',
@@ -37,12 +37,12 @@ export interface SearchProps extends FilterProps {
   q: string;
 }
 
-interface ResponseProps {
+export interface ResponseProps {
   products: ProductProps[];
   shops: ShopProps[];
 }
 
-interface ProductProps {
+export interface ProductProps {
   id: number;
   image_url: string;
   name: string;
@@ -50,7 +50,7 @@ interface ProductProps {
   stock: number;
 }
 
-interface ShopProps {
+export interface ShopProps {
   id: number;
   image_url: string;
   name: string;
@@ -81,7 +81,8 @@ const isEmpty = (value: string | number | null | undefined): boolean => {
   return value === '' || value === null ? true : false;
 };
 
-const isDataValid = (data: FilterProps) => {
+// eslint-disable-next-line react-refresh/only-export-components
+export const isDataValid = (data: FilterProps) => {
   if (typeof data.maxPrice !== 'number' && data.maxPrice !== null && data.maxPrice !== '') {
     if (!isValidNumber(data.maxPrice)) {
       alert('Please enter numbers for max price');
@@ -182,7 +183,7 @@ const isDataValid = (data: FilterProps) => {
 };
 
 const Search = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
 
@@ -197,12 +198,12 @@ const Search = () => {
   });
 
   const querySearch = useMutation({
-    mutationFn: async (requestString: string) => {
+    mutationFn: async () => {
       const currentQ = searchParams.get('q') ?? '';
       if (currentQ === '') {
         return;
       }
-      const response = await fetch(`/api${requestString}`, {
+      const response = await fetch('/api/search?' + getNewParams(), {
         headers: {
           Accept: 'application/json',
         },
@@ -217,11 +218,37 @@ const Search = () => {
     },
   });
 
+  const getNewParams = () => {
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    const minStock = searchParams.get('minStock');
+    const maxStock = searchParams.get('maxStock');
+    const haveCouponValue = searchParams.get('haveCoupon');
+    const sortBy = searchParams.get('sortBy');
+    const order = searchParams.get('order');
+
+    if (minPrice) searchParams.set('minPrice', minPrice);
+    if (maxPrice) searchParams.set('maxPrice', maxPrice);
+    if (minStock) searchParams.set('minStock', minStock);
+    if (maxStock) searchParams.set('maxStock', maxStock);
+    if (haveCouponValue === 'true' || haveCouponValue === 'false') {
+      searchParams.set('haveCoupon', haveCouponValue);
+    }
+    if (sortBy && ['price', 'stock', 'sales', 'relevancy'].includes(sortBy)) {
+      searchParams.set('sortBy', sortBy);
+    }
+    if (order && ['asc', 'desc'].includes(order)) {
+      searchParams.set('order', order);
+    }
+
+    setSearchParams(searchParams);
+
+    return searchParams.toString();
+  };
+
   useEffect(() => {
     const newQ = searchParams.get('q') ?? '';
-    if (newQ !== q) {
-      setQ(newQ);
-    }
+    setQ(newQ);
   }, [searchParams, q]);
 
   useEffect(() => {
@@ -231,7 +258,6 @@ const Search = () => {
     }
 
     const request: SearchProps = setData();
-    const requestUrl = getUrl(request, newQ);
 
     setQ(request.q);
     setValue('minPrice', request.minPrice);
@@ -241,7 +267,7 @@ const Search = () => {
     setValue('haveCoupon', request.haveCoupon);
     setValue('sortBy', request.sortBy);
     setValue('order', request.order);
-    querySearch.mutate(requestUrl);
+    querySearch.mutate();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, setValue]);

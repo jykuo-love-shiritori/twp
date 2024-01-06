@@ -8,7 +8,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { SearchProps, defaultFilterValues } from '@pages/search';
+import { SearchProps } from '@pages/search';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const getUrl = (data: SearchProps, q: string) => {
@@ -29,10 +29,10 @@ export const getShopSearchUrl = (data: SearchProps, q: string) => {
 export const getBehind = (data: SearchProps) => {
   let url = '';
 
-  if (data.minPrice !== null) {
+  if (data.minPrice !== null && data.minPrice.toString() !== '') {
     url += '&minPrice=' + data.minPrice;
   }
-  if (data.maxPrice !== null) {
+  if (data.maxPrice !== null && data.maxPrice.toString() !== '') {
     url += '&maxPrice=' + data.maxPrice;
   }
   if (data.minStock !== null) {
@@ -55,88 +55,61 @@ export const getBehind = (data: SearchProps) => {
 };
 
 const SearchBar = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
 
   useEffect(() => {
-    if (
-      window.location.href.includes('search') &&
-      !window.location.href.includes('inside') &&
-      !window.location.href.includes('searchNotFound')
-    ) {
+    if (window.location.href.includes('search')) {
       transfer();
-    } else if (
-      window.location.href.includes('inside') &&
-      !window.location.href.includes('searchNotFound')
-    ) {
-      const data = setData();
-      navigate(getShopSearchUrl(data, q));
     }
-  }, [q, navigate]);
+  }, [q, searchParams]);
 
-  const setData = () => {
-    const data: SearchProps = { ...defaultFilterValues, q: q };
-
-    const maxPrice = parseInt(searchParams.get('maxPrice') || '');
-    if (!isNaN(maxPrice)) {
-      data.maxPrice = maxPrice;
-    }
-
-    const minPrice = parseInt(searchParams.get('minPrice') || '');
-    if (!isNaN(minPrice)) {
-      data.minPrice = minPrice;
-    }
-
-    const maxStock = parseInt(searchParams.get('maxStock') || '');
-    if (!isNaN(maxStock)) {
-      data.maxStock = maxStock;
-    }
-
-    const minStock = parseInt(searchParams.get('minStock') || '');
-    if (!isNaN(minStock)) {
-      data.minStock = minStock;
-    }
-
+  const getNewParams = () => {
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    const minStock = searchParams.get('minStock');
+    const maxStock = searchParams.get('maxStock');
     const haveCouponValue = searchParams.get('haveCoupon');
-    if (haveCouponValue !== null && haveCouponValue !== '') {
-      if (haveCouponValue === 'true' || haveCouponValue === 'false') {
-        data.haveCoupon = JSON.parse(haveCouponValue);
-      }
-    }
-
     const sortBy = searchParams.get('sortBy');
-    if (
-      sortBy !== null &&
-      sortBy !== '' &&
-      (sortBy === 'price' || sortBy === 'stock' || sortBy === 'sales' || sortBy === 'relevancy')
-    ) {
-      data.sortBy = sortBy;
-    }
-
     const order = searchParams.get('order');
-    if (order !== null && order !== '' && (order === 'asc' || order === 'desc')) {
-      data.order = order;
-    }
 
-    return data;
+    if (minPrice) searchParams.set('minPrice', minPrice);
+    if (maxPrice) searchParams.set('maxPrice', maxPrice);
+    if (minStock) searchParams.set('minStock', minStock);
+    if (maxStock) searchParams.set('maxStock', maxStock);
+    if (haveCouponValue === 'true' || haveCouponValue === 'false') {
+      searchParams.set('haveCoupon', haveCouponValue);
+    }
+    if (sortBy && ['price', 'stock', 'sales', 'relevancy'].includes(sortBy)) {
+      searchParams.set('sortBy', sortBy);
+    }
+    if (order && ['asc', 'desc'].includes(order)) {
+      searchParams.set('order', order);
+    }
+    if (q) searchParams.set('q', q);
+
+    setSearchParams(searchParams);
+
+    return searchParams.toString();
   };
 
   const transfer = () => {
-    const data = setData();
-    navigate(getUrl(data, q));
+    const isShopURL = /\/shop(?:\/inside\/search(?:\?.+)?)?$/;
+
+    if (isShopURL.test(window.location.pathname)) {
+      // TODO : the sellerID need to be changed to real seller
+      navigate('/sellerID/shop/inside/search?' + getNewParams());
+    } else {
+      navigate('search?' + getNewParams());
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 229) return;
 
     if (event.key === 'Enter') {
-      if (window.location.href.includes('shop')) {
-        const data = setData();
-        navigate(getShopSearchUrl(data, q));
-      } else {
-        transfer();
-      }
+      transfer();
     }
   };
 
