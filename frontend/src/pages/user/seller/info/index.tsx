@@ -81,7 +81,7 @@ const SellerInfo = () => {
           'Content-Type': 'application/json',
         },
       });
-      if (!resp) {
+      if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
       }
       return resp.json();

@@ -80,7 +80,7 @@ const Info = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!resp) {
+      if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
       }
       return resp.json();
