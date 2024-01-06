@@ -145,17 +145,33 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
     refetchUsableCoupon();
     setModalShow(true);
   };
-  const onPay = () => {
+  const onPay = async () => {
     // TODO: Buyer checkout
     // POST /buyer/cart/:cart_id/checkout
     if (watch('card_id') === null) {
-      // TODO: implement real card selection
-      console.log('please select a card');
+      if (checkoutData?.payments.length === 0) {
+        alert('please add a card');
+      } else {
+        alert('please select a card');
+      }
       return;
     }
-    console.log('pay');
-    refresh();
-    setCanvaShow(false);
+    const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/checkout`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(checkoutData?.payments[watch('card_id')]),
+    });
+    if (!resp.ok) {
+      // TODO: remove navigate
+      RouteOnNotOK(resp, navigate);
+    } else {
+      refresh();
+      setCanvaShow(false);
+    }
   };
   const onApplyCoupon = async (coupon_id: number) => {
     console.log(`apply coupon ${coupon_id}`);
