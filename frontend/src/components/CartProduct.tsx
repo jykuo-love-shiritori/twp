@@ -4,6 +4,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@lib/Auth';
 import { useNavigate } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Status';
+import { formatFloat } from '@lib/Functions';
 
 interface IProduct {
   enabled: true;
@@ -100,7 +101,7 @@ const CartProduct = ({ data, cart_id, refresh }: Props) => {
                 </Row>
               </Col>
               <Col md={2} className='right ' style={{ padding: '2% 0', fontSize: '20px' }}>
-                {data.price * data.quantity} NTD
+                {formatFloat(data.price * data.quantity)} NTD
               </Col>
               <Col md={1} className='center' style={{ padding: '2% 0' }}>
                 <FontAwesomeIcon icon={faTrash} size='xl' className='trash' onClick={removeItem} />
@@ -149,7 +150,7 @@ const CartProduct = ({ data, cart_id, refresh }: Props) => {
                 </Row>
               </Col>
               <Col xs={8} style={{ padding: '2% 0 2% 5%' }}>
-                {data.price * data.quantity} NTD
+                {formatFloat(data.price * data.quantity)} NTD
               </Col>
 
               <Col xs={4} className='right' style={{ padding: '2% 5% 2% 0' }}>

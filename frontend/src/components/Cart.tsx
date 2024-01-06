@@ -8,7 +8,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
-import { formatDate } from '@lib/Functions';
+import { formatDate, formatFloat } from '@lib/Functions';
 import CartProduct from '@components/CartProduct';
 import UserItem from '@components/UserItem';
 import TButton from '@components/TButton';
@@ -24,17 +24,6 @@ interface IProduct {
   product_id: number;
   quantity: number;
   stock: number;
-}
-
-interface Props {
-  cartInfo: {
-    id: number;
-    seller_name: string;
-    shop_image_url: string;
-    shop_name: string;
-  };
-  products: IProduct[];
-  refresh: () => void;
 }
 
 interface ICheckoutCoupon {
@@ -73,6 +62,17 @@ interface IUsableCoupon {
   type: 'percentage' | 'fixed' | 'shipping';
 }
 
+interface Props {
+  cartInfo: {
+    id: number;
+    seller_name: string;
+    shop_image_url: string;
+    shop_name: string;
+  };
+  products: IProduct[];
+  refresh: () => void;
+}
+
 const LabelStyle = {
   fontSize: '24px',
   fontWeight: '700',
@@ -90,7 +90,6 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   const token = useAuth();
   const [canvaShow, setCanvaShow] = useState(false);
   const [modalShow, setModalShow] = useState(false);
-  console.log(cartInfo.seller_name);
   // get the checkout detail
   const {
     data: checkoutData,
@@ -136,18 +135,14 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   });
 
   const onViewCheckout = () => {
-    console.log('refetch checkout');
     refetchCheckout();
     setCanvaShow(true);
   };
   const onChooseCoupon = () => {
-    console.log('refetch usable coupon');
     refetchUsableCoupon();
     setModalShow(true);
   };
   const onPay = async () => {
-    // TODO: Buyer checkout
-    // POST /buyer/cart/:cart_id/checkout
     if (watch('card_id') === null) {
       if (checkoutData?.payments.length === 0) {
         alert('please add a card');
@@ -174,7 +169,6 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
     }
   };
   const onApplyCoupon = async (coupon_id: number) => {
-    console.log(`apply coupon ${coupon_id}`);
     const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/coupon/${coupon_id}`, {
       method: 'POST',
       headers: {
@@ -186,13 +180,11 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
       // TODO: remove navigate
       RouteOnNotOK(resp, navigate);
     } else {
-      // refresh();
       refetchCheckout();
       setModalShow(false);
     }
   };
   const onRemoveCoupon = async (coupon_id: number) => {
-    console.log(`remove coupon ${coupon_id}`);
     const resp = await fetch(`/api/buyer/cart/${cartInfo.id}/coupon/${coupon_id}`, {
       method: 'DELETE',
       headers: {
@@ -204,7 +196,6 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
       // TODO: remove navigate
       RouteOnNotOK(resp, navigate);
     } else {
-      // refresh();
       refetchCheckout();
     }
   };
@@ -231,7 +222,8 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
               <UserItem img_path={cartInfo.shop_image_url} name={cartInfo.shop_name} />
             </Col>
             <Col md={3} className='center'>
-              Subtotal: ${products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0)}
+              Subtotal: $
+              {formatFloat(products.reduce((acc, cur) => acc + cur.price * cur.quantity, 0))}
             </Col>
             <Col md={3} className='center'>
               <TButton text='Checkout' action={onViewCheckout} />
@@ -287,7 +279,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
                 {products.map((productData, index) => (
                   <CheckoutItem
                     label={`${productData.name} x ${productData.quantity}`}
-                    value={`${productData.price * productData.quantity} NTD`}
+                    value={`${formatFloat(productData.price * productData.quantity)} NTD`}
                     key={index}
                   />
                 ))}
@@ -379,20 +371,26 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
         </Modal.Header>
         <Modal.Body>
           <Row style={{ width: '100%' }}>
-            {usableCouponData.map((couponData, index) => (
-              <Col xs={12} md={6} key={index} style={{ padding: '3%' }}>
-                <div onClick={() => onApplyCoupon(couponData.id)} style={{ cursor: 'pointer' }}>
-                  <CouponItemTemplate
-                    data={{
-                      name: couponData.name,
-                      discount: couponData.discount,
-                      type: couponData.type,
-                      expire_date: formatDate(couponData.expire_date),
-                    }}
-                  />
-                </div>
+            {usableCouponData.length > 0 ? (
+              usableCouponData.map((couponData, index) => (
+                <Col xs={12} md={6} key={index} style={{ padding: '3%' }}>
+                  <div onClick={() => onApplyCoupon(couponData.id)} style={{ cursor: 'pointer' }}>
+                    <CouponItemTemplate
+                      data={{
+                        name: couponData.name,
+                        discount: couponData.discount,
+                        type: couponData.type,
+                        expire_date: formatDate(couponData.expire_date),
+                      }}
+                    />
+                  </div>
+                </Col>
+              ))
+            ) : (
+              <Col xs={12} className='center'>
+                <h2>No usable coupon 😢</h2>
               </Col>
-            ))}
+            )}
           </Row>
         </Modal.Body>
       </Modal>
