@@ -5,8 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import GoodsItem from '@components/GoodsItem';
 import { Props } from '@components/GoodsItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 const Shop = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const { status, data: shopData } = useQuery({
@@ -15,6 +17,7 @@ const Shop = () => {
       const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

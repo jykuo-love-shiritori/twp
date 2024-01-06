@@ -2,145 +2,129 @@ import '@style/global.css';
 
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
-import NotFound from '@components/NotFound';
 import TButton from '@components/TButton';
 import QuantityBar from '@components/QuantityBar';
 import UserItem from '@components/UserItem';
+import { GetResponseProps } from '@pages/user/seller/allProducts/[sellerGoodsID]';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { GoodsImgStyle } from '@pages/user/seller/allProducts/NewGoods';
+import { useAuth } from '@lib/Auth';
 
-import goodsData from '@pages/discover/goodsData.json';
+const tagStyle = {
+  borderRadius: '30px',
+  background: ' var(--button_light)',
+  padding: '2% 3% 2% 3%',
+  color: 'white',
+  margin: '10px 0 0px 5px',
+};
 
-interface Tag {
-  name: string;
-}
-
-interface Props {
-  id: number | null;
-  price: number;
-  name: string;
-  introduction: string;
-  sub_title: string;
-  sub_content: string;
-  calories: string;
-  due_date: string;
-  ingredients: string;
-  image_url: string;
-  tags: Tag[];
-  quantity: number;
-}
+const LeftBgStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+};
 
 const EachGoods = () => {
-  const tagStyle = {
-    borderRadius: '30px',
-    background: ' var(--button_light)',
-    padding: '2% 3% 2% 3%',
-    color: 'white',
-    margin: '10px 0 0px 5px',
-  };
+  const token = useAuth();
+  const navigate = useNavigate();
 
-  const LeftBgStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    boxShadow: '6px 4px 10px 2px rgba(0, 0, 0, 0.25)',
-  };
+  const params = useParams<{ goods_id?: string }>();
+  let goods_id: number | undefined;
 
-  const params = useParams();
-  const id = params.goods_id;
-
-  const data: Props = {
-    id: null,
-    price: 0,
-    name: '',
-    introduction: '',
-    sub_title: '',
-    sub_content: '',
-    calories: '',
-    due_date: '',
-    ingredients: '',
-    image_url: '',
-    tags: [],
-    quantity: 0,
-  };
-
-  // to find the goods information by id
-  const foundGoods = goodsData.find((goods) => goods.id.toString() === id);
-
-  if (foundGoods) {
-    Object.assign(data, foundGoods);
-    console.log(data.tags);
+  if (params.goods_id) {
+    goods_id = parseInt(params.goods_id);
   }
 
-  if (foundGoods) {
-    return (
-      <div style={{ padding: '55px 12% 0 12%' }}>
-        <Row>
-          <Col xs={12} md={5} style={LeftBgStyle}>
-            <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
-              <img src={data.image_url} style={{ borderRadius: '0 0 30px 0' }} />
+  const { status, data } = useQuery({
+    queryKey: ['goodsPage', goods_id],
+    queryFn: async () => {
+      if (goods_id === undefined) {
+        throw new Error('Invalid goods_id');
+      }
+      const response = await fetch(`/api/seller/product/${goods_id}`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        RouteOnNotOK(response, navigate);
+      }
+      return (await response.json()) as GetResponseProps;
+    },
+  });
 
-              <Row xs='auto'>
-                {data.tags.map((currentTag, index) => (
-                  <Col style={tagStyle} className='center' key={index}>
-                    {currentTag.name}
-                  </Col>
-                ))}
-              </Row>
-
-              <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
-                $ {data.price} TWD
-              </h4>
-
-              {data.quantity != 0 ? (
-                <div>
-                  <span style={{ color: 'black' }}>{data.quantity} available</span>
-                  <hr style={{ opacity: '1' }} />
-                  <QuantityBar />
-                  <TButton text='Add to cart' />
-                </div>
-              ) : (
-                <h6 style={{ color: '#ED7E6D' }}>
-                  <b>SOLD OUT</b>
-                </h6>
-              )}
-            </div>
-          </Col>
-          <Col xs={12} md={7}>
-            <div style={{ padding: '7% 5% 7% 5%' }}>
-              <div className='inpage_title'>{data.name}</div>
-
-              {/* goods' description */}
-              <p>
-                {data.introduction}
-                <br />
-                <br />
-                {data.sub_title}
-                <br />
-                <br />
-                {data.sub_content}
-                <br />
-                <br />
-                Calories:{data.calories}
-                <br />
-                <br />
-                Enjoy at its Freshest:{data.due_date}
-              </p>
-
-              <hr className='hr' />
-              <Row>
-                <Col xs={6} className='center'>
-                  <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
-                </Col>
-                <Col xs={6}>
-                  <TButton text='View Shop' />
-                </Col>
-              </Row>
-            </div>
-          </Col>
-        </Row>
-      </div>
-    );
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
   } else {
-    return <NotFound />;
+    const originalDate = new Date(data.product_info.expire_date);
+    data.product_info.expire_date = `${originalDate.getFullYear()}-${String(
+      originalDate.getMonth() + 1,
+    ).padStart(2, '0')}-${String(originalDate.getDate()).padStart(2, '0')}`;
   }
+
+  return (
+    <div style={{ padding: '55px 12% 0 12%' }}>
+      <Row>
+        <Col xs={12} md={5} style={LeftBgStyle}>
+          <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
+            <div style={{ overflow: ' hidden' }}>
+              <img src={data.product_info.image_url} alt='File preview' style={GoodsImgStyle} />
+            </div>
+
+            <Row xs='auto'>
+              {data.tags.map((currentTag, index) => (
+                <Col style={tagStyle} className='center' key={index}>
+                  {currentTag.name}
+                </Col>
+              ))}
+            </Row>
+
+            <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
+              $ {data.product_info.price} TWD
+            </h4>
+
+            {data.product_info.stock != 0 ? (
+              <div>
+                <span style={{ color: 'black' }}>{data.product_info.stock} available</span>
+                <hr style={{ opacity: '1' }} />
+                <QuantityBar />
+                <TButton text='Add to cart' />
+              </div>
+            ) : (
+              <h6 style={{ color: '#ED7E6D' }}>
+                <b>SOLD OUT</b>
+              </h6>
+            )}
+          </div>
+        </Col>
+        <Col xs={12} md={7}>
+          <div style={{ padding: '7% 5% 7% 5%' }}>
+            <div className='inpage_title'>{data.product_info.name}</div>
+
+            <p>
+              {data.product_info.description}
+              <br />
+              <br />
+              Enjoy at its Freshest : {data.product_info.expire_date}
+            </p>
+
+            <hr className='hr' />
+            <Row>
+              <Col xs={6} className='center'>
+                <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
+              </Col>
+              <Col xs={6}>
+                <TButton text='View Shop' />
+              </Col>
+            </Row>
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
 };
 
 export default EachGoods;

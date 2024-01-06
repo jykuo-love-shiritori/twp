@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import SellerItem, { SellerItemProps } from '@components/SellerItem';
 import NotFound from '@components/NotFound';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface SellersProps extends SellerItemProps {
   total_sales: number;
@@ -29,6 +30,7 @@ const reportPageStyle = {
 };
 
 const AdminReportEach = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const { year, month } = useParams();
@@ -45,6 +47,7 @@ const AdminReportEach = () => {
       const response = await fetch(`/api/admin/report?date=${rfc3339Date}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
