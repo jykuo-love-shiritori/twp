@@ -81,8 +81,8 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	api.GET("/product/:id", general.GetProductInfo(pg, mc, logger))
 
 	api.GET("/admin/coupon", admin.GetCoupon(pg, logger), auth.ValidateJwt(pg, logger))
-    api.GET("/admin/coupon/:id", admin.GetCouponDetail(pg, logger), auth.ValidateJwt(pg, logger))
-	
+	api.GET("/admin/coupon/:id", admin.GetCouponDetail(pg, logger), auth.ValidateJwt(pg, logger))
+
 	// admin
 	adminEndpoint := api.Group("", auth.IsRole(pg, logger, db.RoleTypeAdmin))
 	adminEndpoint.GET("/admin/user", admin.GetUser(pg, mc, logger))
