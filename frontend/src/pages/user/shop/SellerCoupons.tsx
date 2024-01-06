@@ -1,6 +1,6 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
 import CouponItemShow from '@components/CouponItemShow';
@@ -19,10 +19,7 @@ interface ICoupon {
 const SellerCoupons = () => {
   const navigate = useNavigate();
   const token = useAuth();
-
-  // TODO
-  // const {sellerName} = useParams();
-  const sellerName = 'user1';
+  const { sellerName } = useParams();
 
   const { data: CouponsData, status: fetchCouponsStatus } = useQuery({
     queryKey: ['GetShopCoupons'],
@@ -42,6 +39,7 @@ const SellerCoupons = () => {
     },
     select: (data) => data as ICoupon[],
     enabled: true,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 
