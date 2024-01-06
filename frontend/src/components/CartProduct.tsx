@@ -1,6 +1,9 @@
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '@lib/Auth';
+import { useNavigate } from 'react-router-dom';
+import { RouteOnNotOK } from '@lib/Status';
 
 interface IProduct {
   enabled: true;
@@ -19,22 +22,43 @@ interface Props {
 }
 
 const CartProduct = ({ data, cart_id, refresh }: Props) => {
-  // TODO: Buyer delete product in cart
-  // DELETE /buyer/cart/:cart_id/product/:product_id
-  const removeItem = () => {
-    console.log(`${data.name} delete in cart ${cart_id}`);
-    refresh();
+  const token = useAuth();
+  const navigate = useNavigate();
+
+  const removeItem = async () => {
+    const resp = await fetch(`/api/buyer/cart/${cart_id}/product/${data.product_id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      // TODO: remove navigate
+      RouteOnNotOK(resp, navigate);
+    } else {
+      refresh();
+    }
   };
 
-  const updateQuantity = (quantity: number) => {
-    // TODO: Buyer edit product in cart
-    // PATCH /buyer/cart/:cart_id/product/:product_id
-    // body: { quantity: number }
+  const updateQuantity = async (quantity: number) => {
     if (quantity === 0) {
       removeItem();
     } else if (quantity > 0 && quantity <= data.stock) {
-      console.log(`${data.name} ${quantity} in cart ${cart_id}`);
-      refresh();
+      const resp = await fetch(`/api/buyer/cart/${cart_id}/product/${data.product_id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: quantity }),
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        refresh();
+      }
     }
   };
 

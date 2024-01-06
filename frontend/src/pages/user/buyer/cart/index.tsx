@@ -63,12 +63,7 @@ const BuyerCarts = () => {
       <span className='title'>Cart</span>
 
       {data.map((cart, index) => (
-        <Cart
-          products={cart.Products}
-          cartInfo={cart.CartInfo}
-          key={index}
-          refresh={() => refetch}
-        />
+        <Cart products={cart.Products} cartInfo={cart.CartInfo} key={index} refresh={refetch} />
       ))}
     </div>
   );
