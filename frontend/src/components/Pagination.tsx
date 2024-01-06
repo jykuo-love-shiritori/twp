@@ -37,6 +37,7 @@ const Pagination = ({
     if (page > 1) {
       searchParams.set('offset', ((page - 2) * limit).toString());
       setSearchParams(searchParams, { replace: true });
+      setValue('newPage', page - 1);
       refresh();
     }
   };
@@ -45,12 +46,14 @@ const Pagination = ({
     if (page < MAX_PAGE && isMore) {
       searchParams.set('offset', (page * limit).toString());
       setSearchParams(searchParams, { replace: true });
+      setValue('newPage', page + 1);
       refresh();
     }
   };
 
   const onSubmit = (data: { newPage: number }) => {
     const inputPage = data.newPage;
+    // TODO: u can still enter any page as long as it's not the last page
     if (inputPage > 0 && inputPage < MAX_PAGE && (isMore || (!isMore && inputPage < getPage()))) {
       searchParams.set('offset', ((inputPage - 1) * limit).toString());
       setSearchParams(searchParams, { replace: true });

@@ -1,11 +1,12 @@
 import { Col, Row } from 'react-bootstrap';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckMutateStatus, RouteOnNotOK } from '@lib/Status';
+import { useState } from 'react';
+import { useAuth } from '@lib/Auth';
 import Pagination from '@components/Pagination';
 import UserTableRow from '@components/UserTableRow';
 import UserTableHeader from '@components/UserTableHeader';
-import { useEffect, useState } from 'react';
 
 interface ICreditCard {
   CVV: string;
@@ -27,28 +28,32 @@ interface IUser {
 
 const ManageUser = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const [isMore, setIsMore] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const itemLimit = 10;
 
+  if (!searchParams.has('offset') || !searchParams.has('limit')) {
+    const newSearchParams = new URLSearchParams({
+      offset: '0',
+      limit: (itemLimit + 1).toString(), // request one more to check if there is more
+    });
+    setSearchParams(newSearchParams, { replace: true });
+  }
   const {
     data: fetchedData,
     status,
-    mutate,
-  } = useMutation({
-    mutationKey: ['adminGetUser'],
-    mutationFn: async (isPage: boolean) => {
-      if (!isPage) {
-        const newSearchParams = new URLSearchParams({
-          offset: '0',
-          limit: (itemLimit + 1).toString(), // request one more to check if there is more
-        });
-        setSearchParams(newSearchParams, { replace: true });
-      }
+    refetch,
+  } = useQuery({
+    queryKey: ['adminGetUser', searchParams.toString()],
+    queryFn: async () => {
       const resp = await fetch('/api/admin/user?' + searchParams.toString(), {
         method: 'GET',
-        headers: { accept: 'application/json' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
       });
       RouteOnNotOK(resp, navigate);
       const response = await resp.json();
@@ -60,16 +65,9 @@ const ManageUser = () => {
       }
       return response as IUser[];
     },
+    enabled: true,
+    refetchOnWindowFocus: false,
   });
-
-  const refresh = () => {
-    mutate(true);
-  };
-
-  // refresh on first render
-  useEffect(() => {
-    mutate(false);
-  }, [mutate]);
 
   if (status !== 'success') {
     return <CheckMutateStatus status={status} />;
@@ -86,7 +84,7 @@ const ManageUser = () => {
         </Row>
         <UserTableHeader />
         {fetchedData.map((data, index) => (
-          <UserTableRow data={data} refresh={refresh} key={index} />
+          <UserTableRow data={data} refresh={() => refetch()} key={index} />
         ))}
       </div>
       <div
@@ -96,7 +94,7 @@ const ManageUser = () => {
         <Pagination
           searchParams={searchParams}
           setSearchParams={setSearchParams}
-          refresh={refresh}
+          refresh={() => refetch()}
           limit={itemLimit}
           isMore={isMore}
         />

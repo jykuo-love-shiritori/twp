@@ -2,6 +2,7 @@ import { Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface ICreditCard {
   CVV: string;
@@ -22,6 +23,7 @@ interface IUser {
 }
 
 const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) => {
+  const token = useAuth();
   const onDelete = async () => {
     if (data.role === 'admin') {
       alert('Cannot delete yourself! 💀');
@@ -30,7 +32,10 @@ const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) =
     console.log(data.username);
     const resp = await fetch(`/api/admin/user/${data.username}`, {
       method: 'DELETE',
-      headers: { accept: 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+      },
     });
     if (!resp.ok) {
       RouteOnNotOK(resp);
