@@ -10,12 +10,14 @@ import { CheckFetchStatus } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
 
 interface ICouponItemShow {
-  id: number;
-  scope: 'global' | 'shop';
-  name: string;
-  type: 'percentage' | 'fixed' | 'shipping';
+  description: string;
   discount: number;
   expire_date: string;
+  id: number;
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 interface IShopCouponDetail {
@@ -34,17 +36,6 @@ interface IShopCouponDetail {
       tag_id: number;
     },
   ];
-}
-
-interface IGlobalCouponDetail {
-  description: string;
-  discount: number;
-  expire_date: string;
-  id: number;
-  name: string;
-  scope: 'global' | 'shop';
-  start_date: string;
-  type: 'percentage' | 'fixed' | 'shipping';
 }
 
 const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
@@ -175,45 +166,11 @@ const ModalShopCouponItem = ({ data }: { data: ICouponItemShow }) => {
 
 const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
   const [show, setShow] = useState(false);
-  const token = useAuth();
-  const handleShow = () => {
-    refetch();
-    setShow(true);
-  };
+  const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
 
-  const {
-    data: detailCouponData,
-    status,
-    refetch,
-  } = useQuery({
-    queryKey: ['adminGetCouponDetail', data.id],
-    queryFn: async () => {
-      const resp = await fetch(`/api/admin/coupon/${data.id}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          accept: 'application/json',
-        },
-      });
-      const response = await resp.json();
-      if (!resp.ok) {
-        alert(response.message);
-      } else {
-        return response;
-      }
-    },
-    select: (data) => data as IGlobalCouponDetail,
-    enabled: true,
-    refetchOnWindowFocus: false,
-  });
-
-  if (status !== 'success') {
-    return <CheckFetchStatus status={status} />;
-  }
-
-  const startDate = new Date(detailCouponData.start_date);
-  const expDate = new Date(detailCouponData.expire_date);
+  const startDate = new Date(data.start_date);
+  const expDate = new Date(data.expire_date);
 
   return (
     <>
@@ -235,16 +192,16 @@ const ModalGlobalCouponItem = ({ data }: { data: ICouponItemShow }) => {
               <div style={{ minWidth: '50%' }}>
                 <CouponItemTemplate
                   data={{
-                    name: detailCouponData.name,
-                    type: detailCouponData.type,
-                    discount: detailCouponData.discount,
-                    expire_date: detailCouponData.expire_date,
+                    name: data.name,
+                    type: data.type,
+                    discount: data.discount,
+                    expire_date: data.expire_date,
                   }}
                 />
               </div>
             </Col>
             <Col xs={12} style={{ paddingTop: '4%' }}>
-              <p>{detailCouponData.description}</p>
+              <p>{data.description}</p>
             </Col>
             <Col xs={12} style={{ fontSize: '20px', color: '#ffffff7f' }}>
               Valid Period

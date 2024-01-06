@@ -60,16 +60,7 @@ const SellerCoupons = () => {
         {globalCoupons.map((data, index) => {
           return (
             <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow
-                data={{
-                  discount: data.discount,
-                  expire_date: data.expire_date,
-                  id: data.id,
-                  name: data.name,
-                  scope: data.scope,
-                  type: data.type,
-                }}
-              />
+              <CouponItemShow data={data} />
             </Col>
           );
         })}
@@ -80,16 +71,7 @@ const SellerCoupons = () => {
         {shopCoupons.map((data, index) => {
           return (
             <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow
-                data={{
-                  discount: data.discount,
-                  expire_date: data.expire_date,
-                  id: data.id,
-                  name: data.name,
-                  scope: data.scope,
-                  type: data.type,
-                }}
-              />
+              <CouponItemShow data={data} />
             </Col>
           );
         })}
