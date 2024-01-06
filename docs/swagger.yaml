@@ -1922,17 +1922,17 @@ paths:
         type: boolean
       - description: sort by
         enum:
-        - '"price"'
-        - '"stock"'
-        - '"sales"'
-        - '"relevancy"'
+        - price
+        - stock
+        - sales
+        - relevancy
         in: query
         name: sortBy
         type: string
       - description: sorting order
         enum:
-        - '"asc"'
-        - '"desc"'
+        - asc
+        - desc
         in: query
         name: order
         type: string
@@ -2725,13 +2725,13 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: add tag id
         in: body
         name: tag_id
         required: true
         schema:
-          $ref: '#/definitions/seller.GetTagParams'
+          $ref: '#/definitions/seller.TagParams'
       produces:
       - application/json
       responses:
@@ -2978,17 +2978,17 @@ paths:
         type: boolean
       - description: sort by
         enum:
-        - '"price"'
-        - '"stock"'
-        - '"sales"'
-        - '"relevancy"'
+        - price
+        - stock
+        - sales
+        - relevancy
         in: query
         name: sortBy
         type: string
       - description: sorting order
         enum:
-        - '"asc"'
-        - '"desc"'
+        - asc
+        - desc
         in: query
         name: order
         type: string
