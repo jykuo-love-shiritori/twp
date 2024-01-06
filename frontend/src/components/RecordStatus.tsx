@@ -1,18 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCheckCircle,
-  faMinusCircle,
-  faTimesCircle,
-  IconDefinition,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   icon: IconDefinition;
   text: string;
-  date: string | null;
+  status: boolean;
 }
 
-const RecordStatus = ({ icon, text, date }: Props) => {
+const RecordStatus = ({ icon, text, status }: Props) => {
   return (
     <div>
       <div className='center'>
@@ -25,19 +20,10 @@ const RecordStatus = ({ icon, text, date }: Props) => {
       </h5>
       <div className='center'>
         <FontAwesomeIcon
-          icon={date ? (date === 'Confirming' ? faMinusCircle : faCheckCircle) : faTimesCircle}
+          icon={status ? faCheckCircle : faTimesCircle}
           size='2x'
-          style={{ color: date ? (date === 'Confirming' ? '#FCD265' : 'var(--title)') : '#ED7E6D' }}
+          style={{ color: status ? 'var(--title)' : '#ED7E6D' }}
         />
-      </div>
-      <div className='center' style={{ margin: '2% 0 0 0 ', fontSize: '14px' }}>
-        <span
-          style={{
-            color: date ? (date === 'Confirming' ? '#FCD265' : 'var(--title)') : '#ED7E6D',
-          }}
-        >
-          {date}
-        </span>
       </div>
     </div>
   );

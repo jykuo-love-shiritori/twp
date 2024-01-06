@@ -16,6 +16,9 @@ export const RouteOnNotOK = async (response: Response, navigate: NavigateFunctio
     case 404:
       navigate('/notFound');
       break;
+    case 500:
+      navigate('/notFound');
+      break;
     // deal with redirect here (maybe)
   }
 };

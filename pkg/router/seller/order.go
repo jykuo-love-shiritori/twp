@@ -3,6 +3,7 @@ package seller
 import (
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
 	"github.com/jykuo-love-shiritori/twp/pkg/auth"
@@ -54,6 +55,12 @@ func GetOrder(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 
 		orders, err := pg.Queries.SellerGetOrder(c.Request().Context(), param)
 		if err != nil {
+			// FIXME: 0 rows breaks shit here
+			_, ok := err.(pgx.ScanArgError)
+			if ok {
+				return c.JSON(http.StatusOK, []db.SellerGetOrderRow{})
+			}
+
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}

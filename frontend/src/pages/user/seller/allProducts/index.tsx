@@ -6,8 +6,10 @@ import TButton from '@components/TButton';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsItemProps } from '@components/GoodsItem';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@lib/Auth';
 
 const Products = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const { status, data: sellerShopData } = useQuery({
@@ -16,6 +18,7 @@ const Products = () => {
       const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
