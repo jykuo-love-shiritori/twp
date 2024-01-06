@@ -84,7 +84,7 @@ const ManageUser = () => {
         </Row>
         <UserTableHeader />
         {fetchedData.map((data, index) => (
-          <UserTableRow data={data} refresh={() => refetch()} key={index} />
+          <UserTableRow data={data} key={index} />
         ))}
       </div>
       <div

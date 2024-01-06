@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import { useNavigate } from 'react-router-dom';
 
 interface ICreditCard {
   CVV: string;
@@ -22,7 +23,8 @@ interface IUser {
   username: string;
 }
 
-const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) => {
+const UserTableRow = ({ data }: { data: IUser }) => {
+  const navigate = useNavigate();
   const token = useAuth();
   const onDelete = async () => {
     if (data.role === 'admin') {
@@ -40,7 +42,7 @@ const UserTableRow = ({ data, refresh }: { data: IUser; refresh: () => void }) =
     if (!resp.ok) {
       RouteOnNotOK(resp);
     } else {
-      refresh();
+      navigate('/admin/manageUser');
     }
   };
 

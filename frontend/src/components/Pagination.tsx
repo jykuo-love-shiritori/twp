@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface Props {
@@ -15,7 +16,7 @@ const Pagination = ({
   limit = 10,
   isMore = true,
 }: Props) => {
-  const MAX_PAGE = 100;
+  const [MAX_PAGE, setMaxPage] = useState(100);
 
   if (!searchParams.has('offset')) {
     searchParams.set('offset', '0');
@@ -27,6 +28,11 @@ const Pagination = ({
   const getPage = () => {
     return Number(searchParams.get('offset')) / limit + 1;
   };
+
+  // set the real max page when it ever get there (this is a cheap bug fix :P)
+  if (MAX_PAGE !== getPage() && !isMore) {
+    setMaxPage(getPage());
+  }
 
   const { register, handleSubmit, setValue } = useForm<{ newPage: number }>({
     defaultValues: { newPage: getPage() },
@@ -53,7 +59,6 @@ const Pagination = ({
 
   const onSubmit = (data: { newPage: number }) => {
     const inputPage = data.newPage;
-    // TODO: u can still enter any page as long as it's not the last page
     if (inputPage > 0 && inputPage < MAX_PAGE && (isMore || (!isMore && inputPage < getPage()))) {
       searchParams.set('offset', ((inputPage - 1) * limit).toString());
       setSearchParams(searchParams, { replace: true });
