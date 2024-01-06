@@ -85,8 +85,8 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	adminEndpoint.GET("/admin/user", admin.GetUser(pg, mc, logger))
 	adminEndpoint.DELETE("/admin/user/:username", admin.DisableUser(pg, logger))
 
-	adminEndpoint.GET("/admin/coupon", admin.GetCoupon(pg, logger), auth.ValidateJwt(pg, logger))
-	adminEndpoint.GET("/admin/coupon/:id", admin.GetCouponDetail(pg, logger), auth.ValidateJwt(pg, logger))
+	adminEndpoint.GET("/admin/coupon", admin.GetCoupon(pg, logger))
+	adminEndpoint.GET("/admin/coupon/:id", admin.GetCouponDetail(pg, logger))
 	adminEndpoint.POST("/admin/coupon", admin.AddCoupon(pg, logger))
 	adminEndpoint.PATCH("/admin/coupon/:id", admin.EditCoupon(pg, logger))
 	adminEndpoint.DELETE("/admin/coupon/:id", admin.DeleteCoupon(pg, logger))
