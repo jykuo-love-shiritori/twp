@@ -1,5 +1,10 @@
 import { useContext } from 'react';
 import { AuthContext } from '@components/AuthProvider';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+
+interface CustomJwtPayload extends JwtPayload {
+  role?: string;
+}
 
 export type Token = {
   access_token: string;
@@ -17,4 +22,14 @@ export const TryRefresh = async () => {
 export const useAuth = () => {
   const { tokenRef } = useContext(AuthContext);
   return tokenRef.current;
+};
+
+export const IsAdmin = () => {
+  const { tokenRef } = useContext(AuthContext);
+  try {
+    const decoded = jwtDecode<CustomJwtPayload>(tokenRef.current);
+    return decoded.role === 'admin';
+  } catch (error) {
+    console.error('Invalid token', error);
+  }
 };

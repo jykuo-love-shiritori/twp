@@ -12,7 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
-import { useAuth } from '@lib/Auth';
+import { useAuth, IsAdmin } from '@lib/Auth';
 
 const NavBar = () => {
   const token = useAuth();
@@ -31,8 +31,7 @@ const NavBar = () => {
     border: 'none',
   };
 
-  // TODO: read user auth later
-  const isAdmin = true;
+  const isAdmin = IsAdmin();
 
   const logout = async () => {
     await fetch('/api/oauth/logout', {
@@ -70,52 +69,56 @@ const NavBar = () => {
               <Row style={{ width: '100%' }}>
                 <Col xs={4}>
                   <Nav className='mt-auto'>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        id='dropdown-custom-1'
-                        style={DropButtonStyle}
-                        className='nav_link'
-                      >
-                        Sell
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu style={DropDownStyle}>
-                        <Link
-                          to='/user/seller/info'
-                          className='none nav_link'
-                          style={{ padding: '0' }}
+                    {!isAdmin ? (
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          id='dropdown-custom-1'
+                          style={DropButtonStyle}
+                          className='nav_link'
                         >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>Shop Info</div>
-                        </Link>
-                        <Link
-                          to='/user/seller/manageProducts'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>All Products</div>
-                        </Link>
-                        <Link
-                          to='/user/seller/manageCoupons'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>All Coupons</div>
-                        </Link>
-                        <Link
-                          to='/user/seller/orders'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>All Shipments</div>
-                        </Link>
-                        <Link
-                          to='/user/seller/reports'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>All Reports</div>
-                        </Link>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                          Sell
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu style={DropDownStyle}>
+                          <Link
+                            to='/user/seller/info'
+                            className='none nav_link'
+                            style={{ padding: '0' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>Shop Info</div>
+                          </Link>
+                          <Link
+                            to='/user/seller/manageProducts'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>All Products</div>
+                          </Link>
+                          <Link
+                            to='/user/seller/manageCoupons'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>All Coupons</div>
+                          </Link>
+                          <Link
+                            to='/user/seller/orders'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>All Shipments</div>
+                          </Link>
+                          <Link
+                            to='/user/seller/reports'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>All Reports</div>
+                          </Link>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    ) : (
+                      ''
+                    )}
                   </Nav>
                 </Col>
                 <Col xs={4} />
