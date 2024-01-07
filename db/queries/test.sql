@@ -9,11 +9,19 @@ INSERT INTO "user" (
         "image_id",
         "role",
         "credit_card",
-        "refresh_token",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled";
 -- name: TestInsertShop :one
 INSERT INTO "shop" (
         "id",
@@ -131,7 +139,16 @@ RETURNING *;
 -- name: TestDeleteUserById :one
 DELETE FROM "user"
 WHERE "id" = $1
-RETURNING *;
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled";
 -- name: TestDeleteShopById :one
 DELETE FROM "shop"
 WHERE "id" = $1
@@ -163,3 +180,19 @@ RETURNING *;
 DELETE FROM "tag"
 WHERE "id" = $1
 RETURNING *;
+-- name: TestDeleteCoupon :exec
+DELETE FROM "coupon";
+-- name: TestDeleteProduct :exec
+DELETE FROM "product";
+-- name: TestDeleteOrderDetail :exec
+DELETE FROM "order_detail";
+-- name: TestDeleteTag :exec
+DELETE FROM "tag";
+-- name: TestDeleteOrderHistory :exec
+DELETE FROM "order_history";
+-- name: TestDeleteProductArchive :exec
+DELETE FROM "product_archive";
+-- name: TestDeleteShop :exec
+DELETE FROM "shop";
+-- name: TestDeleteUser :exec
+DELETE FROM "user";

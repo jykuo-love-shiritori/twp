@@ -13,7 +13,7 @@ func CheckAdminAccount(pg *db.DB, ctx context.Context) error {
 	admin_name := os.Getenv("TWP_ADMIN_USER")
 	password := os.Getenv("TWP_ADMIN_PASSWORD")
 	if admin_name == "" || password == "" {
-		return errors.New("empty ADMIN_USER or TWP_ADMIN_PASSWORD")
+		return errors.New("empty TWP_ADMIN_USER or TWP_ADMIN_PASSWORD")
 	}
 	db_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
