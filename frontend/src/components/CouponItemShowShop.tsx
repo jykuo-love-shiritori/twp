@@ -42,7 +42,7 @@ const CouponItemShowShop = ({ couponId }: ICouponItemShowShop) => {
   const handleClose = () => setShow(false);
 
   const { data, status, refetch } = useQuery({
-    queryKey: ['userGetSjopCouponDetail', couponId],
+    queryKey: ['userGetShopCouponDetail', couponId],
     queryFn: async () => {
       const resp = await fetch(`/api/shop/${sellerName}/coupon/${couponId}`, {
         method: 'GET',
