@@ -129,7 +129,7 @@ const EachGoods = () => {
                 <UserItem img_path={data.shop_image_url} name={data.shop_name} />
               </Col>
               <Col xs={6}>
-                <TButton text='View Shop' action={`/${data.seller_name}`} />
+                <TButton text='View Shop' action={`shop/${data.seller_name}`} />
               </Col>
             </Row>
           </div>

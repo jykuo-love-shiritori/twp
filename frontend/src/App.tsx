@@ -97,7 +97,7 @@ function App() {
               <Route path=':coupon_id' element={<EachSellerCoupon />} />
             </Route>
 
-            <Route path='/:sellerName' element={<UserViewShop />}>
+            <Route path='shop/:sellerName' element={<UserViewShop />}>
               <Route index element={<Shop />} />
               <Route path='shop' element={<Shop />} />
               <Route path='coupons' element={<SellerCoupons />} />

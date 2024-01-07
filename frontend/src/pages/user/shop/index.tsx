@@ -90,8 +90,8 @@ const UserViewShop = () => {
                 </div>
                 <hr className='hr' />
                 <div className='center'> Products : {products.length} items</div>
-                <TButton text='Explore Shop' action={`/${sellerName}/shop`} />
-                <TButton text='Check Coupons' action={`/${sellerName}/coupons`} />
+                <TButton text='Explore Shop' action={`/shop/${sellerName}/shop`} />
+                <TButton text='Check Coupons' action={`/shop/${sellerName}/coupons`} />
               </Col>
             </Row>
           </Col>
