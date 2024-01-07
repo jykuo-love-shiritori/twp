@@ -67,6 +67,17 @@ WHERE
     P."id" = $1
     AND P."enabled" = TRUE;
 
+-- name: GetProductTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "product_tag" PT
+WHERE
+    PT."product_id" = $1
+    AND PT."tag_id" = T."id";
+
 -- name: GetShopProducts :many
 SELECT
     P."id",

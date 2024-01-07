@@ -1195,7 +1195,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetProductInfoRow"
+                            "$ref": "#/definitions/general.productInfo"
                         }
                     },
                     "400": {
@@ -3701,41 +3701,14 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetProductInfoRow": {
+        "db.GetProductTagsRow": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "product_image_url": {
-                    "type": "string"
-                },
-                "sales": {
-                    "type": "integer"
-                },
-                "seller_name": {
-                    "type": "string"
-                },
-                "shop_image_url": {
-                    "type": "string"
-                },
-                "shop_name": {
-                    "type": "string"
-                },
-                "stock": {
-                    "type": "integer"
                 }
             }
         },
@@ -4624,6 +4597,50 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
+                    }
+                }
+            }
+        },
+        "general.productInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_image_url": {
+                    "type": "string"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductTagsRow"
                     }
                 }
             }

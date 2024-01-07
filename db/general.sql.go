@@ -65,6 +65,43 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 	return i, err
 }
 
+const getProductTags = `-- name: GetProductTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "product_tag" PT
+WHERE
+    PT."product_id" = $1
+    AND PT."tag_id" = T."id"
+`
+
+type GetProductTagsRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) GetProductTags(ctx context.Context, productID int32) ([]GetProductTagsRow, error) {
+	rows, err := q.db.Query(ctx, getProductTags, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductTagsRow{}
+	for rows.Next() {
+		var i GetProductTagsRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductsFromNearByShop = `-- name: GetProductsFromNearByShop :many
 WITH nearby_shop AS (
     SELECT
