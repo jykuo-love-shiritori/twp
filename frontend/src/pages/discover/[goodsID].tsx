@@ -25,15 +25,19 @@ interface IProduct {
   seller_name: string;
   shop_name: string;
   shop_image_url: string;
+  tags: {
+    id: number;
+    name: string;
+  }[];
 }
 
-// const tagStyle = {
-//   borderRadius: '30px',
-//   background: ' var(--button_light)',
-//   padding: '2% 3% 2% 3%',
-//   color: 'white',
-//   margin: '10px 0 0px 5px',
-// };
+const tagStyle = {
+  borderRadius: '30px',
+  background: ' var(--button_light)',
+  padding: '2% 3% 2% 3%',
+  color: 'white',
+  margin: '10px 0 0px 5px',
+};
 
 const LeftBgStyle = {
   backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -81,6 +85,14 @@ const EachGoods = () => {
             <div style={{ overflow: ' hidden' }}>
               <img src={data.image_url} alt='File preview' style={GoodsImgStyle} />
             </div>
+
+            <Row xs='auto'>
+              {data.tags.map((tag, index) => (
+                <Col style={tagStyle} className='center' key={index}>
+                  {tag.name}
+                </Col>
+              ))}
+            </Row>
 
             <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
               $ {data.price} NTD
