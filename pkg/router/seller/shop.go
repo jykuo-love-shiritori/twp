@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
@@ -36,6 +37,11 @@ func GetShopInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 		}
 		shopInfo, err := pg.Queries.SellerGetInfo(c.Request().Context(), username)
 		if err != nil {
+			_, ok := err.(pgx.ScanArgError)
+			if ok {
+				return c.JSON(http.StatusOK, []db.SellerGetInfoRow{})
+			}
+
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
