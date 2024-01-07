@@ -2751,6 +2751,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/shop/{seller_name}/coupon/{id}": {
+            "get": {
+                "description": "Get coupon detail for a shop with seller username and coupon id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Get Shop coupon detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "seller username",
+                        "name": "seller_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "coupon id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/general.couponInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/shop/{seller_name}/search": {
             "get": {
                 "description": "Search products within a shop by seller username",
@@ -3529,6 +3587,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "shop_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.GetCouponTagsRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -4581,6 +4650,41 @@ const docTemplate = `{
                 },
                 "seller_name": {
                     "type": "string"
+                }
+            }
+        },
+        "general.couponInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponTagsRow"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
                 }
             }
         },

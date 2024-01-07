@@ -229,6 +229,13 @@ definitions:
       shop_name:
         type: string
     type: object
+  db.GetCouponTagsRow:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   db.GetGlobalCouponDetailRow:
     properties:
       description:
@@ -917,6 +924,29 @@ definitions:
         type: string
       seller_name:
         type: string
+    type: object
+  general.couponInfo:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/db.GetCouponTagsRow'
+        type: array
+      type:
+        $ref: '#/definitions/db.CouponType'
     type: object
   general.popular:
     properties:
@@ -2954,6 +2984,45 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get Shop Coupons
+      tags:
+      - Shop
+      - Coupon
+  /shop/{seller_name}/coupon/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get coupon detail for a shop with seller username and coupon id
+      parameters:
+      - description: seller username
+        in: path
+        name: seller_name
+        required: true
+        type: string
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/general.couponInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Shop coupon detail
       tags:
       - Shop
       - Coupon
