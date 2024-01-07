@@ -53,10 +53,12 @@ SELECT
     P."name",
     P."description",
     P."price",
-    P."image_id" AS "image_url",
+    P."image_id" AS "product_image_url",
     P."expire_date",
     P."stock",
     P."sales",
+    S."name" AS "shop_name",
+    S."image_id" AS "shop_image_url",
     S."seller_name" AS "seller_name"
 FROM
     "product" AS P
