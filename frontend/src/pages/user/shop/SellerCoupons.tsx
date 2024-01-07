@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
-import CouponItemShow from '@components/CouponItemShow';
+import CouponItemShowGlobal from '@components/CouponItemShowGlobal';
+import CouponItemShowShop from '@components/CouponItemShowShop';
+import NotFound from '@components/NotFound';
 
 interface ICoupon {
   description: string;
@@ -50,6 +52,10 @@ const SellerCoupons = () => {
   const globalCoupons = CouponsData.filter((coupon) => coupon.scope === 'global');
   const shopCoupons = CouponsData.filter((coupon) => coupon.scope === 'shop');
 
+  if (sellerName === undefined) {
+    return <NotFound />;
+  }
+
   return (
     <div>
       <Row>
@@ -60,7 +66,7 @@ const SellerCoupons = () => {
         {globalCoupons.map((data, index) => {
           return (
             <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow data={data} />
+              <CouponItemShowGlobal data={data} />
             </Col>
           );
         })}
@@ -71,7 +77,7 @@ const SellerCoupons = () => {
         {shopCoupons.map((data, index) => {
           return (
             <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow data={data} />
+              <CouponItemShowShop couponId={data.id} sellerName={sellerName} />
             </Col>
           );
         })}
