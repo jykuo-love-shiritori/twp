@@ -155,7 +155,8 @@ func GetProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to get product info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.ImageUrl = image.GetUrl(result.ImageUrl)
+		result.ProductImageUrl = image.GetUrl(result.ProductImageUrl)
+		result.ShopImageUrl = image.GetUrl(result.ShopImageUrl)
 		return c.JSON(http.StatusOK, result)
 	}
 }

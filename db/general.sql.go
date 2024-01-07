@@ -13,30 +13,37 @@ import (
 
 const getProductInfo = `-- name: GetProductInfo :one
 SELECT
-    "id",
-    "name",
-    "description",
-    "price",
-    "image_id" AS "image_url",
-    "expire_date",
-    "stock",
-    "sales"
+    P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id" AS "product_image_url",
+    P."expire_date",
+    P."stock",
+    P."sales",
+    S."name" AS "shop_name",
+    S."image_id" AS "shop_image_url",
+    S."seller_name" AS "seller_name"
 FROM
-    "product"
+    "product" AS P
+    JOIN "shop" S ON S."id" = P."shop_id"
 WHERE
-    "id" = $1
-    AND "enabled" = TRUE
+    P."id" = $1
+    AND P."enabled" = TRUE
 `
 
 type GetProductInfoRow struct {
-	ID          int32              `json:"id" param:"id"`
-	Name        string             `form:"name" json:"name"`
-	Description string             `form:"description" json:"description"`
-	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
-	ImageUrl    string             `json:"image_url"`
-	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
-	Stock       int32              `form:"stock" json:"stock"`
-	Sales       int32              `json:"sales"`
+	ID              int32              `json:"id" param:"id"`
+	Name            string             `form:"name" json:"name"`
+	Description     string             `form:"description" json:"description"`
+	Price           pgtype.Numeric     `json:"price" swaggertype:"number"`
+	ProductImageUrl string             `json:"product_image_url"`
+	ExpireDate      pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+	Stock           int32              `form:"stock" json:"stock"`
+	Sales           int32              `json:"sales"`
+	ShopName        string             `form:"name" json:"shop_name"`
+	ShopImageUrl    string             `json:"shop_image_url" swaggertype:"string"`
+	SellerName      string             `json:"seller_name" param:"seller_name"`
 }
 
 func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoRow, error) {
@@ -47,10 +54,13 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.Name,
 		&i.Description,
 		&i.Price,
-		&i.ImageUrl,
+		&i.ProductImageUrl,
 		&i.ExpireDate,
 		&i.Stock,
 		&i.Sales,
+		&i.ShopName,
+		&i.ShopImageUrl,
+		&i.SellerName,
 	)
 	return i, err
 }
