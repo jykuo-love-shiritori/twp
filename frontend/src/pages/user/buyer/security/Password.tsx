@@ -21,7 +21,7 @@ const Password = () => {
   const onSubmit = async (data: IEditPassword) => {
     if (
       !data.new_password.match(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&[\],.(){}":;'+\-=_~])[A-Za-z\d@$!%*?&[\],.(){}":;'+\-=_~]{8,72}$/,
       )
     ) {
       setWarningText(
