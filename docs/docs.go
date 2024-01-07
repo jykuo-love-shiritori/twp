@@ -3713,17 +3713,26 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_url": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
                 "price": {
                     "type": "number"
                 },
+                "product_image_url": {
+                    "type": "string"
+                },
                 "sales": {
                     "type": "integer"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
                 },
                 "stock": {
                     "type": "integer"
