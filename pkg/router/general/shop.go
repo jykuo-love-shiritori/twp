@@ -169,6 +169,7 @@ func GetShopCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc 
 			logger.Errorw("failed to get shop coupons", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		result.Tags = []db.GetCouponTagsRow{}
 		if result.Scope != "global" {
 			result.Tags, err = pg.Queries.GetCouponTags(c.Request().Context(), param.ID)
 			if err != nil {
