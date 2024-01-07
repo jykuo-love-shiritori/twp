@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -40,7 +39,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// tasks := []string{"cook", "clean", "laundry", "eat", "sleep", "code"}
 
 	app := &cli.App{
 		Name:                 "twp-CLI",
@@ -62,10 +60,10 @@ func main() {
 			{
 				Name:      "unload",
 				Usage:     "Unload data from the database",
-				UsageText: "unload path/data.json",
+				UsageText: "unload or unload path/data.json",
 				Action: func(c *cli.Context) error {
-					if c.NArg() < 1 {
-						return cli.ShowSubcommandHelp(c)
+					if c.NArg() == 0 {
+						return ClearData(pg, context.Background())
 					}
 					fileName := c.Args().Get(0)
 					return UnloadData(pg, mc, context.Background(), fileName)
@@ -117,7 +115,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertUser(ctx, userParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertUser(ctx, userParam)
 		if err != nil {
 			return err
 		}
@@ -167,7 +165,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertProduct(ctx, productParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertProduct(ctx, productParam)
 		if err != nil {
 			return err
 		}
@@ -188,7 +186,7 @@ func LoadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) err
 		if err != nil {
 			return err
 		}
-		_, err = pg.Queries.TestInsertProductArchive(ctx, productArchiveParam)
+		_, err = pg.Queries.WithTx(tx).TestInsertProductArchive(ctx, productArchiveParam)
 		if err != nil {
 			return err
 		}
@@ -313,7 +311,7 @@ func UnloadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) e
 			return err
 		}
 	}
-	fmt.Println("Delete OrderDetail Success")
+	fmt.Println("Delete Tag Success")
 
 	for _, orderParam := range data.OrderHistory {
 		_, err = pg.Queries.TestDeleteOrderById(ctx, orderParam.ID)
@@ -359,17 +357,46 @@ func UnloadData(pg *db.DB, mc *minio.MC, ctx context.Context, filePath string) e
 	fmt.Println("Delete User Success")
 	return nil
 }
-
-func CheckAdminAccount(pg *db.DB, ctx context.Context) error {
-	admin_name := os.Getenv("TWP_ADMIN_USER")
-	password := os.Getenv("TWP_ADMIN_PASSWORD")
-	if admin_name == "" || password == "" {
-		return errors.New("empty ADMIN_USER or TWP_ADMIN_PASSWORD")
-	}
-	db_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func ClearData(pg *db.DB, ctx context.Context) error {
+	err := pg.Queries.TestDeleteCoupon(ctx)
 	if err != nil {
 		return err
 	}
-	err = pg.Queries.CreateAdmin(ctx, db.CreateAdminParams{Username: admin_name, Password: string(db_password)})
-	return err
+	fmt.Println("Delete Coupon Success")
+	err = pg.Queries.TestDeleteProduct(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Product Success")
+	err = pg.Queries.TestDeleteOrderDetail(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete OrderDetail Success")
+	err = pg.Queries.TestDeleteTag(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Tag Success")
+	err = pg.Queries.TestDeleteOrderHistory(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete OrderHistory Success")
+	err = pg.Queries.TestDeleteProductArchive(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete ProductArchive Success")
+	err = pg.Queries.TestDeleteShop(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete Shop Success")
+	err = pg.Queries.TestDeleteUser(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Delete User Success")
+	return nil
 }

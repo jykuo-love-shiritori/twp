@@ -1,47 +1,92 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface Props {
-  currentPageInit?: number;
-  totalPage: number;
-  itemCount?: number;
+  searchParams: URLSearchParams;
+  setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void;
+  refresh: () => void;
+  limit?: number;
+  isMore?: boolean;
 }
 
-const Pagination = ({ currentPageInit = 1, totalPage, itemCount = 10 }: Props) => {
-  // TODO: change to useSearchParams, pass in change function
-  const [currentPage, setCurrentPage] = useState(currentPageInit);
+const Pagination = ({
+  searchParams,
+  setSearchParams,
+  refresh,
+  limit = 10,
+  isMore = true,
+}: Props) => {
+  const [MAX_PAGE, setMaxPage] = useState(100);
+
+  if (!searchParams.has('offset')) {
+    searchParams.set('offset', '0');
+  }
+  if (!searchParams.has('limit') || Number(searchParams.get('limit')) !== limit + 1) {
+    // request one more to check if there is more
+    searchParams.set('limit', (limit + 1).toString());
+  }
+  const getPage = () => {
+    return Number(searchParams.get('offset')) / limit + 1;
+  };
+
+  // set the real max page when it ever get there (this is a cheap bug fix :P)
+  if (MAX_PAGE !== getPage() && !isMore) {
+    setMaxPage(getPage());
+  }
+
+  const { register, handleSubmit, setValue } = useForm<{ newPage: number }>({
+    defaultValues: { newPage: getPage() },
+  });
 
   const onPrevious = () => {
-    if (currentPage - 1 > 0) {
-      setCurrentPage(currentPage - 1);
-      // TODO
-      console.log('offset: ' + (currentPage - 2) * itemCount);
+    const page = getPage();
+    if (page > 1) {
+      searchParams.set('offset', ((page - 2) * limit).toString());
+      setSearchParams(searchParams, { replace: true });
+      setValue('newPage', page - 1);
+      refresh();
     }
   };
   const onNext = () => {
-    if (currentPage + 1 <= totalPage) {
-      setCurrentPage(currentPage + 1);
-      // TODO
-      console.log('offset: ' + currentPage * itemCount);
+    const page = getPage();
+    if (page < MAX_PAGE && isMore) {
+      searchParams.set('offset', (page * limit).toString());
+      setSearchParams(searchParams, { replace: true });
+      setValue('newPage', page + 1);
+      refresh();
     }
   };
 
-  const handlePageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputPage = parseInt(e.target.value);
-    if (inputPage > 0 && inputPage <= totalPage) {
-      setCurrentPage(inputPage);
-      // TODO
-      console.log('offset: ' + (inputPage - 1) * itemCount);
+  const onSubmit = (data: { newPage: number }) => {
+    const inputPage = data.newPage;
+    if (inputPage > 0 && inputPage < MAX_PAGE && (isMore || (!isMore && inputPage < getPage()))) {
+      searchParams.set('offset', ((inputPage - 1) * limit).toString());
+      setSearchParams(searchParams, { replace: true });
+      refresh();
+    } else {
+      setValue('newPage', getPage());
     }
   };
   return (
-    <div className='pagination center_vertical center'>
+    <div className='pagination center_vertical center' style={{ padding: '5px' }}>
       <div className='center' onClick={onPrevious}>
         {'<'}
       </div>
-      <div className='center'>{'Page:'}</div>
-      <input className='center' type='text' value={currentPage} onChange={handlePageChange} />
-      <div className='center'>of</div>
-      <div className='center'>{totalPage}</div>
+      <div className='center'>{'Page: '}</div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input
+          className='center'
+          {...register('newPage')}
+          style={{
+            maxWidth: '50px',
+            border: 'none',
+            textAlign: 'center',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+            color: 'var(--button_light)',
+          }}
+        />
+      </form>
       <div className='center' onClick={onNext}>
         {'>'}
       </div>
