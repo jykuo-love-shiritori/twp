@@ -13,19 +13,21 @@ import (
 
 const getProductInfo = `-- name: GetProductInfo :one
 SELECT
-    "id",
-    "name",
-    "description",
-    "price",
-    "image_id" AS "image_url",
-    "expire_date",
-    "stock",
-    "sales"
+    P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id" AS "image_url",
+    P."expire_date",
+    P."stock",
+    P."sales",
+    S."seller_name" AS "seller_name"
 FROM
-    "product"
+    "product" AS P
+    JOIN "shop" S ON S."id" = P."shop_id"
 WHERE
-    "id" = $1
-    AND "enabled" = TRUE
+    P."id" = $1
+    AND P."enabled" = TRUE
 `
 
 type GetProductInfoRow struct {
@@ -37,6 +39,7 @@ type GetProductInfoRow struct {
 	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
+	SellerName  string             `json:"seller_name" param:"seller_name"`
 }
 
 func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoRow, error) {
@@ -51,6 +54,7 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.ExpireDate,
 		&i.Stock,
 		&i.Sales,
+		&i.SellerName,
 	)
 	return i, err
 }

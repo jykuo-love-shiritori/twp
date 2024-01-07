@@ -49,19 +49,21 @@ WHERE
 
 -- name: GetProductInfo :one
 SELECT
-    "id",
-    "name",
-    "description",
-    "price",
-    "image_id" AS "image_url",
-    "expire_date",
-    "stock",
-    "sales"
+    P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id" AS "image_url",
+    P."expire_date",
+    P."stock",
+    P."sales",
+    S."seller_name" AS "seller_name"
 FROM
-    "product"
+    "product" AS P
+    JOIN "shop" S ON S."id" = P."shop_id"
 WHERE
-    "id" = $1
-    AND "enabled" = TRUE;
+    P."id" = $1
+    AND P."enabled" = TRUE;
 
 -- name: GetShopProducts :many
 SELECT
