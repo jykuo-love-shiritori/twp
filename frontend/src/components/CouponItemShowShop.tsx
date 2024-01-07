@@ -8,10 +8,10 @@ import CouponItemTemplate from '@components/CouponItemTemplate';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import { useParams } from 'react-router-dom';
 
 interface ICouponItemShowShop {
   couponId: number;
-  sellerName: string;
 }
 
 interface IShopCouponDetail {
@@ -31,9 +31,10 @@ interface IShopCouponDetail {
   ];
 }
 
-const CouponItemShowShop = ({ couponId, sellerName }: ICouponItemShowShop) => {
+const CouponItemShowShop = ({ couponId }: ICouponItemShowShop) => {
   const [show, setShow] = useState(false);
   const token = useAuth();
+  const { sellerName } = useParams();
   const handleShow = () => {
     refetch();
     setShow(true);

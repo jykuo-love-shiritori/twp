@@ -77,7 +77,7 @@ const SellerCoupons = () => {
         {shopCoupons.map((data, index) => {
           return (
             <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShowShop couponId={data.id} sellerName={sellerName} />
+              <CouponItemShowShop couponId={data.id} />
             </Col>
           );
         })}
