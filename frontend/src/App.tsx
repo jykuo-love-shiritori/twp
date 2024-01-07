@@ -19,7 +19,8 @@ import ManageAdminCoupons from '@pages/user/admin/allCoupons';
 import NewAdminCoupon from '@pages/user/admin/allCoupons/newCoupon';
 import EachAdminCoupon from '@pages/user/admin/allCoupons/[adminCouponID]';
 import NotFound from '@components/NotFound';
-import SearchNotFound from '@components/SearchNotFound';
+// import SearchNotFound from '@components/SearchNotFound';
+import Search from '@pages/discover/search';
 import APItest from '@components/APItest';
 import Seller from '@pages/user/seller';
 import Forbidden from '@components/Forbidden';
@@ -133,7 +134,7 @@ function App() {
               <Route path=':year/:month' element={<AdminReportEach />} />
             </Route>
 
-            <Route path='/search?' element={<SearchNotFound />} />
+            <Route path='/search' element={<Search />} />
 
             <Route path='*' element={<NotFound />} />
             <Route path='/forbidden' element={<Forbidden />} />

@@ -1,3 +1,6 @@
+import { useContext } from 'react';
+import { SearchContext } from '@components/SearchProvider';
+
 // format date to YYYY-MM-DD (for date input)
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -5,4 +8,9 @@ export const formatDate = (dateString: string) => {
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+export const useSearch = () => {
+  const { q } = useContext(SearchContext);
+  return q;
 };

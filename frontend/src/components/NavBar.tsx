@@ -4,7 +4,7 @@ import '@style/global.css';
 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { Row, Col, NavbarBrand, Button, Dropdown } from 'react-bootstrap';
+import { Row, Col, NavbarBrand, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,10 +13,22 @@ import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
 import { useAuth } from '@lib/Auth';
+import { useSearch } from '@lib/Functions';
+import TButton from './TButton';
 
 const NavBar = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const q = useSearch();
+
+  const onSearch = () => {
+    if (q === '') {
+      alert('Please enter a search string');
+      return;
+    }
+    const newSearchParams = new URLSearchParams({ q: q });
+    navigate(`/search?${newSearchParams.toString()}`);
+  };
 
   const DropDownStyle = {
     borderRadius: '25px',
@@ -211,8 +223,8 @@ const NavBar = () => {
           <Col sm={6}>
             <SearchBar />
           </Col>
-          <Col sm={3}>
-            <Button className='search_button center'>Search</Button>
+          <Col sm={3} className='center'>
+            <TButton text='Search' action={onSearch} />
           </Col>
         </Row>
       </div>
