@@ -1,31 +1,49 @@
 import { Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
+import { useNavigate } from 'react-router-dom';
 
-type UserTableRowProps = {
-  data: {
-    iconUrl: string;
-    name: string;
-    email: string;
-    createDate: string;
-    isAdmin: boolean;
-  };
-};
+interface ICreditCard {
+  CVV: string;
+  name: string;
+  card_number: string;
+  expiry_date: string;
+}
 
-const UserTableRow = ({ data }: UserTableRowProps) => {
-  //delete checkbox
-  const ColStyleOn = {
-    padding: '1% 1% 1% 1%',
-  };
-  const ColStyleOff = {
-    padding: '1% 1% 1% 1%',
-    color: 'var(--layout)',
-    textDecoration: 'line-through',
-  };
-  const [isEnable, setIsEnable] = useState(true);
-  const toggleIsDelete = () => {
-    setIsEnable(!isEnable);
+interface IUser {
+  address: string;
+  credit_card: [ICreditCard];
+  email: string;
+  enabled: true;
+  icon_url: string;
+  name: string;
+  role: string;
+  username: string;
+}
+
+const UserTableRow = ({ data }: { data: IUser }) => {
+  const navigate = useNavigate();
+  const token = useAuth();
+  const onDelete = async () => {
+    if (data.role === 'admin') {
+      alert('Cannot delete yourself! 💀');
+      return;
+    }
+    console.log(data.username);
+    const resp = await fetch(`/api/admin/user/${data.username}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      RouteOnNotOK(resp);
+    } else {
+      navigate('/admin/manageUser');
+    }
   };
 
   const UserTableRowSmall = () => {
@@ -33,20 +51,15 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
       <>
         <hr />
         <Row style={{ margin: '5px', fontSize: '20px' }}>
-          <Col xs={4} md={4} className={'center'} style={isEnable ? ColStyleOn : ColStyleOff}>
-            <img src={data.iconUrl} className='user_img' />
+          <Col xs={4} md={4} className={'center'} style={{ padding: '1% 1% 1% 1%' }}>
+            <img src={data.icon_url} className='user_img' />
           </Col>
-          <Col
-            xs={7}
-            md={7}
-            className={'left center_vertical'}
-            style={isEnable ? ColStyleOn : ColStyleOff}
-          >
+          <Col xs={7} md={7} className={'left center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
             <Row>
-              <p style={isEnable ? ColStyleOn : ColStyleOff}>
+              <p style={{ padding: '1% 1% 1% 1%' }}>
+                {'username: ' + data.username} <br />
                 {'name: ' + data.name} <br />
                 {'email: ' + data.email} <br />
-                {'created: ' + data.createDate}
               </p>
             </Row>
           </Col>
@@ -56,13 +69,13 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
               className='center center_vertical'
               style={{
                 height: '100%',
-                ...(isEnable ? ColStyleOn : ColStyleOff),
+                padding: '1% 1% 1% 1%',
               }}
             >
               <FontAwesomeIcon
                 icon={faTrash}
                 size='2x'
-                onClick={toggleIsDelete}
+                onClick={onDelete}
                 style={{ cursor: 'pointer' }}
               />
             </div>
@@ -71,28 +84,23 @@ const UserTableRow = ({ data }: UserTableRowProps) => {
       </>
     );
   };
-
   const UserTableRowBig = () => {
     return (
       <Row style={{ padding: '0 0 0 0', fontSize: '24px' }}>
-        <Col md={1} className={'center'} style={isEnable ? ColStyleOn : ColStyleOff}>
-          <img src={data.iconUrl} className='user_img' />
+        <Col md={1} className={'center'} style={{ padding: '1% 1% 1% 1%' }}>
+          <img src={data.icon_url} className='user_img' />
         </Col>
-        <Col md={3} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
+        <Col md={3} className={'left center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
+          {data.username}
+        </Col>
+        <Col md={3} className={'left center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
           {data.name}
         </Col>
-        <Col md={5} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
+        <Col md={4} className={'left center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
           {data.email}
         </Col>
-        <Col md={2} className={'left center_vertical'} style={isEnable ? ColStyleOn : ColStyleOff}>
-          {data.createDate}
-        </Col>
-        <Col
-          md={1}
-          className={'center center_vertical'}
-          style={isEnable ? ColStyleOn : ColStyleOff}
-        >
-          <FontAwesomeIcon icon={faTrash} onClick={toggleIsDelete} style={{ cursor: 'pointer' }} />
+        <Col md={1} className={'center center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
+          <FontAwesomeIcon icon={faTrash} onClick={onDelete} style={{ cursor: 'pointer' }} />
         </Col>
       </Row>
     );
