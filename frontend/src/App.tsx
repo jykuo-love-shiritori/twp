@@ -103,9 +103,7 @@ function App() {
               <Route path='coupons' element={<SellerCoupons />} />
             </Route>
 
-            <Route path=':sellerName/shop'>
-              <Route path=':goods_id' element={<EachGoods />} />
-            </Route>
+            <Route path='/product/:goods_id' element={<EachGoods />} />
 
             <Route path='/user/seller/order'>
               <Route path=':history_id' element={<SellerHistoryEach />} />

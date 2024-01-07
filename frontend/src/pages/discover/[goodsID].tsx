@@ -22,9 +22,9 @@ interface IProduct {
   price: number;
   sales: number;
   stock: number;
-  seller_name: number;
-  shop_name: number;
-  shop_image_url: number;
+  seller_name: string;
+  shop_name: string;
+  shop_image_url: string;
 }
 
 // const tagStyle = {
@@ -72,10 +72,7 @@ const EachGoods = () => {
     return <CheckFetchStatus status={status} />;
   }
 
-  console.log(data);
-
   const expireDate = formatDate(data.expire_date);
-
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
       <Row>
@@ -85,16 +82,8 @@ const EachGoods = () => {
               <img src={data.image_url} alt='File preview' style={GoodsImgStyle} />
             </div>
 
-            {/* <Row xs='auto'>
-              {data.tags.map((currentTag, index) => (
-                <Col style={tagStyle} className='center' key={index}>
-                  {currentTag.name}
-                </Col>
-              ))}
-            </Row> */}
-
             <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
-              $ {data.price} TWD
+              $ {data.price} NTD
             </h4>
 
             {data.stock != 0 ? (
@@ -125,10 +114,10 @@ const EachGoods = () => {
             <hr className='hr' />
             <Row>
               <Col xs={6} className='center'>
-                <UserItem img_path='/placeholder/person.png' name='Tom Johnathan' />
+                <UserItem img_path={data.shop_image_url} name={data.shop_name} />
               </Col>
               <Col xs={6}>
-                <TButton text='View Shop' />
+                <TButton text='View Shop' action={`/${data.seller_name}`} />
               </Col>
             </Row>
           </div>
