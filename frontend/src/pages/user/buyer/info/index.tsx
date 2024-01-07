@@ -24,10 +24,10 @@ const BuyerItemStyle = {
 
 const userImgStyle: CSSProperties = {
   borderRadius: '50%',
-  minHeight: '12vh',
-  minWidth: '12vh',
-  maxHeight: '12vh',
-  maxWidth: '12vh',
+  minHeight: '20vh',
+  minWidth: '20vh',
+  maxHeight: '20vh',
+  maxWidth: '20vh',
   objectFit: 'cover',
   cursor: 'pointer',
   boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',

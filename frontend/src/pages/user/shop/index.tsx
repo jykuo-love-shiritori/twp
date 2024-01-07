@@ -29,10 +29,10 @@ interface UserViewShopProps {
 
 const userImgStyle: CSSProperties = {
   borderRadius: '50%',
-  minHeight: '23vh',
-  minWidth: '23vh',
-  maxHeight: '23vh',
-  maxWidth: '23vh',
+  minHeight: '20vh',
+  minWidth: '20vh',
+  maxHeight: '20vh',
+  maxWidth: '20vh',
   objectFit: 'cover',
   cursor: 'pointer',
   boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
@@ -82,8 +82,8 @@ const UserViewShop = () => {
                       <b>{userViewShop.info.name}</b>
                     </h4>
                   </div>
-                  <TButton text='Explore Shop' action='/sellerID/shop' />
-                  <TButton text='Check Coupons' action='/sellerID/coupons' />
+                  <TButton text='Explore Shop' action={`/${sellerName}/shop`} />
+                  <TButton text='Check Coupons' action={`/${sellerName}/coupons`} />
                 </Col>
               </Row>
             </Col>

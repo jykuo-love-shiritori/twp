@@ -5,7 +5,7 @@ import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RouteOnNotOK } from '@lib/Status';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@lib/Auth';
+import { useAuth, GetUserName } from '@lib/Auth';
 import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
 export interface IShopInfo {
@@ -25,10 +25,10 @@ const SellerItemStyle = {
 
 const userImgStyle: CSSProperties = {
   borderRadius: '50%',
-  minHeight: '12vh',
-  minWidth: '12vh',
-  maxHeight: '12vh',
-  maxWidth: '12vh',
+  minHeight: '20vh',
+  minWidth: '20vh',
+  maxHeight: '20vh',
+  maxWidth: '20vh',
   objectFit: 'cover',
   cursor: 'pointer',
   boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
@@ -43,6 +43,7 @@ const labelStyle = {
 const SellerInfo = () => {
   const navigate = useNavigate();
   const token = useAuth();
+  const userName = GetUserName();
   const { register, handleSubmit, watch, setValue, getValues, reset } = useForm<IShopInfo>({
     defaultValues: {
       name: 'shop name',
@@ -146,7 +147,7 @@ const SellerInfo = () => {
                   <div className='center' style={{ paddingTop: '10px' }}>
                     <h5>{watch('name')}</h5>
                   </div>
-                  <TButton text='View Shop' />
+                  <TButton text='View Shop' action={`/${userName}`} />
                 </div>
               </Col>
               <Col />
