@@ -5,6 +5,7 @@ import TButton from '@components/TButton';
 import { useAuth } from '@lib/Auth';
 import { useQuery } from '@tanstack/react-query';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { CSSProperties } from 'react';
 
 interface IProduct {
   description: string;
@@ -26,6 +27,16 @@ interface IShop {
   };
   products: IProduct[];
 }
+
+const userImgStyle: CSSProperties = {
+  borderRadius: '50%',
+  minHeight: '20vh',
+  minWidth: '20vh',
+  maxHeight: '20vh',
+  maxWidth: '20vh',
+  objectFit: 'cover',
+  boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+};
 
 const UserViewShop = () => {
   const token = useAuth();
@@ -68,8 +79,8 @@ const UserViewShop = () => {
         <Row style={{ padding: '0', margin: '0', width: '100%' }}>
           <Col xs={12} md={3} lg={2}>
             <Row className='user_icon'>
-              <Col xs={12} className='center'>
-                <img src={shop.image_url} className='user_img' />
+              <Col xs={12} className='center' style={{ overflow: 'hidden' }}>
+                <img src={shop.image_url} style={userImgStyle} />
               </Col>
               <Col xs={12}>
                 <div className='center'>
