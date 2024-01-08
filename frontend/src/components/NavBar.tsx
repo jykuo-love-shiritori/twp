@@ -117,7 +117,38 @@ const NavBar = () => {
                         </Dropdown.Menu>
                       </Dropdown>
                     ) : (
-                      ''
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          id='dropdown-custom-1'
+                          style={DropButtonStyle}
+                          className='nav_link'
+                        >
+                          Admin
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu style={DropDownStyle}>
+                          <Link
+                            to='/admin/manageUser'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>Manage Users</div>
+                          </Link>
+                          <Link
+                            to='/admin/manageCoupons'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>Global Coupons</div>
+                          </Link>
+                          <Link
+                            to='/admin/reports'
+                            className='none nav_link'
+                            style={{ padding: '0%' }}
+                          >
+                            <div style={{ padding: '5px 10% 5px 10%' }}>Site Reports</div>
+                          </Link>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     )}
                   </Nav>
                 </Col>
@@ -136,20 +167,25 @@ const NavBar = () => {
                         <Link to='/user/info' className='none nav_link' style={{ padding: '0' }}>
                           <div style={{ padding: '5px 10% 5px 10%' }}>Personal Info</div>
                         </Link>
-                        <Link
-                          to='/user/security'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>Security</div>
-                        </Link>
-                        <Link
-                          to='/user/buyer/order'
-                          className='none nav_link'
-                          style={{ padding: '0%' }}
-                        >
-                          <div style={{ padding: '5px 10% 5px 10%' }}>Order History</div>
-                        </Link>
+                        {!isAdmin ? (
+                          <div>
+                            <Link
+                              to='/user/security'
+                              className='none nav_link'
+                              style={{ padding: '0%' }}
+                            >
+                              <div style={{ padding: '5px 10% 5px 10%' }}>Security</div>
+                            </Link>
+                            <Link
+                              to='/user/buyer/order'
+                              className='none nav_link'
+                              style={{ padding: '0%' }}
+                            >
+                              <div style={{ padding: '5px 10% 5px 10%' }}>Order History</div>
+                            </Link>
+                          </div>
+                        ) : null}
+
                         <hr
                           style={{
                             padding: '0',
@@ -158,23 +194,6 @@ const NavBar = () => {
                             opacity: '1',
                           }}
                         />
-                        {isAdmin ? (
-                          <>
-                            <Link to='/admin' className='nav_link none' style={{ padding: '0%' }}>
-                              <div style={{ padding: '5px 10% 5px 10%' }}>Admin</div>
-                            </Link>
-                            <hr
-                              style={{
-                                padding: '0',
-                                margin: '5px',
-                                color: 'var(--border)',
-                                opacity: '1',
-                              }}
-                            />
-                          </>
-                        ) : (
-                          <></>
-                        )}
                         <div
                           className='none nav_link'
                           style={{ padding: '5px 10% 5px 10%', cursor: 'pointer' }}
@@ -184,13 +203,15 @@ const NavBar = () => {
                         </div>
                       </Dropdown.Menu>
                     </Dropdown>
-                    <Link
-                      to='/buyer/cart'
-                      className='nav_link none'
-                      style={{ paddingLeft: '10px' }}
-                    >
-                      <FontAwesomeIcon icon={faCartShopping} />
-                    </Link>
+                    {!isAdmin ? (
+                      <Link
+                        to='/buyer/cart'
+                        className='nav_link none'
+                        style={{ paddingLeft: '10px' }}
+                      >
+                        <FontAwesomeIcon icon={faCartShopping} />
+                      </Link>
+                    ) : null}
                   </Nav>
                 </Col>
               </Row>
