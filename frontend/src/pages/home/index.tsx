@@ -64,8 +64,6 @@ const Home = () => {
     return <CheckFetchStatus status={recommendStatus} />;
   }
 
-  console.log(token);
-
   return (
     <div>
       <div className='home'>

@@ -99,15 +99,14 @@ function App() {
               <Route path=':coupon_id' element={<EachSellerCoupon />} />
             </Route>
 
-            <Route path='shop/:sellerName/products' element={<UserViewShop />}>
+            <Route path='shop/:sellerName' element={<UserViewShop />}>
               <Route index element={<Shop />} />
+              <Route path='products' element={<Shop />} />
               <Route path='coupons' element={<SellerCoupons />} />
-              <Route path='inside/search' element={<ShopSearch />} />
+              <Route path='products/inside/search' element={<ShopSearch />} />
             </Route>
 
-            <Route path=':sellerName/shop'>
-              <Route path=':goods_id' element={<EachGoods />} />
-            </Route>
+            <Route path='/product/:goods_id' element={<EachGoods />} />
 
             <Route path='/user/seller/order'>
               <Route path=':history_id' element={<SellerHistoryEach />} />

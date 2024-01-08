@@ -44,10 +44,8 @@ const SearchBar = () => {
     }
 
     const params = new URLSearchParams({ q: q });
+    const isShopURL = /\/shop\/[^/]+(?:\/[^/]+)?(?:\/products\/inside\/search(?:\?.+)?)?$/;
 
-    console.log(params.toString());
-
-    const isShopURL = /\/shop\/(?:[^/]+\/)?products(?:\/inside\/search(?:\?.+)?)?$/;
     if (isShopURL.test(window.location.pathname) && sellerName) {
       navigate(`/shop/${sellerName}/products/inside/search?${params.toString()}`);
       return;
