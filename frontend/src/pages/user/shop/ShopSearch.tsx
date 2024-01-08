@@ -11,7 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
-import { getBehind } from '@components/SearchBar';
+import { setFilter } from '@components/SearchBar';
 
 import {
   PhoneOffCanvasStyle,
@@ -24,9 +24,13 @@ import {
 
 const getShopSearchUrl = (data: SearchProps, q: string, sellerName: string) => {
   // TODO : the sellerID should be the real seller name
-  let url: string = `/shop/${sellerName}/products/inside/search?q=` + q;
-  url += getBehind(data);
-  return url;
+  // let url: string = `/shop/${sellerName}/products/inside/search?q=` + q;
+  // url += setFilter(data);
+  // return url;
+
+  const params = new URLSearchParams();
+  params.set('q', q);
+  return `/shop/${sellerName}/products/inside/search?` + setFilter(data, params).toString();
 };
 
 const ShopSearch = () => {

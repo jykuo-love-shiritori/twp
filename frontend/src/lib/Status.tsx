@@ -8,6 +8,7 @@ export const RouteOnNotOK = async (resp: Response, navigate: NavigateType = null
   }
   switch (resp.status) {
     case 400:
+      navigate('/notFound');
       break;
     case 401:
       navigate('/forbidden');

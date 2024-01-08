@@ -3,16 +3,16 @@ import '@style/global.css';
 
 import { Col, Form, Row, Offcanvas } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { faFilter, faUnderline } from '@fortawesome/free-solid-svg-icons';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import SellerItem from '@components/SellerItem';
 import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
-import { getUrl } from '@components/SearchBar';
+import { RouteOnNotOK } from '@lib/Status';
 
 export const PhoneOffCanvasStyle = {
   width: '330px',
@@ -80,6 +80,43 @@ const isInteger = (value: string | number | null | undefined): boolean => {
 const isEmpty = (value: string | number | null | undefined): boolean => {
   return value === '' || value === null ? true : false;
 };
+
+const toNumber = (input: string | null) => {
+  if (!input) return null;
+  const output = Number(input);
+  // console.log(output);
+  return isNaN(output) ? null : output;
+};
+
+const toSortBy = (input: string | null) => {
+  switch (input) {
+    case 'price':
+      return 'price';
+    case 'stock':
+      return 'stock';
+    case 'sales':
+      return 'sales';
+    case 'relevancy':
+      return 'relevancy';
+    default:
+      return null;
+  }
+};
+
+const toOrderBy = (input: string | null) => {
+  switch (input) {
+    case 'asc':
+      return 'asc';
+    case 'desc':
+      return 'desc';
+    default:
+      return null;
+  }
+};
+
+// const getDefaultValues = (): FilterProps => {
+
+// }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const isDataValid = (data: FilterProps) => {
@@ -183,9 +220,8 @@ export const isDataValid = (data: FilterProps) => {
 };
 
 const Search = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [showPhoneFilter, setShowPhoneFilter] = useState(false);
   const phoneFilterOnClick = () => setShowPhoneFilter(!showPhoneFilter);
@@ -193,163 +229,125 @@ const Search = () => {
   const FILTER_OPTIONS: string[] = ['price', 'stock', 'sales', 'relevancy'];
   const ORDER_OPTIONS: string[] = ['asc', 'desc'];
 
-  const { register, handleSubmit, reset, setValue } = useForm<FilterProps>({
-    defaultValues: defaultFilterValues,
+  const { register, handleSubmit, reset } = useForm<FilterProps>({
+    defaultValues: {
+      minPrice: toNumber(searchParams.get('minPrice')),
+      maxPrice: toNumber(searchParams.get('maxPrice')),
+      minStock: toNumber(searchParams.get('minStock')),
+      maxStock: toNumber(searchParams.get('maxStock')),
+      haveCoupon: Boolean(searchParams.get('haveCoupon')),
+      sortBy: toSortBy(searchParams.get('sortBy')),
+      order: toOrderBy(searchParams.get('order')),
+    },
   });
 
-  const querySearch = useMutation({
-    mutationFn: async () => {
-      const currentQ = searchParams.get('q') ?? '';
-      if (currentQ === '') {
-        return;
-      }
-      const response = await fetch('/api/search?' + getNewParams(), {
+  const { data, isError } = useQuery({
+    queryKey: ['search', searchParams],
+    queryFn: async () => {
+      const response = await fetch('/api/search?' + searchParams.toString(), {
         headers: {
           Accept: 'application/json',
         },
       });
       if (!response.ok) {
-        throw new Error('query search failed');
+        console.log(response);
+        RouteOnNotOK(response, navigate);
       }
       return (await response.json()) as ResponseProps;
     },
-    onError: () => {
-      navigate('/searchNotFound');
-    },
   });
 
-  const getNewParams = () => {
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
-    const minStock = searchParams.get('minStock');
-    const maxStock = searchParams.get('maxStock');
-    const haveCouponValue = searchParams.get('haveCoupon');
-    const sortBy = searchParams.get('sortBy');
-    const order = searchParams.get('order');
+  // useEffect(() => {
+  //   const newQ = searchParams.get('q') ?? '';
+  //   if (newQ === '') {
+  //     return;
+  //   }
 
-    if (minPrice) searchParams.set('minPrice', minPrice);
-    if (maxPrice) searchParams.set('maxPrice', maxPrice);
-    if (minStock) searchParams.set('minStock', minStock);
-    if (maxStock) searchParams.set('maxStock', maxStock);
-    if (haveCouponValue === 'true' || haveCouponValue === 'false') {
-      searchParams.set('haveCoupon', haveCouponValue);
-    }
-    if (sortBy && ['price', 'stock', 'sales', 'relevancy'].includes(sortBy)) {
-      searchParams.set('sortBy', sortBy);
-    }
-    if (order && ['asc', 'desc'].includes(order)) {
-      searchParams.set('order', order);
-    }
+  //   if (newQ != q) {
+  //     setQ(newQ);
+  //   }
 
-    setSearchParams(searchParams);
+  //   const request: SearchProps = setData();
 
-    return searchParams.toString();
-  };
+  //   setQ(request.q);
+  //   setValue('minPrice', request.minPrice);
+  //   setValue('maxPrice', request.maxPrice);
+  //   setValue('minStock', request.minStock);
+  //   setValue('maxStock', request.maxStock);
+  //   setValue('haveCoupon', request.haveCoupon);
+  //   setValue('sortBy', request.sortBy);
+  //   setValue('order', request.order);
+  //   querySearch.mutate();
 
-  useEffect(() => {
-    const newQ = searchParams.get('q') ?? '';
-    if (newQ != q) {
-      setQ(newQ);
-    }
-  }, [searchParams, q]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [searchParams, setValue]);
 
-  useEffect(() => {
-    const newQ = searchParams.get('q') ?? '';
-    if (newQ === '') {
-      return;
-    }
+  // const setData = () => {
+  //   const data: SearchProps = { ...defaultFilterValues, q: q };
 
-    if (newQ != q) {
-      setQ(newQ);
-    }
+  //   const maxPrice = parseInt(searchParams.get('maxPrice') || '');
+  //   if (!isNaN(maxPrice)) {
+  //     data.maxPrice = maxPrice;
+  //   }
 
-    const request: SearchProps = setData();
+  //   const minPrice = parseInt(searchParams.get('minPrice') || '');
+  //   if (!isNaN(minPrice)) {
+  //     data.minPrice = minPrice;
+  //   }
 
-    setQ(request.q);
-    setValue('minPrice', request.minPrice);
-    setValue('maxPrice', request.maxPrice);
-    setValue('minStock', request.minStock);
-    setValue('maxStock', request.maxStock);
-    setValue('haveCoupon', request.haveCoupon);
-    setValue('sortBy', request.sortBy);
-    setValue('order', request.order);
-    querySearch.mutate();
+  //   const maxStock = parseInt(searchParams.get('maxStock') || '');
+  //   if (!isNaN(maxStock)) {
+  //     data.maxStock = maxStock;
+  //   }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, setValue]);
+  //   const minStock = parseInt(searchParams.get('minStock') || '');
+  //   if (!isNaN(minStock)) {
+  //     data.minStock = minStock;
+  //   }
 
-  const setData = () => {
-    const data: SearchProps = { ...defaultFilterValues, q: q };
+  //   const haveCouponValue = searchParams.get('haveCoupon');
+  //   if (haveCouponValue !== null && haveCouponValue !== '') {
+  //     if (haveCouponValue === 'true' || haveCouponValue === 'false') {
+  //       data.haveCoupon = JSON.parse(haveCouponValue);
+  //     }
+  //   }
 
-    const maxPrice = parseInt(searchParams.get('maxPrice') || '');
-    if (!isNaN(maxPrice)) {
-      data.maxPrice = maxPrice;
-    }
+  //   const sortBy = searchParams.get('sortBy');
+  //   if (
+  //     sortBy !== null &&
+  //     sortBy !== '' &&
+  //     (sortBy === 'price' || sortBy === 'stock' || sortBy === 'sales' || sortBy === 'relevancy')
+  //   ) {
+  //     data.sortBy = sortBy;
+  //   }
 
-    const minPrice = parseInt(searchParams.get('minPrice') || '');
-    if (!isNaN(minPrice)) {
-      data.minPrice = minPrice;
-    }
+  //   const order = searchParams.get('order');
+  //   if (order !== null && order !== '' && (order === 'asc' || order === 'desc')) {
+  //     data.order = order;
+  //   }
 
-    const maxStock = parseInt(searchParams.get('maxStock') || '');
-    if (!isNaN(maxStock)) {
-      data.maxStock = maxStock;
-    }
-
-    const minStock = parseInt(searchParams.get('minStock') || '');
-    if (!isNaN(minStock)) {
-      data.minStock = minStock;
-    }
-
-    const haveCouponValue = searchParams.get('haveCoupon');
-    if (haveCouponValue !== null && haveCouponValue !== '') {
-      if (haveCouponValue === 'true' || haveCouponValue === 'false') {
-        data.haveCoupon = JSON.parse(haveCouponValue);
-      }
-    }
-
-    const sortBy = searchParams.get('sortBy');
-    if (
-      sortBy !== null &&
-      sortBy !== '' &&
-      (sortBy === 'price' || sortBy === 'stock' || sortBy === 'sales' || sortBy === 'relevancy')
-    ) {
-      data.sortBy = sortBy;
-    }
-
-    const order = searchParams.get('order');
-    if (order !== null && order !== '' && (order === 'asc' || order === 'desc')) {
-      data.order = order;
-    }
-
-    return data;
-  };
+  //   return data;
+  // };
 
   const onSubmit: SubmitHandler<FilterProps> = async (data: FilterProps) => {
     if (!isDataValid(data)) {
       return;
-    } else {
-      const newQ = searchParams.get('q') ?? '';
-      const newData: SearchProps = { ...data, q: newQ };
-      if (newData.minPrice) {
-        newData.minPrice = parseInt(newData.minPrice.toString());
-      }
-      if (newData.maxPrice) {
-        newData.maxPrice = parseInt(newData.maxPrice.toString());
-      }
-      if (newData.minStock) {
-        newData.minStock = parseInt(newData.minStock.toString());
-      }
-      if (newData.maxStock) {
-        newData.maxStock = parseInt(newData.maxStock.toString());
-      }
-      // idk why but when you click the checkbox with phone, it gives you haveCoupon: ['on']
-      if (newData.haveCoupon !== null && newData.haveCoupon.toString() === 'on') {
-        newData.haveCoupon = true;
-      }
-      navigate(getUrl(newData, newQ));
     }
+
+    if (data.minPrice) searchParams.set('minPrice', data.minPrice.toString());
+    if (data.maxPrice) searchParams.set('maxPrice', data.maxPrice.toString());
+    if (data.minStock) searchParams.set('minStock', data.minStock.toString());
+    if (data.maxStock) searchParams.set('maxStock', data.maxStock.toString());
+    if (data.haveCoupon) searchParams.set('haveCoupon', data.haveCoupon.toString());
+    if (data.sortBy) searchParams.set('sortBy', data.sortBy);
+    if (data.order) searchParams.set('order', data.order);
+    // console.log(searchParams.toString());
+    setSearchParams(searchParams);
   };
+
+  if (isError) {
+    return <Navigate to='/notFound' />;
+  }
 
   return (
     <div style={{ width: '100%', minHeight: '100vh' }}>
@@ -471,10 +469,10 @@ const Search = () => {
         <Col sm={12} md={10} className='flex_wrapper' style={{ padding: '5% 8% 5% 8%' }}>
           <div className='title'>Shops : </div>
           <Row>
-            {querySearch.data?.shops.length !== 0 && querySearch.data !== undefined ? (
-              querySearch.data?.shops.map((data, index: number) => (
+            {data && data.shops.length !== 0 ? (
+              data.shops.map((d, index: number) => (
                 <Col key={index} xs={6} md={3}>
-                  <SellerItem data={{ name: data.name, image_url: data.image_url }} />
+                  <SellerItem data={{ name: d.name, image_url: d.image_url }} />
                 </Col>
               ))
             ) : (
@@ -484,10 +482,10 @@ const Search = () => {
 
           <div className='title'>Products : </div>
           <Row>
-            {querySearch.data?.products.length !== 0 && querySearch.data !== undefined ? (
-              querySearch.data?.products.map((data, index: number) => (
+            {data && data.products.length !== 0 ? (
+              data.products.map((d, index: number) => (
                 <Col key={index} xs={6} md={3}>
-                  <GoodsItem {...data} />
+                  <GoodsItem {...d} />
                 </Col>
               ))
             ) : (

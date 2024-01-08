@@ -11,11 +11,11 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { SearchProps } from '@pages/search';
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const getUrl = (data: SearchProps, q: string) => {
-  const params = new URLSearchParams();
-  params.set('q', q);
-  return '/search?' + setFilter(data, params).toString();
-};
+// export const getUrl = (data: SearchProps, q: string) => {
+//   const params = new URLSearchParams();
+//   params.set('q', q);
+//   return '/search?' + setFilter(data, params).toString();
+// };
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const setFilter = (data: SearchProps, params: URLSearchParams) => {
@@ -27,30 +27,6 @@ export const setFilter = (data: SearchProps, params: URLSearchParams) => {
   if (data.sortBy) params.set('sortBy', data.sortBy);
   if (data.order) params.set('order', data.order);
   return params;
-
-  // if (data.minPrice !== null && data.minPrice.toString() !== '') {
-  //   url += '&minPrice=' + data.minPrice;
-  // }
-  // if (data.maxPrice !== null && data.maxPrice.toString() !== '') {
-  //   url += '&maxPrice=' + data.maxPrice;
-  // }
-  // if (data.minStock !== null) {
-  //   url += '&minStock=' + data.minStock;
-  // }
-  // if (data.maxStock !== null) {
-  //   url += '&maxStock=' + data.maxStock;
-  // }
-  // if (data.haveCoupon !== null) {
-  //   url += '&haveCoupon=' + data.haveCoupon.toString();
-  // }
-  // if (data.sortBy !== null) {
-  //   url += '&sortBy=' + data.sortBy;
-  // }
-  // if (data.order !== null) {
-  //   url += '&order=' + data.order;
-  // }
-  // url = url.replace(/ /g, '%20');
-  // return url;
 };
 
 const SearchBar = () => {
