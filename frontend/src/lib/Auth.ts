@@ -25,6 +25,16 @@ export const useAuth = () => {
   return tokenRef.current;
 };
 
+export const IsAdmin = () => {
+  const { tokenRef } = useContext(AuthContext);
+  try {
+    const decoded = jwtDecode<CustomJwtPayload>(tokenRef.current);
+    return decoded.role === 'admin';
+  } catch (error) {
+    console.error('Invalid token', error);
+  }
+};
+
 export const GetUserName = () => {
   const { tokenRef } = useContext(AuthContext);
   try {
