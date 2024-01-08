@@ -41,10 +41,15 @@ const CartProduct = ({ data, cart_id, refresh }: Props) => {
     }
   };
 
-  const updateQuantity = async (quantity: number) => {
+  const updateQuantity = async (quantity: number, isReduce = false) => {
     if (quantity === 0) {
       removeItem();
-    } else if (quantity > 0 && quantity <= data.stock) {
+    }
+    // if original quant is above stock and the user is try to reduce it, set to stock
+    if (isReduce && quantity > data.stock) {
+      quantity = data.stock;
+    }
+    if (quantity > 0 && quantity <= data.stock) {
       const resp = await fetch(`/api/buyer/cart/${cart_id}/product/${data.product_id}`, {
         method: 'PATCH',
         headers: {
@@ -80,7 +85,11 @@ const CartProduct = ({ data, cart_id, refresh }: Props) => {
               </Col>
               <Col md={5} className='center' style={{ padding: '2% 0' }}>
                 <Row style={{ padding: '0', margin: '0' }}>
-                  <Col md={3} onClick={() => updateQuantity(data.quantity - 1)} className='pointer'>
+                  <Col
+                    md={3}
+                    onClick={() => updateQuantity(data.quantity - 1, true)}
+                    className='pointer'
+                  >
                     <div className='quantity_f pointer center '>-</div>
                   </Col>
                   <Col md={6} className='center'>

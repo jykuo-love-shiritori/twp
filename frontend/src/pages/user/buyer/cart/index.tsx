@@ -61,7 +61,6 @@ const BuyerCarts = () => {
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
-  console.log(data);
 
   return (
     <div style={{ padding: '10% 5% 10% 5%' }}>
