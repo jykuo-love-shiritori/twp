@@ -17,7 +17,7 @@ interface IProduct {
   description: string;
   expire_date: string;
   id: number;
-  image_url: string;
+  product_image_url: string;
   name: string;
   price: number;
   sales: number;
@@ -83,7 +83,7 @@ const EachGoods = () => {
         <Col xs={12} md={5} style={LeftBgStyle}>
           <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
             <div style={{ overflow: ' hidden' }}>
-              <img src={data.image_url} alt='File preview' style={GoodsImgStyle} />
+              <img src={data.product_image_url} alt='File preview' style={GoodsImgStyle} />
             </div>
 
             <Row xs='auto'>
