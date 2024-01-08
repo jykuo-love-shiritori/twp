@@ -3,8 +3,8 @@ import { AuthContext } from '@components/AuthProvider';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
 interface CustomJwtPayload extends JwtPayload {
-  role?: string;
-  username?: string;
+  role: string;
+  username: string;
 }
 
 export type Token = {
