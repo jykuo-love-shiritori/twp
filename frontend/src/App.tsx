@@ -99,7 +99,7 @@ function App() {
 
             <Route path='shop/:sellerName' element={<UserViewShop />}>
               <Route index element={<Shop />} />
-              <Route path='shop' element={<Shop />} />
+              <Route path='products' element={<Shop />} />
               <Route path='coupons' element={<SellerCoupons />} />
             </Route>
 
