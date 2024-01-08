@@ -34,3 +34,13 @@ export const IsAdmin = () => {
     console.error('Invalid token', error);
   }
 };
+
+export const GetUserName = () => {
+  const { tokenRef } = useContext(AuthContext);
+  try {
+    const decoded = jwtDecode<CustomJwtPayload>(tokenRef.current);
+    return decoded.username;
+  } catch (error) {
+    console.error('Invalid token', error);
+  }
+};

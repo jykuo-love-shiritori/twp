@@ -66,6 +66,7 @@ func RegisterApi(e *echo.Echo, pg *db.DB, mc *minio.MC, logger *zap.SugaredLogge
 	// general
 	api.GET("/shop/:seller_name", general.GetShopInfo(pg, mc, logger)) // user
 	api.GET("/shop/:seller_name/coupon", general.GetShopCoupon(pg, logger))
+	api.GET("/shop/:seller_name/coupon/:id", general.GetShopCouponDetail(pg, logger))
 	api.GET("/shop/:seller_name/search", general.SearchShopProduct(pg, mc, logger))
 
 	api.GET("/tag/:id", general.GetTagInfo(pg, logger))

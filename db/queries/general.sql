@@ -38,6 +38,24 @@ ORDER BY
     "id" ASC
 LIMIT $2 OFFSET $3;
 
+-- name: GetShopCouponDetails :one
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM
+    "coupon"
+WHERE
+    "id" = $1
+    AND (
+        "shop_id" = $2
+        OR "scope" = 'global');
+
 -- name: GetTagInfo :one
 SELECT
     "id",
@@ -66,6 +84,29 @@ FROM
 WHERE
     P."id" = $1
     AND P."enabled" = TRUE;
+
+-- name: GetProductTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "product_tag" PT
+WHERE
+    PT."product_id" = $1
+    AND PT."tag_id" = T."id";
+
+
+-- name: GetCouponTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "coupon_tag" CT
+WHERE
+    CT."coupon_id" = $1
+    AND CT."tag_id" = T."id";
 
 -- name: GetShopProducts :many
 SELECT
