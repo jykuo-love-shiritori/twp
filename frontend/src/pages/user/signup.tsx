@@ -33,7 +33,7 @@ const Signup = () => {
       )
     ) {
       setWarningText(
-        'password should contain at least one of each: uppercase letter, lowercase letter, number and special character\n',
+        'Password must be at least 8 characters long and contain: [a-z], [A-Z], [0-9], a special character(?=.*@$!%*?&[],.(){}":;\'+-=_~).',
       );
       setShow(true);
       return;
