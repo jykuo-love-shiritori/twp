@@ -7,7 +7,7 @@ import { RouteOnNotOK } from '@lib/Status';
 import { formatFloat } from '@lib/Functions';
 
 interface IProduct {
-  enabled: true;
+  enabled: boolean;
   image_url: string;
   name: string;
   price: number;
@@ -35,8 +35,7 @@ const CartProduct = ({ data, cart_id, refresh }: Props) => {
       },
     });
     if (!resp.ok) {
-      // TODO: remove navigate
-      RouteOnNotOK(resp, navigate);
+      RouteOnNotOK(resp);
     } else {
       refresh();
     }

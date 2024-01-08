@@ -48,7 +48,10 @@ const BuyerCarts = () => {
           Accept: 'application/json',
         },
       });
-      RouteOnNotOK(resp, navigate);
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+        return [];
+      }
       return (await resp.json()) as ICart[];
     },
     enabled: true,
@@ -58,13 +61,19 @@ const BuyerCarts = () => {
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
+  console.log(data);
+
   return (
     <div style={{ padding: '10% 5% 10% 5%' }}>
       <span className='title'>Cart</span>
 
-      {data.map((cart, index) => (
-        <Cart products={cart.Products} cartInfo={cart.CartInfo} key={index} refresh={refetch} />
-      ))}
+      {data.length > 0 ? (
+        data.map((cart, index) => (
+          <Cart products={cart.Products} cartInfo={cart.CartInfo} key={index} refresh={refetch} />
+        ))
+      ) : (
+        <h3>No unpaid cart 😎</h3>
+      )}
     </div>
   );
 };
