@@ -4,6 +4,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
 import { useNavigate } from 'react-router-dom';
+import { CSSProperties } from 'react';
 
 interface ICreditCard {
   CVV: string;
@@ -22,6 +23,16 @@ interface IUser {
   role: string;
   username: string;
 }
+
+const userImgStyle: CSSProperties = {
+  borderRadius: '50%',
+  minHeight: '7vh',
+  minWidth: '7vh',
+  maxHeight: '7vh',
+  maxWidth: '7vh',
+  objectFit: 'cover',
+  boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
+};
 
 const UserTableRow = ({ data }: { data: IUser }) => {
   const navigate = useNavigate();
@@ -87,8 +98,8 @@ const UserTableRow = ({ data }: { data: IUser }) => {
   const UserTableRowBig = () => {
     return (
       <Row style={{ padding: '0 0 0 0', fontSize: '24px' }}>
-        <Col md={1} className={'center'} style={{ padding: '1% 1% 1% 1%' }}>
-          <img src={data.icon_url} className='user_img' />
+        <Col md={1} className={'center'} style={{ padding: '1% 1% 1% 1%', overflow: 'hidden' }}>
+          <img src={data.icon_url} style={userImgStyle} />
         </Col>
         <Col md={3} className={'left center_vertical'} style={{ padding: '1% 1% 1% 1%' }}>
           {data.username}

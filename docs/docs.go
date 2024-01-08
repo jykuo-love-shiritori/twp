@@ -1195,7 +1195,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/db.GetProductInfoRow"
+                            "$ref": "#/definitions/general.productInfo"
                         }
                     },
                     "400": {
@@ -2751,6 +2751,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/shop/{seller_name}/coupon/{id}": {
+            "get": {
+                "description": "Get coupon detail for a shop with seller username and coupon id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Shop",
+                    "Coupon"
+                ],
+                "summary": "Get Shop coupon detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "seller username",
+                        "name": "seller_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "coupon id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/general.couponInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/shop/{seller_name}/search": {
             "get": {
                 "description": "Search products within a shop by seller username",
@@ -3533,6 +3591,17 @@ const docTemplate = `{
                 }
             }
         },
+        "db.GetCouponTagsRow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "db.GetGlobalCouponDetailRow": {
             "type": "object",
             "properties": {
@@ -3701,41 +3770,14 @@ const docTemplate = `{
                 }
             }
         },
-        "db.GetProductInfoRow": {
+        "db.GetProductTagsRow": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "expire_date": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "product_image_url": {
-                    "type": "string"
-                },
-                "sales": {
-                    "type": "integer"
-                },
-                "seller_name": {
-                    "type": "string"
-                },
-                "shop_image_url": {
-                    "type": "string"
-                },
-                "shop_name": {
-                    "type": "string"
-                },
-                "stock": {
-                    "type": "integer"
                 }
             }
         },
@@ -4611,6 +4653,41 @@ const docTemplate = `{
                 }
             }
         },
+        "general.couponInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "scope": {
+                    "$ref": "#/definitions/db.CouponScope"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetCouponTagsRow"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/db.CouponType"
+                }
+            }
+        },
         "general.popular": {
             "type": "object",
             "properties": {
@@ -4624,6 +4701,50 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/db.GetProductsFromPopularShopRow"
+                    }
+                }
+            }
+        },
+        "general.productInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_image_url": {
+                    "type": "string"
+                },
+                "sales": {
+                    "type": "integer"
+                },
+                "seller_name": {
+                    "type": "string"
+                },
+                "shop_image_url": {
+                    "type": "string"
+                },
+                "shop_name": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.GetProductTagsRow"
                     }
                 }
             }

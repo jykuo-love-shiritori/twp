@@ -122,3 +122,61 @@ func GetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		return c.JSON(http.StatusOK, coupons)
 	}
 }
+
+type couponInfo struct {
+	db.GetShopCouponDetailsRow
+	Tags []db.GetCouponTagsRow `json:"tags"`
+}
+
+// @Summary		Get Shop coupon detail
+// @Description	Get coupon detail for a shop with seller username and coupon id
+// @Tags			Shop,Coupon
+// @Accept			json
+// @Produce		json
+// @Param			seller_name	path		string	true	"seller username"
+// @Param			id	path		int		true	"coupon id"
+// @Success		200			{object}	couponInfo
+// @Failure		400			{object}	echo.HTTPError
+// @Failure		404			{object}	echo.HTTPError
+// @Failure		500			{object}	echo.HTTPError
+// @Router			/shop/{seller_name}/coupon/{id} [get]
+func GetShopCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var param db.GetShopCouponDetailsParams
+		var err error
+		seller_name := c.Param("seller_name")
+		if seller_name == "" {
+			logger.Errorw("seller_name is empty")
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		shop_id, err := pg.Queries.ShopExists(c.Request().Context(), seller_name)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return echo.NewHTTPError(http.StatusNotFound, "Shop Not Found")
+			}
+			logger.Errorw("failed to check shop exists", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if err := echo.PathParamsBinder(c).Int32("id", &param.ID).BindError(); err != nil {
+			logger.Errorw("failed to parse id", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		param.ShopID.Int32 = shop_id
+		param.ShopID.Valid = true
+		var result couponInfo
+		result.GetShopCouponDetailsRow, err = pg.Queries.GetShopCouponDetails(c.Request().Context(), param)
+		if err != nil {
+			logger.Errorw("failed to get shop coupons", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		result.Tags = []db.GetCouponTagsRow{}
+		if result.Scope != "global" {
+			result.Tags, err = pg.Queries.GetCouponTags(c.Request().Context(), param.ID)
+			if err != nil {
+				logger.Errorw("failed to get coupon tags", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+		}
+		return c.JSON(http.StatusOK, result)
+	}
+}

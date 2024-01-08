@@ -11,6 +11,43 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getCouponTags = `-- name: GetCouponTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "coupon_tag" CT
+WHERE
+    CT."coupon_id" = $1
+    AND CT."tag_id" = T."id"
+`
+
+type GetCouponTagsRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) GetCouponTags(ctx context.Context, couponID int32) ([]GetCouponTagsRow, error) {
+	rows, err := q.db.Query(ctx, getCouponTags, couponID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetCouponTagsRow{}
+	for rows.Next() {
+		var i GetCouponTagsRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProductInfo = `-- name: GetProductInfo :one
 SELECT
     P."id",
@@ -63,6 +100,43 @@ func (q *Queries) GetProductInfo(ctx context.Context, id int32) (GetProductInfoR
 		&i.SellerName,
 	)
 	return i, err
+}
+
+const getProductTags = `-- name: GetProductTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "product_tag" PT
+WHERE
+    PT."product_id" = $1
+    AND PT."tag_id" = T."id"
+`
+
+type GetProductTagsRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) GetProductTags(ctx context.Context, productID int32) ([]GetProductTagsRow, error) {
+	rows, err := q.db.Query(ctx, getProductTags, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductTagsRow{}
+	for rows.Next() {
+		var i GetProductTagsRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getProductsFromNearByShop = `-- name: GetProductsFromNearByShop :many
@@ -296,6 +370,57 @@ func (q *Queries) GetSellerNameByShopID(ctx context.Context, id int32) (string, 
 	var seller_name string
 	err := row.Scan(&seller_name)
 	return seller_name, err
+}
+
+const getShopCouponDetails = `-- name: GetShopCouponDetails :one
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM
+    "coupon"
+WHERE
+    "id" = $1
+    AND (
+        "shop_id" = $2
+        OR "scope" = 'global')
+`
+
+type GetShopCouponDetailsParams struct {
+	ID     int32       `json:"id" param:"id"`
+	ShopID pgtype.Int4 `json:"shop_id"`
+}
+
+type GetShopCouponDetailsRow struct {
+	ID          int32              `json:"id" param:"id"`
+	Type        CouponType         `json:"type"`
+	Scope       CouponScope        `json:"scope"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Discount    pgtype.Numeric     `json:"discount" swaggertype:"number"`
+	StartDate   pgtype.Timestamptz `json:"start_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
+}
+
+func (q *Queries) GetShopCouponDetails(ctx context.Context, arg GetShopCouponDetailsParams) (GetShopCouponDetailsRow, error) {
+	row := q.db.QueryRow(ctx, getShopCouponDetails, arg.ID, arg.ShopID)
+	var i GetShopCouponDetailsRow
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
 }
 
 const getShopCoupons = `-- name: GetShopCoupons :many
