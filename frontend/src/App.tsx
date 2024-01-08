@@ -5,12 +5,12 @@ import Home from '@pages/home';
 import EachNews from '@pages/news/[newsID]';
 import Discover from '@pages/discover';
 import EachGoods from '@pages/discover/[goodsID]';
-import Coupons from '@pages/coupon';
 import BuyerCarts from '@pages/user/buyer/cart';
 import User from '@pages/user/buyer';
 import Login from '@pages/user/login';
 import Signup from '@pages/user/signup';
-import HistoryEach from '@pages/user/buyer/history/[historyID]';
+import BuyerHistoryEach from '@pages/user/buyer/history/[historyID]';
+import SellerHistoryEach from '@pages/user/seller/allShipments/[historyID]';
 import Info from '@pages/user/buyer/info';
 import History from '@pages/user/buyer/history';
 import Admin from '@pages/user/admin';
@@ -67,7 +67,6 @@ function App() {
               <Route path=':news_id' element={<EachNews />} />
             </Route>
             <Route path='/discover' element={<Discover />} />
-            <Route path='/coupons' element={<Coupons />} />
             <Route path='/user' element={<User />}>
               <Route index element={<Info />} />
               <Route path='/user/info' element={<Info />} />
@@ -78,7 +77,7 @@ function App() {
               <Route path='/user/buyer/order' element={<History />} />
             </Route>
             <Route path='/user/buyer/order'>
-              <Route path=':history_id' element={<HistoryEach />} />
+              <Route path=':history_id' element={<BuyerHistoryEach />} />
             </Route>
 
             <Route path='/user/seller' element={<Seller />}>
@@ -100,20 +99,18 @@ function App() {
               <Route path=':coupon_id' element={<EachSellerCoupon />} />
             </Route>
 
-            <Route path='/sellerID' element={<UserViewShop />}>
+            <Route path='shop/:sellerName/products' element={<UserViewShop />}>
               <Route index element={<Shop />} />
-              <Route path='/sellerID/shop' element={<Shop />} />
-              <Route path='/sellerID/coupons' element={<SellerCoupons />} />
-              {/* TODO : the sellerID should be the real seller name */}
-              <Route path='/sellerID/shop/inside/search' element={<ShopSearch />} />
+              <Route path='coupons' element={<SellerCoupons />} />
+              <Route path='inside/search' element={<ShopSearch />} />
             </Route>
 
-            <Route path='sellerID/shop'>
+            <Route path=':sellerName/shop'>
               <Route path=':goods_id' element={<EachGoods />} />
             </Route>
 
             <Route path='/user/seller/order'>
-              <Route path=':history_id' element={<HistoryEach />} />
+              <Route path=':history_id' element={<SellerHistoryEach />} />
             </Route>
 
             <Route path='/user/seller/reports'>
@@ -137,8 +134,6 @@ function App() {
             <Route path='/admin/reports'>
               <Route path=':year/:month' element={<AdminReportEach />} />
             </Route>
-
-            <Route path='/coupons' element={<Coupons />} />
 
             <Route path='/searchNotFound' element={<SearchNotFound />} />
             <Route path='/search' element={<Search />} />

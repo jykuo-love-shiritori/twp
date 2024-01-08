@@ -1,19 +1,10 @@
 import { Row, Col } from 'react-bootstrap';
 
-interface CouponItemTemplate {
-  data: {
-    id: number;
-    type: 'percentage' | 'fixed' | 'shipping';
-    name: string;
-    description: string;
-    discount: number;
-    start_date?: string;
-    expire_date: string;
-    scope?: string;
-    tags?: {
-      name: string;
-    }[];
-  };
+interface ICouponItemTemplate {
+  name: string;
+  type: 'percentage' | 'fixed' | 'shipping';
+  discount: number;
+  expire_date: string;
 }
 
 const couponStyle = {
@@ -25,7 +16,20 @@ const couponStyle = {
   width: '100%',
 };
 
-const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
+const CouponItemTemplate = ({ data }: { data: ICouponItemTemplate }) => {
+  const expireDate = new Date(data.expire_date);
+  let policy = '';
+  switch (data.type) {
+    case 'shipping':
+      policy = 'Free shipping';
+      break;
+    case 'percentage':
+      policy = `${data.discount}% OFF`;
+      break;
+    case 'fixed':
+      policy = `Save ${data.discount} NTD`;
+      break;
+  }
   return (
     <div style={{ ...couponStyle }}>
       <Row style={{ height: '100%', padding: '2% 0' }}>
@@ -35,7 +39,7 @@ const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
               {data.name}
             </div>
             <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.type === 'percentage' ? `Save ${data.discount}%` : `Save ${data.discount}฿`}
+              {policy}
             </div>
           </div>
         </Col>
@@ -51,7 +55,7 @@ const CouponItemTemplate = ({ data }: CouponItemTemplate) => {
               exp
             </div>
             <div className='center' style={{ fontSize: '16px', fontWeight: '500', color: 'white' }}>
-              {data.expire_date.slice(5).replace('-', '/')}
+              {`${expireDate.getMonth() + 1} / ${expireDate.getDate()}`}
             </div>
           </div>
         </Col>

@@ -1,5 +1,5 @@
 import { Col, Row } from 'react-bootstrap';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 
 import TButton from '@components/TButton';
 
@@ -7,6 +7,8 @@ import userData from '@pages/user/seller/sellerInfo.json';
 import goodsData from '@pages/discover/goodsData.json';
 
 const UserViewShop = () => {
+  const { sellerName } = useParams();
+
   return (
     <Row style={{ width: '100%', padding: '0', margin: '0' }} className='flex_wrapper'>
       <Col xs={12} md={12} style={{ width: '100%', padding: '0' }}>
@@ -29,8 +31,8 @@ const UserViewShop = () => {
                 </div>
                 <hr className='hr' />
                 <div className='center'> Products : {goodsData.length} items</div>
-                <TButton text='Explore Shop' action='/sellerID/shop' />
-                <TButton text='Check Coupons' action='/sellerID/coupons' />
+                <TButton text='Explore Shop' action={`/${sellerName}/shop`} />
+                <TButton text='Check Coupons' action={`/${sellerName}/coupons`} />
               </Col>
             </Row>
           </Col>

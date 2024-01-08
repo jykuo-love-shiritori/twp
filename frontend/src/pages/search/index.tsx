@@ -248,13 +248,19 @@ const Search = () => {
 
   useEffect(() => {
     const newQ = searchParams.get('q') ?? '';
-    setQ(newQ);
+    if (newQ != q) {
+      setQ(newQ);
+    }
   }, [searchParams, q]);
 
   useEffect(() => {
     const newQ = searchParams.get('q') ?? '';
     if (newQ === '') {
       return;
+    }
+
+    if (newQ != q) {
+      setQ(newQ);
     }
 
     const request: SearchProps = setData();

@@ -7,6 +7,7 @@ import (
 
 	"github.com/jykuo-love-shiritori/twp/db"
 	"github.com/jykuo-love-shiritori/twp/minio"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/jykuo-love-shiritori/twp/pkg/image"
@@ -32,7 +33,10 @@ type ProductDetail struct {
 func GetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var err error
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var param db.SellerGetProductDetailParams
 
 		if err := c.Bind(&param); err != nil {
@@ -70,7 +74,10 @@ func GetProductDetail(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.H
 // @Router			/seller/product [get]
 func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
@@ -113,7 +120,10 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Router			/seller/product [post]
 func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerInsertProductParams
 		if err := c.Bind(&param); err != nil {
@@ -168,7 +178,7 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		//put file to minio
-		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
+		ImageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader.Filename))
 		if err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
@@ -216,7 +226,10 @@ func AddProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 // @Router			/seller/product/{id} [patch]
 func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerUpdateProductInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -244,7 +257,7 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 		}
 		fileHeader, err := c.FormFile("image")
 		if err == nil {
-			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader))
+			imageID, err := mc.PutFile(c.Request().Context(), fileHeader, common.CreateUniqueFileName(fileHeader.Filename))
 			if err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
@@ -288,7 +301,10 @@ func EditProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Router			/seller/product/{id} [delete]
 func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerDeleteProductParams
 		if err := c.Bind(&param); err != nil {
@@ -323,7 +339,10 @@ func DeleteProduct(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/product/{id}/tag [post]
 func AddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerInsertProductTagParams
 		if err := c.Bind(&param); err != nil {
@@ -354,7 +373,10 @@ func AddProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/product/{id}/tag [delete]
 func DeleteProductTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerDeleteProductTagParams
 		if err := c.Bind(&param); err != nil {

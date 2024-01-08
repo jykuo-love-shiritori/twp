@@ -9,6 +9,7 @@ import NotFound from '@components/NotFound';
 import GoodsItem from '@components/GoodsItem';
 
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 
 interface GoodsProps {
   product_id: number;
@@ -37,6 +38,7 @@ const reportPageStyle = {
 };
 
 const SellerReportEach = () => {
+  const token = useAuth();
   const navigate = useNavigate();
 
   const { year, month } = useParams();
@@ -53,6 +55,7 @@ const SellerReportEach = () => {
       const response = await fetch(`/api/seller/report?time=${rfc3339Date}`, {
         headers: {
           Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {

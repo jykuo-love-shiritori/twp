@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -54,7 +55,10 @@ func getDiscountValue(price float64, discount float64, couponType db.CouponType)
 // @Router			/buyer/cart/{id}/checkout [get]
 func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		result := checkout{Coupons: []couponDiscount{}}
 		var cartID int32
 		if err := echo.PathParamsBinder(c).Int32("id", &cartID).BindError(); err != nil {
@@ -62,14 +66,15 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		// this will validate product stock and cart legitimacy
-		valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
+		cartValid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
 			Username: username,
 			CartID:   cartID,
 		})
+
 		if err != nil {
 			logger.Errorw("failed to validate product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid.Bool {
+		} else if !cartValid.Bool {
 			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now or cart is not valid")
 		}
 		productCount := make(map[int32]int32)
@@ -185,7 +190,10 @@ type PaymentMethod struct {
 // @Router			/buyer/cart/{id}/checkout [post]
 func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		username := "Buyer"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 		var cartID int32
 		if err := echo.PathParamsBinder(c).Int32("id", &cartID).BindError(); err != nil {
 			logger.Errorw("failed to parse cart_id", "error", err)
@@ -203,14 +211,14 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		} else if !valid {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid payment")
 		}
-		valid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
+		cartValid, err := pg.Queries.ValidateProductsInCart(c.Request().Context(), db.ValidateProductsInCartParams{
 			Username: username,
 			CartID:   cartID,
 		})
 		if err != nil {
 			logger.Errorw("failed to validate product in cart", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
-		} else if !valid.Bool {
+		} else if !cartValid.Bool {
 			return echo.NewHTTPError(http.StatusBadRequest, "Some product is not available now or cart is not valid")
 		}
 		// all the following logic is basically same as the GetCheckout

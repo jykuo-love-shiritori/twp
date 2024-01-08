@@ -12,49 +12,126 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const testDeleteCouponById = `-- name: TestDeleteCouponById :execrows
+const testDeleteCoupon = `-- name: TestDeleteCoupon :exec
+DELETE FROM "coupon"
+`
+
+func (q *Queries) TestDeleteCoupon(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteCoupon)
+	return err
+}
+
+const testDeleteCouponById = `-- name: TestDeleteCouponById :one
 DELETE FROM "coupon"
 WHERE "id" = $1
+RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
 `
 
-func (q *Queries) TestDeleteCouponById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteCouponById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteCouponById(ctx context.Context, id int32) (Coupon, error) {
+	row := q.db.QueryRow(ctx, testDeleteCouponById, id)
+	var i Coupon
+	err := row.Scan(
+		&i.ID,
+		&i.Type,
+		&i.Scope,
+		&i.ShopID,
+		&i.Name,
+		&i.Description,
+		&i.Discount,
+		&i.StartDate,
+		&i.ExpireDate,
+	)
+	return i, err
 }
 
-const testDeleteOrderById = `-- name: TestDeleteOrderById :execrows
+const testDeleteOrderById = `-- name: TestDeleteOrderById :one
 DELETE FROM "order_history"
 WHERE "id" = $1
+RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
-func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteOrderById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (OrderHistory, error) {
+	row := q.db.QueryRow(ctx, testDeleteOrderById, id)
+	var i OrderHistory
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ShopID,
+		&i.Shipment,
+		&i.TotalPrice,
+		&i.Status,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
-const testDeleteOrderDetailByOrderId = `-- name: TestDeleteOrderDetailByOrderId :execrows
+const testDeleteOrderDetail = `-- name: TestDeleteOrderDetail :exec
+DELETE FROM "order_detail"
+`
+
+func (q *Queries) TestDeleteOrderDetail(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderDetail)
+	return err
+}
+
+const testDeleteOrderDetailByOrderId = `-- name: TestDeleteOrderDetailByOrderId :one
 DELETE FROM "order_detail"
 WHERE "order_id" = $1
+    AND "product_id" = $2
+    AND "product_version" = $3
+RETURNING order_id, product_id, product_version, quantity
 `
 
-func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, orderID int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteOrderDetailByOrderId, orderID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+type TestDeleteOrderDetailByOrderIdParams struct {
+	OrderID        int32 `json:"order_id" param:"id"`
+	ProductID      int32 `json:"product_id"`
+	ProductVersion int32 `json:"product_version"`
 }
 
-const testDeleteProductArchiveByIdVersion = `-- name: TestDeleteProductArchiveByIdVersion :execrows
+func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, arg TestDeleteOrderDetailByOrderIdParams) (OrderDetail, error) {
+	row := q.db.QueryRow(ctx, testDeleteOrderDetailByOrderId, arg.OrderID, arg.ProductID, arg.ProductVersion)
+	var i OrderDetail
+	err := row.Scan(
+		&i.OrderID,
+		&i.ProductID,
+		&i.ProductVersion,
+		&i.Quantity,
+	)
+	return i, err
+}
+
+const testDeleteOrderHistory = `-- name: TestDeleteOrderHistory :exec
+DELETE FROM "order_history"
+`
+
+func (q *Queries) TestDeleteOrderHistory(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderHistory)
+	return err
+}
+
+const testDeleteProduct = `-- name: TestDeleteProduct :exec
+DELETE FROM "product"
+`
+
+func (q *Queries) TestDeleteProduct(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProduct)
+	return err
+}
+
+const testDeleteProductArchive = `-- name: TestDeleteProductArchive :exec
+DELETE FROM "product_archive"
+`
+
+func (q *Queries) TestDeleteProductArchive(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProductArchive)
+	return err
+}
+
+const testDeleteProductArchiveByIdVersion = `-- name: TestDeleteProductArchiveByIdVersion :one
 DELETE FROM "product_archive"
 WHERE "id" = $1
     AND "version" = $2
+RETURNING id, version, name, description, price, image_id
 `
 
 type TestDeleteProductArchiveByIdVersionParams struct {
@@ -62,71 +139,156 @@ type TestDeleteProductArchiveByIdVersionParams struct {
 	Version int32 `json:"version"`
 }
 
-func (q *Queries) TestDeleteProductArchiveByIdVersion(ctx context.Context, arg TestDeleteProductArchiveByIdVersionParams) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteProductArchiveByIdVersion, arg.ID, arg.Version)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteProductArchiveByIdVersion(ctx context.Context, arg TestDeleteProductArchiveByIdVersionParams) (ProductArchive, error) {
+	row := q.db.QueryRow(ctx, testDeleteProductArchiveByIdVersion, arg.ID, arg.Version)
+	var i ProductArchive
+	err := row.Scan(
+		&i.ID,
+		&i.Version,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ImageID,
+	)
+	return i, err
 }
 
-const testDeleteProductById = `-- name: TestDeleteProductById :execrows
+const testDeleteProductById = `-- name: TestDeleteProductById :one
 DELETE FROM "product"
 WHERE "id" = $1
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
-func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteProductById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (Product, error) {
+	row := q.db.QueryRow(ctx, testDeleteProductById, id)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Version,
+		&i.ShopID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ImageID,
+		&i.ExpireDate,
+		&i.EditDate,
+		&i.Stock,
+		&i.Sales,
+		&i.Enabled,
+	)
+	return i, err
 }
 
-const testDeleteShopById = `-- name: TestDeleteShopById :execrows
+const testDeleteShop = `-- name: TestDeleteShop :exec
+DELETE FROM "shop"
+`
+
+func (q *Queries) TestDeleteShop(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteShop)
+	return err
+}
+
+const testDeleteShopById = `-- name: TestDeleteShopById :one
 DELETE FROM "shop"
 WHERE "id" = $1
+RETURNING id, seller_name, image_id, name, description, enabled
 `
 
-func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteShopById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (Shop, error) {
+	row := q.db.QueryRow(ctx, testDeleteShopById, id)
+	var i Shop
+	err := row.Scan(
+		&i.ID,
+		&i.SellerName,
+		&i.ImageID,
+		&i.Name,
+		&i.Description,
+		&i.Enabled,
+	)
+	return i, err
 }
 
-const testDeleteTagById = `-- name: TestDeleteTagById :execrows
+const testDeleteTag = `-- name: TestDeleteTag :exec
+DELETE FROM "tag"
+`
+
+func (q *Queries) TestDeleteTag(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteTag)
+	return err
+}
+
+const testDeleteTagById = `-- name: TestDeleteTagById :one
 DELETE FROM "tag"
 WHERE "id" = $1
+RETURNING id, shop_id, name
 `
 
-func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteTagById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (Tag, error) {
+	row := q.db.QueryRow(ctx, testDeleteTagById, id)
+	var i Tag
+	err := row.Scan(&i.ID, &i.ShopID, &i.Name)
+	return i, err
 }
 
-const testDeleteUserById = `-- name: TestDeleteUserById :execrows
+const testDeleteUser = `-- name: TestDeleteUser :exec
 DELETE FROM "user"
-WHERE "id" = $1
 `
 
-func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (int64, error) {
-	result, err := q.db.Exec(ctx, testDeleteUserById, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) TestDeleteUser(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteUser)
+	return err
+}
+
+const testDeleteUserById = `-- name: TestDeleteUserById :one
+DELETE FROM "user"
+WHERE "id" = $1
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
+`
+
+type TestDeleteUserByIdRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (TestDeleteUserByIdRow, error) {
+	row := q.db.QueryRow(ctx, testDeleteUserById, id)
+	var i TestDeleteUserByIdRow
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Name,
+		&i.Email,
+		&i.Address,
+		&i.ImageID,
+		&i.Role,
+		&i.CreditCard,
+		&i.Enabled,
+	)
+	return i, err
 }
 
 const testInsertCart = `-- name: TestInsertCart :one
-INSERT INTO "cart"("id", "user_id", "shop_id")
-    VALUES ($1, $2, $3)
-RETURNING
-    id, user_id, shop_id
+INSERT INTO "cart" ("id", "user_id", "shop_id")
+VALUES ($1, $2, $3)
+RETURNING id, user_id, shop_id
 `
 
 type TestInsertCartParams struct {
@@ -143,10 +305,9 @@ func (q *Queries) TestInsertCart(ctx context.Context, arg TestInsertCartParams) 
 }
 
 const testInsertCartCoupon = `-- name: TestInsertCartCoupon :one
-INSERT INTO "cart_coupon"("cart_id", "coupon_id")
-    VALUES ($1, $2)
-RETURNING
-    cart_id, coupon_id
+INSERT INTO "cart_coupon" ("cart_id", "coupon_id")
+VALUES ($1, $2)
+RETURNING cart_id, coupon_id
 `
 
 type TestInsertCartCouponParams struct {
@@ -162,10 +323,13 @@ func (q *Queries) TestInsertCartCoupon(ctx context.Context, arg TestInsertCartCo
 }
 
 const testInsertCartProduct = `-- name: TestInsertCartProduct :one
-INSERT INTO "cart_product"("cart_id", "product_id", "quantity")
-    VALUES ($1, $2, $3)
-RETURNING
-    cart_id, product_id, quantity
+INSERT INTO "cart_product" (
+        "cart_id",
+        "product_id",
+        "quantity"
+    )
+VALUES ($1, $2, $3)
+RETURNING cart_id, product_id, quantity
 `
 
 type TestInsertCartProductParams struct {
@@ -182,10 +346,19 @@ func (q *Queries) TestInsertCartProduct(ctx context.Context, arg TestInsertCartP
 }
 
 const testInsertCoupon = `-- name: TestInsertCoupon :one
-INSERT INTO "coupon"("id", "type", "scope", "shop_id", "name", "description", "discount", "start_date", "expire_date")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING
-    id, type, scope, shop_id, name, description, discount, start_date, expire_date
+INSERT INTO "coupon" (
+        "id",
+        "type",
+        "scope",
+        "shop_id",
+        "name",
+        "description",
+        "discount",
+        "start_date",
+        "expire_date"
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, type, scope, shop_id, name, description, discount, start_date, expire_date
 `
 
 type TestInsertCouponParams struct {
@@ -228,10 +401,9 @@ func (q *Queries) TestInsertCoupon(ctx context.Context, arg TestInsertCouponPara
 }
 
 const testInsertCouponTag = `-- name: TestInsertCouponTag :one
-INSERT INTO "coupon_tag"("tag_id", "coupon_id")
-    VALUES ($1, $2)
-RETURNING
-    coupon_id, tag_id
+INSERT INTO "coupon_tag" ("tag_id", "coupon_id")
+VALUES ($1, $2)
+RETURNING coupon_id, tag_id
 `
 
 type TestInsertCouponTagParams struct {
@@ -247,10 +419,14 @@ func (q *Queries) TestInsertCouponTag(ctx context.Context, arg TestInsertCouponT
 }
 
 const testInsertOrderDetail = `-- name: TestInsertOrderDetail :one
-INSERT INTO "order_detail"("order_id", "product_id", "product_version", "quantity")
-    VALUES ($1, $2, $3, $4)
-RETURNING
-    order_id, product_id, product_version, quantity
+INSERT INTO "order_detail" (
+        "order_id",
+        "product_id",
+        "product_version",
+        "quantity"
+    )
+VALUES ($1, $2, $3, $4)
+RETURNING order_id, product_id, product_version, quantity
 `
 
 type TestInsertOrderDetailParams struct {
@@ -278,10 +454,16 @@ func (q *Queries) TestInsertOrderDetail(ctx context.Context, arg TestInsertOrder
 }
 
 const testInsertOrderHistory = `-- name: TestInsertOrderHistory :one
-INSERT INTO "order_history"("id", "user_id", "shop_id", "shipment", "total_price", "status")
-    VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING
-    id, user_id, shop_id, shipment, total_price, status, created_at
+INSERT INTO "order_history" (
+        "id",
+        "user_id",
+        "shop_id",
+        "shipment",
+        "total_price",
+        "status"
+    )
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, user_id, shop_id, shipment, total_price, status, created_at
 `
 
 type TestInsertOrderHistoryParams struct {
@@ -316,10 +498,35 @@ func (q *Queries) TestInsertOrderHistory(ctx context.Context, arg TestInsertOrde
 }
 
 const testInsertProduct = `-- name: TestInsertProduct :one
-INSERT INTO "product"("id", "version", "shop_id", "name", "description", "price", "image_id", "expire_date", "edit_date", "stock", "sales", "enabled")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9, $10, $11)
-RETURNING
-    id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
+INSERT INTO "product" (
+        "id",
+        "version",
+        "shop_id",
+        "name",
+        "description",
+        "price",
+        "image_id",
+        "expire_date",
+        "edit_date",
+        "stock",
+        "sales",
+        "enabled"
+    )
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        NOW(),
+        $8,
+        $9,
+        $10,
+        $11
+    )
+RETURNING id, version, shop_id, name, description, price, image_id, expire_date, edit_date, stock, sales, enabled
 `
 
 type TestInsertProductParams struct {
@@ -369,10 +576,16 @@ func (q *Queries) TestInsertProduct(ctx context.Context, arg TestInsertProductPa
 }
 
 const testInsertProductArchive = `-- name: TestInsertProductArchive :one
-INSERT INTO "product_archive"("id", "version", "name", "description", "price", "image_id")
-    VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING
-    id, version, name, description, price, image_id
+INSERT INTO "product_archive" (
+        "id",
+        "version",
+        "name",
+        "description",
+        "price",
+        "image_id"
+    )
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, version, name, description, price, image_id
 `
 
 type TestInsertProductArchiveParams struct {
@@ -406,10 +619,9 @@ func (q *Queries) TestInsertProductArchive(ctx context.Context, arg TestInsertPr
 }
 
 const testInsertProductTag = `-- name: TestInsertProductTag :one
-INSERT INTO "product_tag"("tag_id", "product_id")
-    VALUES ($1, $2)
-RETURNING
-    tag_id, product_id
+INSERT INTO "product_tag" ("tag_id", "product_id")
+VALUES ($1, $2)
+RETURNING tag_id, product_id
 `
 
 type TestInsertProductTagParams struct {
@@ -425,10 +637,16 @@ func (q *Queries) TestInsertProductTag(ctx context.Context, arg TestInsertProduc
 }
 
 const testInsertShop = `-- name: TestInsertShop :one
-INSERT INTO "shop"("id", "seller_name", "name", "image_id", "description", "enabled")
-    VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING
-    id, seller_name, image_id, name, description, enabled
+INSERT INTO "shop" (
+        "id",
+        "seller_name",
+        "name",
+        "image_id",
+        "description",
+        "enabled"
+    )
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, seller_name, image_id, name, description, enabled
 `
 
 type TestInsertShopParams struct {
@@ -462,10 +680,9 @@ func (q *Queries) TestInsertShop(ctx context.Context, arg TestInsertShopParams) 
 }
 
 const testInsertTag = `-- name: TestInsertTag :one
-INSERT INTO "tag"("id", "shop_id", "name")
-    VALUES ($1, $2, $3)
-RETURNING
-    id, shop_id, name
+INSERT INTO "tag" ("id", "shop_id", "name")
+VALUES ($1, $2, $3)
+RETURNING id, shop_id, name
 `
 
 type TestInsertTagParams struct {
@@ -482,27 +699,58 @@ func (q *Queries) TestInsertTag(ctx context.Context, arg TestInsertTagParams) (T
 }
 
 const testInsertUser = `-- name: TestInsertUser :one
-INSERT INTO "user"("id", "username", "password", "name", "email", "address", "image_id", "role", "credit_card", "refresh_token", "enabled")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING
-    id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+INSERT INTO "user" (
+        "id",
+        "username",
+        "password",
+        "name",
+        "email",
+        "address",
+        "image_id",
+        "role",
+        "credit_card",
+        "enabled"
+    )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
 `
 
 type TestInsertUserParams struct {
-	ID           int32           `json:"id" param:"id"`
-	Username     string          `json:"username"`
-	Password     string          `json:"password"`
-	Name         string          `form:"name" json:"name"`
-	Email        string          `form:"email" json:"email"`
-	Address      string          `form:"address" json:"address"`
-	ImageID      string          `json:"image_id" swaggertype:"string"`
-	Role         RoleType        `json:"role"`
-	CreditCard   json.RawMessage `json:"credit_card"`
-	RefreshToken string          `json:"refresh_token"`
-	Enabled      bool            `json:"enabled"`
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
 }
 
-func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
+type TestInsertUserRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (TestInsertUserRow, error) {
 	row := q.db.QueryRow(ctx, testInsertUser,
 		arg.ID,
 		arg.Username,
@@ -513,10 +761,9 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		arg.ImageID,
 		arg.Role,
 		arg.CreditCard,
-		arg.RefreshToken,
 		arg.Enabled,
 	)
-	var i User
+	var i TestInsertUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -527,9 +774,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
-		&i.RefreshToken,
 		&i.Enabled,
-		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }

@@ -4,14 +4,14 @@ import '@style/global.css';
 import { Col, Form, Row, Offcanvas } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
-import { getShopSearchUrl } from '@components/SearchBar';
+import { getBehind } from '@components/SearchBar';
 
 import {
   PhoneOffCanvasStyle,
@@ -22,8 +22,16 @@ import {
   isDataValid,
 } from '@pages/search';
 
+const getShopSearchUrl = (data: SearchProps, q: string, sellerName: string) => {
+  // TODO : the sellerID should be the real seller name
+  let url: string = `/shop/${sellerName}/products/inside/search?q=` + q;
+  url += getBehind(data);
+  return url;
+};
+
 const ShopSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { sellerName } = useParams();
   const navigate = useNavigate();
   const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
 
@@ -44,7 +52,7 @@ const ShopSearch = () => {
         return;
       }
 
-      const response = await fetch('/api/shop/s/search?' + getNewParams(), {
+      const response = await fetch(`/api/shop/${sellerName}/search?` + getNewParams(), {
         headers: {
           Accept: 'application/json',
         },
@@ -184,7 +192,10 @@ const ShopSearch = () => {
       if (newData.haveCoupon !== null && newData.haveCoupon.toString() === 'on') {
         newData.haveCoupon = true;
       }
-      navigate(getShopSearchUrl(newData, newQ));
+      if (sellerName === undefined) {
+        return;
+      }
+      navigate(getShopSearchUrl(newData, newQ, sellerName));
     }
   };
 

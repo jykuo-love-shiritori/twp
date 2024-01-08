@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import WarningModal from '@components/WarningModal';
 import FormItem from '@components/FormItem';
 
@@ -13,6 +14,7 @@ interface IEditPassword {
 
 const Password = () => {
   const navigate = useNavigate();
+  const token = useAuth();
   const [show, setShow] = useState<boolean>(false);
   const [warningText, setWarningText] = useState<string>('');
   const { register, handleSubmit } = useForm<IEditPassword>();
@@ -40,7 +42,10 @@ const Password = () => {
     }
     const resp = await fetch('/api/user/security/password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         current_password: data.current_password,
         new_password: data.new_password,

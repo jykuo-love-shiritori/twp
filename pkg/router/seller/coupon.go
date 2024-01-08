@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jykuo-love-shiritori/twp/db"
+	"github.com/jykuo-love-shiritori/twp/pkg/auth"
 	"github.com/jykuo-love-shiritori/twp/pkg/common"
 	"github.com/jykuo-love-shiritori/twp/pkg/constants"
 	"github.com/labstack/echo/v4"
@@ -39,7 +40,10 @@ type InsertCouponParams struct {
 // @Router			/seller/coupon [get]
 func GetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var requestParam common.QueryParams
 		if err := c.Bind(&requestParam); err != nil {
@@ -74,7 +78,10 @@ func GetShopCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerGetCouponDetailParams
 		if err := c.Bind(&param); err != nil {
@@ -111,7 +118,10 @@ func GetCouponDetail(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/coupon [post]
 func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param InsertCouponParams
 		if err := c.Bind(&param); err != nil {
@@ -127,10 +137,13 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("tags is invalid")
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
-			logger.Errorw("expire date or start date is invalid")
-			return echo.NewHTTPError(http.StatusBadRequest)
+		//check start/expire time
+		if param.StartDate.Time.Before(time.Now()) {
+			param.StartDate.Time = time.Now()
+		}
+		if param.ExpireDate.Time.Before(param.StartDate.Time) {
+			logger.Errorw("expire date is invalid", "start date", param.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "expire date is invalid")
 		}
 		//check discount value
 		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {
@@ -172,7 +185,10 @@ func AddCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/coupon/{id} [patch]
 func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerUpdateCouponInfoParams
 		if err := c.Bind(&param); err != nil {
@@ -180,10 +196,13 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest)
 
 		}
-		//check expire time
-		if param.ExpireDate.Time.Before(param.StartDate.Time) || param.ExpireDate.Time.Before(time.Now()) || param.StartDate.Time.Before(time.Now()) {
-			logger.Errorw("expire date or start date is invalid")
-			return echo.NewHTTPError(http.StatusBadRequest)
+		//check start/expire time
+		if param.StartDate.Time.Before(time.Now()) {
+			param.StartDate.Time = time.Now()
+		}
+		if param.ExpireDate.Time.Before(param.StartDate.Time) {
+			logger.Errorw("expire date is invalid", "start date", param.StartDate)
+			return echo.NewHTTPError(http.StatusBadRequest, "expire date is invalid")
 		}
 		//check discount value
 		if v, err := param.Discount.Float64Value(); err != nil || v.Float64 < 0 || (param.Type == db.CouponTypePercentage && v.Float64 > 100) {
@@ -213,7 +232,10 @@ func EditCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/coupon/{id} [delete]
 func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerDeleteCouponParams
 		if err := c.Bind(&param); err != nil {
@@ -247,7 +269,10 @@ func DeleteCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/coupon/{id}/tag [post]
 func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerInsertCouponTagParams
 		if err := c.Bind(&param); err != nil {
@@ -278,7 +303,10 @@ func AddCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 // @Router			/seller/coupon/{id}/tag [delete]
 func DeleteCouponTag(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var username string = "user1"
+		username, valid := auth.GetUsername(c)
+		if !valid {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
 
 		var param db.SellerDeleteCouponTagParams
 		if err := c.Bind(&param); err != nil {

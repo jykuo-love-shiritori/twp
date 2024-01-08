@@ -38,6 +38,24 @@ ORDER BY
     "id" ASC
 LIMIT $2 OFFSET $3;
 
+-- name: GetShopCouponDetails :one
+SELECT
+    "id",
+    "type",
+    "scope",
+    "name",
+    "description",
+    "discount",
+    "start_date",
+    "expire_date"
+FROM
+    "coupon"
+WHERE
+    "id" = $1
+    AND (
+        "shop_id" = $2
+        OR "scope" = 'global');
+
 -- name: GetTagInfo :one
 SELECT
     "id",
@@ -49,19 +67,46 @@ WHERE
 
 -- name: GetProductInfo :one
 SELECT
-    "id",
-    "name",
-    "description",
-    "price",
-    "image_id" AS "image_url",
-    "expire_date",
-    "stock",
-    "sales"
+    P."id",
+    P."name",
+    P."description",
+    P."price",
+    P."image_id" AS "product_image_url",
+    P."expire_date",
+    P."stock",
+    P."sales",
+    S."name" AS "shop_name",
+    S."image_id" AS "shop_image_url",
+    S."seller_name" AS "seller_name"
 FROM
-    "product"
+    "product" AS P
+    JOIN "shop" S ON S."id" = P."shop_id"
 WHERE
-    "id" = $1
-    AND "enabled" = TRUE;
+    P."id" = $1
+    AND P."enabled" = TRUE;
+
+-- name: GetProductTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "product_tag" PT
+WHERE
+    PT."product_id" = $1
+    AND PT."tag_id" = T."id";
+
+
+-- name: GetCouponTags :many
+SELECT
+    T."id",
+    T."name"
+FROM
+    "tag" T,
+    "coupon_tag" CT
+WHERE
+    CT."coupon_id" = $1
+    AND CT."tag_id" = T."id";
 
 -- name: GetShopProducts :many
 SELECT

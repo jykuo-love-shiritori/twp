@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import '@components/style.css';
 import '@style/global.css';
 
@@ -6,21 +5,14 @@ import { Row, Col, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { SearchProps } from '@pages/search';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const getUrl = (data: SearchProps, q: string) => {
   let url: string = '/search?q=' + q;
-  url += getBehind(data);
-  return url;
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const getShopSearchUrl = (data: SearchProps, q: string) => {
-  // TODO : the sellerID should be the real seller name
-  let url: string = '/sellerID/shop/inside/search?q=' + q;
   url += getBehind(data);
   return url;
 };
@@ -55,54 +47,35 @@ export const getBehind = (data: SearchProps) => {
 };
 
 const SearchBar = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [q, setQ] = useState<string>(searchParams.get('q') ?? '');
+  const { sellerName: initialSellerName } = useParams();
+  const location = useLocation();
+  const sellerNameFromParams = useParams().sellerName;
+  const [sellerName, setSellerName] = useState<string | undefined>(initialSellerName);
 
   useEffect(() => {
-    if (window.location.href.includes('search')) {
-      transfer();
-    }
-  }, [q, searchParams]);
+    setSellerName(sellerNameFromParams);
+  }, [location, sellerNameFromParams]);
 
-  const getNewParams = () => {
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
-    const minStock = searchParams.get('minStock');
-    const maxStock = searchParams.get('maxStock');
-    const haveCouponValue = searchParams.get('haveCoupon');
-    const sortBy = searchParams.get('sortBy');
-    const order = searchParams.get('order');
-
-    if (minPrice) searchParams.set('minPrice', minPrice);
-    if (maxPrice) searchParams.set('maxPrice', maxPrice);
-    if (minStock) searchParams.set('minStock', minStock);
-    if (maxStock) searchParams.set('maxStock', maxStock);
-    if (haveCouponValue === 'true' || haveCouponValue === 'false') {
-      searchParams.set('haveCoupon', haveCouponValue);
-    }
-    if (sortBy && ['price', 'stock', 'sales', 'relevancy'].includes(sortBy)) {
-      searchParams.set('sortBy', sortBy);
-    }
-    if (order && ['asc', 'desc'].includes(order)) {
-      searchParams.set('order', order);
-    }
-    if (q) searchParams.set('q', q);
-
-    setSearchParams(searchParams);
-
-    return searchParams.toString();
-  };
+  const navigate = useNavigate();
+  const [q, setQ] = useState<string>('');
 
   const transfer = () => {
-    const isShopURL = /\/shop(?:\/inside\/search(?:\?.+)?)?$/;
-
-    if (isShopURL.test(window.location.pathname)) {
-      // TODO : the sellerID need to be changed to real seller
-      navigate('/sellerID/shop/inside/search?' + getNewParams());
-    } else {
-      navigate('search?' + getNewParams());
+    if (q === '') {
+      return;
     }
+
+    let fullUrl = '';
+    const searchQuery = q ? `?q=${encodeURIComponent(q)}` : '';
+
+    const isShopURL = /\/shop\/(?:[^/]+\/)?products(?:\/inside\/search(?:\?.+)?)?$/;
+    if (isShopURL.test(window.location.pathname)) {
+      if (sellerName !== undefined) {
+        fullUrl = `${`/shop/${sellerName}/products/inside/search`}${searchQuery}`;
+      }
+    } else {
+      fullUrl = `${`/search`}${searchQuery}`;
+    }
+    navigate(fullUrl);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

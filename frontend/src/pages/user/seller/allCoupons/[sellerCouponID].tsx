@@ -1,23 +1,35 @@
 import { Row, Col } from 'react-bootstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { formatDate } from '@lib/Functions';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
 
-interface CouponProps {
-  id: number;
-  type: 'percentage' | 'fixed' | 'shipping';
-  name: string;
+interface IShopCouponDetail {
+  coupon_info: ICouponInfo;
+  tags: [ITag];
+}
+
+interface ICouponInfo {
   description: string;
   discount: number;
-  start_date: string;
   expire_date: string;
-  tags: {
-    name: string;
-  }[];
+  name: string;
+  scope: 'global' | 'shop';
+  start_date: string;
+  type: 'percentage' | 'fixed' | 'shipping';
+}
+
+interface ITag {
+  name: string;
+  tag_id: number;
 }
 
 const tagStyle = {
@@ -30,16 +42,23 @@ const tagStyle = {
 };
 
 const EachSellerCoupon = () => {
-  // react-hook-form things
-  const { register, control, handleSubmit, watch, setValue } = useForm<CouponProps>({
+  const [tag, setTag] = useState('');
+  const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
+  const navigate = useNavigate();
+  const { coupon_id } = useParams();
+  const token = useAuth();
+
+  const { register, control, handleSubmit, watch, reset } = useForm<IShopCouponDetail>({
     defaultValues: {
-      id: 0,
-      type: 'percentage',
-      name: '',
-      description: '',
-      discount: 0,
-      start_date: '',
-      expire_date: '',
+      coupon_info: {
+        description: '',
+        discount: 0,
+        expire_date: '',
+        name: '',
+        scope: 'shop',
+        start_date: '',
+        type: 'percentage',
+      },
       tags: [],
     },
   });
@@ -47,83 +66,247 @@ const EachSellerCoupon = () => {
     control,
     name: 'tags',
   });
-  const OnFormOutput: SubmitHandler<CouponProps> = (data) => {
-    console.log(data);
-    return data;
-  };
-  const watchAllFields = watch();
-  const getAllFields = (): CouponProps => {
-    return {
-      id: watchAllFields.id,
-      type: watchAllFields.type,
-      name: watchAllFields.name,
-      description: watchAllFields.description,
-      discount: watchAllFields.discount,
-      start_date: watchAllFields.start_date,
-      expire_date: watchAllFields.expire_date,
-      tags: watchAllFields.tags,
-    };
-  };
 
-  // tags
-  const [tag, setTag] = useState('');
-  const addNewTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const watchAllFields = watch();
+
+  const { data: initData, status: initStatus } = useQuery({
+    queryKey: ['sellerGetCouponDetail'],
+    queryFn: async () => {
+      const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        return await resp.json();
+      }
+    },
+    select: (data) => data as IShopCouponDetail,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  const addNewTag = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     // this addressed the magic number: https://github.com/facebook/react/issues/14512
     if (event.keyCode === 229) return;
     if (event.key === 'Enter') {
-      const input = event.currentTarget.value.trim();
-      if (input !== '') {
-        //TODO: api request
-        append({ name: input });
-        setTag('');
+      const newTagName = event.currentTarget.value.trim();
+      if (newTagName !== '') {
+        let newTag: ITag;
+        const foundOldTag = suggestTags.find((tag) => tag.name === newTagName);
+        if (foundOldTag) {
+          // using old tag
+          if (fields.find((tag) => tag.name === newTagName)) {
+            alert('tag already exist');
+            setTag('');
+            return;
+          }
+          newTag = foundOldTag;
+        } else {
+          // creating a new tag
+          const resp = await fetch('/api/seller/tag', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            // TODO: change seller_name to real user name
+            body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
+          });
+          if (!resp.ok) {
+            alert('error when creating new tag');
+            return;
+          } else {
+            const response = await resp.json();
+            newTag = { name: newTagName, tag_id: response.id };
+          }
+        }
+
+        const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tag_id: newTag.tag_id }),
+        });
+        if (!resp.ok) {
+          alert('error when adding new tag');
+        } else {
+          append(newTag);
+          setTag('');
+        }
       }
     }
   };
-  const deleteTag = (index: number) => {
-    //TODO: api request
-    remove(index);
+  const onChangeNewTag = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTag(event.target.value);
+    if (event.target.value === '') {
+      setSuggestTags([]);
+      return;
+    }
+    const resp = await fetch(`/api/seller/tag?name=${event.target.value}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      alert('error when fetching existing tag');
+    } else {
+      const response = await resp.json();
+      const newSuggestTags: ITag[] = [];
+      response.forEach((tag: { name: string; id: number }) => {
+        newSuggestTags.push({ name: tag.name, tag_id: tag.id });
+      });
+      setSuggestTags(newSuggestTags);
+    }
+  };
+  const deleteTag = async (index: number) => {
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}/tag`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tag_id: fields[index].tag_id }),
+    });
+    if (!resp.ok) {
+      alert('error when deleting tag');
+    } else {
+      remove(index);
+    }
   };
 
-  //TODO: get the init value
-  // const params = useParams();
-  // const id = params.coupon_id;
-  const initData: CouponProps = {
-    id: 0,
-    type: 'percentage',
-    name: 'Coupon',
-    description: 'this is description',
-    discount: 0,
-    start_date: '2000-01-01',
-    expire_date: '2000-01-01',
-    tags: [],
+  const OnConfirm: SubmitHandler<IShopCouponDetail> = async (data) => {
+    const startDate = new Date(data.coupon_info.start_date);
+    const expDate = new Date(data.coupon_info.expire_date);
+    const today = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    // TODO: change to form validation
+    if (startDate < today) {
+      alert('Start date cannot be earlier than today');
+      return;
+    }
+    if (startDate >= expDate) {
+      alert('Start date should be earlier than expire date');
+      return;
+    }
+    if (data.coupon_info.type === 'percentage' && data.coupon_info.discount >= 100) {
+      alert('Discount should be less than 100%');
+      return;
+    }
+    if (data.coupon_info.type === 'shipping') {
+      data.coupon_info.discount = 0;
+    }
+    if (data.coupon_info.type != 'shipping' && data.coupon_info.discount <= 0) {
+      alert('Discount should be greater than 0');
+      return;
+    }
+
+    interface INewCoupon {
+      description: string;
+      discount: number;
+      expire_date: string;
+      name: string;
+      start_date: string;
+      tags: number[];
+      type: 'percentage' | 'fixed' | 'shipping';
+    }
+    // I have no idea how discount get turned into string
+    const newCoupon: INewCoupon = {
+      description: data.coupon_info.description,
+      discount: Number(data.coupon_info.discount),
+      expire_date: new Date(data.coupon_info.expire_date).toISOString(),
+      name: data.coupon_info.name,
+      start_date: new Date(data.coupon_info.start_date).toISOString(),
+      tags: data.tags.map((tag) => tag.tag_id),
+      type: data.coupon_info.type,
+    };
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCoupon),
+    });
+    // 500 means shop is not enabled
+    if (resp.status === 500) {
+      alert('cannot change coupon while your shop is disabled');
+    } else if (!resp.ok) {
+      const response = await resp.json();
+      alert(response.message);
+    } else {
+      navigate('/user/seller/manageCoupons');
+    }
   };
-  const setInitField = (data: CouponProps) => {
-    //set the field into the initial data
-    setValue('type', data.type);
-    setValue('name', data.name);
-    setValue('description', data.description);
-    setValue('discount', data.discount);
-    setValue('start_date', data.start_date);
-    setValue('expire_date', data.expire_date);
-    setValue('tags', data.tags);
+
+  const OnDelete = async () => {
+    const resp = await fetch(`/api/seller/coupon/${coupon_id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+      },
+    });
+    // 404 means shop is not enabled
+    if (resp.status === 404) {
+      alert('cannot change coupon while your shop is disabled');
+    } else if (!resp.ok) {
+      alert('error when deleting coupon');
+    } else {
+      navigate('/user/seller/manageCoupons');
+    }
   };
-  // TODO: this is just prevent the inf loop, will remove latter
-  const [isInit, setIsInit] = useState(false);
-  if (!isInit) {
-    setInitField(initData);
-    setIsInit(true);
+
+  useEffect(() => {
+    if (initStatus === 'success') {
+      const startDate = new Date(initData.coupon_info.start_date);
+      const expDate = new Date(initData.coupon_info.expire_date);
+      reset({
+        coupon_info: {
+          ...initData.coupon_info,
+          start_date: formatDate(startDate.toISOString()),
+          expire_date: formatDate(expDate.toISOString()),
+        },
+        tags: initData.tags,
+      });
+    }
+  }, [initData, initStatus, reset]);
+
+  if (initStatus !== 'success') {
+    return <CheckFetchStatus status={initStatus} />;
   }
 
   return (
     <div style={{ padding: '55px 12% 0 12%' }}>
-      <form onSubmit={handleSubmit(OnFormOutput)}>
+      <form onSubmit={handleSubmit(OnConfirm)}>
         <Row>
           {/* left half */}
           <Col xs={12} md={5} className='goods_bgW'>
             <div className='flex_wrapper' style={{ padding: '0 8% 10% 8%' }}>
               {/* sample display */}
               <div style={{ padding: '15% 10%' }}>
-                <CouponItemTemplate data={getAllFields()} />
+                <CouponItemTemplate
+                  data={{
+                    name: watchAllFields.coupon_info.name,
+                    type: watchAllFields.coupon_info.type,
+                    discount: watchAllFields.coupon_info.discount,
+                    expire_date: watchAllFields.coupon_info.expire_date,
+                  }}
+                />
               </div>
               <span className='dark'>add more tags</span>
 
@@ -133,11 +316,16 @@ const EachSellerCoupon = () => {
                 placeholder='Input tags'
                 className='quantity_box'
                 value={tag}
-                onChange={(e) => setTag(e.target.value)}
+                onChange={onChangeNewTag}
                 onKeyDown={addNewTag}
                 style={{ marginBottom: '10px' }}
+                list='suggestion'
               />
-
+              <datalist id='suggestion'>
+                {suggestTags.map((tag, index) => (
+                  <option key={index} value={tag.name} />
+                ))}
+              </datalist>
               {/* dynamic tags fields */}
               {fields.map((field, index) => (
                 <div key={field.id} style={tagStyle}>
@@ -154,10 +342,11 @@ const EachSellerCoupon = () => {
                 </div>
               ))}
 
-              {/* delete, comfirm button */}
+              {/* delete, confirm button */}
               <div style={{ height: '50px' }} />
-              <TButton text='Delete Coupon' />
-              <TButton text='Confirm Changes' action={handleSubmit(OnFormOutput)} />
+              <TButton text='Cancel' action='/user/seller/manageCoupons' />
+              <TButton text='Delete Coupon' action={OnDelete} />
+              <TButton text='Confirm Changes' action={handleSubmit(OnConfirm)} />
             </div>
           </Col>
 
@@ -165,53 +354,30 @@ const EachSellerCoupon = () => {
           <Col xs={12} md={7}>
             <div style={{ padding: '7% 0% 7% 2%' }}>
               <FormItem label='Coupon Name'>
-                <input
-                  type='text'
-                  defaultValue={watchAllFields.name}
-                  {...register('name', { required: true })}
-                />
+                <input type='text' {...register('coupon_info.name', { required: true })} />
               </FormItem>
-
               <FormItem label='Coupon description'>
-                <textarea
-                  defaultValue={watchAllFields.description}
-                  {...register('description', { required: true })}
-                />
+                <textarea {...register('coupon_info.description', { required: true })} />
               </FormItem>
-
               <FormItem label='Method'>
-                <select
-                  defaultValue={watchAllFields.type}
-                  {...register('type', { required: true })}
-                >
+                <select {...register('coupon_info.type', { required: true })}>
                   <option value='percentage'>percentage</option>
                   <option value='fixed'>fixed</option>
                   <option value='shipping'>shipping</option>
                 </select>
               </FormItem>
-
-              <FormItem label='Discount'>
-                <input
-                  type='number'
-                  defaultValue={watchAllFields.discount}
-                  {...register('discount', { required: true })}
-                />
-              </FormItem>
-
+              {watch('coupon_info.type') != 'shipping' ? (
+                <FormItem label='Discount'>
+                  <input type='number' {...register('coupon_info.discount')} />
+                </FormItem>
+              ) : (
+                <></>
+              )}
               <FormItem label='Start Date'>
-                <input
-                  type='date'
-                  defaultValue={watchAllFields.start_date}
-                  {...register('start_date', { required: true })}
-                />
+                <input type='date' {...register('coupon_info.start_date', { required: true })} />
               </FormItem>
-
               <FormItem label='Expire Date'>
-                <input
-                  type='date'
-                  defaultValue={watchAllFields.expire_date}
-                  {...register('expire_date', { required: true })}
-                />
+                <input type='date' {...register('coupon_info.expire_date', { required: true })} />
               </FormItem>
             </div>
           </Col>

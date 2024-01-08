@@ -116,9 +116,6 @@ const NavBar = () => {
                         </Link>
                       </Dropdown.Menu>
                     </Dropdown>
-                    <Link to='/coupons' className='nav_link none' style={{ paddingLeft: '10px' }}>
-                      Coupons
-                    </Link>
                   </Nav>
                 </Col>
                 <Col xs={4} />

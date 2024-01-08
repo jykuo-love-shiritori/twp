@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
 import { RouteOnNotOK } from '@lib/Status';
+import { useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 
 interface ICreditCard {
@@ -25,11 +26,18 @@ const ContainerStyle = {
 
 const CreditCard = () => {
   const navigate = useNavigate();
+  const token = useAuth();
 
   const { data, status, refetch } = useQuery({
     queryKey: ['userGetCreditCard'],
     queryFn: async () => {
-      const resp = await fetch('/api/user/security/credit_card');
+      const resp = await fetch('/api/user/security/credit_card', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          accept: 'application/json',
+        },
+      });
       RouteOnNotOK(resp, navigate);
       return await resp.json();
     },
@@ -46,7 +54,10 @@ const CreditCard = () => {
     const newCards = id !== 0 ? data.slice(0, id).concat(data.slice(id + 1)) : data.slice(1);
     const resp = await fetch('/api/user/security/credit_card', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(newCards),
     });
     if (!resp.ok) {
