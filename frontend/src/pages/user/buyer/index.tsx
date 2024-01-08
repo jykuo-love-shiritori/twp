@@ -49,15 +49,16 @@ const User = () => {
                 </Col>
               </Row>
 
-            <BuyerButtons />
-          </Col>
-          <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 0px 5%' }}>
-            <Outlet />
-          </Col>
-        </Row>
-      </Col>
-    </Row>
-  );
+              <BuyerButtons />
+            </Col>
+            <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 0px 5%' }}>
+              <Outlet />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    );
+  }
 };
 
 export default User;
