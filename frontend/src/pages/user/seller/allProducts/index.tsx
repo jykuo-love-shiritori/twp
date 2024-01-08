@@ -15,7 +15,7 @@ const Products = () => {
   const { status, data: sellerShopData } = useQuery({
     queryKey: ['sellerShopView'],
     queryFn: async () => {
-      const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
+      const response = await fetch(`/api/seller/product?offset=${0}&limit=${20}`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
