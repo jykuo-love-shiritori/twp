@@ -173,10 +173,6 @@ func GetCreditCard(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		// if credit_card is empty, return empty array
-		if string(credit_card) == "{}" {
-			credit_card = []byte("[]")
-		}
 		return c.JSON(http.StatusOK, credit_card)
 	}
 }
