@@ -1,11 +1,13 @@
 import { Col, Row } from 'react-bootstrap';
 import CouponItemEdit from '@components/CouponItemEdit';
 import TButton from '@components/TButton';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { RouteOnNotOK } from '@lib/Status';
 import { CheckFetchStatus } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import { useState } from 'react';
+import Pagination from '@components/Pagination';
 
 interface ICoupon {
   description: string;
@@ -21,11 +23,27 @@ interface ICoupon {
 const ManageAdminCoupons = () => {
   const navigate = useNavigate();
   const token = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isMore, setIsMore] = useState(true);
 
-  const { data: fetchedData, status } = useQuery({
-    queryKey: ['adminGetGlobalCoupons'],
+  const itemLimit = 6;
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams, { replace: true });
+  }
+
+  const {
+    data: fetchedData,
+    status,
+    refetch,
+  } = useQuery({
+    queryKey: ['adminGetGlobalCoupons', searchParams.toString()],
     queryFn: async () => {
-      const resp = await fetch('/api/admin/coupon?offset=0&limit=10', {
+      const resp = await fetch('/api/admin/coupon?' + searchParams.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -34,9 +52,16 @@ const ManageAdminCoupons = () => {
       });
       if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
-      } else {
-        return resp.json();
+        return [];
       }
+      const response = await resp.json();
+      if (response.length === itemLimit + 1) {
+        setIsMore(true);
+        response.pop();
+      } else {
+        setIsMore(false);
+      }
+      return response;
     },
     select: (data) => data as ICoupon[],
     enabled: true,
@@ -46,6 +71,8 @@ const ManageAdminCoupons = () => {
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
+
+  // console.log(isMore);
 
   return (
     <div>
@@ -131,6 +158,15 @@ const ManageAdminCoupons = () => {
           </div>
         </Row>
       </Row>
+      <div className='center'>
+        <Pagination
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          refetch={refetch}
+          limit={itemLimit}
+          isMore={isMore}
+        />
+      </div>
     </div>
   );
 };

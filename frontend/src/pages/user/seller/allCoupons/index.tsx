@@ -1,11 +1,13 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import { RouteOnNotOK } from '@lib/Status';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckFetchStatus } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import { useState } from 'react';
 import TButton from '@components/TButton';
 import CouponItemEdit from '@components/CouponItemEdit';
+import Pagination from '@components/Pagination';
 
 interface ICoupon {
   description: string;
@@ -21,10 +23,27 @@ interface ICoupon {
 const ManageSellerCoupons = () => {
   const navigate = useNavigate();
   const token = useAuth();
-  const { data: fetchedData, status } = useQuery({
-    queryKey: ['sellGetShopCoupons'],
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isMore, setIsMore] = useState(true);
+
+  const itemLimit = 6;
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams, { replace: true });
+  }
+
+  const {
+    data: fetchedData,
+    status,
+    refetch,
+  } = useQuery({
+    queryKey: ['sellGetShopCoupons', searchParams.toString()],
     queryFn: async () => {
-      const resp = await fetch('/api/seller/coupon?offset=0&limit=10', {
+      const resp = await fetch('/api/seller/coupon?' + searchParams.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -33,10 +52,16 @@ const ManageSellerCoupons = () => {
       });
       if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
-      } else {
-        const response = await resp.json();
-        return response;
+        return [];
       }
+      const response = await resp.json();
+      if (response.length === itemLimit + 1) {
+        setIsMore(true);
+        response.pop();
+      } else {
+        setIsMore(false);
+      }
+      return response;
     },
     select: (data) => data as ICoupon[],
     enabled: true,
@@ -131,6 +156,15 @@ const ManageSellerCoupons = () => {
           </div>
         </Row>
       </Row>
+      <div className='center'>
+        <Pagination
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          refetch={refetch}
+          limit={itemLimit}
+          isMore={isMore}
+        />
+      </div>
     </div>
   );
 };

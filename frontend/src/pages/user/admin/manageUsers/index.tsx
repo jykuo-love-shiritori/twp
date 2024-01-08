@@ -34,10 +34,10 @@ const ManageUser = () => {
 
   const itemLimit = 10;
 
-  if (!searchParams.has('offset') || !searchParams.has('limit')) {
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
     const newSearchParams = new URLSearchParams({
       offset: '0',
-      limit: (itemLimit + 1).toString(), // request one more to check if there is more
+      limit: (itemLimit + 1).toString(),
     });
     setSearchParams(newSearchParams, { replace: true });
   }
@@ -63,8 +63,9 @@ const ManageUser = () => {
       } else {
         setIsMore(false);
       }
-      return response as IUser[];
+      return response;
     },
+    select: (data) => data as IUser[],
     enabled: true,
     refetchOnWindowFocus: false,
   });
@@ -74,27 +75,21 @@ const ManageUser = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ flexGrow: '9' }}>
-        {/* title */}
-        <Row>
-          <Col md={12} xs={12} className='title'>
-            Manage Users
-          </Col>
-        </Row>
-        <UserTableHeader />
-        {fetchedData.map((data, index) => (
-          <UserTableRow data={data} key={index} />
-        ))}
-      </div>
-      <div
-        className='center'
-        style={{ display: 'flex', flexDirection: 'row', paddingBottom: '10px' }}
-      >
+    <div>
+      <Row>
+        <Col md={12} xs={12} className='title'>
+          Manage Users
+        </Col>
+      </Row>
+      <UserTableHeader />
+      {fetchedData.map((data, index) => (
+        <UserTableRow data={data} key={index} />
+      ))}
+      <div className='center'>
         <Pagination
           searchParams={searchParams}
           setSearchParams={setSearchParams}
-          refresh={() => refetch()}
+          refetch={refetch}
           limit={itemLimit}
           isMore={isMore}
         />

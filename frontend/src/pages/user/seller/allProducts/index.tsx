@@ -5,27 +5,57 @@ import SellerGoodsItem from '@components/SellerGoodsItem';
 import TButton from '@components/TButton';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsItemProps } from '@components/GoodsItem';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
+import { useState } from 'react';
+import Pagination from '@components/Pagination';
 
 const Products = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isMore, setIsMore] = useState(true);
 
-  const { status, data: sellerShopData } = useQuery({
-    queryKey: ['sellerShopView'],
+  const itemLimit = 8;
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams, { replace: true });
+  }
+
+  const {
+    status,
+    data: sellerShopData,
+    refetch,
+  } = useQuery({
+    queryKey: ['sellerShopView', searchParams.toString()],
     queryFn: async () => {
-      const response = await fetch(`/api/seller/product?offset=${0}&limit=${8}`, {
+      const resp = await fetch(`/api/seller/product?` + searchParams.toString(), {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) {
-        RouteOnNotOK(response, navigate);
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+        return [];
       }
-      return await response.json();
+      const response = await resp.json();
+      if (response.length === itemLimit + 1) {
+        setIsMore(true);
+        response.pop();
+      } else {
+        setIsMore(false);
+      }
+      return response;
     },
+    select: (data) => data as GoodsItemProps[],
+    enabled: true,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   if (status != 'success') {
@@ -54,6 +84,15 @@ const Products = () => {
           );
         })}
       </Row>
+      <div className='center'>
+        <Pagination
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          refetch={refetch}
+          limit={itemLimit}
+          isMore={isMore}
+        />
+      </div>
     </div>
   );
 };

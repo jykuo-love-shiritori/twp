@@ -1,10 +1,10 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface Props {
   searchParams: URLSearchParams;
   setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void;
-  refresh: () => void;
+  refetch: () => void;
   limit?: number;
   isMore?: boolean;
 }
@@ -12,11 +12,12 @@ interface Props {
 const Pagination = ({
   searchParams,
   setSearchParams,
-  refresh,
+  refetch,
   limit = 10,
   isMore = true,
 }: Props) => {
-  const [MAX_PAGE, setMaxPage] = useState(100);
+  // const [MAX_PAGE, setMaxPage] = useState(100);
+  const MAX_PAGE = 100;
 
   if (!searchParams.has('offset')) {
     searchParams.set('offset', '0');
@@ -30,9 +31,10 @@ const Pagination = ({
   };
 
   // set the real max page when it ever get there (this is a cheap bug fix :P)
-  if (MAX_PAGE !== getPage() && !isMore) {
-    setMaxPage(getPage());
-  }
+  // if (MAX_PAGE !== getPage() && !isMore) {
+  //   console.log('set max page');
+  //   setMaxPage(getPage());
+  // }
 
   const { register, handleSubmit, setValue } = useForm<{ newPage: number }>({
     defaultValues: { newPage: getPage() },
@@ -44,7 +46,7 @@ const Pagination = ({
       searchParams.set('offset', ((page - 2) * limit).toString());
       setSearchParams(searchParams, { replace: true });
       setValue('newPage', page - 1);
-      refresh();
+      refetch();
     }
   };
   const onNext = () => {
@@ -53,7 +55,7 @@ const Pagination = ({
       searchParams.set('offset', (page * limit).toString());
       setSearchParams(searchParams, { replace: true });
       setValue('newPage', page + 1);
-      refresh();
+      refetch();
     }
   };
 
@@ -62,7 +64,7 @@ const Pagination = ({
     if (inputPage > 0 && inputPage < MAX_PAGE && (isMore || (!isMore && inputPage < getPage()))) {
       searchParams.set('offset', ((inputPage - 1) * limit).toString());
       setSearchParams(searchParams, { replace: true });
-      refresh();
+      refetch();
     } else {
       setValue('newPage', getPage());
     }
