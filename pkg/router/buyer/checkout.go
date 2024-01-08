@@ -170,6 +170,10 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			logger.Errorw("failed to get credit card", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
+		// if credit_card is empty, return empty array
+		if string(result.Payments) == "{}" {
+			result.Payments = []byte("[]")
+		}
 		return c.JSON(http.StatusOK, result)
 	}
 }
