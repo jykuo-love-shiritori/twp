@@ -11,13 +11,6 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { SearchProps } from '@pages/search';
 
 // eslint-disable-next-line react-refresh/only-export-components
-// export const getUrl = (data: SearchProps, q: string) => {
-//   const params = new URLSearchParams();
-//   params.set('q', q);
-//   return '/search?' + setFilter(data, params).toString();
-// };
-
-// eslint-disable-next-line react-refresh/only-export-components
 export const setFilter = (data: SearchProps, params: URLSearchParams) => {
   if (data.minPrice) params.set('minPrice', data.minPrice.toString());
   if (data.maxPrice) params.set('maxPrice', data.maxPrice.toString());
@@ -63,18 +56,6 @@ const SearchBar = () => {
     const url = `/search?${params.toString()}`;
     navigate(url);
   };
-
-  // const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (event.keyCode === 229) return;
-
-  //   if (event.key === 'Enter') {
-  //     transfer();
-  //   }
-  // };
-
-  // const handleClick = () => {
-  //   transfer();
-  // };
 
   return (
     <div>

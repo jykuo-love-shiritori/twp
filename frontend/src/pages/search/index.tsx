@@ -3,10 +3,10 @@ import '@style/global.css';
 
 import { Col, Form, Row, Offcanvas } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faUnderline } from '@fortawesome/free-solid-svg-icons';
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import SellerItem from '@components/SellerItem';
@@ -84,7 +84,6 @@ const isEmpty = (value: string | number | null | undefined): boolean => {
 const toNumber = (input: string | null) => {
   if (!input) return null;
   const output = Number(input);
-  // console.log(output);
   return isNaN(output) ? null : output;
 };
 
@@ -113,10 +112,6 @@ const toOrderBy = (input: string | null) => {
       return null;
   }
 };
-
-// const getDefaultValues = (): FilterProps => {
-
-// }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const isDataValid = (data: FilterProps) => {
@@ -242,7 +237,7 @@ const Search = () => {
   });
 
   const { data, isError } = useQuery({
-    queryKey: ['search', searchParams],
+    queryKey: ['search', searchParams.get('q')],
     queryFn: async () => {
       const response = await fetch('/api/search?' + searchParams.toString(), {
         headers: {
@@ -250,99 +245,36 @@ const Search = () => {
         },
       });
       if (!response.ok) {
-        console.log(response);
         RouteOnNotOK(response, navigate);
       }
       return (await response.json()) as ResponseProps;
     },
   });
 
-  // useEffect(() => {
-  //   const newQ = searchParams.get('q') ?? '';
-  //   if (newQ === '') {
-  //     return;
-  //   }
+  const onSubmit: SubmitHandler<FilterProps> = async (data, e) => {
+    e?.preventDefault();
 
-  //   if (newQ != q) {
-  //     setQ(newQ);
-  //   }
-
-  //   const request: SearchProps = setData();
-
-  //   setQ(request.q);
-  //   setValue('minPrice', request.minPrice);
-  //   setValue('maxPrice', request.maxPrice);
-  //   setValue('minStock', request.minStock);
-  //   setValue('maxStock', request.maxStock);
-  //   setValue('haveCoupon', request.haveCoupon);
-  //   setValue('sortBy', request.sortBy);
-  //   setValue('order', request.order);
-  //   querySearch.mutate();
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchParams, setValue]);
-
-  // const setData = () => {
-  //   const data: SearchProps = { ...defaultFilterValues, q: q };
-
-  //   const maxPrice = parseInt(searchParams.get('maxPrice') || '');
-  //   if (!isNaN(maxPrice)) {
-  //     data.maxPrice = maxPrice;
-  //   }
-
-  //   const minPrice = parseInt(searchParams.get('minPrice') || '');
-  //   if (!isNaN(minPrice)) {
-  //     data.minPrice = minPrice;
-  //   }
-
-  //   const maxStock = parseInt(searchParams.get('maxStock') || '');
-  //   if (!isNaN(maxStock)) {
-  //     data.maxStock = maxStock;
-  //   }
-
-  //   const minStock = parseInt(searchParams.get('minStock') || '');
-  //   if (!isNaN(minStock)) {
-  //     data.minStock = minStock;
-  //   }
-
-  //   const haveCouponValue = searchParams.get('haveCoupon');
-  //   if (haveCouponValue !== null && haveCouponValue !== '') {
-  //     if (haveCouponValue === 'true' || haveCouponValue === 'false') {
-  //       data.haveCoupon = JSON.parse(haveCouponValue);
-  //     }
-  //   }
-
-  //   const sortBy = searchParams.get('sortBy');
-  //   if (
-  //     sortBy !== null &&
-  //     sortBy !== '' &&
-  //     (sortBy === 'price' || sortBy === 'stock' || sortBy === 'sales' || sortBy === 'relevancy')
-  //   ) {
-  //     data.sortBy = sortBy;
-  //   }
-
-  //   const order = searchParams.get('order');
-  //   if (order !== null && order !== '' && (order === 'asc' || order === 'desc')) {
-  //     data.order = order;
-  //   }
-
-  //   return data;
-  // };
-
-  const onSubmit: SubmitHandler<FilterProps> = async (data: FilterProps) => {
     if (!isDataValid(data)) {
       return;
     }
 
-    if (data.minPrice) searchParams.set('minPrice', data.minPrice.toString());
-    if (data.maxPrice) searchParams.set('maxPrice', data.maxPrice.toString());
-    if (data.minStock) searchParams.set('minStock', data.minStock.toString());
-    if (data.maxStock) searchParams.set('maxStock', data.maxStock.toString());
-    if (data.haveCoupon) searchParams.set('haveCoupon', data.haveCoupon.toString());
-    if (data.sortBy) searchParams.set('sortBy', data.sortBy);
-    if (data.order) searchParams.set('order', data.order);
-    // console.log(searchParams.toString());
-    setSearchParams(searchParams);
+    const params = new URLSearchParams();
+
+    const q = searchParams.get('q') ?? '';
+    if (!q) {
+      return;
+    }
+
+    params.set('q', q);
+    if (data.minPrice) params.set('minPrice', data.minPrice.toString());
+    if (data.maxPrice) params.set('maxPrice', data.maxPrice.toString());
+    if (data.minStock) params.set('minStock', data.minStock.toString());
+    if (data.maxStock) params.set('maxStock', data.maxStock.toString());
+    if (data.haveCoupon) params.set('haveCoupon', data.haveCoupon.toString());
+    if (data.sortBy) params.set('sortBy', data.sortBy);
+    if (data.order) params.set('order', data.order);
+
+    setSearchParams(params);
   };
 
   if (isError) {
