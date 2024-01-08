@@ -3,7 +3,9 @@ import { NavigateFunction } from 'react-router-dom';
 type NavigateType = null | NavigateFunction;
 export const RouteOnNotOK = async (resp: Response, navigate: NavigateType = null) => {
   if (!navigate) {
-    alert((await resp.json()).message);
+    if (!resp.ok) {
+      alert((await resp.json()).message);
+    }
     return;
   }
   switch (resp.status) {
