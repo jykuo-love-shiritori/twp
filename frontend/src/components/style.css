@@ -300,10 +300,14 @@
 }
 
 .user_img {
-  width: 50%;
   border-radius: 100%;
   box-shadow: 2px 4px 10px 2px rgba(0, 0, 0, 0.25);
   margin: 0% 0% 5% 0%;
+  min-height: 20vh;
+  min-width: 20vh;
+  max-height: 20vh;
+  max-width: 20vh;
+  object-fit: cover;
 }
 
 /* [item in page] users page left buttons*/

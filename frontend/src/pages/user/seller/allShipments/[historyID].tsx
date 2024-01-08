@@ -1,15 +1,25 @@
-import { faFile, faMoneyBill, faTruck, faBox } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row } from 'react-bootstrap';
+import {
+  faMoneyBill,
+  faTruck,
+  faBox,
+  faHandshake,
+  faCircleXmark,
+} from '@fortawesome/free-solid-svg-icons';
+import { Col, Row, Modal } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 import HistoryProduct from '@components/HistoryProduct';
 import NotFound from '@components/NotFound';
-import RecordStatus from '@components/RecordStatus';
+import RecordStatus, { StatusProps } from '@components/RecordStatus';
 import UserItem from '@components/UserItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import TButton from '@components/TButton';
 
 interface SellerOrderProps {
   order_info: {
@@ -33,19 +43,75 @@ interface SellerOrderProps {
   }[];
 }
 
+interface PatchProps {
+  id: number;
+  current_status: 'paid' | 'shipped' | 'delivered' | 'finished';
+}
+
 const SellerHistoryEach = () => {
   const token = useAuth();
   const navigate = useNavigate();
 
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  let currentStatus = 0;
+
+  const statusText: ('paid' | 'shipped' | 'delivered' | 'finished')[] = [
+    'paid',
+    'shipped',
+    'delivered',
+    'finished',
+  ];
+
+  let statusContainer: StatusProps[] = [
+    { text: 'Order paid', icon: faMoneyBill, status: false },
+    { text: 'Shipped out', icon: faTruck, status: false },
+    { text: 'Order placed', icon: faBox, status: false },
+    { text: 'Order finished', icon: faHandshake, status: false },
+  ];
+
+  const ChangeStatusContainer = () => {
+    return statusContainer.map((statusObj, index) => {
+      return index <= currentStatus ? { ...statusObj, status: true } : statusObj;
+    });
+  };
+
   const params = useParams<{ history_id?: string }>();
   let order_id: number | undefined;
-  const recordStatus: boolean[] = new Array(4).fill(false);
 
   if (params.history_id) {
     order_id = parseInt(params.history_id);
   }
 
-  const { status, data: sellerOrderData } = useQuery({
+  const updateStatus = useMutation({
+    mutationFn: async (data: PatchProps) => {
+      const response = await fetch(`/api/seller/order/${data.id}`, {
+        method: 'PATCH',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+        redirect: 'follow',
+      });
+      if (!response.ok) {
+        throw new Error('change status failed');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const {
+    status,
+    data: sellerOrderData,
+    refetch,
+  } = useQuery({
     queryKey: ['sellerOrder', order_id],
     queryFn: async () => {
       if (order_id === undefined) {
@@ -69,20 +135,19 @@ const SellerHistoryEach = () => {
   } else {
     switch (sellerOrderData.order_info.status) {
       case 'paid':
-        recordStatus.fill(true, 0, 1);
+        currentStatus = 0;
         break;
       case 'shipped':
-        recordStatus.fill(true, 0, 2);
+        currentStatus = 1;
         break;
       case 'delivered':
-        recordStatus.fill(true, 0, 3);
+        currentStatus = 2;
         break;
       case 'finished':
-        recordStatus.fill(true, 0, 3);
+        currentStatus = 3;
         break;
-      default:
-        recordStatus.fill(true, 0, 0);
     }
+    statusContainer = ChangeStatusContainer();
   }
 
   if (!sellerOrderData) {
@@ -99,25 +164,48 @@ const SellerHistoryEach = () => {
       <div className='title'>Record ID : {sellerOrderData.order_info.id} </div>
       <Row>
         <Col xs={6} md={3}>
-          <RecordStatus icon={faFile} text='Order placed' status={recordStatus[0]} />
+          <RecordStatus
+            icon={statusContainer[0].icon}
+            text={statusContainer[0].text}
+            status={statusContainer[0].status}
+          />
         </Col>
         <Col xs={6} md={3}>
-          <RecordStatus icon={faMoneyBill} text='Payment confirmed' status={recordStatus[1]} />
+          <RecordStatus
+            icon={statusContainer[1].icon}
+            text={statusContainer[1].text}
+            status={statusContainer[1].status}
+          />
         </Col>
         <Col xs={6} md={3}>
-          <RecordStatus icon={faTruck} text='Shipped out' status={recordStatus[2]} />
+          <RecordStatus
+            icon={statusContainer[2].icon}
+            text={statusContainer[2].text}
+            status={statusContainer[2].status}
+          />
         </Col>
         <Col xs={6} md={3}>
-          <RecordStatus icon={faBox} text='Order received' status={recordStatus[3]} />
+          <RecordStatus
+            icon={statusContainer[3].icon}
+            text={statusContainer[3].text}
+            status={statusContainer[3].status}
+          />
         </Col>
       </Row>
 
       <hr className='hr' />
 
-      <UserItem
-        img_path={sellerOrderData.order_info.user_image_url}
-        name={sellerOrderData.order_info.user_name}
-      />
+      <Row>
+        <Col xs={6} md={9}>
+          <UserItem
+            img_path={sellerOrderData.order_info.user_image_url}
+            name={sellerOrderData.order_info.user_name}
+          />
+        </Col>
+        <Col xs={6} md={3}>
+          <TButton text='Update status' action={handleShow} />
+        </Col>
+      </Row>
 
       {sellerOrderData.products.map((product, index) => {
         return (
@@ -173,6 +261,82 @@ const SellerHistoryEach = () => {
           $ {Math.floor(sellerOrderData.order_info.total_price)}
         </Col>
       </Row>
+
+      <Modal show={show} onHide={handleClose} className='coupon_modal'>
+        <Modal.Header style={{ paddingTop: '30px' }}>
+          <Modal.Title>Update status</Modal.Title>
+          <div className='right' style={{ cursor: 'pointer' }}>
+            <FontAwesomeIcon icon={faCircleXmark as IconProp} size='2x' onClick={handleClose} />
+          </div>
+        </Modal.Header>
+        <Modal.Body>
+          {currentStatus === 3 ? (
+            <div>
+              <div className='center' style={{ padding: '20px 0 20px 0' }}>
+                <FontAwesomeIcon icon={faHandshake} size='4x' />
+              </div>
+              <div className='center'>
+                <h4 className='title_color'>
+                  <b>Order finished 🎉</b>
+                </h4>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {currentStatus !== 2 ? (
+                <div>
+                  <Row>
+                    <Col xs={6}>
+                      <RecordStatus
+                        icon={statusContainer[currentStatus].icon}
+                        text={statusContainer[currentStatus].text}
+                        status={statusContainer[currentStatus].status}
+                      />
+                    </Col>
+                    <Col xs={6}>
+                      <RecordStatus
+                        icon={statusContainer[currentStatus + 1].icon}
+                        text={statusContainer[currentStatus + 1].text}
+                        status={true}
+                      />
+                    </Col>
+                    <Col xs={12} className='center' style={{ paddingTop: '20px' }}>
+                      Ready from
+                      <span className='title_color' style={{ padding: '0 10px 0 10px' }}>
+                        <b>{statusContainer[currentStatus].text}</b>
+                      </span>
+                      →
+                      <span className='title_color' style={{ padding: '0 10px 0 10px' }}>
+                        <b>{statusContainer[currentStatus + 1].text}</b>
+                      </span>
+                    </Col>
+                  </Row>
+                  <div className='center' style={{ paddingTop: '20px' }}>
+                    <div style={{ width: '30%' }}>
+                      <TButton
+                        text='Confirm'
+                        action={() =>
+                          updateStatus.mutate({
+                            id: sellerOrderData.order_info.id,
+                            current_status: statusText[currentStatus],
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className='center'>
+                  The order is arrived, please wait for buyer to confirm!
+                  <div className='center' style={{ paddingTop: '20px' }}>
+                    <div style={{ width: '30%' }}></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
