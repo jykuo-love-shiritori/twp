@@ -11,7 +11,7 @@ import React, { useReducer, CSSProperties } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
-import { useAuth } from '@lib/Auth';
+import { useAuth, GetUserName } from '@lib/Auth';
 
 export const GoodsImgStyle: CSSProperties = {
   borderRadius: '0 0 30px 0',
@@ -41,7 +41,7 @@ export interface ProductProps {
   image: File | string;
   expire_date: string;
   stock: number;
-  enable: boolean;
+  enabled: boolean;
   tags: number[];
 }
 
@@ -114,7 +114,7 @@ export const SetFormData = (data: ProductProps) => {
   formData.append('price', String(data.price));
   formData.append('expire_date', new Date(data.expire_date).toISOString());
   formData.append('stock', String(data.stock));
-  formData.append('enable', String(data.enable));
+  formData.append('enabled', String(data.enabled));
   formData.append('tags', data.tags.join(','));
   return formData;
 };
@@ -163,6 +163,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 const EmptyGoods = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const username = GetUserName();
 
   const [tag, setTag] = useState('');
   const [reducerTags, dispatchTags] = useReducer(tagsReducer, []);
@@ -177,7 +178,7 @@ const EmptyGoods = () => {
       image: undefined,
       expire_date: 'expire date',
       stock: 0,
-      enable: true,
+      enabled: true,
       tags: undefined,
     },
   });
@@ -277,8 +278,10 @@ const EmptyGoods = () => {
             dispatchTags({ type: ADD_TAG, payload: existingTag });
             updateTags();
           } else {
-            // TODO : seller name need to be change to corresponding user
-            addTag.mutate({ name: tag, seller_name: 'user1' });
+            if (username === undefined) {
+              return;
+            }
+            addTag.mutate({ name: tag, seller_name: username });
           }
           Reset();
         },
@@ -459,6 +462,10 @@ const EmptyGoods = () => {
                   type='date'
                   {...register('expire_date', { required: true, validate: { date: () => true } })}
                 />
+              </FormItem>
+
+              <FormItem label='Product Listing' isCenter={false}>
+                <input type='checkbox' {...register('enabled')} />
               </FormItem>
             </div>
           </Col>

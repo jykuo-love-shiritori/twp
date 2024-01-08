@@ -14,7 +14,7 @@ const History = () => {
   const { status, data: buyerOrderData } = useQuery({
     queryKey: ['buyerOder'],
     queryFn: async () => {
-      const response = await fetch(`/api/buyer/order?offset=0&limit=8`, {
+      const response = await fetch(`/api/buyer/order?offset=0&limit=20`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
