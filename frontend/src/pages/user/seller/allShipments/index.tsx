@@ -14,7 +14,7 @@ const SellerShipment = () => {
   const { status, data: sellerOrderData } = useQuery({
     queryKey: ['sellerOder'],
     queryFn: async () => {
-      const response = await fetch(`/api/seller/order?offset=0&limit=8`, {
+      const response = await fetch(`/api/seller/order?offset=0&limit=20`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,

@@ -11,7 +11,7 @@ import React, { useReducer } from 'react';
 
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
-import { useAuth } from '@lib/Auth';
+import { GetUserName, useAuth } from '@lib/Auth';
 
 import {
   TagProps,
@@ -34,7 +34,7 @@ export interface TagPropsAnotherVersion {
 export interface GetResponseProps {
   product_info: {
     description: string;
-    enable: boolean;
+    enabled: boolean;
     expire_date: string;
     id: number;
     image_url: string;
@@ -56,7 +56,7 @@ interface PatchResponseProps {
   edit_date: string;
   stock: number;
   sales: number;
-  enable: boolean;
+  enabled: boolean;
 }
 
 interface ConnectionTagsPros {
@@ -91,6 +91,7 @@ const deleteTagsAction = (index: number): DeleteTagsAction => {
 const EachSellerGoods = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const username = GetUserName();
 
   const params = useParams<{ goods_id?: string }>();
   let goods_id: number | undefined;
@@ -112,7 +113,7 @@ const EachSellerGoods = () => {
       image: undefined,
       expire_date: 'expire date',
       stock: 0,
-      enable: true,
+      enabled: true,
       tags: [],
     },
   });
@@ -184,7 +185,7 @@ const EachSellerGoods = () => {
         new Date(responseData.product_info.expire_date).toLocaleDateString('en-CA'),
       );
       setValue('stock', responseData.product_info.stock);
-      setValue('enable', Boolean(responseData.product_info.enable));
+      setValue('enabled', Boolean(responseData.product_info.enabled));
       const convertedTags = responseData.tags.map((tag) => ({
         id: tag.tag_id,
         name: tag.name,
@@ -229,7 +230,7 @@ const EachSellerGoods = () => {
       setValue('image', responseData.image_url);
       setValue('expire_date', new Date(responseData.expire_date).toLocaleDateString('en-CA'));
       setValue('stock', responseData.stock);
-      setValue('enable', Boolean(responseData.enable));
+      setValue('enabled', Boolean(responseData.enabled));
       navigate('/user/seller/manageProducts');
     },
   });
@@ -323,8 +324,10 @@ const EachSellerGoods = () => {
             updateTags();
             await connectTag.mutate({ id: goods_id, tag_id: existingTag.id });
           } else {
-            // TODO : seller name need to be change to corresponding user
-            addTag.mutate({ name: tag, seller_name: 'user1' });
+            if (username === undefined) {
+              return;
+            }
+            addTag.mutate({ name: tag, seller_name: username });
           }
 
           Reset();
@@ -511,6 +514,10 @@ const EachSellerGoods = () => {
 
               <FormItem label='Best Before Date'>
                 <input type='date' {...register('expire_date', { required: true })} />
+              </FormItem>
+
+              <FormItem label='Product Listing' isCenter={false}>
+                <input type='checkbox' {...register('enabled')} />
               </FormItem>
             </div>
           </Col>

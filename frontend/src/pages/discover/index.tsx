@@ -15,7 +15,7 @@ const Discover = () => {
   const { status, data: goodsData } = useQuery({
     queryKey: ['discover'],
     queryFn: async () => {
-      const response = await fetch(`/api/discover?offset=${0}&limit=${12}`, {
+      const response = await fetch(`/api/discover?offset=${0}&limit=${20}`, {
         headers: {
           Accept: 'application/json',
         },
