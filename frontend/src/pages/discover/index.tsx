@@ -26,11 +26,7 @@ const Discover = () => {
     setSearchParams(newSearchParams, { replace: true });
   }
 
-  const {
-    status,
-    data: goodsData,
-    refetch,
-  } = useQuery({
+  const { status, data: goodsData } = useQuery({
     queryKey: ['discover', searchParams.toString()],
     queryFn: async () => {
       const resp = await fetch(`/api/discover?` + searchParams.toString(), {
@@ -75,13 +71,7 @@ const Discover = () => {
         </Row>
       </div>
       <div className='center'>
-        <Pagination
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
-          refetch={refetch}
-          limit={itemLimit}
-          isMore={isMore}
-        />
+        <Pagination limit={itemLimit} isMore={isMore} />
       </div>
     </div>
   );

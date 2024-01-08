@@ -36,11 +36,7 @@ const ManageAdminCoupons = () => {
     setSearchParams(newSearchParams, { replace: true });
   }
 
-  const {
-    data: fetchedData,
-    status,
-    refetch,
-  } = useQuery({
+  const { data: fetchedData, status } = useQuery({
     queryKey: ['adminGetGlobalCoupons', searchParams.toString()],
     queryFn: async () => {
       const resp = await fetch('/api/admin/coupon?' + searchParams.toString(), {
@@ -55,6 +51,7 @@ const ManageAdminCoupons = () => {
         return [];
       }
       const response = await resp.json();
+      console.log(response.length);
       if (response.length === itemLimit + 1) {
         setIsMore(true);
         response.pop();
@@ -66,7 +63,11 @@ const ManageAdminCoupons = () => {
     select: (data) => data as ICoupon[],
     enabled: true,
     refetchOnWindowFocus: false,
+    staleTime: 0,
+    retry: false,
   });
+
+  // console.log(status);
 
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
@@ -159,13 +160,7 @@ const ManageAdminCoupons = () => {
         </Row>
       </Row>
       <div className='center'>
-        <Pagination
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
-          refetch={refetch}
-          limit={itemLimit}
-          isMore={isMore}
-        />
+        <Pagination limit={itemLimit} isMore={isMore} />
       </div>
     </div>
   );

@@ -36,11 +36,7 @@ const ManageSellerCoupons = () => {
     setSearchParams(newSearchParams, { replace: true });
   }
 
-  const {
-    data: fetchedData,
-    status,
-    refetch,
-  } = useQuery({
+  const { data: fetchedData, status } = useQuery({
     queryKey: ['sellGetShopCoupons', searchParams.toString()],
     queryFn: async () => {
       const resp = await fetch('/api/seller/coupon?' + searchParams.toString(), {
@@ -157,13 +153,7 @@ const ManageSellerCoupons = () => {
         </Row>
       </Row>
       <div className='center'>
-        <Pagination
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
-          refetch={refetch}
-          limit={itemLimit}
-          isMore={isMore}
-        />
+        <Pagination limit={itemLimit} isMore={isMore} />
       </div>
     </div>
   );

@@ -25,11 +25,7 @@ const History = () => {
     setSearchParams(newSearchParams, { replace: true });
   }
 
-  const {
-    status,
-    data: buyerOrderData,
-    refetch,
-  } = useQuery({
+  const { status, data: buyerOrderData } = useQuery({
     queryKey: ['buyerOder', searchParams.toString()],
     queryFn: async () => {
       const resp = await fetch(`/api/buyer/order?` + searchParams.toString(), {
@@ -78,13 +74,7 @@ const History = () => {
         })}
       </Row>
       <div className='center'>
-        <Pagination
-          searchParams={searchParams}
-          setSearchParams={setSearchParams}
-          refetch={refetch}
-          limit={itemLimit}
-          isMore={isMore}
-        />
+        <Pagination limit={itemLimit} isMore={isMore} />
       </div>
     </div>
   );
