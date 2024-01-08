@@ -12,6 +12,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const testDeleteCoupon = `-- name: TestDeleteCoupon :exec
+DELETE FROM "coupon"
+`
+
+func (q *Queries) TestDeleteCoupon(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteCoupon)
+	return err
+}
+
 const testDeleteCouponById = `-- name: TestDeleteCouponById :one
 DELETE FROM "coupon"
 WHERE "id" = $1
@@ -56,6 +65,15 @@ func (q *Queries) TestDeleteOrderById(ctx context.Context, id int32) (OrderHisto
 	return i, err
 }
 
+const testDeleteOrderDetail = `-- name: TestDeleteOrderDetail :exec
+DELETE FROM "order_detail"
+`
+
+func (q *Queries) TestDeleteOrderDetail(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderDetail)
+	return err
+}
+
 const testDeleteOrderDetailByOrderId = `-- name: TestDeleteOrderDetailByOrderId :one
 DELETE FROM "order_detail"
 WHERE "order_id" = $1
@@ -80,6 +98,33 @@ func (q *Queries) TestDeleteOrderDetailByOrderId(ctx context.Context, arg TestDe
 		&i.Quantity,
 	)
 	return i, err
+}
+
+const testDeleteOrderHistory = `-- name: TestDeleteOrderHistory :exec
+DELETE FROM "order_history"
+`
+
+func (q *Queries) TestDeleteOrderHistory(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteOrderHistory)
+	return err
+}
+
+const testDeleteProduct = `-- name: TestDeleteProduct :exec
+DELETE FROM "product"
+`
+
+func (q *Queries) TestDeleteProduct(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProduct)
+	return err
+}
+
+const testDeleteProductArchive = `-- name: TestDeleteProductArchive :exec
+DELETE FROM "product_archive"
+`
+
+func (q *Queries) TestDeleteProductArchive(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteProductArchive)
+	return err
 }
 
 const testDeleteProductArchiveByIdVersion = `-- name: TestDeleteProductArchiveByIdVersion :one
@@ -134,6 +179,15 @@ func (q *Queries) TestDeleteProductById(ctx context.Context, id int32) (Product,
 	return i, err
 }
 
+const testDeleteShop = `-- name: TestDeleteShop :exec
+DELETE FROM "shop"
+`
+
+func (q *Queries) TestDeleteShop(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteShop)
+	return err
+}
+
 const testDeleteShopById = `-- name: TestDeleteShopById :one
 DELETE FROM "shop"
 WHERE "id" = $1
@@ -154,6 +208,15 @@ func (q *Queries) TestDeleteShopById(ctx context.Context, id int32) (Shop, error
 	return i, err
 }
 
+const testDeleteTag = `-- name: TestDeleteTag :exec
+DELETE FROM "tag"
+`
+
+func (q *Queries) TestDeleteTag(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteTag)
+	return err
+}
+
 const testDeleteTagById = `-- name: TestDeleteTagById :one
 DELETE FROM "tag"
 WHERE "id" = $1
@@ -167,15 +230,46 @@ func (q *Queries) TestDeleteTagById(ctx context.Context, id int32) (Tag, error) 
 	return i, err
 }
 
+const testDeleteUser = `-- name: TestDeleteUser :exec
+DELETE FROM "user"
+`
+
+func (q *Queries) TestDeleteUser(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, testDeleteUser)
+	return err
+}
+
 const testDeleteUserById = `-- name: TestDeleteUserById :one
 DELETE FROM "user"
 WHERE "id" = $1
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
 `
 
-func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (User, error) {
+type TestDeleteUserByIdRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (TestDeleteUserByIdRow, error) {
 	row := q.db.QueryRow(ctx, testDeleteUserById, id)
-	var i User
+	var i TestDeleteUserByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -186,9 +280,7 @@ func (q *Queries) TestDeleteUserById(ctx context.Context, id int32) (User, error
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
-		&i.RefreshToken,
 		&i.Enabled,
-		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }
@@ -617,28 +709,48 @@ INSERT INTO "user" (
         "image_id",
         "role",
         "credit_card",
-        "refresh_token",
         "enabled"
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, username, password, name, email, address, image_id, role, credit_card, refresh_token, enabled, refresh_token_expire_date
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING "id",
+    "username",
+    "password",
+    "name",
+    "email",
+    "address",
+    "image_id",
+    "role",
+    "credit_card",
+    "enabled"
 `
 
 type TestInsertUserParams struct {
-	ID           int32           `json:"id" param:"id"`
-	Username     string          `json:"username"`
-	Password     string          `json:"password"`
-	Name         string          `form:"name" json:"name"`
-	Email        string          `form:"email" json:"email"`
-	Address      string          `form:"address" json:"address"`
-	ImageID      string          `json:"image_id" swaggertype:"string"`
-	Role         RoleType        `json:"role"`
-	CreditCard   json.RawMessage `json:"credit_card"`
-	RefreshToken string          `json:"refresh_token"`
-	Enabled      bool            `json:"enabled"`
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
 }
 
-func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (User, error) {
+type TestInsertUserRow struct {
+	ID         int32           `json:"id" param:"id"`
+	Username   string          `json:"username"`
+	Password   string          `json:"password"`
+	Name       string          `form:"name" json:"name"`
+	Email      string          `form:"email" json:"email"`
+	Address    string          `form:"address" json:"address"`
+	ImageID    string          `json:"image_id" swaggertype:"string"`
+	Role       RoleType        `json:"role"`
+	CreditCard json.RawMessage `json:"credit_card"`
+	Enabled    bool            `json:"enabled"`
+}
+
+func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) (TestInsertUserRow, error) {
 	row := q.db.QueryRow(ctx, testInsertUser,
 		arg.ID,
 		arg.Username,
@@ -649,10 +761,9 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		arg.ImageID,
 		arg.Role,
 		arg.CreditCard,
-		arg.RefreshToken,
 		arg.Enabled,
 	)
-	var i User
+	var i TestInsertUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
@@ -663,9 +774,7 @@ func (q *Queries) TestInsertUser(ctx context.Context, arg TestInsertUserParams) 
 		&i.ImageID,
 		&i.Role,
 		&i.CreditCard,
-		&i.RefreshToken,
 		&i.Enabled,
-		&i.RefreshTokenExpireDate,
 	)
 	return i, err
 }

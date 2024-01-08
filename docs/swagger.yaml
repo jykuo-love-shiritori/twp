@@ -229,6 +229,13 @@ definitions:
       shop_name:
         type: string
     type: object
+  db.GetCouponTagsRow:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   db.GetGlobalCouponDetailRow:
     properties:
       description:
@@ -339,24 +346,12 @@ definitions:
       stock:
         type: integer
     type: object
-  db.GetProductInfoRow:
+  db.GetProductTagsRow:
     properties:
-      description:
-        type: string
-      expire_date:
-        type: string
       id:
         type: integer
-      image_url:
-        type: string
       name:
         type: string
-      price:
-        type: number
-      sales:
-        type: integer
-      stock:
-        type: integer
     type: object
   db.GetProductsFromNearByShopRow:
     properties:
@@ -930,6 +925,29 @@ definitions:
       seller_name:
         type: string
     type: object
+  general.couponInfo:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      scope:
+        $ref: '#/definitions/db.CouponScope'
+      start_date:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/db.GetCouponTagsRow'
+        type: array
+      type:
+        $ref: '#/definitions/db.CouponType'
+    type: object
   general.popular:
     properties:
       local_products:
@@ -939,6 +957,35 @@ definitions:
       popular_products:
         items:
           $ref: '#/definitions/db.GetProductsFromPopularShopRow'
+        type: array
+    type: object
+  general.productInfo:
+    properties:
+      description:
+        type: string
+      expire_date:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      product_image_url:
+        type: string
+      sales:
+        type: integer
+      seller_name:
+        type: string
+      shop_image_url:
+        type: string
+      shop_name:
+        type: string
+      stock:
+        type: integer
+      tags:
+        items:
+          $ref: '#/definitions/db.GetProductTagsRow'
         type: array
     type: object
   general.shopInfo:
@@ -1873,7 +1920,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/db.GetProductInfoRow'
+            $ref: '#/definitions/general.productInfo'
         "400":
           description: Bad Request
           schema:
@@ -2937,6 +2984,45 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get Shop Coupons
+      tags:
+      - Shop
+      - Coupon
+  /shop/{seller_name}/coupon/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get coupon detail for a shop with seller username and coupon id
+      parameters:
+      - description: seller username
+        in: path
+        name: seller_name
+        required: true
+        type: string
+      - description: coupon id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/general.couponInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Shop coupon detail
       tags:
       - Shop
       - Coupon

@@ -129,13 +129,18 @@ func GetPopular(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handler
 	}
 }
 
+type productInfo struct {
+	db.GetProductInfoRow
+	Tags []db.GetProductTagsRow `json:"tags"`
+}
+
 // @Summary		Get Product Info
 // @Description	Get product information with product ID
 // @Tags			Product
 // @Accept			json
 // @Produce		json
 // @Param			id	path		int	true	"Product ID"
-// @Success		200	{object}	db.GetProductInfoRow
+// @Success		200	{object}	productInfo
 // @Failure		400	{object}	echo.HTTPError
 // @Failure		404	{object}	echo.HTTPError
 // @Failure		500	{object}	echo.HTTPError
@@ -147,7 +152,9 @@ func GetProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to parse id", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		result, err := pg.Queries.GetProductInfo(c.Request().Context(), id)
+		var err error
+		var result productInfo
+		result.GetProductInfoRow, err = pg.Queries.GetProductInfo(c.Request().Context(), id)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				return echo.NewHTTPError(http.StatusNotFound, "Product Not Found")
@@ -155,7 +162,14 @@ func GetProductInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Han
 			logger.Errorw("failed to get product info", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		result.ImageUrl = image.GetUrl(result.ImageUrl)
+		result.Tags, err = pg.Queries.GetProductTags(c.Request().Context(), id)
+		if err != nil {
+			logger.Errorw("failed to get product tags", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		result.ProductImageUrl = image.GetUrl(result.ProductImageUrl)
+		result.ShopImageUrl = image.GetUrl(result.ShopImageUrl)
+
 		return c.JSON(http.StatusOK, result)
 	}
 }

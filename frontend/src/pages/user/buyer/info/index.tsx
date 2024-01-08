@@ -1,13 +1,13 @@
 import { RouteOnNotOK } from '@lib/Status';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
 import defaultImageUrl from '@assets/images/defaultUserIcon.gif';
 
-interface IBuyerInfo {
+export interface IBuyerInfo {
   name: string;
   email: string;
   address: string;
@@ -22,10 +22,13 @@ const BuyerItemStyle = {
   background: 'var(--button_dark, #135142)',
 };
 
-const userImgStyle = {
+const userImgStyle: CSSProperties = {
   borderRadius: '50%',
-  width: '100px',
-  height: '100px',
+  minHeight: '20vh',
+  minWidth: '20vh',
+  maxHeight: '20vh',
+  maxWidth: '20vh',
+  objectFit: 'cover',
   cursor: 'pointer',
   boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
 };
@@ -126,7 +129,7 @@ const Info = () => {
               <Col xs={8} xl={7}>
                 <div style={BuyerItemStyle}>
                   {/* upload img */}
-                  <div className='center'>
+                  <div className='center' style={{ overflow: 'hidden' }}>
                     <input
                       type='file'
                       onChange={iconOnChange}
