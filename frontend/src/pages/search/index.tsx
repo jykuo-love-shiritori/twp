@@ -237,7 +237,7 @@ const Search = () => {
   });
 
   const { data, isError } = useQuery({
-    queryKey: ['search', searchParams.get('q')],
+    queryKey: ['search', searchParams.toString()],
     queryFn: async () => {
       const response = await fetch('/api/search?' + searchParams.toString(), {
         headers: {

@@ -71,7 +71,7 @@ const ShopSearch = () => {
   });
 
   const { data, isError } = useQuery({
-    queryKey: ['shop_search', searchParams.get('q'), sellerName],
+    queryKey: ['shop_search', sellerName, searchParams.toString()],
     queryFn: async () => {
       const response = await fetch(`/api/shop/${sellerName}/search?` + searchParams.toString(), {
         headers: {
