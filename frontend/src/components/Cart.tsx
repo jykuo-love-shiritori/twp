@@ -7,7 +7,7 @@ import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
-import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
+import { RouteOnNotOK } from '@lib/Status';
 import { formatDate, formatFloat } from '@lib/Functions';
 import CartProduct from '@components/CartProduct';
 import UserItem from '@components/UserItem';
@@ -159,17 +159,24 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
       }
     }
     refetchCheckout();
-    setCanvaShow(true);
+    if (checkoutStatus === 'success') {
+      setCanvaShow(true);
+    }
   };
 
   const onChooseCoupon = () => {
     refetchUsableCoupon();
-    setModalShow(true);
+    if (usableCouponStatus === 'success') {
+      setModalShow(true);
+    }
   };
 
   const onPay = async () => {
+    if (checkoutData === undefined || checkoutStatus !== 'success') {
+      return;
+    }
     if (getValues('card_id') === null) {
-      if (checkoutData?.payments.length === 0) {
+      if (checkoutData.payments.length === 0) {
         alert('please add a card');
       } else {
         alert('please select a card');
@@ -183,7 +190,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(checkoutData?.payments[getValues('card_id')]),
+      body: JSON.stringify(checkoutData.payments[getValues('card_id')]),
     });
     if (!resp.ok) {
       RouteOnNotOK(resp);
@@ -229,11 +236,11 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   }
   const { register, getValues } = useForm<FormProps>();
 
-  if (checkoutStatus === 'error') {
-    return <CheckFetchStatus status={checkoutStatus} />;
+  if (checkoutStatus !== 'success') {
+    setCanvaShow(false);
   }
-  if (usableCouponStatus === 'error') {
-    return <CheckFetchStatus status={usableCouponStatus} />;
+  if (usableCouponStatus !== 'success') {
+    setModalShow(false);
   }
 
   return (
