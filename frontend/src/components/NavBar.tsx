@@ -44,7 +44,7 @@ const NavBar = () => {
       },
     });
 
-    tokenRef.current = ''
+    tokenRef.current = '';
     navigate('/login');
   };
 
