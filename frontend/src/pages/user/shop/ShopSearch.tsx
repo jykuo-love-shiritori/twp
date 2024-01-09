@@ -14,6 +14,7 @@ import TButton from '@components/TButton';
 
 import { PhoneOffCanvasStyle, FilterProps, ProductProps, isDataValid } from '@pages/search';
 import { RouteOnNotOK } from '@lib/Status';
+import Pagination from '@components/Pagination';
 
 const toNumber = (input: string | null) => {
   if (!input) return null;
@@ -54,9 +55,21 @@ const ShopSearch = () => {
   const [showPhoneFilter, setShowPhoneFilter] = useState(false);
   const phoneFilterOnClick = () => setShowPhoneFilter(!showPhoneFilter);
 
+  const [isMore, setIsMore] = useState(true);
+  const itemLimit = 6;
+
   const { sellerName } = useParams();
   const FILTER_OPTIONS: string[] = ['price', 'stock', 'sales', 'relevancy'];
   const ORDER_OPTIONS: string[] = ['asc', 'desc'];
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      q: searchParams.get('q') ?? '', // q shouldnt be null here
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams);
+  }
 
   const { register, handleSubmit, reset } = useForm<FilterProps>({
     defaultValues: {
@@ -81,7 +94,14 @@ const ShopSearch = () => {
       if (!response.ok) {
         RouteOnNotOK(response, navigate);
       }
-      return (await response.json()) as ProductProps[];
+      const data = (await response.json()) as ProductProps[];
+      if (data.length === itemLimit + 1) {
+        setIsMore(true);
+        data.pop();
+      } else {
+        setIsMore(false);
+      }
+      return data;
     },
   });
 
@@ -107,7 +127,8 @@ const ShopSearch = () => {
     if (data.haveCoupon) params.set('haveCoupon', data.haveCoupon.toString());
     if (data.sortBy) params.set('sortBy', data.sortBy);
     if (data.order) params.set('order', data.order);
-
+    params.set('offset', '0');
+    params.set('limit', (itemLimit + 1).toString());
     setSearchParams(params);
   };
 
@@ -245,6 +266,9 @@ const ShopSearch = () => {
               <div>Not found</div>
             )}
           </Row>
+          <div className='center' style={{ padding: '2% 0px' }}>
+            <Pagination limit={itemLimit} isMore={isMore} />
+          </div>
         </Col>
       </Row>
       <div className='disappear_desktop' onClick={phoneFilterOnClick}>
