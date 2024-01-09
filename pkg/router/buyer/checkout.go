@@ -141,13 +141,14 @@ func GetCheckout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				logger.Errorw("failed to get coupon tag", "error", err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
-			couponTags := NewTagSet(tags)
 			// match coupon with product
+			couponTags := NewTagSet(tags)
+			isGlobalCoupon := coupon.Scope == db.CouponScopeGlobal
 			for _, product := range products {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				if productTag[product.ProductID].Intersect(couponTags) {
+				if isGlobalCoupon || productTag[product.ProductID].Intersect(couponTags) {
 					productCount[product.ProductID] -= 1 // decrease product count
 					price, err := product.Price.Float64Value()
 					if err != nil {
@@ -286,11 +287,12 @@ func Checkout(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusInternalServerError)
 			}
 			couponTags := NewTagSet(tags)
+			isGlobalCoupon := coupon.Scope == db.CouponScopeGlobal
 			for _, product := range products {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				if productTag[product.ProductID].Intersect(couponTags) {
+				if isGlobalCoupon || productTag[product.ProductID].Intersect(couponTags) {
 					productCount[product.ProductID] -= 1
 					price, err := product.Price.Float64Value()
 					if err != nil {
