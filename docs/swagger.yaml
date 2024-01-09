@@ -2549,8 +2549,7 @@ paths:
         name: stock
         required: true
         type: integer
-      - default: false
-        description: enabled
+      - description: enabled
         in: formData
         name: enabled
         required: true

@@ -110,7 +110,7 @@ func ListProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.Handle
 // @Param			image		formData	file	true	"image file"
 // @Param			expire_date	formData	string	true	"expire date"
 // @Param			stock		formData	int		true	"stock"
-// @Param			enabled		formData	bool	true	"enabled"		default(false)
+// @Param			enabled		formData	bool	true	"enabled"
 // @Param			tags		formData	[]int32	false	"init tags"
 // @Accept			mpfd
 // @Produce		json

@@ -2122,7 +2122,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "default": false,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData",
