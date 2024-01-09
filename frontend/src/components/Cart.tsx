@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@lib/Auth';
 import { RouteOnNotOK } from '@lib/Status';
 import { formatDate, formatFloat } from '@lib/Functions';
@@ -86,7 +85,6 @@ const ContentStyle = {
 };
 
 const Cart = ({ products, cartInfo, refresh }: Props) => {
-  const navigate = useNavigate();
   const token = useAuth();
   const [canvaShow, setCanvaShow] = useState(false);
   const [modalShow, setModalShow] = useState(false);
@@ -133,7 +131,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
           Accept: 'application/json',
         },
       });
-      RouteOnNotOK(response, navigate);
+      RouteOnNotOK(response);
       return (await response.json()) as IUsableCoupon[];
     },
     refetchOnWindowFocus: false,
