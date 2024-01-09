@@ -140,7 +140,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
     enabled: false,
   });
 
-  const onViewCheckout = async () => {
+  const onViewCheckout = () => {
     // check if the product is still available
     for (let i = 0; i < products.length; i++) {
       if (products[i].stock === 0) {
