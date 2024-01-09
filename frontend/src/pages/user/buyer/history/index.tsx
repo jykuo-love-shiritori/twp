@@ -15,7 +15,7 @@ const History = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isMore, setIsMore] = useState(true);
 
-  const itemLimit = 8;
+  const itemLimit = 4;
 
   if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
     const newSearchParams = new URLSearchParams({
