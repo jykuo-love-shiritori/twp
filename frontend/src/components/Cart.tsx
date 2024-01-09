@@ -140,7 +140,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
     enabled: false,
   });
 
-  const onViewCheckout = () => {
+  const onViewCheckout = async () => {
     // check if the product is still available
     for (let i = 0; i < products.length; i++) {
       if (products[i].stock === 0) {
@@ -159,20 +159,17 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
       }
     }
     refetchCheckout();
-    if (checkoutStatus === 'success') {
-      setCanvaShow(true);
-    }
+    setCanvaShow(true);
   };
 
   const onChooseCoupon = () => {
     refetchUsableCoupon();
-    if (usableCouponStatus === 'success') {
-      setModalShow(true);
-    }
+    setModalShow(true);
   };
 
   const onPay = async () => {
     if (checkoutData === undefined || checkoutStatus !== 'success') {
+      alert('please wait for the checkout data');
       return;
     }
     if (getValues('card_id') === null) {
@@ -236,10 +233,10 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   }
   const { register, getValues } = useForm<FormProps>();
 
-  if (checkoutStatus !== 'success') {
+  if (checkoutStatus === 'error' && canvaShow) {
     setCanvaShow(false);
   }
-  if (usableCouponStatus !== 'success') {
+  if (usableCouponStatus === 'error' && modalShow) {
     setModalShow(false);
   }
 
@@ -402,7 +399,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
         </Modal.Header>
         <Modal.Body>
           <Row style={{ width: '100%' }}>
-            {usableCouponData === undefined || usableCouponData?.length > 0 ? (
+            {Array.isArray(usableCouponData) && usableCouponData.length > 0 ? (
               usableCouponData?.map((couponData, index) => (
                 <Col xs={12} md={6} key={index} style={{ padding: '3%' }}>
                   <div onClick={() => onApplyCoupon(couponData.id)} style={{ cursor: 'pointer' }}>
