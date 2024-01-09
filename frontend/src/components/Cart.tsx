@@ -107,7 +107,11 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
         },
       });
       RouteOnNotOK(resp);
-      return (await resp.json()) as ICheckout;
+      const response = (await resp.json()) as ICheckout;
+      if (!Array.isArray(response.payments)) {
+        response.payments = [];
+      }
+      return response;
     },
     refetchOnWindowFocus: false,
     enabled: false,
@@ -164,7 +168,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   };
 
   const onPay = async () => {
-    if (watch('card_id') === null) {
+    if (getValues('card_id') === null) {
       if (checkoutData?.payments.length === 0) {
         alert('please add a card');
       } else {
@@ -179,7 +183,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(checkoutData?.payments[watch('card_id')]),
+      body: JSON.stringify(checkoutData?.payments[getValues('card_id')]),
     });
     if (!resp.ok) {
       RouteOnNotOK(resp);
@@ -223,7 +227,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
   interface FormProps {
     card_id: number;
   }
-  const { register, watch } = useForm<FormProps>();
+  const { register, getValues } = useForm<FormProps>();
 
   if (checkoutStatus === 'error') {
     return <CheckFetchStatus status={checkoutStatus} />;

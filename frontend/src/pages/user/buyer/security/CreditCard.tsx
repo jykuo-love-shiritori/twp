@@ -39,9 +39,9 @@ const CreditCard = () => {
         },
       });
       RouteOnNotOK(resp, navigate);
-      return await resp.json();
+      const response = await resp.json();
+      return Array.isArray(response) ? (response as ICreditCard[]) : [];
     },
-    select: (data) => data as [ICreditCard],
     retry: false,
     enabled: true,
     refetchOnWindowFocus: false,
@@ -49,7 +49,6 @@ const CreditCard = () => {
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
-
   const onDelete = async (id: number) => {
     const newCards = id !== 0 ? data.slice(0, id).concat(data.slice(id + 1)) : data.slice(1);
     const resp = await fetch('/api/user/security/credit_card', {
