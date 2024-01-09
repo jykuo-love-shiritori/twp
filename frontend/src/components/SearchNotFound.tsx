@@ -1,6 +1,6 @@
 const SearchNotFound = () => {
   return (
-    <div style={{ padding: '20% 30% 10% 30%' }}>
+    <div style={{ padding: '20% 30% 10% 30%', minHeight: '100vh' }}>
       <div className='title center'>Search not found</div>
       <hr className='hr' />
       <div className='white_word right'>please try again</div>

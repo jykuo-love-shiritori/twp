@@ -16,6 +16,8 @@ import (
 
 type searchParams struct {
 	Q          string  `query:"q"`
+	MinStock   int32   `query:"minStock"`
+	MaxStock   int32   `query:"maxStock"`
 	MinPrice   float64 `query:"minPrice"`
 	MaxPrice   float64 `query:"maxPrice"`
 	HaveCoupon bool    `query:"haveCoupon"`
@@ -59,7 +61,7 @@ type PrettierShopSearchResult struct {
 }
 type PrettierSearchResult struct {
 	Products []PrettierProductSearchResult `json:"products"`
-	Shops    []PrettierProductSearchResult `json:"shops"`
+	Shops    []PrettierShopSearchResult    `json:"shops"`
 }
 type searchResult struct {
 	Products []db.SearchProductsRow `json:"products"`
@@ -120,6 +122,14 @@ func SearchShopProduct(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.
 		}
 		if err := dbq.MaxPrice.Scan(fmt.Sprintf("%f", q.MaxPrice)); err != nil {
 			logger.Errorw("failed to scan maxPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MinStock.Scan(fmt.Sprintf("%d", q.MinStock)); err != nil {
+			logger.Errorw("failed to scan minStock", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MaxStock.Scan(fmt.Sprintf("%d", q.MaxStock)); err != nil {
+			logger.Errorw("failed to scan maxStock", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 
@@ -201,6 +211,14 @@ func Search(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFunc
 		}
 		if err := dbq.MaxPrice.Scan(fmt.Sprintf("%f", q.MaxPrice)); err != nil {
 			logger.Errorw("failed to scan maxPrice", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MinStock.Scan(fmt.Sprintf("%d", q.MinStock)); err != nil {
+			logger.Errorw("failed to scan minStock", "error", err)
+			return echo.NewHTTPError(http.StatusBadRequest)
+		}
+		if err := dbq.MaxStock.Scan(fmt.Sprintf("%d", q.MaxStock)); err != nil {
+			logger.Errorw("failed to scan maxStock", "error", err)
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
 		paramMap := map[string]interface{}{

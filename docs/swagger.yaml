@@ -911,7 +911,7 @@ definitions:
         type: array
       shops:
         items:
-          $ref: '#/definitions/general.PrettierProductSearchResult'
+          $ref: '#/definitions/general.PrettierShopSearchResult'
         type: array
     type: object
   general.PrettierShopSearchResult:
@@ -2519,20 +2519,17 @@ paths:
       - multipart/form-data
       description: Add product for shop.
       parameters:
-      - default: A
-        description: name of product
+      - description: name of product
         in: formData
         name: name
         required: true
         type: string
-      - default: description
-        description: description of product
+      - description: description of product
         in: formData
         name: description
         required: true
         type: string
-      - default: 19.99
-        description: price
+      - description: price
         in: formData
         name: price
         required: true
@@ -2542,20 +2539,17 @@ paths:
         name: image
         required: true
         type: file
-      - default: "2024-10-12T07:20:50.52Z"
-        description: expire date
+      - description: expire date
         in: formData
         name: expire_date
         required: true
         type: string
-      - default: 10
-        description: stock
+      - description: stock
         in: formData
         name: stock
         required: true
         type: integer
-      - default: true
-        description: enabled
+      - description: enabled
         in: formData
         name: enabled
         required: true
@@ -2657,26 +2651,22 @@ paths:
       - multipart/form-data
       description: Edit product for shop.
       parameters:
-      - default: 10001
-        description: Product ID
+      - description: Product ID
         in: path
         name: id
         required: true
         type: integer
-      - default: product new 10001
-        description: name of product
+      - description: name of product
         in: formData
         name: name
         required: true
         type: string
-      - default: description
-        description: description of product
+      - description: description of product
         in: formData
         name: description
         required: true
         type: string
-      - default: 19.99
-        description: price
+      - description: price
         in: formData
         name: price
         required: true
@@ -2685,20 +2675,17 @@ paths:
         in: formData
         name: image
         type: file
-      - default: "2024-10-12T07:20:50.52Z"
-        description: expire date
+      - description: expire date
         in: formData
         name: expire_date
         required: true
         type: string
-      - default: 10
-        description: stock
+      - description: stock
         in: formData
         name: stock
         required: true
         type: integer
-      - default: true
-        description: enabled
+      - description: enabled
         in: formData
         name: enabled
         type: boolean

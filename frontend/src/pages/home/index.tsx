@@ -10,8 +10,6 @@ import News from '@components/News';
 import TButton from '@components/TButton';
 import GoodsItem from '@components/GoodsItem';
 
-import { useAuth } from '@lib/Auth';
-
 import TitleImgUrl from '@assets/images/title.png';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { NewsProps } from '@components/News';
@@ -23,7 +21,6 @@ interface RecommendDataProps {
 }
 
 const Home = () => {
-  const token = useAuth();
   const navigate = useNavigate();
 
   const { status: newsStatus, data: newsData } = useQuery({
@@ -63,8 +60,6 @@ const Home = () => {
   if (recommendStatus != 'success') {
     return <CheckFetchStatus status={recommendStatus} />;
   }
-
-  console.log(token);
 
   return (
     <div>

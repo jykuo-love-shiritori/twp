@@ -71,12 +71,13 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				shippingFlag = true
 				continue
 			}
+			isGlobalCoupon := coupon.Scope == db.CouponScopeGlobal
 			couponTags := NewTagSet(tags)
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				if productTag[product.ProductID].Intersect(couponTags) {
+				if isGlobalCoupon || productTag[product.ProductID].Intersect(couponTags) {
 					productCount[product.ProductID] -= 1
 					break
 				}
@@ -100,11 +101,12 @@ func GetCoupon(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				continue
 			}
 			// match coupon to cart's product
+			isGlobalCoupon := usable.Scope == db.CouponScopeGlobal
 			for _, product := range cartProduct {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				if productTag[product.ProductID].Intersect(couponTags) {
+				if isGlobalCoupon || productTag[product.ProductID].Intersect(couponTags) {
 					result = append(result, usable)
 					break
 				}
@@ -164,6 +166,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 		shippingFlag := false
 		// match coupons to its product, the product count would be reduced if matched
 		for _, coupon := range cartCoupon {
+			isGlobalCoupon := coupon.Scope == db.CouponScopeGlobal
 			tags, err := pg.Queries.GetCouponTag(c.Request().Context(), coupon.ID)
 			if err != nil {
 				logger.Errorw("failed to get coupon tag", "error", err)
@@ -178,7 +181,7 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 				if productCount[product.ProductID] == 0 {
 					continue
 				}
-				if productTag[product.ProductID].Intersect(couponTags) {
+				if isGlobalCoupon || productTag[product.ProductID].Intersect(couponTags) {
 					productCount[product.ProductID] -= 1
 					break
 				}
@@ -199,13 +202,14 @@ func AddCouponToCart(pg *db.DB, logger *zap.SugaredLogger) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		couponTag := NewTagSet(tags)
-		// global coupon is always usable beside duplicate shipping coupon
-		couponValid := couponDetail.Scope == db.CouponScopeGlobal
+		// check if coupon is valid for any product in cart
+		couponValid := false
+		isCouponGlobal := couponDetail.Scope == db.CouponScopeGlobal
 		for _, product := range cartProduct {
 			if productCount[product.ProductID] == 0 {
 				continue
 			}
-			if productTag[product.ProductID].Intersect(couponTag) {
+			if isCouponGlobal || productTag[product.ProductID].Intersect(couponTag) {
 				couponValid = true
 				break
 			}

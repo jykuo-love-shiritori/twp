@@ -4,7 +4,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
 import { useState } from 'react';
-import CouponItemShow from '@components/CouponItemShow';
+import CouponItemShowGlobal from '@components/CouponItemShowGlobal';
+import CouponItemShowShop from '@components/CouponItemShowShop';
+import NotFound from '@components/NotFound';
 import Pagination from '@components/Pagination';
 
 interface ICoupon {
@@ -71,6 +73,10 @@ const SellerCoupons = () => {
   const globalCoupons = CouponsData.filter((coupon) => coupon.scope === 'global');
   const shopCoupons = CouponsData.filter((coupon) => coupon.scope === 'shop');
 
+  if (sellerName === undefined) {
+    return <NotFound />;
+  }
+
   return (
     <div>
       <Row>
@@ -78,24 +84,32 @@ const SellerCoupons = () => {
           <div className='title'>Global Coupon</div>
         </Col>
         <hr className='hr' />
-        {globalCoupons.map((data, index) => {
-          return (
-            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow data={data} />
-            </Col>
-          );
-        })}
+        {globalCoupons.length > 0 ? (
+          globalCoupons.map((data, index) => {
+            return (
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+                <CouponItemShowGlobal data={data} />
+              </Col>
+            );
+          })
+        ) : (
+          <h3>No global coupon 😢</h3>
+        )}
         <Col md={12} style={{ paddingTop: '5%' }}>
           <div className='title'>Shop Coupon</div>
         </Col>
         <hr className='hr' />
-        {shopCoupons.map((data, index) => {
-          return (
-            <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
-              <CouponItemShow data={data} />
-            </Col>
-          );
-        })}
+        {shopCoupons.length > 0 ? (
+          shopCoupons.map((data, index) => {
+            return (
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+                <CouponItemShowShop couponId={data.id} />
+              </Col>
+            );
+          })
+        ) : (
+          <h3>No shop coupon 😢</h3>
+        )}
       </Row>
       <div className='center'>
         <Pagination limit={itemLimit} isMore={isMore} />

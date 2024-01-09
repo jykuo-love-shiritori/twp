@@ -46,6 +46,8 @@ import SellerReportEach from '@pages/user/seller/allReports/[sellerReportID]';
 import Callback from '@pages/user/callback';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
 import ProtectedBoundary from '@components/ProtectedBoundary';
+import Search from '@pages/search';
+import ShopSearch from '@pages/user/shop/ShopSearch';
 
 function App() {
   return (
@@ -97,15 +99,14 @@ function App() {
               <Route path=':coupon_id' element={<EachSellerCoupon />} />
             </Route>
 
-            <Route path='/:sellerName' element={<UserViewShop />}>
+            <Route path='shop/:sellerName' element={<UserViewShop />}>
               <Route index element={<Shop />} />
-              <Route path='shop' element={<Shop />} />
+              <Route path='products' element={<Shop />} />
               <Route path='coupons' element={<SellerCoupons />} />
+              <Route path='products/inside/search' element={<ShopSearch />} />
             </Route>
 
-            <Route path=':sellerName/shop'>
-              <Route path=':goods_id' element={<EachGoods />} />
-            </Route>
+            <Route path='/product/:goods_id' element={<EachGoods />} />
 
             <Route path='/user/seller/order'>
               <Route path=':history_id' element={<SellerHistoryEach />} />
@@ -133,7 +134,8 @@ function App() {
               <Route path=':year/:month' element={<AdminReportEach />} />
             </Route>
 
-            <Route path='/search?' element={<SearchNotFound />} />
+            <Route path='/searchNotFound' element={<SearchNotFound />} />
+            <Route path='/search' element={<Search />} />
 
             <Route path='*' element={<NotFound />} />
             <Route path='/forbidden' element={<Forbidden />} />

@@ -1,16 +1,14 @@
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '@lib/Auth';
+import { useNavigate } from 'react-router-dom';
+import { RouteOnNotOK } from '@lib/Status';
+import { formatFloat } from '@lib/Functions';
 
-interface Props {
-  data: ProductProps;
-  cart_id: number;
-  onRefetch: () => void;
-}
-
-interface ProductProps {
+interface IProduct {
   enabled: boolean;
-  image_id: string;
+  image_url: string;
   name: string;
   price: number;
   product_id: number;
@@ -18,23 +16,54 @@ interface ProductProps {
   stock: number;
 }
 
-const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
-  // TODO: Buyer delete product in cart
-  // DELETE /buyer/cart/:cart_id/product/:product_id
-  const removeItem = () => {
-    console.log(`${data.name} delete in cart ${cart_id}`);
-    onRefetch();
+interface Props {
+  data: IProduct;
+  cart_id: number;
+  refresh: () => void;
+}
+
+const CartProduct = ({ data, cart_id, refresh }: Props) => {
+  const token = useAuth();
+  const navigate = useNavigate();
+
+  const removeItem = async () => {
+    const resp = await fetch(`/api/buyer/cart/${cart_id}/product/${data.product_id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      RouteOnNotOK(resp);
+    } else {
+      refresh();
+    }
   };
 
-  const updateQuantity = (quantity: number) => {
-    // TODO: Buyer edit product in cart
-    // PATCH /buyer/cart/:cart_id/product/:product_id
-    // body: { quantity: number }
+  const updateQuantity = async (quantity: number, isReduce = false) => {
     if (quantity === 0) {
       removeItem();
-    } else if (quantity > 0 && quantity <= data.stock) {
-      console.log(`${data.name} ${quantity} in cart ${cart_id}`);
-      onRefetch();
+    }
+    // if original quant is above stock and the user is try to reduce it, set to stock
+    if (isReduce && quantity > data.stock) {
+      quantity = data.stock;
+    }
+    if (quantity > 0 && quantity <= data.stock) {
+      const resp = await fetch(`/api/buyer/cart/${cart_id}/product/${data.product_id}`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: quantity }),
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+      } else {
+        refresh();
+      }
     }
   };
 
@@ -42,7 +71,7 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
     <div className='cart_item' style={{ margin: '2% 0 2% 0' }}>
       <Row>
         <Col xs={4} md={1} className='center'>
-          <img src={data.image_id} style={{ width: '100%', borderRadius: '10px' }} />
+          <img src={data.image_url} style={{ width: '100%', borderRadius: '10px' }} />
         </Col>
         <Col xs={8} md={11} className='dark center_vertical'>
           <div className='disappear_phone' style={{ width: '100%' }}>
@@ -56,7 +85,11 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
               </Col>
               <Col md={5} className='center' style={{ padding: '2% 0' }}>
                 <Row style={{ padding: '0', margin: '0' }}>
-                  <Col md={3} onClick={() => updateQuantity(data.quantity - 1)} className='pointer'>
+                  <Col
+                    md={3}
+                    onClick={() => updateQuantity(data.quantity - 1, true)}
+                    className='pointer'
+                  >
                     <div className='quantity_f pointer center '>-</div>
                   </Col>
                   <Col md={6} className='center'>
@@ -76,7 +109,7 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
                 </Row>
               </Col>
               <Col md={2} className='right ' style={{ padding: '2% 0', fontSize: '20px' }}>
-                {data.price * data.quantity} NTD
+                {formatFloat(data.price * data.quantity)} NTD
               </Col>
               <Col md={1} className='center' style={{ padding: '2% 0' }}>
                 <FontAwesomeIcon icon={faTrash} size='xl' className='trash' onClick={removeItem} />
@@ -125,7 +158,7 @@ const CartProduct = ({ data, cart_id, onRefetch }: Props) => {
                 </Row>
               </Col>
               <Col xs={8} style={{ padding: '2% 0 2% 5%' }}>
-                {data.price * data.quantity} NTD
+                {formatFloat(data.price * data.quantity)} NTD
               </Col>
 
               <Col xs={4} className='right' style={{ padding: '2% 5% 2% 0' }}>

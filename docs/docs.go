@@ -2080,7 +2080,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "default": "A",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2088,7 +2087,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2096,7 +2094,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "default": 19.99,
                         "description": "price",
                         "name": "price",
                         "in": "formData",
@@ -2111,7 +2108,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "2024-10-12T07:20:50.52Z",
                         "description": "expire date",
                         "name": "expire_date",
                         "in": "formData",
@@ -2119,7 +2115,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "default": 10,
                         "description": "stock",
                         "name": "stock",
                         "in": "formData",
@@ -2127,7 +2122,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData",
@@ -2278,7 +2272,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "default": 10001,
                         "description": "Product ID",
                         "name": "id",
                         "in": "path",
@@ -2286,7 +2279,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "product new 10001",
                         "description": "name of product",
                         "name": "name",
                         "in": "formData",
@@ -2294,7 +2286,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "description",
                         "description": "description of product",
                         "name": "description",
                         "in": "formData",
@@ -2302,7 +2293,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "default": 19.99,
                         "description": "price",
                         "name": "price",
                         "in": "formData",
@@ -2316,7 +2306,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "default": "2024-10-12T07:20:50.52Z",
                         "description": "expire date",
                         "name": "expire_date",
                         "in": "formData",
@@ -2324,7 +2313,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "default": 10,
                         "description": "stock",
                         "name": "stock",
                         "in": "formData",
@@ -2332,7 +2320,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "default": true,
                         "description": "enabled",
                         "name": "enabled",
                         "in": "formData"
@@ -4631,7 +4618,7 @@ const docTemplate = `{
                 "shops": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/general.PrettierProductSearchResult"
+                        "$ref": "#/definitions/general.PrettierShopSearchResult"
                     }
                 }
             }

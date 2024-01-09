@@ -21,11 +21,11 @@ const Password = () => {
   const onSubmit = async (data: IEditPassword) => {
     if (
       !data.new_password.match(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&[\],.(){}":;'+\-=_~])[A-Za-z\d@$!%*?&[\],.(){}":;'+\-=_~]{8,72}$/,
       )
     ) {
       setWarningText(
-        'Password should contain at least one of each: uppercase letter, lowercase letter, number and special character. And the length should be between 8 and 72.',
+        'Password must be at least 8 characters long and contain: [a-z], [A-Z], [0-9], a special character(?=.*@$!%*?&[],.(){}":;\'+-=_~).',
       );
       setShow(true);
       return;
