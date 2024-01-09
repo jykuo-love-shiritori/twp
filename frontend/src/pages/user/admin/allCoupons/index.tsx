@@ -51,7 +51,6 @@ const ManageAdminCoupons = () => {
         return [];
       }
       const response = await resp.json();
-      console.log(response.length);
       if (response.length === itemLimit + 1) {
         setIsMore(true);
         response.pop();
@@ -67,13 +66,9 @@ const ManageAdminCoupons = () => {
     retry: false,
   });
 
-  // console.log(status);
-
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
-
-  // console.log(isMore);
 
   return (
     <div>
