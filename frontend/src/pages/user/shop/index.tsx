@@ -89,13 +89,14 @@ const UserViewShop = () => {
                   </h4>
                 </div>
                 <hr className='hr' />
+
                 <div className='center'> Products : {products.length} items</div>
                 <TButton text='Explore Shop' action={`/shop/${sellerName}/products`} />
                 <TButton text='Check Coupons' action={`/shop/${sellerName}/coupons`} />
               </Col>
             </Row>
           </Col>
-          <Col xs={12} md={9} ld={10} style={{ padding: '1% 5% 6% 5%' }}>
+          <Col xs={12} md={9} ld={10} style={{ padding: '0% 5% 0% 5%' }}>
             <Outlet />
           </Col>
         </Row>

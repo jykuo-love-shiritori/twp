@@ -46,6 +46,8 @@ import SellerReportEach from '@pages/user/seller/allReports/[sellerReportID]';
 import Callback from '@pages/user/callback';
 import SellerCoupons from '@pages/user/shop/SellerCoupons';
 import ProtectedBoundary from '@components/ProtectedBoundary';
+import Search from '@pages/search';
+import ShopSearch from '@pages/user/shop/ShopSearch';
 
 function App() {
   return (
@@ -101,6 +103,7 @@ function App() {
               <Route index element={<Shop />} />
               <Route path='products' element={<Shop />} />
               <Route path='coupons' element={<SellerCoupons />} />
+              <Route path='products/inside/search' element={<ShopSearch />} />
             </Route>
 
             <Route path='/product/:goods_id' element={<EachGoods />} />
@@ -131,7 +134,8 @@ function App() {
               <Route path=':year/:month' element={<AdminReportEach />} />
             </Route>
 
-            <Route path='/search?' element={<SearchNotFound />} />
+            <Route path='/searchNotFound' element={<SearchNotFound />} />
+            <Route path='/search' element={<Search />} />
 
             <Route path='*' element={<NotFound />} />
             <Route path='/forbidden' element={<Forbidden />} />

@@ -4618,7 +4618,7 @@ const docTemplate = `{
                 "shops": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/general.PrettierProductSearchResult"
+                        "$ref": "#/definitions/general.PrettierShopSearchResult"
                     }
                 }
             }

@@ -436,3 +436,50 @@
   transition: all 0.3s ease-in-out;
   color: var(--button_dark);
 }
+
+/* for search */
+.filter_bar {
+  border: 1px solid var(--button_light, #60998b);
+  background: var(--bg, #061e18);
+  box-shadow: 0px 4px 20px 2px #60998b;
+  min-height: 100vh;
+}
+
+.filter_icon {
+  border-radius: 49px;
+  border: 1px solid var(--button_border, #34977f);
+  background: var(--button_dark, #135142);
+  width: 50px;
+  height: 50px;
+  position: fixed;
+  z-index: 99;
+  bottom: 70px;
+  right: 30px;
+}
+
+.filter_icon:hover {
+  background: var(--button_light);
+  transition-duration: 0.5s;
+}
+
+.selectBox {
+  border-radius: 20px !important;
+  border: 1px solid var(--border) !important;
+  padding: 5px 10px 5px 20px !important;
+  width: 100% !important;
+  background-image: url('@assets/images/angle-down-solid.svg') !important;
+  background-repeat: no-repeat !important;
+}
+
+.no_spin_button {
+  &[type='number'] {
+    appearance: textfield;
+  }
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+  }
+  &[type='date'] {
+    appearance: none;
+  }
+}

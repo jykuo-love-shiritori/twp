@@ -911,7 +911,7 @@ definitions:
         type: array
       shops:
         items:
-          $ref: '#/definitions/general.PrettierProductSearchResult'
+          $ref: '#/definitions/general.PrettierShopSearchResult'
         type: array
     type: object
   general.PrettierShopSearchResult:
