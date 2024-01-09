@@ -12,7 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
-import { useAuth, IsAdmin } from '@lib/Auth';
+import { useAuth, IsAdmin, ClearToken } from '@lib/Auth';
 
 const NavBar = () => {
   const token = useAuth();
@@ -41,6 +41,7 @@ const NavBar = () => {
       },
     });
 
+    ClearToken();
     navigate('/login');
   };
 
