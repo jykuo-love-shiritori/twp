@@ -6,12 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import TButton from '@components/TButton';
-import QuantityBar from '@components/QuantityBar';
 import UserItem from '@components/UserItem';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { GoodsImgStyle } from '@pages/user/seller/allProducts/NewGoods';
 import { useAuth } from '@lib/Auth';
 import { formatDate } from '@lib/Functions';
+import { useState } from 'react';
+import NotFound from '@components/NotFound';
 
 interface IProduct {
   description: string;
@@ -47,20 +48,13 @@ const LeftBgStyle = {
 const EachGoods = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
 
-  const params = useParams<{ goods_id?: string }>();
-  let goods_id: number | undefined;
-
-  if (params.goods_id) {
-    goods_id = parseInt(params.goods_id);
-  }
+  const { goods_id } = useParams();
 
   const { status, data } = useQuery({
     queryKey: ['goodsPage', goods_id],
     queryFn: async () => {
-      if (goods_id === undefined) {
-        throw new Error('Invalid goods_id');
-      }
       const response = await fetch(`/api/product/${goods_id}`, {
         headers: {
           Accept: 'application/json',
@@ -70,11 +64,54 @@ const EachGoods = () => {
       RouteOnNotOK(response, navigate);
       return (await response.json()) as IProduct;
     },
+    enabled: true,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
+
+  const addToCart = async () => {
+    const resp = await fetch(`/api/buyer/cart/product/${goods_id}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        quantity: quantity,
+      }),
+    });
+    if (!resp.ok) {
+      RouteOnNotOK(resp);
+    } else {
+      alert('Success');
+    }
+  };
+
+  if (goods_id === undefined) {
+    return <NotFound />;
+  }
 
   if (status !== 'success') {
     return <CheckFetchStatus status={status} />;
   }
+
+  const handleAdd = () => {
+    if (quantity < data.stock) {
+      setQuantity(quantity + 1);
+    }
+  };
+  const handleMinus = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = Number(e.target.value);
+    if (!isNaN(newQuantity) && newQuantity > 0 && newQuantity <= data.stock) {
+      setQuantity(newQuantity);
+    }
+  };
 
   const expireDate = formatDate(data.expire_date);
   return (
@@ -97,13 +134,33 @@ const EachGoods = () => {
             <h4 style={{ paddingTop: '30px', color: 'black', marginBottom: '5px' }}>
               $ {data.price} NTD
             </h4>
-
             {data.stock != 0 ? (
               <div>
                 <span style={{ color: 'black' }}>{data.stock} available</span>
                 <hr style={{ opacity: '1' }} />
-                <QuantityBar />
-                <TButton text='Add to cart' />
+                <Row>
+                  <Col xs={3} onClick={handleMinus} className='pointer'>
+                    <div className='quantity_f pointer center'>-</div>
+                  </Col>
+
+                  <Col xs={6} className='center'>
+                    <div>
+                      <input
+                        type='text'
+                        placeholder={`Quantity: ${quantity}`}
+                        className='quantity_box'
+                        value={quantity}
+                        onChange={handleQuantityChange}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </div>
+                  </Col>
+
+                  <Col xs={3} onClick={handleAdd} className='pointer'>
+                    <div className='quantity_f pointer center'>+</div>
+                  </Col>
+                </Row>
+                <TButton text='Add to cart' action={addToCart} />
               </div>
             ) : (
               <h6 style={{ color: '#ED7E6D' }}>

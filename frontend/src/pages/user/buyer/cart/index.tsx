@@ -1,24 +1,22 @@
 import Cart from '@components/Cart';
+import { useAuth } from '@lib/Auth';
+import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
-interface CartProps {
-  cartInfo: { id: number; image_id: string; seller_name: string; shop_name: string };
-  coupons: CouponProps[];
-  products: ProductProps[];
-}
-
-interface CouponProps {
+interface ICoupon {
   description: string;
   discount: number;
+  expire_date: string;
   id: number;
   name: string;
-  type: 'percentage' | 'fixed' | 'shipping';
   scope: 'global' | 'shop';
+  type: 'percentage' | 'fixed' | 'shipping';
 }
 
-interface ProductProps {
-  enabled: boolean;
-  image_id: string;
+interface IProduct {
+  enabled: true;
+  image_url: string;
   name: string;
   price: number;
   product_id: number;
@@ -26,36 +24,55 @@ interface ProductProps {
   stock: number;
 }
 
-const BuyerCarts = () => {
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['jsonData'],
-    queryFn: async () => {
-      const response = await fetch('/resources/Carts.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      return response.json();
-    },
-  });
-  const onRefetch = () => {
-    console.log('refetch');
-    refetch();
+interface ICart {
+  CartInfo: {
+    id: number;
+    seller_name: string;
+    shop_image_url: string;
+    shop_name: string;
   };
-  if (isLoading) {
-    return <div>Loading...</div>;
+  Coupons: ICoupon[];
+  Products: IProduct[];
+}
+
+const BuyerCarts = () => {
+  const navigate = useNavigate();
+  const token = useAuth();
+  const { data, status, refetch } = useQuery({
+    queryKey: ['buyerGetCart'],
+    queryFn: async () => {
+      const resp = await fetch('/api/buyer/cart', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!resp.ok) {
+        RouteOnNotOK(resp, navigate);
+        return [];
+      }
+      return (await resp.json()) as ICart[];
+    },
+    enabled: true,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status !== 'success') {
+    return <CheckFetchStatus status={status} />;
   }
-  if (isError) {
-    return <div>Error fetching data</div>;
-  }
-  const fetchedData = data as CartProps[];
 
   return (
     <div style={{ padding: '10% 5% 10% 5%' }}>
       <span className='title'>Cart</span>
 
-      {fetchedData.map((cartData, index) => (
-        <Cart data={cartData} key={index} onRefetch={onRefetch} />
-      ))}
+      {data.length > 0 ? (
+        data.map((cart, index) => (
+          <Cart products={cart.Products} cartInfo={cart.CartInfo} key={index} refresh={refetch} />
+        ))
+      ) : (
+        <h3>No unpaid cart 😎</h3>
+      )}
     </div>
   );
 };

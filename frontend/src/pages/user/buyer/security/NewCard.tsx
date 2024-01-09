@@ -64,9 +64,9 @@ const NewCard = () => {
         },
       });
       RouteOnNotOK(resp, navigate);
-      return await resp.json();
+      const response = await resp.json();
+      return Array.isArray(response) ? (response as ICreditCard[]) : [];
     },
-    select: (data) => data as [ICreditCard],
     retry: false,
     enabled: true,
     refetchOnWindowFocus: false,
