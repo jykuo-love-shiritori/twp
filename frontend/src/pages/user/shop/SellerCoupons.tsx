@@ -87,7 +87,7 @@ const SellerCoupons = () => {
         {globalCoupons.length > 0 ? (
           globalCoupons.map((data, index) => {
             return (
-              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '1%' }}>
                 <CouponItemShowGlobal data={data} />
               </Col>
             );
@@ -95,14 +95,14 @@ const SellerCoupons = () => {
         ) : (
           <h3>No global coupon 😢</h3>
         )}
-        <Col md={12} style={{ paddingTop: '5%' }}>
+        <Col md={12} style={{ paddingTop: '2%' }}>
           <div className='title'>Shop Coupon</div>
         </Col>
         <hr className='hr' />
         {shopCoupons.length > 0 ? (
           shopCoupons.map((data, index) => {
             return (
-              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '1%' }}>
                 <CouponItemShowShop couponId={data.id} />
               </Col>
             );
@@ -111,7 +111,7 @@ const SellerCoupons = () => {
           <h3>No shop coupon 😢</h3>
         )}
       </Row>
-      <div className='center'>
+      <div className='center' style={{ padding: '2% 0px' }}>
         <Pagination limit={itemLimit} isMore={isMore} />
       </div>
     </div>
