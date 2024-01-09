@@ -44,3 +44,8 @@ export const GetUserName = () => {
     console.error('Invalid token', error);
   }
 };
+
+export const ClearToken = () => {
+  const { tokenRef } = useContext(AuthContext);
+  tokenRef.current = '';
+};
