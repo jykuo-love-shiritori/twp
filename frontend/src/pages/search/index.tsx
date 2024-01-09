@@ -54,8 +54,7 @@ export interface ShopProps {
   id: number;
   image_url: string;
   name: string;
-  price: number;
-  stock: number;
+  seller_name: string;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -404,7 +403,9 @@ const Search = () => {
             {data && data.shops.length !== 0 ? (
               data.shops.map((d, index: number) => (
                 <Col key={index} xs={6} md={3}>
-                  <SellerItem data={{ name: d.name, image_url: d.image_url }} />
+                  <SellerItem
+                    data={{ name: d.name, image_url: d.image_url, seller_name: d.seller_name }}
+                  />
                 </Col>
               ))
             ) : (
