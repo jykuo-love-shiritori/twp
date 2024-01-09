@@ -5,6 +5,7 @@ import TButton from '@components/TButton';
 export interface SellerItemProps {
   name: string;
   image_url: string;
+  seller_name: string;
 }
 
 interface Props {
@@ -36,9 +37,7 @@ const SellerItem = ({ data }: Props) => {
         <h5>{data.name}</h5>
       </div>
 
-      {/* url is empty because each user's user shop page is different and defining data is tough 
-            i want to wait for getting data from backend then deal with it */}
-      <TButton text='View Shop' />
+      <TButton text='View Shop' action={`/shop/${data.seller_name}`} />
     </div>
   );
 };
