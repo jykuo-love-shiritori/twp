@@ -29,7 +29,7 @@ func (q *Queries) AddShop(ctx context.Context, arg AddShopParams) error {
 
 const addUser = `-- name: AddUser :exec
 INSERT INTO "user"("username", "password", "name", "email", "address", "role", "credit_card", "enabled", "image_id")
-    VALUES ($1, $2, $3, $4, $5, 'customer', '{}', TRUE, '')
+    VALUES ($1, $2, $3, $4, $5, 'customer', '[]', TRUE, '')
 `
 
 type AddUserParams struct {
