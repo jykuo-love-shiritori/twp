@@ -182,7 +182,7 @@ const EachGoods = () => {
 
             <hr className='hr' />
             <Row>
-              <Col xs={6} className='center'>
+              <Col xs={6} style={{ paddingLeft: '30px' }}>
                 <UserItem img_path={data.shop_image_url} name={data.shop_name} />
               </Col>
               <Col xs={6}>
