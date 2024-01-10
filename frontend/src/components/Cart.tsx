@@ -170,7 +170,7 @@ const Cart = ({ products, cartInfo, refresh }: Props) => {
       alert('please wait for the checkout data');
       return;
     }
-    if (getValues('card_id') === null) {
+    if (!getValues('card_id')) {
       if (checkoutData.payments.length === 0) {
         alert('please add a card');
       } else {

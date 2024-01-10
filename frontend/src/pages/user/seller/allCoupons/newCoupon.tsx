@@ -95,11 +95,10 @@ const NewSellerCoupon = () => {
           if (!resp.ok) {
             if (resp.status === 500) {
               alert("error on adding tag, please check your shop's status");
+              navigate('/user/seller/manageCoupons');
             } else {
               alert('error when creating new tag');
             }
-            navigate('/user/seller/manageCoupons');
-            return;
           } else {
             const response = await resp.json();
             append({ name: newTagName, tag_id: response.id });
@@ -196,12 +195,13 @@ const NewSellerCoupon = () => {
     if (!resp.ok) {
       if (resp.status === 500) {
         alert("error on creating coupon, please check your shop's status");
+        navigate('/user/seller/manageCoupons');
       } else {
         const response = await resp.json();
         alert(response.message);
       }
+    } else {
       navigate('/user/seller/manageCoupons');
-      return;
     }
   };
 

@@ -228,10 +228,13 @@ const EachSellerGoods = () => {
           navigate('/user/seller/manageProducts');
           return;
         }
+      } else {
+        navigate('/user/seller/manageProducts');
       }
       return await response.json();
     },
     onSuccess: (responseData: PatchResponseProps) => {
+      // set value is redundant
       setValue('name', responseData.name);
       setValue('description', responseData.description);
       setValue('price', responseData.price);
