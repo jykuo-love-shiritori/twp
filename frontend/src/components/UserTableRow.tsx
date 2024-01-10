@@ -26,10 +26,10 @@ interface IUser {
 
 const userImgStyle: CSSProperties = {
   borderRadius: '50%',
-  minHeight: '7vh',
-  minWidth: '7vh',
-  maxHeight: '7vh',
-  maxWidth: '7vh',
+  minHeight: '4vh',
+  minWidth: '4vh',
+  maxHeight: '4vh',
+  maxWidth: '4vh',
   objectFit: 'cover',
   boxShadow: '2px 4px 10px 2px rgba(0, 0, 0, 0.25)',
 };

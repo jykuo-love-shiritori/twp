@@ -1,11 +1,13 @@
 import { Col, Row } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { useAuth } from '@lib/Auth';
+import { useState } from 'react';
 import CouponItemShowGlobal from '@components/CouponItemShowGlobal';
 import CouponItemShowShop from '@components/CouponItemShowShop';
 import NotFound from '@components/NotFound';
+import Pagination from '@components/Pagination';
 
 interface ICoupon {
   description: string;
@@ -22,11 +24,23 @@ const SellerCoupons = () => {
   const navigate = useNavigate();
   const token = useAuth();
   const { sellerName } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isMore, setIsMore] = useState(true);
+
+  const itemLimit = 12;
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams, { replace: true });
+  }
 
   const { data: CouponsData, status: fetchCouponsStatus } = useQuery({
-    queryKey: ['GetShopCoupons'],
+    queryKey: ['GetShopCoupons', searchParams.toString()],
     queryFn: async () => {
-      const resp = await fetch(`/api/shop/${sellerName}/coupon?offset=0&limit=10`, {
+      const resp = await fetch(`/api/shop/${sellerName}/coupon?` + searchParams.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -35,9 +49,16 @@ const SellerCoupons = () => {
       });
       if (!resp.ok) {
         RouteOnNotOK(resp, navigate);
-      } else {
-        return await resp.json();
+        return [];
       }
+      const response = await resp.json();
+      if (response.length === itemLimit + 1) {
+        setIsMore(true);
+        response.pop();
+      } else {
+        setIsMore(false);
+      }
+      return response;
     },
     select: (data) => data as ICoupon[],
     enabled: true,
@@ -66,7 +87,7 @@ const SellerCoupons = () => {
         {globalCoupons.length > 0 ? (
           globalCoupons.map((data, index) => {
             return (
-              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '1%' }}>
                 <CouponItemShowGlobal data={data} />
               </Col>
             );
@@ -74,14 +95,14 @@ const SellerCoupons = () => {
         ) : (
           <h3>No global coupon 😢</h3>
         )}
-        <Col md={12} style={{ paddingTop: '5%' }}>
+        <Col md={12} style={{ paddingTop: '2%' }}>
           <div className='title'>Shop Coupon</div>
         </Col>
         <hr className='hr' />
         {shopCoupons.length > 0 ? (
           shopCoupons.map((data, index) => {
             return (
-              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '2%' }}>
+              <Col xs={12} md={4} xl={3} key={index} style={{ padding: '1%' }}>
                 <CouponItemShowShop couponId={data.id} />
               </Col>
             );
@@ -90,6 +111,9 @@ const SellerCoupons = () => {
           <h3>No shop coupon 😢</h3>
         )}
       </Row>
+      <div className='center' style={{ padding: '2% 0px' }}>
+        <Pagination limit={itemLimit} isMore={isMore} />
+      </div>
     </div>
   );
 };

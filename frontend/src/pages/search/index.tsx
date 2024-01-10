@@ -13,6 +13,7 @@ import SellerItem from '@components/SellerItem';
 import GoodsItem from '@components/GoodsItem';
 import TButton from '@components/TButton';
 import { RouteOnNotOK } from '@lib/Status';
+import Pagination from '@components/Pagination';
 
 export const PhoneOffCanvasStyle = {
   width: '330px',
@@ -220,6 +221,18 @@ const Search = () => {
   const [showPhoneFilter, setShowPhoneFilter] = useState(false);
   const phoneFilterOnClick = () => setShowPhoneFilter(!showPhoneFilter);
 
+  const [isMore, setIsMore] = useState(true);
+  const itemLimit = 8;
+
+  if (!searchParams.has('offset') || Number(searchParams.get('limit')) !== itemLimit + 1) {
+    const newSearchParams = new URLSearchParams({
+      q: searchParams.get('q') ?? '', // q shouldnt be null here
+      offset: '0',
+      limit: (itemLimit + 1).toString(),
+    });
+    setSearchParams(newSearchParams);
+  }
+
   const FILTER_OPTIONS: string[] = ['price', 'stock', 'sales', 'relevancy'];
   const ORDER_OPTIONS: string[] = ['asc', 'desc'];
 
@@ -246,7 +259,14 @@ const Search = () => {
       if (!response.ok) {
         RouteOnNotOK(response, navigate);
       }
-      return (await response.json()) as ResponseProps;
+      const data = (await response.json()) as ResponseProps;
+      if (data.products.length === itemLimit + 1) {
+        setIsMore(true);
+        data.products.pop();
+      } else {
+        setIsMore(false);
+      }
+      return data;
     },
   });
 
@@ -272,6 +292,8 @@ const Search = () => {
     if (data.haveCoupon) params.set('haveCoupon', data.haveCoupon.toString());
     if (data.sortBy) params.set('sortBy', data.sortBy);
     if (data.order) params.set('order', data.order);
+    params.set('offset', '0');
+    params.set('limit', (itemLimit + 1).toString());
 
     setSearchParams(params);
   };
@@ -425,6 +447,9 @@ const Search = () => {
               <div>Not found</div>
             )}
           </Row>
+          <div className='center' style={{ padding: '2% 0px' }}>
+            <Pagination limit={itemLimit} isMore={isMore} />
+          </div>
         </Col>
       </Row>
       <div className='disappear_desktop' onClick={phoneFilterOnClick}>
