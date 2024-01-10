@@ -101,8 +101,14 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
+		tx, err := pg.NewTx(c.Request().Context())
+		if err != nil {
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		defer tx.Rollback(c.Request().Context()) //nolint:errcheck
 		param.SellerName = username
-		shopInfo, err := pg.Queries.SellerUpdateInfo(c.Request().Context(), param)
+		shopInfo, err := pg.Queries.WithTx(tx).SellerUpdateInfo(c.Request().Context(), param)
 		if err != nil {
 			if param.ImageID != "" {
 				err := mc.RemoveFile(c.Request().Context(), param.ImageID)
@@ -111,6 +117,16 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 					return echo.NewHTTPError(http.StatusInternalServerError)
 				}
 			}
+			logger.Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+		if !param.Enabled {
+			if err := pg.Queries.WithTx(tx).DisableShop(c.Request().Context(), username); err != nil {
+				logger.Error(err)
+				return echo.NewHTTPError(http.StatusInternalServerError)
+			}
+		}
+		if err := tx.Commit(c.Request().Context()); err != nil {
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}

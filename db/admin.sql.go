@@ -395,7 +395,6 @@ SELECT S."seller_name",
 FROM "shop" AS S,
     "order_history" AS O
 WHERE S."id" = O."shop_id"
-    AND O."status" = 'paid'
     AND O."created_at" BETWEEN $1 AND $1 + INTERVAL '1 month'
 GROUP BY S."seller_name",
     S."name",

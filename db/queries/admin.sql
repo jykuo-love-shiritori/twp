@@ -125,7 +125,6 @@ SELECT S."seller_name",
 FROM "shop" AS S,
     "order_history" AS O
 WHERE S."id" = O."shop_id"
-    AND O."status" = 'paid'
     AND O."created_at" BETWEEN sqlc.arg('date') AND sqlc.arg('date') + INTERVAL '1 month'
 GROUP BY S."seller_name",
     S."name",
