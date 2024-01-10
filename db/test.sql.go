@@ -520,8 +520,8 @@ VALUES (
         $5,
         $6,
         $7,
-        NOW(),
         $8,
+        NOW(),
         $9,
         $10,
         $11
@@ -537,7 +537,7 @@ type TestInsertProductParams struct {
 	Description string             `form:"description" json:"description"`
 	Price       pgtype.Numeric     `json:"price" swaggertype:"number"`
 	ImageID     string             `json:"image_id"`
-	EditDate    pgtype.Timestamptz `json:"edit_date" swaggertype:"string"`
+	ExpireDate  pgtype.Timestamptz `json:"expire_date" swaggertype:"string"`
 	Stock       int32              `form:"stock" json:"stock"`
 	Sales       int32              `json:"sales"`
 	Enabled     bool               `form:"enabled" json:"enabled"`
@@ -552,7 +552,7 @@ func (q *Queries) TestInsertProduct(ctx context.Context, arg TestInsertProductPa
 		arg.Description,
 		arg.Price,
 		arg.ImageID,
-		arg.EditDate,
+		arg.ExpireDate,
 		arg.Stock,
 		arg.Sales,
 		arg.Enabled,
