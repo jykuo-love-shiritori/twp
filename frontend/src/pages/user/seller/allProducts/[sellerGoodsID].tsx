@@ -26,6 +26,7 @@ import {
   GoodsImgStyle,
   GoodsBGStyle,
 } from './NewGoods';
+import { RouteOnNotOK } from '@lib/Status';
 
 export interface TagPropsAnotherVersion {
   name: string;
@@ -105,7 +106,7 @@ const EachSellerGoods = () => {
   const [queryTags, setQueryTags] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
 
-  const { register, setValue, handleSubmit } = useForm<ProductProps>({
+  const { register, setValue, handleSubmit, watch } = useForm<ProductProps>({
     defaultValues: {
       name: 'new product',
       description: 'new product description',
@@ -130,7 +131,11 @@ const EachSellerGoods = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('add tag failed');
+        if (response.status === 500) {
+          alert("error on adding tag, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -151,7 +156,7 @@ const EachSellerGoods = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('query tag failed');
+        RouteOnNotOK(response, navigate);
       }
       return await response.json();
     },
@@ -170,7 +175,7 @@ const EachSellerGoods = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('query tag failed');
+        RouteOnNotOK(response, navigate);
       }
       return await response.json();
     },
@@ -218,7 +223,11 @@ const EachSellerGoods = () => {
         redirect: 'follow',
       });
       if (!response.ok) {
-        throw new Error('add product failed');
+        if (response.status === 500) {
+          alert("error on updating product, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -251,7 +260,11 @@ const EachSellerGoods = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('connect tag failed');
+        if (response.status === 500) {
+          alert("error on connecting tag, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -273,7 +286,11 @@ const EachSellerGoods = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('remove connected tag failed');
+        if (response.status === 404) {
+          alert("error on removing tag, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -290,7 +307,11 @@ const EachSellerGoods = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('delete product failed');
+        if (response.status === 404) {
+          alert("error on deleting product, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -487,6 +508,7 @@ const EachSellerGoods = () => {
               </Row>
 
               <div style={{ height: '50px' }} />
+              <TButton text='Cancel' action={() => navigate('/user/seller/manageProducts')} />
               <TButton
                 text='Delete Product'
                 action={() => goods_id !== undefined && deleteProduct.mutate()}
@@ -517,7 +539,10 @@ const EachSellerGoods = () => {
               </FormItem>
 
               <FormItem label='Product Listing' isCenter={false}>
-                <input type='checkbox' {...register('enabled')} />
+                <div>
+                  <input type='checkbox' {...register('enabled')} style={{ marginRight: '10px' }} />
+                  {watch('enabled') ? 'Your items are on shelves' : 'Your items are off shelves'}
+                </div>
               </FormItem>
             </div>
           </Col>

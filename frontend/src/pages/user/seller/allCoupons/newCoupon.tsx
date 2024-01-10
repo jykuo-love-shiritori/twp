@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { formatDate } from '@lib/Functions';
-import { useAuth } from '@lib/Auth';
+import { GetUserName, useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -42,6 +42,7 @@ const NewSellerCoupon = () => {
   const [suggestTags, setSuggestTags] = useState<ITag[]>([]);
   const navigate = useNavigate();
   const token = useAuth();
+  const username = GetUserName();
 
   const { register, control, handleSubmit, watch } = useForm<IShopCouponDetail>({
     defaultValues: {
@@ -89,11 +90,15 @@ const NewSellerCoupon = () => {
               accept: 'application/json',
               'Content-Type': 'application/json',
             },
-            // TODO: change seller_name to real user name
-            body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
+            body: JSON.stringify({ name: newTagName, seller_name: username }),
           });
           if (!resp.ok) {
-            alert('error when creating new tag');
+            if (resp.status === 500) {
+              alert("error on adding tag, please check your shop's status");
+            } else {
+              alert('error when creating new tag');
+            }
+            navigate('/user/seller/manageCoupons');
             return;
           } else {
             const response = await resp.json();
@@ -189,10 +194,14 @@ const NewSellerCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     if (!resp.ok) {
-      const response = await resp.json();
-      alert(response.message);
-    } else {
+      if (resp.status === 500) {
+        alert("error on creating coupon, please check your shop's status");
+      } else {
+        const response = await resp.json();
+        alert(response.message);
+      }
       navigate('/user/seller/manageCoupons');
+      return;
     }
   };
 

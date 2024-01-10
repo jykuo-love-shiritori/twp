@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { CheckFetchStatus, RouteOnNotOK } from '@lib/Status';
 import { formatDate } from '@lib/Functions';
-import { useAuth } from '@lib/Auth';
+import { GetUserName, useAuth } from '@lib/Auth';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import CouponItemTemplate from '@components/CouponItemTemplate';
@@ -47,6 +47,7 @@ const EachSellerCoupon = () => {
   const navigate = useNavigate();
   const { coupon_id } = useParams();
   const token = useAuth();
+  const username = GetUserName();
 
   const { register, control, handleSubmit, watch, reset } = useForm<IShopCouponDetail>({
     defaultValues: {
@@ -115,11 +116,15 @@ const EachSellerCoupon = () => {
               accept: 'application/json',
               'Content-Type': 'application/json',
             },
-            // TODO: change seller_name to real user name
-            body: JSON.stringify({ name: newTagName, seller_name: 'user1' }),
+            body: JSON.stringify({ name: newTagName, seller_name: username }),
           });
           if (!resp.ok) {
-            alert('error when creating new tag');
+            if (resp.status === 500) {
+              alert("error on adding tag, please check your shop's status");
+            } else {
+              alert('error when creating new tag');
+            }
+            navigate('/user/seller/manageCoupons');
             return;
           } else {
             const response = await resp.json();
@@ -137,7 +142,13 @@ const EachSellerCoupon = () => {
           body: JSON.stringify({ tag_id: newTag.tag_id }),
         });
         if (!resp.ok) {
-          alert('error when adding new tag');
+          if (resp.status === 500) {
+            alert("error on adding tag, please check your shop's status");
+          } else {
+            alert('error when adding new tag');
+          }
+          navigate('/user/seller/manageCoupons');
+          return;
         } else {
           append(newTag);
           setTag('');
@@ -179,8 +190,15 @@ const EachSellerCoupon = () => {
       },
       body: JSON.stringify({ tag_id: fields[index].tag_id }),
     });
+    console.log(resp);
     if (!resp.ok) {
-      alert('error when deleting tag');
+      if (resp.status === 404) {
+        alert("error on deleting tag, please check your shop's status");
+      } else {
+        alert('error when deleting tag');
+      }
+      navigate('/user/seller/manageCoupons');
+      return;
     } else {
       remove(index);
     }
@@ -243,13 +261,12 @@ const EachSellerCoupon = () => {
       body: JSON.stringify(newCoupon),
     });
     // 500 means shop is not enabled
-    if (resp.status === 500) {
-      alert('cannot change coupon while your shop is disabled');
-    } else if (!resp.ok) {
-      const response = await resp.json();
-      alert(response.message);
-    } else {
+    if (!resp.ok) {
+      if (resp.status === 500) {
+        alert("error on modifying coupon, please check your shop's status");
+      }
       navigate('/user/seller/manageCoupons');
+      return;
     }
   };
 
@@ -263,12 +280,12 @@ const EachSellerCoupon = () => {
     });
     // 404 means shop is not enabled
     if (resp.status === 404) {
-      alert('cannot change coupon while your shop is disabled');
+      alert("error on deleting coupon, please check your shop's status");
     } else if (!resp.ok) {
       alert('error when deleting coupon');
-    } else {
-      navigate('/user/seller/manageCoupons');
     }
+    navigate('/user/seller/manageCoupons');
+    return;
   };
 
   useEffect(() => {

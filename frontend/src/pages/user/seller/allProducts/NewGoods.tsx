@@ -12,6 +12,7 @@ import React, { useReducer, CSSProperties } from 'react';
 import TButton from '@components/TButton';
 import FormItem from '@components/FormItem';
 import { useAuth, GetUserName } from '@lib/Auth';
+import { RouteOnNotOK } from '@lib/Status';
 
 export const GoodsImgStyle: CSSProperties = {
   borderRadius: '0 0 30px 0',
@@ -98,11 +99,6 @@ export const isDataValid = (data: ProductProps) => {
     return false;
   }
 
-  if (data.tags == undefined) {
-    alert('must have one tag');
-    return false;
-  }
-
   return true;
 };
 
@@ -170,7 +166,7 @@ const EmptyGoods = () => {
   const [queryTags, setQueryTags] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
 
-  const { register, setValue, handleSubmit } = useForm<ProductProps>({
+  const { register, setValue, handleSubmit, watch } = useForm<ProductProps>({
     defaultValues: {
       name: 'new product',
       description: 'new product description',
@@ -195,7 +191,11 @@ const EmptyGoods = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        throw new Error('add tag failed');
+        if (response.status === 500) {
+          alert("error on adding tag, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -215,7 +215,7 @@ const EmptyGoods = () => {
         },
       });
       if (!response.ok) {
-        throw new Error('query tag failed');
+        RouteOnNotOK(response, navigate);
       }
       return await response.json();
     },
@@ -233,6 +233,9 @@ const EmptyGoods = () => {
 
       data.tags = reducerTags.map((tag) => tag.id);
       const formData = SetFormData(data);
+      if (formData.get('tags')?.toString() === '') {
+        formData.delete('tags');
+      }
 
       const response = await fetch('/api/seller/product', {
         method: 'POST',
@@ -244,7 +247,11 @@ const EmptyGoods = () => {
         redirect: 'follow',
       });
       if (!response.ok) {
-        throw new Error('add product failed');
+        if (response.status === 500) {
+          alert("error on adding product, please check your shop's status");
+          navigate('/user/seller/manageProducts');
+          return;
+        }
       }
       return await response.json();
     },
@@ -432,10 +439,7 @@ const EmptyGoods = () => {
               </Row>
 
               <div style={{ height: '50px' }} />
-              <TButton
-                text='Delete Product'
-                action={() => navigate('/user/seller/manageProducts')}
-              />
+              <TButton text='Cancel' action={() => navigate('/user/seller/manageProducts')} />
               <TButton text='Confirm Changes' action={handleSubmit(onSubmit)} />
             </div>
           </Col>
@@ -465,7 +469,10 @@ const EmptyGoods = () => {
               </FormItem>
 
               <FormItem label='Product Listing' isCenter={false}>
-                <input type='checkbox' {...register('enabled')} />
+                <div>
+                  <input type='checkbox' {...register('enabled')} style={{ marginRight: '10px' }} />
+                  {watch('enabled') ? 'Your items are on shelves' : 'Your items are off shelves'}
+                </div>
               </FormItem>
             </div>
           </Col>
