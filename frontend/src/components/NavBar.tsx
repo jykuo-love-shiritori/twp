@@ -13,10 +13,13 @@ import LogoImgUrl from '@assets/images/logo.png';
 
 import SearchBar from '@components/SearchBar';
 import { useAuth, IsAdmin } from '@lib/Auth';
+import { useContext } from 'react';
+import { AuthContext } from '@components/AuthProvider';
 
 const NavBar = () => {
   const token = useAuth();
   const navigate = useNavigate();
+  const { tokenRef } = useContext(AuthContext);
 
   const DropDownStyle = {
     borderRadius: '25px',
@@ -41,6 +44,7 @@ const NavBar = () => {
       },
     });
 
+    tokenRef.current = '';
     navigate('/login');
   };
 
