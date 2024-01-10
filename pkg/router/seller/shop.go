@@ -120,7 +120,7 @@ func EditInfo(pg *db.DB, mc *minio.MC, logger *zap.SugaredLogger) echo.HandlerFu
 			logger.Error(err)
 			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
-		if param.Enabled == false {
+		if !param.Enabled {
 			if err := pg.Queries.WithTx(tx).DisableShop(c.Request().Context(), username); err != nil {
 				logger.Error(err)
 				return echo.NewHTTPError(http.StatusInternalServerError)
