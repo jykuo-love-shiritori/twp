@@ -132,7 +132,7 @@ const EachSellerGoods = () => {
       });
       if (!response.ok) {
         if (response.status === 500) {
-          alert("error on add tag, please check your shop's status");
+          alert("error on adding tag, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
@@ -224,7 +224,7 @@ const EachSellerGoods = () => {
       });
       if (!response.ok) {
         if (response.status === 500) {
-          alert("error on update product, please check your shop's status");
+          alert("error on updating product, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
@@ -261,7 +261,7 @@ const EachSellerGoods = () => {
       });
       if (!response.ok) {
         if (response.status === 500) {
-          alert("error on connect tag, please check your shop's status");
+          alert("error on connecting tag, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
@@ -286,8 +286,8 @@ const EachSellerGoods = () => {
         body: JSON.stringify(data),
       });
       if (!response.ok) {
-        if (response.status === 500) {
-          alert("error on remove tag, please check your shop's status");
+        if (response.status === 404) {
+          alert("error on removing tag, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
@@ -307,8 +307,8 @@ const EachSellerGoods = () => {
         },
       });
       if (!response.ok) {
-        if (response.status === 500) {
-          alert("error on delete product, please check your shop's status");
+        if (response.status === 404) {
+          alert("error on deleting product, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }

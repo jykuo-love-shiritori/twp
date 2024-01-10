@@ -120,11 +120,11 @@ const EachSellerCoupon = () => {
           });
           if (!resp.ok) {
             if (resp.status === 500) {
-              alert("error on add tag, please check your shop's status");
-              navigate('/user/seller/manageCoupons');
+              alert("error on adding tag, please check your shop's status");
             } else {
               alert('error when creating new tag');
             }
+            navigate('/user/seller/manageCoupons');
             return;
           } else {
             const response = await resp.json();
@@ -143,11 +143,11 @@ const EachSellerCoupon = () => {
         });
         if (!resp.ok) {
           if (resp.status === 500) {
-            alert("error on add tag, please check your shop's status");
-            navigate('/user/seller/manageCoupons');
+            alert("error on adding tag, please check your shop's status");
           } else {
             alert('error when adding new tag');
           }
+          navigate('/user/seller/manageCoupons');
           return;
         } else {
           append(newTag);
@@ -190,13 +190,15 @@ const EachSellerCoupon = () => {
       },
       body: JSON.stringify({ tag_id: fields[index].tag_id }),
     });
+    console.log(resp);
     if (!resp.ok) {
-      if (resp.status === 500) {
-        alert("error on add tag, please check your shop's status");
-        navigate('/user/seller/manageCoupons');
+      if (resp.status === 404) {
+        alert("error on deleting tag, please check your shop's status");
       } else {
         alert('error when deleting tag');
       }
+      navigate('/user/seller/manageCoupons');
+      return;
     } else {
       remove(index);
     }
@@ -261,13 +263,10 @@ const EachSellerCoupon = () => {
     // 500 means shop is not enabled
     if (!resp.ok) {
       if (resp.status === 500) {
-        alert("error on delete coupon, please check your shop's status");
-        navigate('/user/seller/manageCoupons');
-        return;
+        alert("error on modifying coupon, please check your shop's status");
       }
       navigate('/user/seller/manageCoupons');
-    } else {
-      navigate('/user/seller/manageCoupons');
+      return;
     }
   };
 
@@ -281,16 +280,12 @@ const EachSellerCoupon = () => {
     });
     // 404 means shop is not enabled
     if (resp.status === 404) {
-      alert('cannot change coupon while your shop is disabled');
-      navigate('/user/seller/manageCoupons');
-    } else if (resp.status === 500) {
-      alert("error on delete tag, please check your shop's status");
-      navigate('/user/seller/manageCoupons');
+      alert("error on deleting coupon, please check your shop's status");
     } else if (!resp.ok) {
       alert('error when deleting coupon');
-    } else {
-      navigate('/user/seller/manageCoupons');
     }
+    navigate('/user/seller/manageCoupons');
+    return;
   };
 
   useEffect(() => {

@@ -192,7 +192,7 @@ const EmptyGoods = () => {
       });
       if (!response.ok) {
         if (response.status === 500) {
-          alert("error on add tag, please check your shop's status");
+          alert("error on adding tag, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
@@ -248,7 +248,7 @@ const EmptyGoods = () => {
       });
       if (!response.ok) {
         if (response.status === 500) {
-          alert("error on add product, please check your shop's status");
+          alert("error on adding product, please check your shop's status");
           navigate('/user/seller/manageProducts');
           return;
         }
