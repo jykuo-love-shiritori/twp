@@ -77,6 +77,10 @@ const isInteger = (value: string | number | null | undefined): boolean => {
   return typeof value === 'number' || (typeof value === 'string' && /^-?\d+$/.test(value));
 };
 
+const isEmpty = (value: string | number | null | undefined): boolean => {
+  return value === '' || value === null ? true : false;
+};
+
 const toNumber = (input: string | null) => {
   if (!input) return null;
   const output = Number(input);
@@ -111,77 +115,100 @@ const toOrderBy = (input: string | null) => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const isDataValid = (data: FilterProps) => {
-  const AlertWithReturn = (message: string) => {
-    alert(message);
-    return false;
-  };
-
-  const isNumber = (value: number | string | null) => typeof value === 'number';
-  const isNull = (value: number | string | null) => value === null;
-  const isEmptyString = (value: number | string | null) => value === '';
-  const isEmpty = (value: number | string | null) => isNull(value) || isEmptyString(value);
-  const isEntered = (value: number | string | null) => !isNumber(value) && !isEmpty(value);
-
-  const isMinBiggerThanMax = (min: number | string | null, max: number | string | null) =>
-    isEntered(min) &&
-    isEntered(max) &&
-    min !== null &&
-    max !== null &&
-    Number(min.toString()) > Number(max.toString());
-
-  const isNegative = (value: number | string | null) =>
-    value !== null && parseInt(value.toString()) < 0;
-
-  if (isEntered(data.maxPrice)) {
-    if (!isValidNumber(data.maxPrice))
-      return AlertWithReturn('Please enter numbers for the max price.');
-    if (isNegative(data.maxPrice)) return AlertWithReturn("Max price can't be negative numbers.");
+  if (typeof data.maxPrice !== 'number' && data.maxPrice !== null && data.maxPrice !== '') {
+    if (!isValidNumber(data.maxPrice)) {
+      alert('Please enter numbers for max price');
+      return false;
+    }
   }
 
-  if (isEntered(data.minPrice)) {
-    if (!isValidNumber(data.minPrice))
-      return AlertWithReturn('Please enter numbers for the min price.');
-    if (isNegative(data.minPrice)) return AlertWithReturn("Min price can't be negative numbers.");
+  if (typeof data.minPrice !== 'number' && data.minPrice !== null && data.minPrice !== '') {
+    if (!isValidNumber(data.minPrice)) {
+      alert('Please enter numbers for min price');
+      return false;
+    }
   }
 
-  if (isEntered(data.maxStock)) {
-    if (!isValidNumber(data.maxStock))
-      return AlertWithReturn('Please enter numbers for the max stock.');
-    if (isNegative(data.maxStock)) return AlertWithReturn("Max stock can't be negative numbers.");
+  if (typeof data.maxStock !== 'number' && data.maxStock !== null && data.maxStock !== '') {
+    if (!isValidNumber(data.maxStock)) {
+      alert('Please enter numbers for max stock');
+      return false;
+    }
   }
 
-  if (isEntered(data.minStock)) {
-    if (!isValidNumber(data.minStock))
-      return AlertWithReturn('Please enter numbers for the min stock.');
-    if (isNegative(data.minStock)) return AlertWithReturn("Min stock can't be negative numbers.");
+  if (typeof data.minStock !== 'number' && data.minStock !== null && data.minStock !== '') {
+    if (!isValidNumber(data.minStock)) {
+      alert('Please enter numbers for min stock');
+      return false;
+    }
   }
 
-  const isFloat = (value: number | string | null) =>
-    !isInteger(value) && value !== null && value.toString() !== '';
-
-  if ([data.maxPrice, data.minPrice, data.maxStock, data.minStock].some(isFloat)) {
-    alert("Can't enter float numbers!");
+  if (
+    (!isInteger(data.maxPrice) && data.maxPrice !== null && data.maxPrice.toString() !== '') ||
+    (!isInteger(data.minPrice) && data.minPrice !== null && data.minPrice.toString() !== '') ||
+    (!isInteger(data.maxStock) && data.maxStock !== null && data.maxStock.toString() !== '') ||
+    (!isInteger(data.minStock) && data.minStock !== null && data.minStock.toString() !== '')
+  ) {
+    alert("can't enter float numbers!");
     return false;
   }
 
-  if (isMinBiggerThanMax(data.minPrice, data.maxPrice)) {
-    return AlertWithReturn("Min price can't be bigger than max values.");
+  if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
+    alert("min price can't negative numbers");
+    return false;
   }
 
-  if (isMinBiggerThanMax(data.minStock, data.maxStock)) {
-    return AlertWithReturn("Min stock can't be bigger than max value.");
+  if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
+    alert("max price can't negative numbers");
+    return false;
   }
 
-  if (isEntered(data.maxPrice) !== isEntered(data.minPrice)) {
-    return AlertWithReturn(
-      'Max and min price should both have valid values or both have no values at the same time.',
-    );
+  if (data.minStock !== null && parseInt(data.minStock.toString()) < 0) {
+    alert("min stock can't negative numbers");
+    return false;
   }
 
-  if (isEntered(data.maxStock) !== isEntered(data.minStock)) {
-    return AlertWithReturn(
-      'Max and min stock should both have values or both have no values at the same time.',
-    );
+  if (data.maxStock !== null && parseInt(data.maxStock.toString()) < 0) {
+    alert("max stock can't negative numbers");
+    return false;
+  }
+
+  if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
+    alert("min price can't negative numbers");
+    return false;
+  }
+
+  if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
+    alert("max price can't negative numbers");
+    return false;
+  }
+
+  if (
+    data.maxPrice !== null &&
+    data.minPrice !== null &&
+    parseInt(data.maxPrice.toString()) < parseInt(data.minPrice.toString())
+  ) {
+    alert("min price can't bigger than max value");
+    return false;
+  }
+
+  if (
+    data.maxStock !== null &&
+    data.minStock !== null &&
+    parseInt(data.maxStock.toString()) < parseInt(data.minStock.toString())
+  ) {
+    alert("min stock can't bigger than max value");
+    return false;
+  }
+
+  if (isEmpty(data.maxPrice) != isEmpty(data.minPrice)) {
+    alert('max and min price should both have values or both have no values at the same time');
+    return false;
+  }
+
+  if (isEmpty(data.maxStock) != isEmpty(data.minStock)) {
+    alert('max and min stock should both have values or both have no values at the same time');
+    return false;
   }
 
   return true;
