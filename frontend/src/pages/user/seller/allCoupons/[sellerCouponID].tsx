@@ -264,9 +264,13 @@ const EachSellerCoupon = () => {
     if (!resp.ok) {
       if (resp.status === 500) {
         alert("error on modifying coupon, please check your shop's status");
+        navigate('/user/seller/manageCoupons');
+      } else {
+        const response = await resp.json();
+        alert(response.message);
       }
+    } else {
       navigate('/user/seller/manageCoupons');
-      return;
     }
   };
 
