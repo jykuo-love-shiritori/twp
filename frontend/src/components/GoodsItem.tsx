@@ -48,14 +48,14 @@ const GoodsItem = ({ id, name, image_url, price, sales }: Props) => {
       </div>
 
       <Row style={{ padding: '7% 8% 0 8%' }}>
-        <Col xs={12} md={8} style={{ padding: '0' }}>
+        <Col xs={12} md={12} style={{ padding: '0' }}>
           <h5 className='crop_text'>{name}</h5>
         </Col>
-        <Col xs={12} md={4} className='right' style={{ padding: '0' }}>
-          <h5 className='crop_text'>{price}</h5>
+        <Col xs={12} md={6} style={{ color: 'var(--title)', padding: '0' }}>
+          <div className='crop_text'>${price}</div>
         </Col>
-        <Col xs={12} className='right' style={{ color: 'rgb(133,133,133)', padding: '0' }}>
-          {`sold ${sales}`}
+        <Col xs={12} md={6} className='right' style={{ padding: '0' }}>
+          <div className='crop_text'>{`sold ${sales}`}</div>
         </Col>
       </Row>
 
