@@ -22,7 +22,8 @@ export const RouteOnNotOK = async (resp: Response, navigate: NavigateType = null
       navigate('/notFound');
       break;
     case 500:
-      navigate('/notFound');
+      console.log(resp);
+      // navigate('/notFound');
       break;
     // deal with redirect here (maybe)
   }
