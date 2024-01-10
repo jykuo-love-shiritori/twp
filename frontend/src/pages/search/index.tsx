@@ -47,8 +47,8 @@ export interface ProductProps {
   id: number;
   image_url: string;
   name: string;
-  price: string;
-  stock: number;
+  price: number;
+  sales: number;
 }
 
 export interface ShopProps {
@@ -440,7 +440,13 @@ const Search = () => {
             {data && data.products.length !== 0 ? (
               data.products.map((d, index: number) => (
                 <Col key={index} xs={6} md={3}>
-                  <GoodsItem {...d} />
+                  <GoodsItem
+                    id={d.id}
+                    name={d.name}
+                    image_url={d.image_url}
+                    price={d.price}
+                    sales={d.sales}
+                  />
                 </Col>
               ))
             ) : (

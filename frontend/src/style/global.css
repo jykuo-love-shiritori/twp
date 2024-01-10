@@ -193,3 +193,9 @@ p {
     min-height: 50vh;
   }
 }
+
+.crop_text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

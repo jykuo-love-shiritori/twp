@@ -95,7 +95,13 @@ const SellerReportEach = () => {
                   TWD $ {item.total_sell}
                 </div>
 
-                <GoodsItem id={item.product_id} name={item.name} image_url={item.image_url} />
+                <GoodsItem
+                  id={item.product_id}
+                  name={item.name}
+                  image_url={item.image_url}
+                  price={item.price}
+                  sales={item.order_count}
+                />
               </Col>
             );
           })}
