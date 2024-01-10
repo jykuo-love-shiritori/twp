@@ -6,11 +6,14 @@ import '@components/style.css';
 import '@style/global.css';
 
 import { Link } from 'react-router-dom';
+import { Col, Row } from 'react-bootstrap';
 
 interface Props {
   id: number;
   name: string;
   image_url: string;
+  price: number;
+  sales: number;
 }
 
 const GoodsItemStyle: CSSProperties = {
@@ -30,18 +33,24 @@ const GoodsImgStyle: CSSProperties = {
   objectFit: 'cover',
 };
 
-const SellerGoodsItem = ({ id, name, image_url }: Props) => {
+const SellerGoodsItem = ({ id, name, image_url, price, sales }: Props) => {
   return (
     <div style={GoodsItemStyle}>
       <div style={{ overflow: ' hidden' }}>
         <img src={image_url} style={GoodsImgStyle} />
       </div>
 
-      <div style={{ padding: '2% 7% 2% 7% ' }}>
-        <p>
-          {name.substring(0, 11)} {name.length > 13 ? '...' : ''}
-        </p>
-      </div>
+      <Row style={{ padding: '7% 8% 0 8%' }}>
+        <Col xs={12} md={12} style={{ padding: '0' }}>
+          <h5 className='crop_text'>{name}</h5>
+        </Col>
+        <Col xs={12} md={6} style={{ color: 'var(--title)', padding: '0' }}>
+          <div className='crop_text'>${price}</div>
+        </Col>
+        <Col xs={12} md={6} className='right' style={{ padding: '0' }}>
+          <div className='crop_text'>{`sold ${sales}`}</div>
+        </Col>
+      </Row>
 
       <Link to={`/user/seller/manageProducts/${id}`}>
         <div className='button pointer center'>

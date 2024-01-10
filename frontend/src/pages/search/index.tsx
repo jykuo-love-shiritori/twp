@@ -47,8 +47,8 @@ export interface ProductProps {
   id: number;
   image_url: string;
   name: string;
-  price: string;
-  stock: number;
+  price: number;
+  sales: number;
 }
 
 export interface ShopProps {
@@ -117,28 +117,28 @@ const toOrderBy = (input: string | null) => {
 export const isDataValid = (data: FilterProps) => {
   if (typeof data.maxPrice !== 'number' && data.maxPrice !== null && data.maxPrice !== '') {
     if (!isValidNumber(data.maxPrice)) {
-      alert('Please enter numbers for max price');
+      alert('Please enter max price');
       return false;
     }
   }
 
   if (typeof data.minPrice !== 'number' && data.minPrice !== null && data.minPrice !== '') {
     if (!isValidNumber(data.minPrice)) {
-      alert('Please enter numbers for min price');
+      alert('Please enter min price');
       return false;
     }
   }
 
   if (typeof data.maxStock !== 'number' && data.maxStock !== null && data.maxStock !== '') {
     if (!isValidNumber(data.maxStock)) {
-      alert('Please enter numbers for max stock');
+      alert('Please enter max stock');
       return false;
     }
   }
 
   if (typeof data.minStock !== 'number' && data.minStock !== null && data.minStock !== '') {
     if (!isValidNumber(data.minStock)) {
-      alert('Please enter numbers for min stock');
+      alert('Please enter min stock');
       return false;
     }
   }
@@ -149,37 +149,37 @@ export const isDataValid = (data: FilterProps) => {
     (!isInteger(data.maxStock) && data.maxStock !== null && data.maxStock.toString() !== '') ||
     (!isInteger(data.minStock) && data.minStock !== null && data.minStock.toString() !== '')
   ) {
-    alert("can't enter float numbers!");
+    alert('please enter integers');
     return false;
   }
 
   if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
-    alert("min price can't negative numbers");
+    alert("min price can't be negative");
     return false;
   }
 
   if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
-    alert("max price can't negative numbers");
+    alert("max price can't be negative");
     return false;
   }
 
   if (data.minStock !== null && parseInt(data.minStock.toString()) < 0) {
-    alert("min stock can't negative numbers");
+    alert("min stock can't be negative");
     return false;
   }
 
   if (data.maxStock !== null && parseInt(data.maxStock.toString()) < 0) {
-    alert("max stock can't negative numbers");
+    alert("max stock can't be negative");
     return false;
   }
 
   if (data.minPrice !== null && parseInt(data.minPrice.toString()) < 0) {
-    alert("min price can't negative numbers");
+    alert("min price can't be negative");
     return false;
   }
 
   if (data.maxPrice !== null && parseInt(data.maxPrice.toString()) < 0) {
-    alert("max price can't negative numbers");
+    alert("max price can't be negative");
     return false;
   }
 
@@ -188,7 +188,7 @@ export const isDataValid = (data: FilterProps) => {
     data.minPrice !== null &&
     parseInt(data.maxPrice.toString()) < parseInt(data.minPrice.toString())
   ) {
-    alert("min price can't bigger than max value");
+    alert('min price is greater than max price');
     return false;
   }
 
@@ -197,17 +197,17 @@ export const isDataValid = (data: FilterProps) => {
     data.minStock !== null &&
     parseInt(data.maxStock.toString()) < parseInt(data.minStock.toString())
   ) {
-    alert("min stock can't bigger than max value");
+    alert('min stock is greater than max stock');
     return false;
   }
 
   if (isEmpty(data.maxPrice) != isEmpty(data.minPrice)) {
-    alert('max and min price should both have values or both have no values at the same time');
+    alert('please enter max/min price when the other one is present');
     return false;
   }
 
   if (isEmpty(data.maxStock) != isEmpty(data.minStock)) {
-    alert('max and min stock should both have values or both have no values at the same time');
+    alert('please enter max/min stock when the other one is present');
     return false;
   }
 
@@ -440,7 +440,13 @@ const Search = () => {
             {data && data.products.length !== 0 ? (
               data.products.map((d, index: number) => (
                 <Col key={index} xs={6} md={3}>
-                  <GoodsItem {...d} />
+                  <GoodsItem
+                    id={d.id}
+                    name={d.name}
+                    image_url={d.image_url}
+                    price={d.price}
+                    sales={d.sales}
+                  />
                 </Col>
               ))
             ) : (

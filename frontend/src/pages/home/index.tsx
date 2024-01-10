@@ -84,8 +84,14 @@ const Home = () => {
         <div style={{ padding: '0% 0% 3% 0%' }}>From most popular sellers</div>
         <Row>
           {recommendData.popular_products.map((data, index) => (
-            <Col xs={6} md={3} key={index}>
-              <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
+            <Col xs={6} md={4} xl={3} key={index}>
+              <GoodsItem
+                id={data.id}
+                name={data.name}
+                image_url={data.image_url}
+                price={data.price}
+                sales={data.sales}
+              />
             </Col>
           ))}
         </Row>
@@ -94,7 +100,13 @@ const Home = () => {
         <Row>
           {recommendData.local_products.map((data, index) => (
             <Col xs={6} md={3} key={index}>
-              <GoodsItem id={data.id} name={data.name} image_url={data.image_url} />
+              <GoodsItem
+                id={data.id}
+                name={data.name}
+                image_url={data.image_url}
+                price={data.price}
+                sales={data.sales}
+              />
             </Col>
           ))}
         </Row>
