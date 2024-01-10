@@ -7,5 +7,10 @@ import (
 )
 
 func GetUrl(filename string) string {
+	if filename == "" {
+		// ! Very bad
+		return "/placeholder/parrot.gif"
+	}
+
 	return fmt.Sprintf("%s/%s", constants.IMAGE_BASE_PATH, filename)
 }
