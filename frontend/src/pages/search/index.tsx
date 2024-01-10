@@ -77,10 +77,6 @@ const isInteger = (value: string | number | null | undefined): boolean => {
   return typeof value === 'number' || (typeof value === 'string' && /^-?\d+$/.test(value));
 };
 
-// const isEmpty = (value: string | number | null | undefined): boolean => {
-//   return value === '' || value === null ? true : false;
-// };
-
 const toNumber = (input: string | null) => {
   if (!input) return null;
   const output = Number(input);
